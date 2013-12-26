@@ -17,6 +17,8 @@
 package com.jasonsoft.addcontacts;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -67,6 +69,9 @@ public class AddContactsActivity extends Activity {
             case R.id.menu_add:
                 performAddContactsAction();
                 return true;
+            case R.id.menu_delete:
+                performDeleteContactsAction();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -86,5 +91,14 @@ public class AddContactsActivity extends Activity {
         }
 
         new AddContactsAsyncTask(this).execute(contactCounts);
+    }
+
+    private void performDeleteContactsAction() {
+        Utils.showDeleteConfirmDialog(this, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                new DeleteContactsAsyncTask(AddContactsActivity.this).execute();
+            }
+        });
     }
 }

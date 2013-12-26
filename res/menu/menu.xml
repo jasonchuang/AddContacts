@@ -4,4 +4,8 @@
         android:id="@+id/menu_add"
         android:icon="@android:drawable/ic_menu_add"
         android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/menu_delete"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:showAsAction="ifRoom"/>
 </menu>

@@ -16,9 +16,13 @@
  */
 package com.jasonsoft.addcontacts;
 
+import android.app.AlertDialog;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.Context;
+import android.content.DialogInterface.OnClickListener;
+import android.database.Cursor;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
@@ -138,4 +142,75 @@ public class Utils {
         }
     }
 
+    public static int getJasonRawContactsCounts(Context context) {
+        Cursor cursor = context.getContentResolver().query(RawContacts.CONTENT_URI, null,
+                RawContacts.ACCOUNT_TYPE + "=? AND " +
+                RawContacts.ACCOUNT_NAME + "=? AND " +
+                RawContacts.DELETED + "=?",
+                new String[] { JASON_SOFT_ACCOUNT_TYPE, JASON_SOFT_TEST_ACCOUNT, "0" },
+                RawContacts.DISPLAY_NAME_PRIMARY + " COLLATE LOCALIZED ASC");
+        if (cursor != null) {
+            return cursor.getCount();
+        }
+
+        return 0;
+    }
+
+    public static int deleteAllJasonContactsData(Context context) {
+        ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+        int rawContactInsertIndex = ops.size();
+
+        String selection = RawContacts.ACCOUNT_TYPE + "=? AND " + RawContacts.ACCOUNT_NAME + "=? AND "
+                + RawContacts.DELETED + "=?";
+        String[] selectionArgs = new String[] { JASON_SOFT_ACCOUNT_TYPE, JASON_SOFT_TEST_ACCOUNT, "0" };
+        ops.add(ContentProviderOperation.newDelete(RawContacts.CONTENT_URI)
+                .withSelection(selection, selectionArgs)
+                .build());
+
+        try {
+            ContentProviderResult[] res = context.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            return res.length;
+        } catch (Exception e){
+        }
+
+        return 0;
+    }
+// private void showDialog(int titleId, int messageId, DialogInterface.OnClickListener listener) {
+// if (mDialog != null) {
+//         mDialog.dismiss();
+//         mDialog = null;
+//     }
+//
+//         mDialog = (listener == null) ? CommGuiUtils.createOneButtonDialog(this, titleId, messageId, R.string.ok, null)
+//                 : CommGuiUtils.createTwoButtonsDialog(this, titleId, messageId, R.string.yes, R.string.no, listener);
+//     mDialog.show();
+// }
+//
+//
+
+    public static void showDeleteConfirmDialog(Context context, OnClickListener listener) {
+        AlertDialog dialog = createTwoButtonsDialog(context, R.string.app_name,
+                R.string.delete_contacts_confirm, R.string.ok_button, R.string.cancel_button, listener);
+        dialog.show();
+    }
+
+    public static void showNoContactsAvailableDialog(Context context) {
+        AlertDialog dialog = createOneButtonBuilder(context, R.string.app_name,
+                R.string.no_contacts_available_to_delete, R.string.ok_button, null).create();
+        dialog.show();
+    }
+
+    public static AlertDialog createTwoButtonsDialog(Context context, int titleId, int message,
+            int positiveButtonTextId, int negativeButtonTextId, OnClickListener listener) {
+        return createOneButtonBuilder(context, titleId, message, positiveButtonTextId, listener)
+            .setNegativeButton(negativeButtonTextId, null).create();
+    }
+
+    public static AlertDialog.Builder createOneButtonBuilder(Context context, int titleId, int messageId,
+        int buttonTextId, OnClickListener listener) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context, AlertDialog.THEME_HOLO_LIGHT);
+        builder.setTitle(titleId);
+        builder.setMessage(messageId).setPositiveButton(buttonTextId, listener);
+        return builder;
+    }
 }

@@ -27,7 +27,13 @@
     <string name="contact_counts_hint">Maximum 1000</string>
     <string name="menu_add">Add</string>
     <string name="adding_contacts">Adding contacts...</string>
-    <string name="adding_contacts_success">Adding contacts successfully</string>
+    <string name="adding_contacts_success">Adding contacts successfully.</string>
     <string name="add_failed_max_count">Add failed, exceeding Max add counts!!</string>
     <string name="add_failed_invalid_format">Add failed, inavlid number format!!</string>
+    <string name="delete_contacts_confirm">Are you sure want to delete all specified jasonsoft contacts?</string>
+    <string name="ok_button">OK</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="no_contacts_available_to_delete">No jasonsoft contacts available for contacts deletion.</string>
+    <string name="deleting_contacts">Deleting contacts...</string>
+    <string name="deleting_contacts_success">Deleting contacts successfully.</string>
 </resources>
