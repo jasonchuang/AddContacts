@@ -94,7 +94,9 @@ godot/
 
 - 風格規範：`art/STYLE_D.md`
 - 全部武將的生圖提示詞：`art/prompts_D.md`（由 `node godot/tools/gen_prompts.js` 依遊戲資料產生）
-- 生成的圖用武將名稱命名放進 `art/portraits/`（例如 `關羽.png`），遊戲會自動改用插畫
+- 目前的武將肖像由程式繪製：`node godot/tools/render_portraits.js` 依外觀特徵畫出原創動畫風半身像，
+  輸出 `art/portraits/<名>.png`（半身）與 `<名>_head.png`（頭像），遊戲會自動使用（需要 playwright；有 Pillow 時自動減色壓縮）
+- 之後若改用 AI 生圖或畫師的插畫，用同樣檔名覆蓋即可
 
 ## 修改資料
 

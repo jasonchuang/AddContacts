@@ -244,7 +244,10 @@ static func texture(g: Dictionary, color: String, mode: String = "full", scale: 
 	var key := "%s|%s|%s|%s" % [g["name"], color, mode, scale]
 	if _cache.has(key):
 		return _cache[key]
-	var art_path := "res://art/portraits/%s.png" % g["name"]
+	# 預先輸出的插畫：頭像優先用 <名>_head.png，半身用 <名>.png
+	var full_path := "res://art/portraits/%s.png" % g["name"]
+	var head_path := "res://art/portraits/%s_head.png" % g["name"]
+	var art_path := head_path if mode == "head" and ResourceLoader.exists(head_path) else full_path
 	var tex: Texture2D = null
 	if ResourceLoader.exists(art_path):
 		tex = load(art_path)

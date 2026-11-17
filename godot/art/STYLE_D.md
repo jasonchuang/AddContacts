@@ -48,6 +48,11 @@ photorealistic, 3d render, painterly, blurry, extra fingers, deformed hands, tex
 
 全部 100 名武將的提示詞由 `tools/gen_prompts.js` 依遊戲資料自動產生，輸出在 `art/prompts_D.md`。
 
+## 2.5 目前做法：程式繪製
+
+現階段由 `tools/anime_portrait.js` 依外觀特徵（`tools/portrait_traits.js`）組合原創動畫風半身像，
+`tools/render_portraits.js` 輸出全部 100 名武將的 PNG。之後若改用 AI 生圖或畫師插畫，以相同檔名覆蓋即可。
+
 ## 3. 製作順序
 
 1. **樣張（3 張）**：劉備、關羽、諸葛亮。確認畫風、比例、配色後再量產。
