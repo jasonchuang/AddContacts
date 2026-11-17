@@ -24,8 +24,11 @@ console.log(`插畫：${Object.keys(files).length} 張${Object.keys(files).lengt
 
 // ---------- 單一檔案 ----------
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-html = html.replace(/<link rel="stylesheet" href="style\.css">/, () =>
-  `<style>\n${fs.readFileSync(path.join(root, 'style.css'), 'utf8')}\n</style>`);
+// 樣式：字型檔轉成 data URI 內嵌
+let css = fs.readFileSync(path.join(root, 'style.css'), 'utf8');
+css = css.replace(/url\("(fonts\/[\w.-]+\.woff2)"\)/g, (_, f) =>
+  `url("data:font/woff2;base64,${fs.readFileSync(path.join(root, f)).toString('base64')}")`);
+html = html.replace(/<link rel="stylesheet" href="style\.css">/, () => `<style>\n${css}\n</style>`);
 
 html = html.replace(/<script src="((?:js|portraits)\/[\w.]+)"><\/script>/g, (_, src) => {
   let code;
@@ -42,7 +45,7 @@ html = html.replace(/<script src="((?:js|portraits)\/[\w.]+)"><\/script>/g, (_, 
   return `<script>\n/* ${src} */\n${code.replace(/<\/script/gi, '<\\/script')}\n</script>`;
 });
 
-if (/src="(js|portraits)\//.test(html) || /href="style\.css"/.test(html)) throw new Error('仍有未內嵌的檔案');
+if (/src="(js|portraits)\//.test(html) || /href="style\.css"/.test(html) || /url\("fonts\//.test(html)) throw new Error('仍有未內嵌的檔案');
 
 const out = path.join(root, 'dist', 'qunxiong.html');
 fs.mkdirSync(path.dirname(out), { recursive: true });

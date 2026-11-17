@@ -6,15 +6,15 @@
 
   // 勢力：id, 名稱, 君主, 顏色
   const factions = [
-    { id: 'cao', name: '曹操軍', ruler: '曹操', color: '#2f5f8f' },
-    { id: 'liu', name: '劉備軍', ruler: '劉備', color: '#3d7a4c' },
-    { id: 'sun', name: '孫堅軍', ruler: '孫堅', color: '#b23a2c' },
-    { id: 'yuans', name: '袁紹軍', ruler: '袁紹', color: '#b8892c' },
-    { id: 'dong', name: '董卓軍', ruler: '董卓', color: '#5e4280' },
-    { id: 'yuanshu', name: '袁術軍', ruler: '袁術', color: '#c06a2e' },
-    { id: 'liubiao', name: '劉表軍', ruler: '劉表', color: '#2b7a78' },
-    { id: 'ma', name: '馬騰軍', ruler: '馬騰', color: '#7a5a3c' },
-    { id: 'gongsun', name: '公孫瓚軍', ruler: '公孫瓚', color: '#9c3f6c' },
+    { id: 'cao', name: '曹操軍', ruler: '曹操', color: '#3a6ee8' },
+    { id: 'liu', name: '劉備軍', ruler: '劉備', color: '#2fb84a' },
+    { id: 'sun', name: '孫堅軍', ruler: '孫堅', color: '#e8382c' },
+    { id: 'yuans', name: '袁紹軍', ruler: '袁紹', color: '#e8c020' },
+    { id: 'dong', name: '董卓軍', ruler: '董卓', color: '#9a48e0' },
+    { id: 'yuanshu', name: '袁術軍', ruler: '袁術', color: '#f08a1e' },
+    { id: 'liubiao', name: '劉表軍', ruler: '劉表', color: '#1cc0c8' },
+    { id: 'ma', name: '馬騰軍', ruler: '馬騰', color: '#b0703a' },
+    { id: 'gongsun', name: '公孫瓚軍', ruler: '公孫瓚', color: '#e858b0' },
   ];
 
   // 城市：id(名稱), x, y, 勢力, 兵, 金, 糧, 人口, 農業, 商業, 城防, 民心
