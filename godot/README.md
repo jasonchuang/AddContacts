@@ -105,6 +105,15 @@ node godot/tools/gen_data.js
 在 Godot「專案 → 匯出」新增 Windows / macOS 預設，並在「資源」分頁的「要匯出的非資源檔」填入 `*.json`，
 確保劇本資料會一起打包。
 
+## 字型
+
+為避免電腦沒有中文字型時出現亂碼，專案內附兩套開源字型（SIL Open Font License 1.1）：
+- `fonts/NotoSansTC-Subset.ttf`：內文（Noto Sans TC）
+- `fonts/FusionPixel12-Subset.ttf`：標題與選單的像素字型（Fusion Pixel Font 12px）
+
+兩者都只收錄遊戲用到的字。新增文字後若出現缺字，執行 `python3 godot/tools/build_fonts.py` 重新產生
+（需要 `pip install fonttools brotli` 與 npm）。
+
 ## 存檔位置
 
 `user://saves/`：

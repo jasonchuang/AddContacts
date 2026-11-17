@@ -19,20 +19,42 @@ static var _font: Font = null
 static var _brush: Font = null
 
 
+const BODY_FONT := "res://fonts/NotoSansTC-Subset.ttf"
+const PIXEL_FONT := "res://fonts/FusionPixel12-Subset.ttf"
+
+
+## 讀取專案內附字型（避免系統缺中文字型時出現亂碼），缺字時退回系統字型
+static func _load_font(path: String, sys_names: PackedStringArray, pixel: bool) -> Font:
+	var f: Font = null
+	if ResourceLoader.exists(path):
+		f = load(path) as Font
+	if f == null and FileAccess.file_exists(path):
+		var raw := FontFile.new()
+		if raw.load_dynamic_font(path) == OK:
+			f = raw
+	var sys := SystemFont.new()
+	sys.font_names = sys_names
+	if f == null:
+		return sys
+	var ff := f as FontFile
+	if ff != null and pixel:
+		ff.antialiasing = TextServer.FONT_ANTIALIASING_NONE
+		ff.hinting = TextServer.HINTING_NONE
+		ff.subpixel_positioning = TextServer.SUBPIXEL_POSITIONING_DISABLED
+	f.fallbacks = [sys]
+	return f
+
+
 static func font() -> Font:
 	if _font == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", "PingFang TC", "Heiti TC", "Source Han Sans TC", "sans-serif"])
-		_font = f
+		_font = _load_font(BODY_FONT, PackedStringArray(["Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", "PingFang TC", "Heiti TC", "sans-serif"]), false)
 	return _font
 
 
-## 標題用的楷書字型（找不到時退回一般字型）
+## 標題、選單用的像素字型
 static func brush() -> Font:
 	if _brush == null:
-		var f := SystemFont.new()
-		f.font_names = PackedStringArray(["LXGW WenKai TC", "Kaiti TC", "BiauKai", "DFKai-SB", "STKaiti", "KaiTi", "Noto Serif TC", "serif"])
-		_brush = f
+		_brush = _load_font(PIXEL_FONT, PackedStringArray(["Microsoft JhengHei", "PingFang TC", "Noto Sans CJK TC", "sans-serif"]), true)
 	return _brush
 
 
