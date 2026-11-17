@@ -201,6 +201,7 @@
     const auto = saveMeta(AUTO_KEY), manual = saveMeta(SAVE_KEY);
     if (auto) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(AUTO_KEY) }, `繼續遊戲（${auto}）`));
     if (manual) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(SAVE_KEY) }, `讀取存檔（${manual}）`));
+    btns.push(h('button', { class: 'ghost', onclick: toggleStyle }, `武將畫風：${TK.Portrait.getStyle() === 'chibi' ? 'Q 版' : '水墨'}（點擊切換）`));
     menu.replaceChildren(...btns);
   }
 
@@ -516,6 +517,7 @@
       chip('g', 'gold', '金', p.gold), chip('f', 'food', '糧', p.food), chip('w', 'general', '武將', p.generals));
     $('btn-end').disabled = !!S.over || busy;
     $('btn-sound').textContent = SND.isMuted() ? '♪✕' : '♪';
+    $('btn-style').textContent = TK.Portrait.getStyle() === 'chibi' ? '畫風：Q' : '畫風：墨';
   }
 
   // ---------- 水墨地圖（自繪地形，非任何既有作品的地圖） ----------
@@ -937,6 +939,16 @@
     $('log').replaceChildren(...items);
   }
 
+  // 切換武將畫風（水墨／Q 版）
+  function toggleStyle() {
+    TK.Portrait.setStyle(TK.Portrait.getStyle() === 'chibi' ? 'ink' : 'chibi');
+    SND.click();
+    toast(TK.Portrait.getStyle() === 'chibi' ? '武將畫風：Q 版' : '武將畫風：水墨');
+    if (S && !$('game').classList.contains('hidden')) render();
+    if (!$('faction-pick').classList.contains('hidden')) showFactionPick();
+    if (!$('title-menu').classList.contains('hidden')) showTitle();
+  }
+
   // ---------- 綁定 ----------
   function bind() {
     $('modal-cancel').addEventListener('click', closeModal);
@@ -969,6 +981,7 @@
       openModal('回到標題', h('p', {}, '每月結束時會自動存檔。要回到標題畫面嗎？'), () => { closeModal(); showTitle(); return false; }, { icon: 'city' });
     });
     $('btn-sound').addEventListener('click', () => { SND.toggle(); renderHud(); });
+    $('btn-style').addEventListener('click', toggleStyle);
     $('btn-save').addEventListener('click', () => {
       if (!S) return;
       if (store(SAVE_KEY, JSON.stringify(S))) { SND.click(); toast(`已存檔（${E.dateStr(S)}）`); }
