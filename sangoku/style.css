@@ -450,3 +450,23 @@ input, select {
   .uin { grid-template-columns: 30px 1fr 90px; }
   .unit-pick .ucard small:nth-of-type(2) { display: none; }
 }
+
+/* ---------- 能力值百分比長條 ---------- */
+.sbars { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; margin-top: 3px; }
+.sbar { display: grid; grid-template-columns: 14px 1fr 34px; gap: 4px; align-items: center; font-size: 12px; }
+.sbar span { color: var(--ink-2); font-family: var(--brush); }
+.sbar .strack { height: 5px; background: rgba(59,51,42,.12); border-radius: 3px; overflow: hidden; }
+.sbar .strack div { height: 100%; border-radius: 3px; opacity: .85; }
+.sbar b { font-weight: 400; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+.gstat b { color: var(--ink-2); }
+
+/* ---------- 地圖勢力色與河流 ---------- */
+#map .map-label { font-size: 24px; fill: #2c6f8c; font-weight: 700; letter-spacing: 12px; opacity: 1; paint-order: stroke; stroke: #efe5cf; stroke-width: 5px; }
+#map .cname { font-size: 16px; stroke-width: 0; }
+#map .cname.owned { fill: #fbf6ea; }
+#map .city.mine .cname.owned { fill: #fff; }
+#map .city.mine rect { stroke: var(--gamboge); stroke-width: 2.5; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 12px; font-family: var(--brush); font-size: 15px; }
+.map-legend .lg { display: inline-flex; align-items: center; gap: 5px; }
+.map-legend .lg i { width: 14px; height: 14px; border-radius: 2px; display: inline-block; }
+.map-legend .lg.me { font-weight: 700; color: var(--cinnabar-d); }

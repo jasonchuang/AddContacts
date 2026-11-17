@@ -64,7 +64,12 @@
   }
   // 能力評等
   function grade(v) { return v >= 90 ? 'S' : v >= 80 ? 'A' : v >= 70 ? 'B' : v >= 60 ? 'C' : 'D'; }
-  function gradeChip(label, v) { return h('i', { class: `gr gr-${grade(v)}`, title: `${label} ${v}` }, label, h('b', {}, grade(v))); }
+  // 能力值以百分比長條顯示
+  const STAT_COLORS = { 統: '#2f5f8f', 武: '#b23a2c', 智: '#5e4280', 政: '#3d7a4c', 魅: '#b8892c', 忠: '#6b6358' };
+  function statBar(label, v) {
+    return h('div', { class: 'sbar', title: `${label} ${v}%` }, h('span', {}, label),
+      h('div', { class: 'strack' }, h('div', { style: `width:${v}%;background:${STAT_COLORS[label] || '#6b6358'}` })), h('b', {}, `${v}%`));
+  }
   function color(fid) {
     const fs = S ? S.factions : null;
     if (fid && fs && fs[fid]) return fs[fid].color;
@@ -108,7 +113,7 @@
     const statusText = { active: '仕官', free: '在野', prisoner: '俘虜', dead: '已故' }[g.status] || '';
     const bar = (label, v, c) => h('div', { class: 'gstat' }, h('span', {}, label),
       h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${v}%;background:${c}` })),
-      h('b', {}, h('em', { class: `gr-${grade(v)}` }, grade(v)), ` ${v}`));
+      h('b', {}, `${v}%`));
     const body = h('div', { class: 'gdetail' },
       h('div', { class: 'pbig', style: `--sc:${col}` }, portraitArt(g, 'full')),
       h('div', { class: 'ginfo' },
@@ -126,7 +131,7 @@
     openModal('武將列傳', body, null, { noOk: true, icon: 'general' });
   }
 
-  function genLabel(g) { return `${g.name}（統${grade(g.lead)} 武${grade(g.war)} 智${grade(g.int)} 政${grade(g.pol)} 魅${grade(g.cha)}）`; }
+  function genLabel(g) { return `${g.name}（統${g.lead}% 武${g.war}% 智${g.int}% 政${g.pol}% 魅${g.cha}%）`; }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   let toastTimer = null;
@@ -201,7 +206,6 @@
     const auto = saveMeta(AUTO_KEY), manual = saveMeta(SAVE_KEY);
     if (auto) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(AUTO_KEY) }, `繼續遊戲（${auto}）`));
     if (manual) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(SAVE_KEY) }, `讀取存檔（${manual}）`));
-    btns.push(h('button', { class: 'ghost', onclick: toggleStyle }, `武將畫風：${TK.Portrait.getStyle() === 'chibi' ? 'Q 版' : '水墨'}（點擊切換）`));
     menu.replaceChildren(...btns);
   }
 
@@ -517,7 +521,6 @@
       chip('g', 'gold', '金', p.gold), chip('f', 'food', '糧', p.food), chip('w', 'general', '武將', p.generals));
     $('btn-end').disabled = !!S.over || busy;
     $('btn-sound').textContent = SND.isMuted() ? '♪✕' : '♪';
-    $('btn-style').textContent = TK.Portrait.getStyle() === 'chibi' ? '畫風：Q' : '畫風：墨';
   }
 
   // ---------- 水墨地圖（自繪地形，非任何既有作品的地圖） ----------
@@ -578,7 +581,7 @@
 
   // 城池：墨色城樓剪影 + 勢力朱印
   function castleMarkup(c, capital) {
-    const ink = c.owner ? '#2a231b' : '#7d756a';
+    const ink = c.owner ? I.shade(S.factions[c.owner].color, -0.42) : '#7d756a';
     let s = `<g class="castle" filter="url(#ink-bleed)">`;
     s += `<path d="M-19,13 L-16,-1 L16,-1 L19,13 Z" fill="${ink}"/>`;
     s += `<path d="M-16,-1 V-5 H-12 V-1 M-8,-1 V-5 H-4 V-1 M4,-1 V-5 H8 V-1 M12,-1 V-5 H16 V-1" stroke="${ink}" stroke-width="3.2" fill="none"/>`;
@@ -624,9 +627,24 @@
     s += `<path d="${coastD}" fill="none" stroke="#2a231b" stroke-width="8" opacity=".08" filter="url(#ink-wash)"/>`;
     // 河流
     for (const [d, lx, ly, name] of RIVERS) {
-      s += `<path d="${d}" fill="none" stroke="#7d9aa0" stroke-width="${name ? 9 : 4}" opacity=".35" stroke-linecap="round" filter="url(#ink-wash)"/>`;
-      s += `<path d="${d}" fill="none" stroke="#4f6b70" stroke-width="${name ? 1.8 : 1.1}" opacity=".6" stroke-linecap="round" filter="url(#ink-bleed)"/>`;
+      s += `<path d="${d}" fill="none" stroke="#5f9fb8" stroke-width="${name ? 18 : 7}" opacity=".35" stroke-linecap="round" filter="url(#ink-wash)"/>`;
+      s += `<path d="${d}" fill="none" stroke="#3d86a6" stroke-width="${name ? 6 : 3}" opacity=".85" stroke-linecap="round" filter="url(#ink-bleed)"/>`;
+      s += `<path d="${d}" fill="none" stroke="#bfe0ea" stroke-width="${name ? 1.6 : 0.8}" opacity=".9" stroke-linecap="round"/>`;
       if (name) s += `<text x="${lx}" y="${ly}" class="map-label">${name}</text>`;
+    }
+    // 勢力領土：每座城周圍以勢力色暈染，同勢力相鄰會連成一片
+    for (const c of Object.values(S.cities)) {
+      if (!c.owner) continue;
+      const col = S.factions[c.owner].color;
+      s += `<circle cx="${c.x}" cy="${c.y}" r="64" fill="${col}" opacity=".30" filter="url(#ink-wash)"/>`;
+      s += `<circle cx="${c.x}" cy="${c.y}" r="38" fill="${col}" opacity=".22" filter="url(#ink-wash)"/>`;
+    }
+    // 同勢力城市之間的道路以勢力色加粗
+    for (const [a, b] of S.roads) {
+      const A = S.cities[a], B = S.cities[b];
+      if (A.owner && A.owner === B.owner) {
+        s += `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${S.factions[A.owner].color}" stroke-width="10" opacity=".28" stroke-linecap="round" filter="url(#ink-wash)"/>`;
+      }
     }
     // 山脈（遠山先畫）
     RANGES.slice().sort((a, b) => b[4] - a[4]).forEach(([x, y, w, hh, far], i) => { s += inkMountain(x, y, w, hh, far, i + 1); });
@@ -655,7 +673,6 @@
       s += `<g class="city${c.owner === S.player ? ' mine' : ''}" data-city="${c.id}" transform="translate(${c.x} ${c.y})" tabindex="0" role="button" aria-label="${c.name}">`;
       s += '<ellipse cx="0" cy="14" rx="30" ry="7" fill="#3b332a" opacity=".16" filter="url(#ink-wash)"/>';
       if (c.id === selected) s += '<ellipse class="sel-ring" cx="0" cy="2" rx="34" ry="26"/>';
-      if (c.owner) s += `<ellipse cx="0" cy="2" rx="28" ry="20" fill="${c.owner ? S.factions[c.owner].color : 'none'}" opacity=".16" filter="url(#ink-wash)"/>`;
       const n = c.troops <= 0 ? 0 : c.troops < 5000 ? 1 : c.troops < 15000 ? 2 : c.troops < 30000 ? 3 : 4;
       const gc = E.scaleMix(E.mixOf(c), n);
       let gi = 0;
@@ -666,8 +683,15 @@
         }
       }
       s += castleMarkup(c, capital);
-      s += sealMarkup(c, 13, -30, 15);
-      s += `<text class="cname" y="32">${c.name}</text>`;
+      s += sealMarkup(c, 13, -32, 18);
+      const nw = c.name.length * 17 + 14;
+      if (c.owner) {
+        s += `<rect x="${-nw / 2}" y="17" width="${nw}" height="22" rx="3" fill="${S.factions[c.owner].color}" stroke="#f3ead6" stroke-width="1.2" filter="url(#ink-bleed)"/>`;
+        s += `<text class="cname owned" y="33">${c.name}</text>`;
+      } else {
+        s += `<rect x="${-nw / 2}" y="17" width="${nw}" height="22" rx="3" fill="#f3ead6" stroke="#7d756a" stroke-width="1" opacity=".9"/>`;
+        s += `<text class="cname" y="33">${c.name}</text>`;
+      }
       if (targets.includes(c.id)) s += `<g class="target-mark">${placeSvg(TK.Icons.ICONS.attack, -11, -54, 22, 22)}</g>`;
       s += '</g>';
     }
@@ -676,6 +700,16 @@
     s += '<rect x="-20" y="-20" width="1040" height="760" filter="url(#paper-fiber)" pointer-events="none"/>';
     s += '<rect x="-20" y="-20" width="1040" height="760" fill="url(#map-burn)" pointer-events="none"/>';
     map.innerHTML = s;
+    renderLegend();
+  }
+
+  // 地圖下方的勢力圖例
+  function renderLegend() {
+    let el = $('map-legend');
+    if (!el) { el = h('div', { id: 'map-legend', class: 'map-legend' }); $('map').after(el); }
+    el.replaceChildren(...Object.values(S.factions).filter((f) => f.alive).map((f) =>
+      h('span', { class: 'lg' + (f.id === S.player ? ' me' : '') }, h('i', { style: `background:${f.color}` }), f.name)),
+    h('span', { class: 'lg' }, h('i', { style: 'background:#f3ead6;border:1px solid #7d756a' }), '無主'));
   }
 
   function showTip(cityId, evt) {
@@ -720,8 +754,9 @@
         portraitMini(g, { size: 'lg' }),
         h('div', {},
           h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : h('span', { class: 'tag soft' }, TK.Portrait.classLabel(g, TK.Portrait.traits(g)))),
-          h('div', { class: 'gstats' },
-            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha)),
+          h('div', { class: 'sbars' },
+            statBar('統', g.lead), statBar('武', g.war), statBar('智', g.int), statBar('政', g.pol), statBar('魅', g.cha),
+            g.ruler ? null : statBar('忠', g.loyalty)),
           h('div', { class: 'gstats apt' }, aptChips(g))))));
 
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
@@ -939,16 +974,6 @@
     $('log').replaceChildren(...items);
   }
 
-  // 切換武將畫風（水墨／Q 版）
-  function toggleStyle() {
-    TK.Portrait.setStyle(TK.Portrait.getStyle() === 'chibi' ? 'ink' : 'chibi');
-    SND.click();
-    toast(TK.Portrait.getStyle() === 'chibi' ? '武將畫風：Q 版' : '武將畫風：水墨');
-    if (S && !$('game').classList.contains('hidden')) render();
-    if (!$('faction-pick').classList.contains('hidden')) showFactionPick();
-    if (!$('title-menu').classList.contains('hidden')) showTitle();
-  }
-
   // ---------- 綁定 ----------
   function bind() {
     $('modal-cancel').addEventListener('click', closeModal);
@@ -981,7 +1006,6 @@
       openModal('回到標題', h('p', {}, '每月結束時會自動存檔。要回到標題畫面嗎？'), () => { closeModal(); showTitle(); return false; }, { icon: 'city' });
     });
     $('btn-sound').addEventListener('click', () => { SND.toggle(); renderHud(); });
-    $('btn-style').addEventListener('click', toggleStyle);
     $('btn-save').addEventListener('click', () => {
       if (!S) return;
       if (store(SAVE_KEY, JSON.stringify(S))) { SND.click(); toast(`已存檔（${E.dateStr(S)}）`); }
