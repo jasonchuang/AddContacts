@@ -415,7 +415,8 @@
   }
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考
-  function svg(g, color, mode) { return svgChibi(g, color, mode); }
+  // 遊戲使用動畫風肖像（js/anime.js）；Q 版與水墨版保留作參考
+  function svg(g, color, mode) { return TK.Anime ? TK.Anime.svg(g, color, mode, traits(g)) : svgChibi(g, color, mode); }
 
   // 若 portraits/ 中有該武將的插畫，回傳其網址
   function art(g) {

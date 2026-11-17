@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""網頁版像素字型：把遊戲用到的字從 Fusion Pixel Font 12px（OFL-1.1）抽出成 WOFF2。
+"""網頁版字型：把遊戲用到的字從 Noto Sans TC（內文）與 Fusion Pixel Font 12px（標題）抽出成 WOFF2（皆 OFL-1.1）。
 
 執行：python3 sangoku/tools/build_font.py
 需要：pip install fonttools brotli，以及 npm（用來下載字型套件）
-輸出：sangoku/fonts/pixel12.woff2、sangoku/fonts/OFL-FusionPixel.txt
+輸出：sangoku/fonts/body.woff2、sangoku/fonts/pixel12.woff2 與授權檔
 """
 import glob
 import os
@@ -23,6 +23,13 @@ OUT = os.path.join(ROOT, 'fonts')
 CACHE = os.path.join(tempfile.gettempdir(), 'qunxiong-fonts')
 
 SOURCES = [
+    {
+        'out': 'body.woff2',
+        'package': 'noto-sans-tc@36.0.0',
+        'glob': 'package/noto_sans_tc_medium/*.woff2',
+        'license': 'package/LICENSE_OFL.txt',
+        'license_out': 'OFL-NotoSansTC.txt',
+    },
     {
         'out': 'pixel12.woff2',
         'package': '@vp-tw/cjk-web-fonts-fusion-pixel-font@0.0.1',

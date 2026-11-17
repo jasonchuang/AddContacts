@@ -62,19 +62,20 @@
 ```
 sangoku/
   index.html      頁面
-  style.css       樣式（含深色模式、手機版面）
+  style.css       樣式（紙卷風介面，與 Godot 版一致）
   js/data.js      劇本資料（勢力、城市、道路、武將）
   js/engine.js    遊戲核心：狀態、指令、戰鬥、結算（不碰 DOM）
   js/ai.js        電腦勢力（透過與玩家相同的指令介面行動）
   js/diplomacy.js 外交（同盟、停戰、宣戰、勸降、電腦提議）
   js/events.js    歷史事件（條件、效果、原創對話）
   js/icons.js     自繪 SVG 圖示（士兵、騎兵、旗幟、資源、指令）
-  js/portraits.js 武將肖像產生器（依身分、能力與史書／演義特徵組合，造型為原創）
+  js/anime.js     動畫賽璐璐風武將肖像產生器（程式繪製，造型原創，與 Godot 版共用）
+  js/portraits.js 肖像入口（優先用 portraits/ 插畫，否則用 anime.js）
   js/sound.js     晶片音樂風音效（WebAudio 即時合成，旋律原創）
   tools/build_font.py  重新產生像素字型子集（新增文字後執行）
-  js/pixelmap.js  像素地圖（地形格、領土、城池、道路）
+  js/mapview.js   向量地圖（紙底、勢力領土、黃河長江、城池、圖例）
   js/ui.js        視窗與選單、標題、指令流程、軍師訊息、像素戰鬥
-  fonts/          像素中文字型（Fusion Pixel Font 12px 子集，OFL-1.1）
+  fonts/          內文 Noto Sans TC 與像素字 Fusion Pixel 12px 子集（皆 OFL-1.1）
   build.js        打包成單一 HTML
   portraits/      放武將插畫（檔名＝武將名，如 黃忠.png），build.js 會自動套用
   art/ART_GUIDE.md  美術製作流程；art/portrait-briefs.md 為各武將繪製說明

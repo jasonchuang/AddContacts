@@ -1,7 +1,7 @@
 /* 介面：90 年代策略遊戲風格（原創）。視窗堆疊、游標選單、表格選擇、軍師訊息、像素戰鬥。 */
 (function (TK) {
   'use strict';
-  const E = TK.Engine, SND = TK.Sound, PM = TK.PixelMap, PT = TK.Portrait;
+  const E = TK.Engine, SND = TK.Sound, MV = TK.MapView, PT = TK.Portrait;
   const AUTO_KEY = 'qunxiong.auto.v1';
   const SLOT_KEY = (n) => `qunxiong.slot${n}.v1`;
   const $ = (id) => document.getElementById(id);
@@ -53,8 +53,9 @@
 
   // ---------- 像素頭像 ----------
   const faceCache = new Map();
-  function faceURL(g, mode, w, hgt) {
+  function faceURL(g, mode) {
     const col = color(g.faction || g.formerFaction);
+    const w = mode === 'full' ? 400 : 224, hgt = mode === 'full' ? 500 : 224;
     const key = `${g.id}|${col}|${mode}|${w}x${hgt}`;
     if (faceCache.has(key)) return faceCache.get(key);
     const p = new Promise((resolve) => {
@@ -76,7 +77,7 @@
   }
   function face(g, mode, w, hgt, cls) {
     const img = h('img', { class: 'face ' + (cls || ''), alt: g ? g.name : '' });
-    if (g) faceURL(g, mode || 'head', w || 36, hgt || 36).then((u) => { if (u) img.src = u; });
+    if (g) faceURL(g, mode || 'head').then((u) => { if (u) img.src = u; });
     return img;
   }
 
@@ -102,7 +103,7 @@
     if (g) {
       faceEl.classList.remove('hidden');
       faceEl.removeAttribute('src');
-      faceURL(g, 'head', 36, 36).then((u) => { if (u && currentMsg === m) faceEl.src = u; });
+      faceURL(g, 'head').then((u) => { if (u && currentMsg === m) faceEl.src = u; });
       $('msg-name').textContent = g.name;
     } else {
       faceEl.classList.add('hidden');
@@ -383,9 +384,8 @@
     S = null;
     $('game').classList.add('hidden');
     $('title').classList.remove('hidden');
-    const cv = $('title-bg');
-    cv.width = 500; cv.height = 312;
-    cv.getContext('2d').drawImage(PM.baseLayer(), 0, 24, 500, 312, 0, 0, 500, 312);
+    const preview = E.newGame(null, 1);
+    MV.render($('title-bg'), preview, { selected: null, hovered: null, targets: [], blink: false, color: (f) => preview.factions[f].color, legend: false });
     const auto = meta(AUTO_KEY);
     const items = [
       { label: '新遊戲', act: chooseFaction },
@@ -511,7 +511,7 @@
   }
 
   function renderMap() {
-    PM.render($('map'), S, { selected, hovered, targets: attackTargets(), blink, color });
+    MV.render($('map'), S, { selected, hovered, targets: attackTargets(), blink, color, player: S.player });
   }
 
   function renderCity() {
@@ -524,7 +524,7 @@
     const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
     const kv = (k, v) => [h('span', { class: 'k' }, k), h('span', { class: 'v' }, v)];
     box.replaceChildren(
-      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name), h('span', { class: 'owner', style: `color:${color(c.owner)}` }, E.factionName(S, c.owner))),
+      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name), h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner))),
       h('div', { class: 'kv' }, kv('金', fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)), kv('兵', fmtW(c.troops)),
         kv('農業', c.farm), kv('商業', c.commerce), kv('民心', c.order), kv('城防', c.defense), kv('訓練', c.train), kv('武將', gens.length)),
       h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k])))),
@@ -1011,7 +1011,7 @@
         const num = h('div', { class: 'troops' }, fmt(info.troops));
         const bar = h('div', { style: `width:100%;background:${right ? dCol : aCol}` });
         const mixTxt = UK.filter((k) => (info.units || {})[k] > 0).map((k) => `${E.UNITS[k].short}${fmtW(info.units[k])}`).join(' ');
-        const el = h('div', { class: 'side' + (right ? ' right' : '') }, g ? face(g, 'head', 36, 36) : h('div', { class: 'face', style: 'width:96px;height:96px;display:grid;place-items:center;font-size:48px;color:#9aa0c8' }, '守'),
+        const el = h('div', { class: 'side' + (right ? ' right' : '') }, g ? face(g, 'head', 36, 36) : h('div', { class: 'face', style: 'width:96px;height:96px;display:grid;place-items:center;font-size:48px;color:#8a7a5c;background:#e6dcc4' }, '守'),
           h('div', { style: 'flex:1' }, h('div', { class: 'hi' }, `${info.name}${right ? '（守）' : '（攻）'}`), h('div', { class: 'dim' }, info.generals.length ? info.generals.join('・') : '守軍'), h('div', {}, mixTxt), num, h('div', { class: 'hp' }, bar)));
         return { el, num, bar };
       };
@@ -1146,12 +1146,12 @@
     const map = $('map');
     map.addEventListener('click', (e) => {
       if (!S || stack.length || battleKey) return;
-      const id = PM.cityAt(S, map, e.clientX, e.clientY);
+      const id = MV.cityAt(S, map, e.clientX, e.clientY);
       if (id) selectCity(id);
     });
     map.addEventListener('mousemove', (e) => {
       if (!S) return;
-      const id = PM.cityAt(S, map, e.clientX, e.clientY);
+      const id = MV.cityAt(S, map, e.clientX, e.clientY);
       if (id !== hovered) { hovered = id; map.style.cursor = id ? 'pointer' : 'default'; renderStatus(); renderMap(); }
     });
     $('msg-win').addEventListener('click', advanceMsg);
