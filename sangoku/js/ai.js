@@ -13,7 +13,7 @@
     let t = 0;
     for (const n of E().neighbors(s, city.id)) {
       const c = s.cities[n];
-      if (c.owner && c.owner !== city.owner) t = Math.max(t, c.troops);
+      if (c.owner && c.owner !== city.owner && (!TK.Diplomacy || TK.Diplomacy.canAttack(s, c.owner, city.owner))) t = Math.max(t, c.troops);
     }
     return t;
   }
@@ -126,7 +126,7 @@
     const avail = idle(s, city.id, fid).sort((a, b) => (b.lead + b.war) - (a.lead + a.war));
     const all = Eng.officers(s, city.id);
     if (!avail.length || city.troops < 8000) return;
-    const targets = Eng.neighbors(s, city.id).map((id) => s.cities[id]).filter((c) => c.owner !== fid);
+    const targets = Eng.neighbors(s, city.id).map((id) => s.cities[id]).filter((c) => c.owner !== fid && (!TK.Diplomacy || TK.Diplomacy.canAttack(s, fid, c.owner)));
     if (!targets.length) return;
 
     const army = avail.slice(0, Math.min(3, all.length > 1 ? Math.min(avail.length, all.length - 1) : 1));
@@ -140,7 +140,9 @@
       const tl = gens.length ? Math.max.apply(null, gens.map((g) => g.lead)) : 45;
       const tw = gens.length ? Math.max.apply(null, gens.map((g) => g.war)) : 45;
       const dPow = Math.max(1, t.troops * (0.6 * tl + 0.4 * tw) / 100 * (0.7 + t.train / 100 * 0.6) * (1 + t.defense / 800));
-      const ratio = myPow / dPow * (t.owner ? 1 : 1.15);
+      // 不輕易對中立勢力開戰
+      const neutralRel = t.owner && TK.Diplomacy && TK.Diplomacy.stateOf(s, fid, t.owner) === 'neutral';
+      const ratio = myPow / dPow * (t.owner ? 1 : 1.15) * (neutralRel ? 0.6 : 1);
       if (ratio > bestRatio) { bestRatio = ratio; best = t; }
     }
     // 留守兵力也要夠應付其他鄰敵

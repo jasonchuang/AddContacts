@@ -8,12 +8,12 @@
   const factions = [
     { id: 'cao', name: '曹操軍', ruler: '曹操', color: '#3a6ee8' },
     { id: 'liu', name: '劉備軍', ruler: '劉備', color: '#2fb84a' },
-    { id: 'sun', name: '孫堅軍', ruler: '孫堅', color: '#e8382c' },
+    { id: 'sun', name: '孫堅軍', ruler: '孫堅', color: '#e8382c', heirs: ['孫策', '孫權'] },
     { id: 'yuans', name: '袁紹軍', ruler: '袁紹', color: '#e8c020' },
-    { id: 'dong', name: '董卓軍', ruler: '董卓', color: '#9a48e0' },
+    { id: 'dong', name: '董卓軍', ruler: '董卓', color: '#9a48e0', heirs: ['李傕'] },
     { id: 'yuanshu', name: '袁術軍', ruler: '袁術', color: '#f08a1e' },
-    { id: 'liubiao', name: '劉表軍', ruler: '劉表', color: '#1cc0c8' },
-    { id: 'ma', name: '馬騰軍', ruler: '馬騰', color: '#b0703a' },
+    { id: 'liubiao', name: '劉表軍', ruler: '劉表', color: '#1cc0c8', heirs: ['蔡瑁'] },
+    { id: 'ma', name: '馬騰軍', ruler: '馬騰', color: '#b0703a', heirs: ['馬超'] },
     { id: 'gongsun', name: '公孫瓚軍', ruler: '公孫瓚', color: '#e858b0' },
   ];
 

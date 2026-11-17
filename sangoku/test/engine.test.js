@@ -2,7 +2,7 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-for (const f of ['data.js', 'engine.js', 'ai.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['data.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
 const { Engine: E } = globalThis.TK;
 
 let passed = 0;
@@ -176,6 +176,53 @@ test('武將適性：趙雲槍兵 S、黃忠弩兵 S，一般武將依能力推�
   assert.strictEqual(E.aptitude(s.generals['趙雲'], 'spear'), 'S');
   assert.strictEqual(E.aptitude(s.generals['黃忠'], 'xbow'), 'S');
   assert(['A', 'B', 'C'].includes(E.aptitude(s.generals['簡雍'], 'cav')));
+});
+
+test('外交：同盟不能攻擊、宣戰、停戰期滿、攻擊中立自動開戰', () => {
+  const D = globalThis.TK.Diplomacy;
+  const s = E.newGame('cao', 21);
+  D.setState(s, 'cao', 'yuans', 'alliance');
+  assert(!E.exec(s, 'cao', { type: 'attack', city: '濮陽', general: '夏侯惇', target: '鄴', troops: 3000 }).ok, '同盟不能攻擊');
+  const r = E.exec(s, 'cao', { type: 'diplo', action: 'war', target: 'yuans', general: '荀彧' });
+  assert(r.ok && D.stateOf(s, 'cao', 'yuans') === 'war', '宣戰');
+  D.setState(s, 'cao', 'liu', 'truce', 2);
+  D.monthTick(s); D.monthTick(s);
+  assert.strictEqual(D.stateOf(s, 'cao', 'liu'), 'neutral');
+  assert(E.exec(s, 'cao', { type: 'attack', city: '濮陽', general: '夏侯淵', target: '平原', troops: 2000 }).ok);
+  assert.strictEqual(D.stateOf(s, 'cao', 'liu'), 'war', '攻擊中立勢力自動開戰');
+});
+
+test('外交：勸降使整個勢力歸順', () => {
+  const D = globalThis.TK.Diplomacy;
+  const s = E.newGame('cao', 22);
+  D.absorb(s, 'cao', 'liu');
+  assert.strictEqual(s.cities['平原'].owner, 'cao');
+  assert.strictEqual(s.generals['關羽'].faction, 'cao');
+  assert(!s.factions.liu.alive);
+});
+
+test('歷史事件：開局聯盟與桃園之誓、自由模式不觸發', () => {
+  const D = globalThis.TK.Diplomacy, EV = globalThis.TK.Events;
+  const s = E.newGame('liu', 23);
+  const ids = EV.run(s).map((e) => e.id);
+  assert(ids.includes('coalition') && ids.includes('oath'));
+  assert.strictEqual(D.stateOf(s, 'cao', 'dong'), 'war');
+  assert(!EV.run(s).some((e) => e.id === 'coalition'), '不重複觸發');
+  const f = E.newGame('liu', 23, 'free');
+  assert(EV.run(f).every((e) => !e.historical));
+});
+
+test('歷史事件：三顧茅廬、君主繼承', () => {
+  const EV = globalThis.TK.Events;
+  const s = E.newGame('liu', 24);
+  s.year = 196;
+  s.cities['宛'].owner = 'liu';
+  EV.run(s);
+  assert.strictEqual(s.generals['諸葛亮'].faction, 'liu');
+  assert.strictEqual(s.cities[s.generals['諸葛亮'].city].owner, 'liu');
+  E.rulerDies(s, 'sun');
+  assert.strictEqual(s.factions.sun.ruler, '孫策');
+  assert.strictEqual(s.generals['孫堅'].status, 'dead');
 });
 
 console.log(`\n${passed} tests passed`);

@@ -417,8 +417,10 @@
       return { f, cities, cells: [f.name, f.ruler, cities.length, gens, fmtW(troops), '★'.repeat(diff)] };
     });
     tableWin('選擇君主　190年「群雄割據」', [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '將' }, { label: '兵力' }, { label: '難度' }], rows, (r) => {
-      closeAll();
-      newGame(r.f.id);
+      menuWin('劇本模式', [
+        { label: '歷史劇本', hint: '依條件發生歷史事件', act: () => { closeAll(); newGame(r.f.id, 'historical'); } },
+        { label: '自由模式', hint: '各勢力自由發展', act: () => { closeAll(); newGame(r.f.id, 'free'); } },
+      ], null, { center: true, width: 620 });
     }, {
       center: true, width: 1000, shade: true,
       side: (r) => h('div', {}, face(Object.assign({ id: r.f.ruler }, sc.generals.find((g) => g.id === r.f.ruler)), 'full', 48, 60, 'big'),
@@ -453,18 +455,20 @@
     } catch (e) { SND.error(); }
   }
 
-  function newGame(fid) {
-    S = E.newGame(fid);
+  function newGame(fid, mode) {
+    S = E.newGame(fid, undefined, mode);
     E.addLog(S, `你成為了${S.factions[fid].name}的君主。目標：統一天下！`, 'major', [fid]);
     enterGame();
     const ruler = S.generals[S.factions[fid].ruler];
     busy = true;
-    banner().then(() => {
-      busy = false;
-      renderCmd();
+    const opening = TK.Events ? TK.Events.run(S) : [];
+    banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
       const adv = advisor();
-      if (adv && adv !== ruler) say(adv, '主公，請在地圖上點選城市，再從右下的選單下達指令。');
+      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再從右下的選單下達指令。', { wait: true });
+      await playEvents(opening);
+      busy = false;
+      render();
     });
   }
 
@@ -539,6 +543,7 @@
       items.push({ label: '軍事', off: !idle || busy, why, act: () => militaryMenu(c) });
       items.push({ label: '人事', off: busy, act: () => personnelMenu(c) });
     }
+    items.push({ label: '外交', off: busy || !!S.over, act: diplomacyFlow });
     items.push({ label: '情報', act: () => infoMenu(c) });
     items.push({ label: '系統', act: systemMenu });
     items.push({ label: '結束本月', off: busy || !!S.over, act: endMonth });
@@ -795,9 +800,10 @@
   function factionList() {
     const rows = Object.values(S.factions).filter((f) => f.alive).map((f) => {
       const p = E.powerOf(S, f.id);
-      return { f, cells: [f.name, f.ruler, p.cities, fmtW(p.troops), p.generals] };
+      const rel = f.id === S.player ? '－' : TK.Diplomacy.STATE_LABEL[TK.Diplomacy.stateOf(S, S.player, f.id)];
+      return { f, cells: [f.name, f.ruler, p.cities, fmtW(p.troops), p.generals, rel] };
     }).sort((a, b) => b.cells[2] - a.cells[2]);
-    tableWin('勢力一覽', [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '兵力' }, { label: '將' }], rows, () => popWin(),
+    tableWin('勢力一覽', [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '兵力' }, { label: '將' }, { label: '關係' }], rows, () => popWin(),
       { width: 800, x: 240, side: (r) => h('div', {}, face(S.generals[r.f.ruler], 'head', 36, 36), h('div', { class: 'desc', style: `color:${r.f.color}` }, `■ ${r.f.name}`)) });
   }
 
@@ -822,6 +828,79 @@
     selected = id;
     SND.cursor();
     render();
+  }
+
+  // ---------- 外交 ----------
+  function diplomacyFlow() {
+    const D = TK.Diplomacy;
+    const rows = Object.values(S.factions).filter((f) => f.alive && f.id !== S.player).map((f) => {
+      const r = D.rel(S, S.player, f.id);
+      const p = E.powerOf(S, f.id);
+      return { f, cells: [f.name, f.ruler, p.cities, fmtW(p.troops), D.STATE_LABEL[r.state] + (r.state === 'truce' ? `${r.months}月` : ''), (r.rel > 0 ? '+' : '') + r.rel] };
+    });
+    if (!rows.length) { say(null, '天下已無其他勢力。'); return; }
+    tableWin('外交：選擇對象', [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '兵力' }, { label: '關係' }, { label: '友好' }], rows, (row) => {
+      const fid = row.f.id;
+      const envoys = Object.values(S.generals).filter((g) => g.faction === S.player && g.status === 'active' && !g.acted);
+      const best = envoys.slice().sort((a, b) => b.cha + b.int - a.cha - a.int)[0];
+      menuWin(`對${row.f.name}`, Object.entries(D.ACTIONS).map(([k, a]) => {
+        const p = best ? D.chance(S, S.player, fid, k, best) : 0;
+        return {
+          label: a.label, hint: k === 'war' ? '' : (p > 0 ? `約${Math.round(p * 100)}%　金${a.cost}` : '不可'),
+          off: !best || p <= 0, why: !best ? '本月沒有可以出使的武將。' : `目前無法${a.label}。`,
+          act: () => {
+            if (k === 'war') { confirmWin(`真的要向${row.f.name}宣戰嗎？`, () => sendEnvoy(fid, k, best)); return; }
+            tableWin(`${a.label}：選擇使者（金${a.cost}，由使者所在城支出）`, genCols('cha', ['所在', '成功率']),
+              genRows(envoys.sort((x, y) => D.chance(S, S.player, fid, k, y) - D.chance(S, S.player, fid, k, x)), {
+                extra: (g) => [g.city, `${Math.round(D.chance(S, S.player, fid, k, g) * 100)}%`],
+                off: (g) => S.cities[g.city].gold < a.cost, why: '使者所在城的金不足。',
+              }), (r2) => sendEnvoy(fid, k, r2.g), { side: genSide, width: 960, x: 160 });
+          },
+        };
+      }), null, { x: 560, y: 260, width: 420 });
+    }, { width: 860, x: 200, side: (r) => h('div', {}, face(S.generals[r.f.ruler], 'head', 36, 36), h('div', { class: 'desc', style: `color:${r.f.color}` }, `■ ${r.f.name}`)) });
+  }
+
+  function sendEnvoy(fid, action, g) {
+    const r = E.exec(S, S.player, { type: 'diplo', action, target: fid, general: g.id });
+    closeAll();
+    render();
+    if (!r.ok) { SND.error(); say(null, r.msg); return; }
+    const ruler = S.generals[S.factions[fid].ruler];
+    if (action === 'war') { SND.march(); say(S.generals[S.factions[S.player].ruler], `${S.factions[fid].name}，戰場上見分曉吧！`); return; }
+    if (r.success) { SND.win(); say(ruler || null, action === 'surrender' ? '……罷了，我願歸順。' : action === 'alliance' ? '好，兩家就此結盟，共進退。' : '也罷，暫且休兵吧。'); }
+    else { SND.lose(); say(ruler || null, action === 'surrender' ? '要我投降？笑話！' : '此事恕難從命。'); }
+    say(g, r.msg);
+  }
+
+  // 依序演出歷史事件
+  async function playEvents(list) {
+    for (const ev of list) {
+      SND.event();
+      await say(null, `【${ev.title}】`, { wait: true });
+      for (const [sp, text] of ev.lines) await say(sp ? (S.generals[sp] || sp) : null, text, { wait: true });
+    }
+    if (list.length) render();
+  }
+
+  function proposals() {
+    return new Promise((resolve) => {
+      const next = () => {
+        const p = (S.pending || []).shift();
+        if (!p) { resolve(); return; }
+        const f = S.factions[p.from];
+        if (!f || !f.alive) { next(); return; }
+        const label = p.kind === 'alliance' ? '同盟' : '停戰（一年）';
+        SND.event();
+        say(S.generals[f.ruler] || null, `${f.name}派使者前來，提議兩家${label}。`).then(() => {
+          menuWin(`${f.name}提議${label}`, [
+            { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
+            { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
+          ], null, { center: true, width: 520, shade: true });
+        });
+      };
+      next();
+    });
   }
 
   // ---------- 換月 ----------
@@ -871,7 +950,8 @@
     renderCmd();
     const battles = [];
     E.onBattle = (r) => { if (r.atk.faction === S.player || r.def.faction === S.player) battles.push(r); };
-    try { E.endTurn(S); } finally { E.onBattle = null; }
+    let fired = [];
+    try { fired = E.endTurn(S) || []; } finally { E.onBattle = null; }
     store(AUTO_KEY, JSON.stringify(S));
     if (S.cities[selected].owner !== S.player) {
       const c = E.citiesOf(S, S.player)[0];
@@ -881,6 +961,8 @@
     await banner();
     for (const r of battles.slice(0, 3)) await playBattle(r);
     if (battles.length > 3) say(null, `另有 ${battles.length - 3} 場戰事，詳見記錄。`);
+    await playEvents(fired);
+    if (!S.over) await proposals();
     busy = false;
     render();
     if (checkOver()) return;

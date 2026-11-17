@@ -18,7 +18,7 @@
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
   // ---------- 建立 / 查詢 ----------
-  function newGame(playerFaction, seed) {
+  function newGame(playerFaction, seed, mode) {
     const sc = JSON.parse(JSON.stringify(TK.SCENARIO));
     const s = {
       version: 1,
@@ -32,6 +32,11 @@
       roads: sc.roads,
       log: [],
       over: null,
+      mode: mode || 'historical',
+      relations: {},
+      events_done: {},
+      harvest_mult: 1,
+      pending: [],
     };
     for (const f of sc.factions) s.factions[f.id] = Object.assign({ alive: true }, f);
     for (const c of sc.cities) { s.cities[c.id] = c; mixOf(c); }
@@ -180,9 +185,20 @@
     return 0;
   }
 
+  // 舊存檔補上新欄位
+  function ensure(s) {
+    if (!s.relations) s.relations = {};
+    if (!s.events_done) s.events_done = {};
+    if (!s.pending) s.pending = [];
+    if (!s.mode) s.mode = 'historical';
+    if (!s.harvest_mult) s.harvest_mult = 1;
+  }
+
   // 回傳 {ok, msg}
   function exec(s, fid, cmd) {
     if (s.over) return fail('遊戲已結束');
+    ensure(s);
+    if (cmd.type === 'diplo') return TK.Diplomacy.exec(s, fid, cmd);
     const city = s.cities[cmd.city];
     if (!city || city.owner !== fid) return fail('不是我方城市');
     let g = null;
@@ -299,6 +315,9 @@
       case 'attack': {
         const target = s.cities[cmd.target];
         if (!target || target.owner === fid || !neighbors(s, city.id).includes(target.id)) return fail('無法進攻該城');
+        if (TK.Diplomacy && !TK.Diplomacy.canAttack(s, fid, target.owner)) {
+          return fail(`與${factionName(s, target.owner)}處於${TK.Diplomacy.STATE_LABEL[TK.Diplomacy.stateOf(s, fid, target.owner)]}，不能進攻`);
+        }
         const ids = uniq([g.id].concat(cmd.generals || [])).slice(0, 3);
         const army = ids.map((id) => s.generals[id]);
         for (const m of army) {
@@ -313,6 +332,7 @@
         city.food -= foodNeed;
         takeUnits(city, units);
         for (const m of army) m.acted = true;
+        if (TK.Diplomacy) TK.Diplomacy.onAttack(s, fid, target.owner);
         const res = battle(s, { faction: fid, generals: army, troops, units, train: city.train, from: city.id }, target.id);
         return ok(res.summary, res);
       }
@@ -490,6 +510,23 @@
     if (oldOwner && citiesOf(s, oldOwner).length === 0) destroyFaction(s, oldOwner);
   }
 
+  // 君主去世：由繼承人（資料指定，否則魅力最高者）接任
+  function rulerDies(s, fid) {
+    const f = s.factions[fid];
+    if (!f || !f.alive) return;
+    const old = s.generals[f.ruler];
+    if (old) { old.status = 'dead'; old.ruler = false; old.city = null; addLog(s, `${old.name}去世了。`, 'major', [fid]); }
+    const act = (g) => g && g.status === 'active' && g.faction === fid;
+    let heir = (f.heirs || []).map((n) => s.generals[n]).find(act);
+    if (!heir) heir = Object.values(s.generals).filter(act).sort((a, b) => b.cha - a.cha)[0];
+    if (!heir) { destroyFaction(s, fid); return; }
+    heir.ruler = true;
+    heir.loyalty = 100;
+    f.ruler = heir.name;
+    f.name = `${heir.name}軍`;
+    addLog(s, `${heir.name}繼承大業，勢力改稱${f.name}。`, 'major', [fid]);
+  }
+
   function destroyFaction(s, fid) {
     const f = s.factions[fid];
     f.alive = false;
@@ -505,7 +542,8 @@
 
   // ---------- 回合結算 ----------
   function endTurn(s) {
-    if (s.over) return;
+    if (s.over) return [];
+    ensure(s);
     const order = Object.keys(s.factions).filter((id) => id !== s.player && s.factions[id].alive);
     // 打亂 AI 順序
     for (let i = order.length - 1; i > 0; i--) {
@@ -513,11 +551,16 @@
       [order[i], order[j]] = [order[j], order[i]];
     }
     for (const fid of order) {
-      if (s.factions[fid].alive && !s.over) TK.AI.run(s, fid);
+      if (s.factions[fid].alive && !s.over) {
+        if (TK.Diplomacy) TK.Diplomacy.aiConsider(s, fid);
+        TK.AI.run(s, fid);
+      }
       checkEnd(s);
     }
     monthEnd(s);
+    const fired = TK.Events ? TK.Events.run(s) : [];
     checkEnd(s);
+    return fired;
   }
 
   function monthEnd(s) {
@@ -530,7 +573,7 @@
       const ord = 0.5 + c.order / 200;
       c.gold += Math.round(c.commerce * 0.35 * ord + c.pop / 10000);
       if (s.month === 7) {
-        const harvest = Math.round(c.farm * 30 * ord);
+        const harvest = Math.round(c.farm * 30 * ord * (s.harvest_mult || 1));
         c.food += harvest;
         if (c.owner === s.player) addLog(s, `${c.name}秋收，得糧 ${harvest}`, 'info', [c.owner]);
       }
@@ -545,6 +588,8 @@
       c.pop = Math.max(10000, Math.round(c.pop * (1 + (c.order - 40) / 20000)));
       if (c.train > 50 && c.troops > 0 && rand(s) < 0.3) c.train -= 1;
     }
+    if (s.month === 7) s.harvest_mult = 1;
+    if (TK.Diplomacy) TK.Diplomacy.monthTick(s);
     for (const g of Object.values(s.generals)) g.acted = false;
     s.month += 1;
     if (s.month > 12) { s.month = 1; s.year += 1; }
@@ -579,7 +624,7 @@
   }
 
   TK.Engine = {
-    MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle,
+    MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
     UNITS, UNIT_KEYS, BEATS, APT_MULT, matchup, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
