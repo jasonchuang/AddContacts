@@ -50,6 +50,7 @@ sangoku/
   js/engine.js    遊戲核心：狀態、指令、戰鬥、結算（不碰 DOM）
   js/ai.js        電腦勢力（透過與玩家相同的指令介面行動）
   js/icons.js     自繪 SVG 圖示（士兵、騎兵、旗幟、資源、指令）
+  js/portraits.js 武將肖像產生器（依身分、能力與史書／演義特徵組合，造型為原創）
   js/sound.js     WebAudio 即時合成音效（無外部音檔）
   js/ui.js        標題畫面、地圖、面板、指令視窗、戰鬥動畫
   build.js        打包成單一 HTML

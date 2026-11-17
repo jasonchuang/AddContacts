@@ -53,6 +53,41 @@
   function seal(name, fid, ruler) {
     return h('div', { class: 'seal' + (ruler ? ' ruler' : ''), style: `--sc:${color(fid)}` }, sealChar(name));
   }
+  // 武將小頭像（點擊可開啟列傳）
+  function portraitMini(g, opts) {
+    opts = opts || {};
+    const el = h('button', {
+      class: 'pmini' + (g.ruler ? ' ruler' : '') + (opts.size ? ' ' + opts.size : ''),
+      style: `--sc:${color(g.faction || g.formerFaction)}`, title: `${g.name}：查看列傳`,
+      onclick: (e) => { e.stopPropagation(); SND.click(); showGeneral(g.id); },
+    }, raw(TK.Portrait.svg(g, color(g.faction || g.formerFaction), 'head')));
+    return el;
+  }
+
+  function showGeneral(id) {
+    const g = S ? S.generals[id] : TK.SCENARIO.generals.find((x) => x.id === id);
+    if (!g) return;
+    const fid = g.faction || g.formerFaction;
+    const col = color(fid);
+    const t = TK.Portrait.traits(g);
+    const statusText = { active: '仕官', free: '在野', prisoner: '俘虜', dead: '已故' }[g.status] || '';
+    const bar = (label, v, c) => h('div', { class: 'gstat' }, h('span', {}, label),
+      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${v}%;background:${c}` })), h('b', {}, v));
+    const body = h('div', { class: 'gdetail' },
+      h('div', { class: 'pbig', style: `--sc:${col}` }, raw(TK.Portrait.svg(g, col, 'full'))),
+      h('div', { class: 'ginfo' },
+        h('div', { class: 'gtitle' }, g.name, t.title ? h('span', { class: 'epithet' }, t.title) : null),
+        h('div', { class: 'gtags' },
+          h('span', { class: 'owner', style: `background:${col}` }, g.faction ? E.factionName(S || { factions: {} }, g.faction) : statusText),
+          h('span', { class: 'tag' }, TK.Portrait.classLabel(g, t)),
+          h('span', { class: 'tag alt' }, `武器：${TK.Portrait.WEAPON_NAME[t.weapon] || '—'}`)),
+        h('div', { class: 'hint' }, g.city ? `所在：${g.city}（${statusText}）` : statusText),
+        bar('統率', g.lead, '#2e6fb5'), bar('武力', g.war, '#c0392b'), bar('智略', g.int, '#7d3c98'),
+        bar('政務', g.pol, '#1e8449'), bar('魅力', g.cha, '#d68910'),
+        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#7f8c8d')));
+    openModal('武將列傳', body, null, { noOk: true, icon: 'general' });
+  }
+
   function genLabel(g) { return `${g.name}（統${g.lead} 武${g.war} 智${g.int} 政${g.pol} 魅${g.cha}）`; }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -142,7 +177,7 @@
       const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
       const n = Math.max(2, Math.min(6, Math.round(troops / 10000)));
       return h('button', { class: 'fcard', style: `--fc:${f.color}`, onclick: () => { SND.gong(); newGame(f.id); } },
-        h('span', { class: 'flag' }, raw(I.flag(f.color, sealChar(f.ruler)))),
+        h('span', { class: 'pmini lg', style: `--sc:${f.color}` }, raw(TK.Portrait.svg(sc.generals.find((x) => x.id === f.ruler), f.color, 'head'))),
         h('div', {},
           h('div', { class: 'fname' }, f.name),
           h('div', { class: 'fmeta' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、')}`),
@@ -281,7 +316,9 @@
         const num = h('div', { class: 'num' }, fmt(info.troops));
         const fill = h('div', { style: `width:100%;background:${col}` });
         const el = h('div', { class: 'army' + (side === 'd' ? ' right' : '') },
-          seal(info.generals.length ? info.commander : '守', info.faction, false),
+          info.generals.length && S.generals[info.commander]
+            ? portraitMini(S.generals[info.commander], { size: 'xl' })
+            : seal('守', info.faction, false),
           h('div', {},
             h('div', { class: 'an' }, info.name, side === 'a' ? '（攻）' : '（守）'),
             h('div', { class: 'ag' }, info.generals.length ? info.generals.join('・') : '守軍'),
@@ -532,8 +569,8 @@
 
     const gens = c.owner ? E.officers(S, c.id).sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int - a.lead - a.war - a.int)) : [];
     const genList = h('div', { class: 'gen-list' }, gens.map((g) =>
-      h('div', { class: 'gen' + (g.acted && mine ? ' acted' : '') },
-        seal(g.name, g.faction, g.ruler),
+      h('div', { class: 'gen' + (g.acted && mine ? ' acted' : ''), onclick: () => showGeneral(g.id), title: '查看列傳' },
+        portraitMini(g, { size: 'lg' }),
         h('div', {},
           h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : null),
           h('div', { class: 'gstats' },
@@ -544,8 +581,8 @@
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
     const parts = [head, res, bars, h('h3', {}, `武將 ${gens.length} 名`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
-    if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', {}, g.name))));
-    if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', {}, g.name))));
+    if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
+    if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (mine && !S.over) parts.push(h('h3', {}, '指令'), commandButtons(c));
     else if (!mine) {
       const from = E.neighbors(S, c.id).filter((id) => S.cities[id].owner === S.player);
