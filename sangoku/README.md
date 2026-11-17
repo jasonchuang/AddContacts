@@ -54,6 +54,9 @@ sangoku/
   js/sound.js     WebAudio 即時合成音效（無外部音檔）
   js/ui.js        標題畫面、地圖、面板、指令視窗、戰鬥動畫
   build.js        打包成單一 HTML
+  portraits/      放武將插畫（檔名＝武將名，如 黃忠.png），build.js 會自動套用
+  art/ART_GUIDE.md  美術製作流程；art/portrait-briefs.md 為各武將繪製說明
+  tools/portrait-briefs.js  產生繪製說明
   dist/qunxiong.html  打包好的單檔版
   test/engine.test.js
 ```

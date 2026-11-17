@@ -48,7 +48,27 @@
   }
   const ic = (name) => raw(I.icon(name));
   function fmt(n) { return Math.round(n).toLocaleString('zh-Hant'); }
-  function color(fid) { return fid && S.factions[fid] ? S.factions[fid].color : NEUTRAL_COLOR; }
+  // 用「萬」表示大數字，減少畫面上的數字感
+  function fmtW(n) {
+    n = Math.round(n);
+    if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}萬`;
+    return String(n);
+  }
+  // 能力評等
+  function grade(v) { return v >= 90 ? 'S' : v >= 80 ? 'A' : v >= 70 ? 'B' : v >= 60 ? 'C' : 'D'; }
+  function gradeChip(label, v) { return h('i', { class: `gr gr-${grade(v)}`, title: `${label} ${v}` }, label, h('b', {}, grade(v))); }
+  function color(fid) {
+    const fs = S ? S.factions : null;
+    if (fid && fs && fs[fid]) return fs[fid].color;
+    const f = fid && TK.SCENARIO.factions.find((x) => x.id === fid);
+    return f ? f.color : NEUTRAL_COLOR;
+  }
+  // 勢力朱印（方形印章）
+  function sealStamp(fid, size) {
+    const f = fid && S && S.factions[fid] ? S.factions[fid] : TK.SCENARIO.factions.find((x) => x.id === fid);
+    if (!f) return h('span', { class: 'stamp-sq neutral', style: `--sz:${size || 28}px` }, '空');
+    return h('span', { class: 'stamp-sq', style: `--sc:${f.color};--sz:${size || 28}px` }, sealChar(f.ruler));
+  }
   function sealChar(name) { return name ? name.slice(-1) : '守'; }
   function seal(name, fid, ruler) {
     return h('div', { class: 'seal' + (ruler ? ' ruler' : ''), style: `--sc:${color(fid)}` }, sealChar(name));
@@ -60,8 +80,15 @@
       class: 'pmini' + (g.ruler ? ' ruler' : '') + (opts.size ? ' ' + opts.size : ''),
       style: `--sc:${color(g.faction || g.formerFaction)}`, title: `${g.name}：查看列傳`,
       onclick: (e) => { e.stopPropagation(); SND.click(); showGeneral(g.id); },
-    }, raw(TK.Portrait.svg(g, color(g.faction || g.formerFaction), 'head')));
+    }, portraitArt(g, 'head'));
     return el;
+  }
+
+  // 有插畫用插畫，否則用向量肖像
+  function portraitArt(g, mode) {
+    const url = TK.Portrait.art(g);
+    if (url) return h('span', { class: 'p-img ' + mode, style: `background-image:url("${url}")`, role: 'img', 'aria-label': g.name });
+    return raw(TK.Portrait.svg(g, color(g.faction || g.formerFaction), mode));
   }
 
   function showGeneral(id) {
@@ -72,9 +99,10 @@
     const t = TK.Portrait.traits(g);
     const statusText = { active: '仕官', free: '在野', prisoner: '俘虜', dead: '已故' }[g.status] || '';
     const bar = (label, v, c) => h('div', { class: 'gstat' }, h('span', {}, label),
-      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${v}%;background:${c}` })), h('b', {}, v));
+      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${v}%;background:${c}` })),
+      h('b', {}, h('em', { class: `gr-${grade(v)}` }, grade(v)), ` ${v}`));
     const body = h('div', { class: 'gdetail' },
-      h('div', { class: 'pbig', style: `--sc:${col}` }, raw(TK.Portrait.svg(g, col, 'full'))),
+      h('div', { class: 'pbig', style: `--sc:${col}` }, portraitArt(g, 'full')),
       h('div', { class: 'ginfo' },
         h('div', { class: 'gtitle' }, g.name, t.title ? h('span', { class: 'epithet' }, t.title) : null),
         h('div', { class: 'gtags' },
@@ -82,13 +110,13 @@
           h('span', { class: 'tag' }, TK.Portrait.classLabel(g, t)),
           h('span', { class: 'tag alt' }, `武器：${TK.Portrait.WEAPON_NAME[t.weapon] || '—'}`)),
         h('div', { class: 'hint' }, g.city ? `所在：${g.city}（${statusText}）` : statusText),
-        bar('統率', g.lead, '#2e6fb5'), bar('武力', g.war, '#c0392b'), bar('智略', g.int, '#7d3c98'),
-        bar('政務', g.pol, '#1e8449'), bar('魅力', g.cha, '#d68910'),
-        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#7f8c8d')));
+        bar('統率', g.lead, '#2f5f8f'), bar('武力', g.war, '#b23a2c'), bar('智略', g.int, '#5e4280'),
+        bar('政務', g.pol, '#3d7a4c'), bar('魅力', g.cha, '#b8892c'),
+        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#6b6358')));
     openModal('武將列傳', body, null, { noOk: true, icon: 'general' });
   }
 
-  function genLabel(g) { return `${g.name}（統${g.lead} 武${g.war} 智${g.int} 政${g.pol} 魅${g.cha}）`; }
+  function genLabel(g) { return `${g.name}（統${grade(g.lead)} 武${grade(g.war)} 智${grade(g.int)} 政${grade(g.pol)} 魅${grade(g.cha)}）`; }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   let toastTimer = null;
@@ -157,12 +185,42 @@
     $('faction-pick').classList.add('hidden');
     const menu = $('title-menu');
     menu.classList.remove('hidden');
-    const soldiers = h('div', { class: 'title-soldiers' }, TK.SCENARIO.factions.map((f) => raw(I.soldier(f.color))));
-    const btns = [soldiers, h('button', { class: 'lacquer', onclick: () => { SND.click(); showFactionPick(); } }, '開始新遊戲')];
+    renderTitleLandscape();
+    const seals = h('div', { class: 'title-seals' }, TK.SCENARIO.factions.map((f) => sealStamp(f.id, 30)));
+    const btns = [seals, h('button', { class: 'lacquer', onclick: () => { SND.click(); showFactionPick(); } }, '開始新遊戲')];
     const auto = saveMeta(AUTO_KEY), manual = saveMeta(SAVE_KEY);
     if (auto) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(AUTO_KEY) }, `繼續遊戲（${auto}）`));
     if (manual) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(SAVE_KEY) }, `讀取存檔（${manual}）`));
     menu.replaceChildren(...btns);
+  }
+
+  // 標題背景：層疊的水墨遠山、飛鳥與紅日
+  function renderTitleLandscape() {
+    const el = $('title-landscape');
+    if (el.firstChild) return;
+    let s = '<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice" width="100%" height="100%">';
+    s += '<rect width="1200" height="700" fill="#efe5cf"/>';
+    s += '<circle cx="880" cy="190" r="62" fill="#b23a2c" opacity=".82" filter="url(#ink-bleed)"/>';
+    const layers = [
+      { y: 470, amp: 120, op: 0.22, seed: 1 }, { y: 530, amp: 150, op: 0.35, seed: 2 },
+      { y: 600, amp: 140, op: 0.55, seed: 3 }, { y: 680, amp: 110, op: 0.85, seed: 4 },
+    ];
+    for (const L of layers) {
+      let d = `M-40,700 L-40,${L.y}`;
+      for (let x = -40; x <= 1240; x += 80) {
+        const k = Math.sin(x * 0.011 * L.seed + L.seed) * 0.5 + Math.sin(x * 0.027 + L.seed * 3) * 0.5;
+        const peak = L.y - Math.max(0, k) * L.amp - 20;
+        d += ` Q${x + 40},${peak} ${x + 80},${L.y - Math.max(0, Math.sin((x + 80) * 0.019 + L.seed)) * L.amp * 0.4}`;
+      }
+      d += ' L1240,700 Z';
+      s += `<path d="${d}" fill="url(#mtn-ink)" opacity="${L.op}" filter="url(#ink-wash)"/>`;
+    }
+    for (const [x, y, sc] of [[300, 210, 1], [340, 190, 0.8], [372, 226, 0.7], [410, 205, 0.6]]) {
+      s += `<path d="M${x - 9 * sc},${y} Q${x - 4 * sc},${y - 5 * sc} ${x},${y} Q${x + 4 * sc},${y - 5 * sc} ${x + 9 * sc},${y}" fill="none" stroke="#1f1a14" stroke-width="1.6" opacity=".7"/>`;
+    }
+    s += '<rect width="1200" height="700" filter="url(#paper-grain)"/><rect width="1200" height="700" filter="url(#paper-fiber)"/>';
+    s += '</svg>';
+    el.innerHTML = s;
   }
 
   function showFactionPick() {
@@ -177,11 +235,11 @@
       const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
       const n = Math.max(2, Math.min(6, Math.round(troops / 10000)));
       return h('button', { class: 'fcard', style: `--fc:${f.color}`, onclick: () => { SND.gong(); newGame(f.id); } },
-        h('span', { class: 'pmini lg', style: `--sc:${f.color}` }, raw(TK.Portrait.svg(sc.generals.find((x) => x.id === f.ruler), f.color, 'head'))),
+        h('span', { class: 'pmini lg', style: `--sc:${f.color}` }, portraitArt(sc.generals.find((x) => x.id === f.ruler), 'head')),
         h('div', {},
-          h('div', { class: 'fname' }, f.name),
+          h('div', { class: 'fname' }, f.name, sealStamp(f.id, 20)),
           h('div', { class: 'fmeta' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、')}`),
-          h('div', { class: 'fmeta' }, `武將 ${gens}｜兵 ${fmt(troops)}`),
+          h('div', { class: 'fmeta' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
           h('div', { class: 'stars' }, '難度 ' + '★'.repeat(diff) + '☆'.repeat(5 - diff))),
         h('span', { class: 'troopline' }, Array.from({ length: n }, () => raw(I.soldier(f.color)))));
     });
@@ -433,9 +491,9 @@
     $('hud-date').replaceChildren(
       h('span', { class: 'y' }, `${S.year}年`), h('span', { class: 'm' }, MONTHS[S.month - 1]),
       h('span', { class: `season ${cls}` }, name));
-    $('hud-faction').replaceChildren(raw(I.flag(f.color, sealChar(f.ruler))), h('span', { style: `color:${f.color};filter:brightness(1.4)` }, f.name));
+    $('hud-faction').replaceChildren(sealStamp(S.player, 28), h('span', {}, f.name));
     const chip = (key, iconName, label, v) => {
-      const el = h('span', { class: 'chip', title: label }, ic(iconName), h('b', {}, fmt(v)));
+      const el = h('span', { class: 'chip', title: `${label} ${fmt(v)}` }, ic(iconName), h('b', {}, fmtW(v)));
       if (lastRes[key] !== undefined && lastRes[key] !== v) el.classList.add('bump');
       lastRes[key] = v;
       return el;
@@ -447,35 +505,87 @@
     $('btn-sound').textContent = SND.isMuted() ? '♪✕' : '♪';
   }
 
-  // 自繪地形（非任何既有作品的地圖）
-  const LAND = 'M40,40 L960,30 L980,250 L940,320 L960,420 L930,520 L975,600 L960,705 L40,705 Z';
+  // ---------- 水墨地圖（自繪地形，非任何既有作品的地圖） ----------
+  // 海岸線控制點（東側為海），以平滑曲線連接
+  const COAST = [[930, -10], [950, 70], [985, 150], [952, 228], [990, 296], [958, 352], [978, 420], [938, 472], [962, 525], [992, 596], [958, 655], [985, 730]];
   const RIVERS = [
-    ['M60,250 C200,230 300,280 420,300 S600,250 700,260 S860,230 990,215', 470, 285, '黃河'],
-    ['M80,520 C200,560 330,580 470,590 S620,600 700,580 S820,540 990,545', 360, 588, '長江'],
+    ['M-10,252 C120,226 230,262 330,284 S470,312 560,270 S700,238 790,258 S900,242 960,222', 455, 300, '黃河'],
+    ['M40,515 C150,548 270,590 380,592 S520,612 610,598 S720,560 800,552 S900,548 975,552', 330, 608, '長江'],
+    ['M330,450 C390,480 450,520 520,545', 0, 0, ''],
+    ['M535,330 C560,360 600,390 640,410', 0, 0, ''],
   ];
-  const MOUNTAINS = [
-    [600, 150, 16], [622, 125, 12], [470, 190, 14], [445, 235, 12], [300, 395, 16], [335, 392, 12], [425, 400, 14],
-    [455, 385, 11], [262, 470, 14], [282, 515, 12], [100, 330, 15], [118, 420, 13], [90, 500, 14], [65, 120, 14], [250, 120, 12],
+  // 山脈：[x, y, 寬, 高, 遠近(0近 1遠)]
+  const RANGES = [
+    // 太行
+    [600, 160, 60, 46, 0], [628, 128, 44, 34, 1], [585, 252, 40, 30, 1], [470, 205, 52, 38, 0], [445, 250, 40, 30, 1],
+    // 秦嶺
+    [295, 400, 70, 52, 0], [350, 392, 52, 40, 1], [425, 405, 62, 46, 0], [462, 388, 40, 30, 1],
+    // 巴蜀
+    [262, 480, 58, 44, 0], [292, 528, 46, 34, 1], [110, 470, 56, 42, 1], [88, 545, 62, 46, 0],
+    // 西涼、北方
+    [95, 330, 64, 48, 0], [65, 120, 60, 44, 1], [250, 120, 56, 40, 0], [300, 160, 40, 28, 1], [700, 112, 46, 32, 1],
+    // 江南丘陵
+    [640, 650, 46, 30, 1], [780, 640, 44, 30, 1], [470, 690, 40, 26, 1],
   ];
-  const FORESTS = [[620, 645], [760, 650], [480, 665], [380, 560], [300, 640], [870, 470], [720, 120], [150, 640]];
+  const DOTS = [[380, 560], [300, 640], [870, 470], [150, 640], [720, 520], [560, 600], [420, 470], [760, 300], [180, 420]];
 
-  function castleMarkup(c, capital) {
-    const col = color(c.owner), dark = I.shade(col, -0.35);
-    let s = '<g class="castle">';
-    if (capital) {
-      s += `<rect x="-8" y="-17" width="16" height="12" fill="${col}" stroke="${dark}" stroke-width="1.2"/>`;
-      s += `<path d="M-12,-16 L0,-27 L12,-16 Z" fill="#9b1f16" stroke="#3d0b07" stroke-width="1"/>`;
-      s += `<circle cx="0" cy="-11" r="2" fill="#2a1a10"/>`;
+  function smooth(pts) {
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0]},${p2[1]}`;
     }
-    s += `<path d="M-17,12 V-3 H-13 V-7 H-9 V-3 H-5 V-7 H5 V-3 H9 V-7 H13 V-3 H17 V12 Z" fill="${col}" stroke="${dark}" stroke-width="1.5"/>`;
-    s += `<path d="M-17,4 H17 M-9,-3 V4 M9,-3 V4 M0,4 V12" stroke="${dark}" stroke-width=".7" opacity=".5"/>`;
-    s += `<path d="M-4.5,12 V6 a4.5,4.5 0 0 1 9,0 V12 Z" fill="#2a1a10"/>`;
+    return d;
+  }
+
+  // 一座水墨山：數個山峰疊染 + 筆觸山脊
+  function inkMountain(x, y, w, hgt, far, seed) {
+    const r = (k) => ((Math.sin(seed * 12.9898 + k * 78.233) * 43758.5453) % 1 + 1) % 1;
+    const fill = far ? 'url(#mtn-ink-far)' : 'url(#mtn-ink)';
+    let s = `<g filter="url(#ink-wash)" opacity="${far ? 0.75 : 0.95}">`;
+    const peaks = 3;
+    for (let i = 0; i < peaks; i++) {
+      const px = x + (i - 1) * w * 0.32 + (r(i) - 0.5) * w * 0.15;
+      const ph = hgt * (i === 1 ? 1 : 0.62 + r(i + 3) * 0.25);
+      const pw = w * (i === 1 ? 0.55 : 0.42);
+      s += `<path d="M${px - pw},${y} Q${px - pw * 0.35},${y - ph * 0.55} ${px - pw * 0.08},${y - ph} Q${px + pw * 0.1},${y - ph * 0.96} ${px + pw * 0.3},${y - ph * 0.6} Q${px + pw * 0.6},${y - ph * 0.3} ${px + pw},${y} Z" fill="${fill}"/>`;
+    }
     s += '</g>';
-    if (c.owner) {
-      s += `<line x1="15" y1="-4" x2="15" y2="-34" stroke="#5e3b20" stroke-width="2"/>`;
-      s += `<path d="M16,-34 L34,-30 L30,-26 L34,-22 L16,-22 Z" fill="${col}" stroke="${dark}" stroke-width="1"/>`;
+    if (!far) {
+      const ph = hgt;
+      s += `<path d="M${x - w * 0.3},${y - ph * 0.45} Q${x - w * 0.12},${y - ph * 0.92} ${x - w * 0.03},${y - ph} Q${x + w * 0.08},${y - ph * 0.8} ${x + w * 0.2},${y - ph * 0.55}" fill="none" stroke="#1f1a14" stroke-width="2.2" stroke-linecap="round" opacity=".7" filter="url(#ink-bleed)"/>`;
+      s += `<path d="M${x - w * 0.02},${y - ph * 0.9} Q${x + w * 0.02},${y - ph * 0.6} ${x - w * 0.06},${y - ph * 0.35}" fill="none" stroke="#1f1a14" stroke-width="1.1" opacity=".45" filter="url(#ink-bleed)"/>`;
     }
     return s;
+  }
+
+  // 城池：墨色城樓剪影 + 勢力朱印
+  function castleMarkup(c, capital) {
+    const ink = c.owner ? '#2a231b' : '#7d756a';
+    let s = `<g class="castle" filter="url(#ink-bleed)">`;
+    s += `<path d="M-19,13 L-16,-1 L16,-1 L19,13 Z" fill="${ink}"/>`;
+    s += `<path d="M-16,-1 V-5 H-12 V-1 M-8,-1 V-5 H-4 V-1 M4,-1 V-5 H8 V-1 M12,-1 V-5 H16 V-1" stroke="${ink}" stroke-width="3.2" fill="none"/>`;
+    s += `<path d="M-4.5,13 V7 Q0,2 4.5,7 V13 Z" fill="#efe5cf"/>`;
+    // 城樓
+    s += `<rect x="-8" y="-12" width="16" height="9" fill="${ink}"/>`;
+    s += `<path d="M-15,-11 Q-8,-14 0,-19 Q8,-14 15,-11 Q8,-12.5 0,-12 Q-8,-12.5 -15,-11 Z" fill="${ink}"/>`;
+    if (capital) {
+      s += `<rect x="-5" y="-25" width="10" height="7" fill="${ink}"/>`;
+      s += `<path d="M-11,-24 Q-5,-27 0,-31 Q5,-27 11,-24 Q5,-25.5 0,-25 Q-5,-25.5 -11,-24 Z" fill="${ink}"/>`;
+    }
+    s += '</g>';
+    return s;
+  }
+
+  function sealMarkup(c, x, y, size) {
+    if (!c.owner) return '';
+    const f = S.factions[c.owner];
+    return `<g class="seal-stamp" transform="translate(${x} ${y}) rotate(-4)" filter="url(#ink-bleed)">`
+      + `<rect x="0" y="0" width="${size}" height="${size}" rx="2" fill="${f.color}"/>`
+      + `<rect x="1.6" y="1.6" width="${size - 3.2}" height="${size - 3.2}" rx="1.5" fill="none" stroke="#f3ead6" stroke-width=".9"/>`
+      + `<text x="${size / 2}" y="${size * 0.74}" text-anchor="middle" font-size="${size * 0.66}" fill="#f3ead6" class="seal-char">${sealChar(f.ruler)}</text></g>`;
   }
 
   function placeSvg(str, x, y, w, hgt) {
@@ -484,27 +594,41 @@
 
   function renderMap() {
     const map = $('map');
-    let s = `<defs>
-      <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe0b9"/><stop offset=".6" stop-color="#e2cf9c"/><stop offset="1" stop-color="#d5c08a"/></linearGradient>
-      <pattern id="waves" width="40" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 Q10 4 20 10 T40 10" fill="none" stroke="#3f7383" stroke-width="1.5" opacity=".6"/></pattern>
-      <radialGradient id="vignette"><stop offset=".65" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>
-    </defs>`;
-    s += '<rect width="1000" height="720" fill="#24505e"/><rect width="1000" height="720" fill="url(#waves)"/>';
-    s += `<path class="land" d="${LAND}"/>`;
-    for (const [d, lx, ly, name] of RIVERS) {
-      s += `<path class="river" d="${d}"/>`;
-      s += `<text x="${lx}" y="${ly}" font-size="16" fill="#3f7383" opacity=".75" style="font-family:var(--brush)" letter-spacing="8">${name}</text>`;
+    let s = '';
+    // 宣紙底
+    s += '<rect x="-20" y="-20" width="1040" height="760" fill="#efe5cf"/>';
+    // 海：淡青墨暈 + 浪紋筆觸
+    const coastD = smooth(COAST);
+    s += `<path d="${coastD} L1040,730 L1040,-10 Z" fill="#9fb3b0" opacity=".38" filter="url(#ink-wash)"/>`;
+    for (let i = 0; i < 26; i++) {
+      const y = 30 + i * 27, x = 980 - ((i * 37) % 30);
+      s += `<path d="M${x},${y} q8,-6 16,0 q8,6 16,0" fill="none" stroke="#4f6b70" stroke-width="1.2" opacity=".35"/>`;
     }
-    for (const [x, y] of FORESTS) {
-      for (const [dx, dy, r] of [[0, 0, 7], [10, 3, 6], [-9, 4, 6], [4, -6, 6]]) {
-        s += `<rect x="${x + dx - 1}" y="${y + dy}" width="2" height="6" fill="#6b4a2a"/><circle class="forest" cx="${x + dx}" cy="${y + dy}" r="${r}"/>`;
+    // 海岸線（濃淡兩筆）
+    s += `<path d="${coastD}" fill="none" stroke="#2a231b" stroke-width="3" opacity=".55" filter="url(#ink-bleed)"/>`;
+    s += `<path d="${coastD}" fill="none" stroke="#2a231b" stroke-width="8" opacity=".08" filter="url(#ink-wash)"/>`;
+    // 河流
+    for (const [d, lx, ly, name] of RIVERS) {
+      s += `<path d="${d}" fill="none" stroke="#7d9aa0" stroke-width="${name ? 9 : 4}" opacity=".35" stroke-linecap="round" filter="url(#ink-wash)"/>`;
+      s += `<path d="${d}" fill="none" stroke="#4f6b70" stroke-width="${name ? 1.8 : 1.1}" opacity=".6" stroke-linecap="round" filter="url(#ink-bleed)"/>`;
+      if (name) s += `<text x="${lx}" y="${ly}" class="map-label">${name}</text>`;
+    }
+    // 山脈（遠山先畫）
+    RANGES.slice().sort((a, b) => b[4] - a[4]).forEach(([x, y, w, hh, far], i) => { s += inkMountain(x, y, w, hh, far, i + 1); });
+    // 點苔（樹林）
+    // 點苔成林：每叢幾株小樹（樹幹＋米點樹冠）
+    for (const [x, y] of DOTS) {
+      for (let t = 0; t < 4; t++) {
+        const tx = x + (t - 1.5) * 9 + ((t * 7) % 5), ty = y + ((t * 11) % 7) - 3;
+        s += `<g filter="url(#ink-bleed)" opacity="${0.55 + (t % 2) * 0.2}"><line x1="${tx}" y1="${ty + 6}" x2="${tx}" y2="${ty - 3}" stroke="#2a231b" stroke-width="1.2"/>`;
+        for (let k = 0; k < 6; k++) {
+          const a = k * 1.05 + t, r = 3 + (k % 3);
+          s += `<ellipse cx="${(tx + Math.cos(a) * r).toFixed(1)}" cy="${(ty - 5 + Math.sin(a) * r * 0.8).toFixed(1)}" rx="2.4" ry="1.5" fill="#2a231b" opacity="${0.4 + (k % 3) * 0.2}"/>`;
+        }
+        s += '</g>';
       }
     }
-    for (const [x, y, z] of MOUNTAINS) {
-      s += `<path class="mtn" d="M${x - z},${y} L${x},${y - z * 1.3} L${x + z},${y} Z"/>`;
-      s += `<path class="mtn-snow" d="M${x - z * 0.3},${y - z * 0.9} L${x},${y - z * 1.3} L${x + z * 0.3},${y - z * 0.9} Z"/>`;
-      s += `<path class="mtn" d="M${x + z * 0.4},${y} L${x + z * 1.1},${y - z * 0.8} L${x + z * 1.8},${y} Z" opacity=".85"/>`;
-    }
+    // 道路
     for (const [a, b] of S.roads) {
       const A = S.cities[a], B = S.cities[b];
       s += `<line class="road" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
@@ -513,23 +637,24 @@
     const targets = sel && sel.owner === S.player ? E.neighbors(S, sel.id).filter((id) => S.cities[id].owner !== S.player) : [];
     for (const c of Object.values(S.cities)) {
       const capital = E.generalsIn(S, c.id, (g) => g.ruler && g.status === 'active').length > 0;
-      s += `<g class="city" data-city="${c.id}" transform="translate(${c.x} ${c.y})" tabindex="0" role="button" aria-label="${c.name}">`;
-      s += '<ellipse cx="0" cy="13" rx="26" ry="6" fill="#000" opacity=".18"/>';
-      if (c.id === selected) s += '<circle class="sel-ring" r="30"/>';
+      s += `<g class="city${c.owner === S.player ? ' mine' : ''}" data-city="${c.id}" transform="translate(${c.x} ${c.y})" tabindex="0" role="button" aria-label="${c.name}">`;
+      s += '<ellipse cx="0" cy="14" rx="30" ry="7" fill="#3b332a" opacity=".16" filter="url(#ink-wash)"/>';
+      if (c.id === selected) s += '<ellipse class="sel-ring" cx="0" cy="2" rx="34" ry="26"/>';
+      if (c.owner) s += `<ellipse cx="0" cy="2" rx="28" ry="20" fill="${c.owner ? S.factions[c.owner].color : 'none'}" opacity=".16" filter="url(#ink-wash)"/>`;
       const n = c.troops <= 0 ? 0 : c.troops < 5000 ? 1 : c.troops < 15000 ? 2 : c.troops < 30000 ? 3 : 4;
-      const scol = color(c.owner);
       for (let i = 0; i < n; i++) {
-        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(scol), -36 - i * 9, -8 + (i % 2) * 4, 14, 19)}</g>`;
+        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(color(c.owner)), -38 - i * 8, -6 + (i % 2) * 4, 13, 18)}</g>`;
       }
       s += castleMarkup(c, capital);
-      s += `<rect class="plate" x="-31" y="16" width="62" height="31" rx="4"/>`;
-      s += `<text class="cname" y="31">${c.name}</text><text class="ctroops" y="43">${fmt(c.troops)}</text>`;
-      if (targets.includes(c.id)) {
-        s += `<g class="target-mark">${placeSvg(TK.Icons.ICONS.attack, 18, -46, 22, 22)}</g>`;
-      }
+      s += sealMarkup(c, 13, -30, 15);
+      s += `<text class="cname" y="32">${c.name}</text>`;
+      if (targets.includes(c.id)) s += `<g class="target-mark">${placeSvg(TK.Icons.ICONS.attack, -11, -54, 22, 22)}</g>`;
       s += '</g>';
     }
-    s += '<rect width="1000" height="720" fill="url(#vignette)" pointer-events="none"/>';
+    // 紙張紋理與焦邊
+    s += '<rect x="-20" y="-20" width="1040" height="760" filter="url(#paper-grain)" pointer-events="none"/>';
+    s += '<rect x="-20" y="-20" width="1040" height="760" filter="url(#paper-fiber)" pointer-events="none"/>';
+    s += '<rect x="-20" y="-20" width="1040" height="760" fill="url(#map-burn)" pointer-events="none"/>';
     map.innerHTML = s;
   }
 
@@ -538,8 +663,7 @@
     const gens = c.owner ? E.officers(S, c.id).length : 0;
     tip.replaceChildren(
       h('div', {}, h('b', {}, c.name), ' ', h('span', { style: `color:${color(c.owner)};font-weight:700` }, E.factionName(S, c.owner))),
-      h('div', {}, `兵 ${fmt(c.troops)}｜城防 ${c.defense}`),
-      h('div', {}, `武將 ${gens}｜民心 ${c.order}`));
+      h('div', {}, `兵 ${fmtW(c.troops)}｜武將 ${gens} 名`));
     const frame = $('map').parentElement.getBoundingClientRect();
     let x = evt.clientX - frame.left + 14, y = evt.clientY - frame.top + 14;
     if (x > frame.width - 170) x -= 190;
@@ -554,33 +678,33 @@
     const mine = c.owner === S.player;
     const ruler = c.owner ? S.factions[c.owner].ruler : '';
     const head = h('div', { class: 'city-head' },
-      h('span', { class: 'flag' }, raw(I.flag(color(c.owner), c.owner ? sealChar(ruler) : ''))),
+      sealStamp(c.owner, 34),
       h('span', { class: 'cn' }, c.name),
-      h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner)));
-    const cell = (iconName, label, v) => h('div', { class: 'res-cell' }, ic(iconName), h('span', {}, label), h('b', {}, fmt(v)));
+      h('span', { class: 'owner', style: `color:${color(c.owner)}` }, E.factionName(S, c.owner)));
+    const cell = (iconName, label, v) => h('div', { class: 'res-cell', title: `${label} ${fmt(v)}` }, ic(iconName), h('span', {}, label), h('b', {}, fmtW(v)));
     const res = h('div', { class: 'res-row' },
       cell('troops', '兵', c.troops), cell('gold', '金', c.gold), cell('food', '糧', c.food), cell('pop', '人口', c.pop));
-    const bar = (iconName, label, v, max, col) => h('div', { class: 'bar' }, ic(iconName), h('span', {}, label),
-      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${100 * v / max}%;background:${col}` })), h('b', {}, v));
+    // 發展度以文字等級 + 墨條表示，精確數值放在提示中
+    const level = (r) => r >= 0.85 ? '極盛' : r >= 0.65 ? '繁榮' : r >= 0.45 ? '尚可' : r >= 0.25 ? '薄弱' : '荒蕪';
+    const bar = (iconName, label, v, max, col) => h('div', { class: 'bar', title: `${label} ${v} / ${max}` }, ic(iconName), h('span', {}, label),
+      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${100 * v / max}%;background:${col}` })), h('b', {}, level(v / max)));
     const bars = h('div', { class: 'bars' },
-      bar('farm', '農業', c.farm, 999, '#3e9b4f'), bar('commerce', '商業', c.commerce, 999, '#d9822b'),
-      bar('defense', '城防', c.defense, 999, '#6c7a89'), bar('order', '民心', c.order, 100, '#c9a227'),
-      bar('train', '訓練', c.train, 100, '#b03a2e'));
+      bar('farm', '農業', c.farm, 999, '#3d7a4c'), bar('commerce', '商業', c.commerce, 999, '#c06a2e'),
+      bar('defense', '城防', c.defense, 999, '#4a5560'), bar('order', '民心', c.order, 100, '#b8892c'),
+      bar('train', '訓練', c.train, 100, '#b23a2c'));
 
     const gens = c.owner ? E.officers(S, c.id).sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int - a.lead - a.war - a.int)) : [];
     const genList = h('div', { class: 'gen-list' }, gens.map((g) =>
       h('div', { class: 'gen' + (g.acted && mine ? ' acted' : ''), onclick: () => showGeneral(g.id), title: '查看列傳' },
         portraitMini(g, { size: 'lg' }),
         h('div', {},
-          h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : null),
+          h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : h('span', { class: 'tag soft' }, TK.Portrait.classLabel(g, TK.Portrait.traits(g)))),
           h('div', { class: 'gstats' },
-            h('i', { class: 'st-lead' }, `統${g.lead}`), h('i', { class: 'st-war' }, `武${g.war}`),
-            h('i', { class: 'st-int' }, `智${g.int}`), h('i', { class: 'st-pol' }, `政${g.pol}`),
-            h('i', { class: 'st-cha' }, `魅${g.cha}`), g.ruler ? null : h('i', { class: 'st-loy' }, `忠${g.loyalty}`))))));
+            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha))))));
 
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const parts = [head, res, bars, h('h3', {}, `武將 ${gens.length} 名`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
+    const parts = [head, res, bars, h('h3', {}, `麾下武將`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
     if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (mine && !S.over) parts.push(h('h3', {}, '指令'), commandButtons(c));
@@ -722,11 +846,11 @@
     $('faction-panel').replaceChildren(h('h2', {}, '勢力一覽'),
       h('table', { class: 'factions' },
         rows.map(({ f, p }) => h('tr', { class: (f.id === S.player ? 'me' : '') + (f.alive ? '' : ' dead') },
-          h('td', {}, raw(I.soldier(f.color))),
+          h('td', {}, sealStamp(f.id, 20)),
           h('td', {}, f.name),
           h('td', { class: 'num' }, `${p.cities}城`),
           h('td', { style: 'width:40%' }, h('div', { class: 'pbar' }, h('div', { style: `width:${100 * p.troops / maxT}%;background:${f.color}` }))),
-          h('td', { class: 'num' }, fmt(p.troops))))));
+          h('td', { class: 'num' }, fmtW(p.troops))))));
   }
 
   function renderLog() {

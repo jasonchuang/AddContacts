@@ -94,22 +94,31 @@
   }
 
   function shade(hex, amt) { return TK.Icons.shade(hex, amt); }
+  // 與紙色混合，讓顏色像礦物顏料而非螢幕純色
+  function mute(hex, k) {
+    const a = parseInt(hex.slice(1), 16), b = 0xe8dcc0;
+    const m = (sh) => Math.round(((a >> sh) & 255) * (1 - k) + ((b >> sh) & 255) * k);
+    return '#' + ((1 << 24) | (m(16) << 16) | (m(8) << 8) | m(0)).toString(16).slice(1);
+  }
+  const INK = '#2a1d14';
 
   // 回傳 SVG 字串。mode: 'full'（半身大圖）或 'head'（頭像裁切）
   function svg(g, color, mode) {
     const t = traits(g);
     const skin = SKIN[t.skin] || SKIN.normal, skinD = shade(skin, -0.15);
     const hair = HAIR[t.hair] || HAIR.black;
-    const armor = t.armor || color;
+    const armor = mute(t.armor || color, 0.18);
     const armorD = shade(armor, -0.28), armorL = shade(armor, 0.15);
     const metal = '#6b7884', metalD = '#3e4851';
     const fat = t.fat ? 4 : 0;
     const p = [];
 
     // 背景
-    p.push(`<rect x="-10" y="-10" width="140" height="170" fill="${shade(color, -0.45)}"/>`);
-    p.push(`<circle cx="60" cy="58" r="58" fill="${shade(color, -0.2)}" opacity=".55"/>`);
-    p.push(`<circle cx="60" cy="58" r="40" fill="${shade(color, 0.05)}" opacity=".35"/>`);
+    const bg = [];
+    bg.push(`<rect x="-10" y="-10" width="140" height="170" fill="#efe5cf"/>`);
+    bg.push(`<circle cx="62" cy="60" r="54" fill="${mute(color, 0.35)}" opacity=".42" filter="url(#ink-wash)"/>`);
+    bg.push(`<circle cx="60" cy="56" r="34" fill="url(#p-halo)"/>`);
+    bg.push(`<path d="M-10,128 Q30,112 60,124 T130,118 L130,160 L-10,160 Z" fill="#3b332a" opacity=".10" filter="url(#ink-wash)"/>`);
 
     // 長柄武器（在身後）
     const shaft = (x, y1) => `<line x1="${x}" y1="150" x2="${x}" y2="${y1}" stroke="#6b4423" stroke-width="3.2"/>`;
@@ -157,12 +166,15 @@
       p.push(`<path d="M46,99 Q60,108 74,99 L72,96 L48,96 Z" fill="${armorD}"/>`);
     }
 
+    p.push(`<path d="M60,98 L80,103 Q112,110 114,150 L60,150 Z" fill="${INK}" opacity=".12"/>`);
+    p.push(`<path d="M6,150 Q8,110 40,103 L52,97 L68,97 L80,103 Q112,110 114,150" fill="none" stroke="${INK}" stroke-width="1.6" stroke-opacity=".75"/>`);
     // 脖子、頭
     p.push(`<rect x="51" y="78" width="18" height="22" fill="${skinD}"/>`);
     // 頭髮（在頭後）
     if (t.hat !== 'helmet' && t.hat !== 'bald') p.push(`<ellipse cx="60" cy="54" rx="${24 + fat}" ry="25" fill="${hair}"/>`);
     p.push(`<ellipse cx="${37 - fat}" cy="62" rx="4" ry="6" fill="${skinD}"/><ellipse cx="${83 + fat}" cy="62" rx="4" ry="6" fill="${skinD}"/>`);
-    p.push(`<ellipse cx="60" cy="60" rx="${22 + fat}" ry="${26 + fat / 2}" fill="${skin}"/>`);
+    p.push(`<ellipse cx="60" cy="60" rx="${22 + fat}" ry="${26 + fat / 2}" fill="${skin}" stroke="${INK}" stroke-width="1.1" stroke-opacity=".7"/>`);
+    p.push(`<path d="M62,35 Q${84 + fat},40 ${82 + fat},62 Q80,82 60,86 Q75,72 73,58 Q71,42 62,35 Z" fill="#6b4a2a" opacity=".13"/>`);
     p.push(`<ellipse cx="${46 - fat / 2}" cy="70" rx="5" ry="3" fill="#e08a7a" opacity=".35"/><ellipse cx="${74 + fat / 2}" cy="70" rx="5" ry="3" fill="#e08a7a" opacity=".35"/>`);
     if (t.age === 'old') p.push(`<path d="M49,44 Q60,41 71,44 M51,48 Q60,46 69,48 M44,66 Q47,68 50,66 M70,66 Q73,68 76,66" stroke="${skinD}" stroke-width="1" fill="none"/>`);
 
@@ -255,8 +267,17 @@
     }
 
     const vb = mode === 'head' ? '30 18 60 60' : '0 0 120 150';
-    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="portrait-svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">${p.join('')}</svg>`;
+    const grain = '<rect x="-10" y="-10" width="140" height="170" filter="url(#paper-grain)"/><rect x="-10" y="-10" width="140" height="170" filter="url(#paper-fiber)"/>';
+    const fade = mode === 'head' ? '' : '<rect x="0" y="0" width="120" height="150" fill="url(#p-fade)"/>';
+    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="portrait-svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">`
+      + bg.join('') + `<g filter="url(#ink-rough)">${p.join('')}</g>` + fade + grain + '</svg>';
   }
 
-  TK.Portrait = { svg, traits, classLabel, WEAPON_NAME };
+  // 若 portraits/ 中有該武將的插畫，回傳其網址
+  function art(g) {
+    const files = TK.PORTRAIT_FILES || {};
+    return files[g.name] || null;
+  }
+
+  TK.Portrait = { svg, traits, classLabel, art, mute, WEAPON_NAME };
 })(globalThis.TK = globalThis.TK || {});

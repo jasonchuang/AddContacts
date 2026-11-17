@@ -8,333 +8,306 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700;900&display=swap">
   <style>
-/* 群雄逐鹿：黑漆木框 + 羊皮紙 + 金邊 */
+/* 群雄逐鹿：宣紙・水墨・朱印 */
 :root {
-  --wood-0: #140c07;
-  --wood-1: #22150d;
-  --wood-2: #3a2416;
-  --lacquer: #9b1f16;
-  --lacquer-hi: #c8382a;
-  --gold: #e2b54a;
-  --gold-hi: #ffd978;
-  --gold-dim: #8a6a2c;
-  --parch: #f1e2bf;
-  --parch-2: #e3cd9e;
-  --parch-3: #cdb17a;
-  --ink: #2a1a10;
-  --muted: #7a5f42;
-  --sea: #1f4552;
-  --sea-2: #2a5c6b;
-  --good: #2e8b57;
-  --bad: #c0392b;
+  --paper: #efe5cf;
+  --paper-2: #e6d9bb;
+  --paper-3: #d4c39d;
+  --ink: #1f1a14;
+  --ink-2: #3b332a;
+  --ink-3: #6b6358;
+  --muted: #7d7062;
+  --cinnabar: #b23a2c;
+  --cinnabar-d: #8a2a1f;
+  --azurite: #2f5f8f;
+  --malachite: #3d7a4c;
+  --ochre: #a8743a;
+  --gamboge: #b8892c;
   --brush: "LXGW WenKai TC", "Kaiti TC", "BiauKai", "DFKai-SB", "STKaiti", serif;
   --serif: "Noto Serif TC", "PMingLiU", "Songti TC", serif;
+  --tex: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .38 0 0 0 0 .30 0 0 0 0 .20 0 0 0 .13 0'/%3E%3C/filter%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .3' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .36 0 0 0 0 .22 0 0 0 .10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body {
   font-family: var(--serif);
   font-size: 15px;
-  color: var(--parch);
-  background:
-    radial-gradient(ellipse at top, #3b2416 0%, transparent 60%),
-    repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 2px, transparent 2px 7px),
-    linear-gradient(180deg, var(--wood-1), var(--wood-0));
+  color: var(--ink);
+  background: var(--tex), radial-gradient(ellipse at 50% 0%, #f6eedb, var(--paper-2) 70%, #d9c9a4);
   background-attachment: fixed;
 }
 .hidden { display: none !important; }
+.ink-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 .ico { width: 20px; height: 20px; vertical-align: middle; flex: none; }
 
 /* ---------- 按鈕 ---------- */
 button {
-  font: inherit; cursor: pointer; border-radius: 6px; padding: 6px 14px;
-  transition: transform .08s, filter .15s, box-shadow .15s;
+  font: inherit; cursor: pointer; border-radius: 3px; padding: 6px 14px; color: var(--ink);
+  transition: transform .08s, filter .15s, box-shadow .15s, background .15s;
 }
 button:active:not(:disabled) { transform: translateY(1px) scale(.98); }
-button:disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.8); }
+button:disabled { opacity: .38; cursor: not-allowed; filter: grayscale(.7); }
+/* 朱印式主要按鈕 */
 button.lacquer {
-  color: #fff6e0; border: 1px solid var(--gold);
-  background: linear-gradient(180deg, var(--lacquer-hi), var(--lacquer) 60%, #6e140e);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 2px 0 #3d0b07, 0 0 0 1px #3d0b07;
-  font-weight: 700; letter-spacing: .1em; text-shadow: 0 1px 0 #3d0b07;
+  color: #f6eedb; border: 0; letter-spacing: .14em; font-family: var(--brush); font-weight: 700;
+  background: var(--tex), var(--cinnabar);
+  box-shadow: inset 0 0 0 2px var(--cinnabar), inset 0 0 0 3.5px rgba(246,238,219,.75), 0 2px 0 var(--cinnabar-d);
 }
-button.lacquer:hover:not(:disabled) { filter: brightness(1.15); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 2px 0 #3d0b07, 0 0 12px rgba(226,181,74,.6); }
-button.lacquer.big { font-family: var(--brush); font-size: 20px; padding: 8px 22px; }
-button.ghost {
-  color: var(--gold); background: rgba(0,0,0,.25); border: 1px solid var(--gold-dim);
-}
-button.ghost:hover:not(:disabled) { color: var(--gold-hi); border-color: var(--gold); background: rgba(226,181,74,.12); }
+button.lacquer:hover:not(:disabled) { filter: brightness(1.08) saturate(1.1); box-shadow: inset 0 0 0 2px var(--cinnabar), inset 0 0 0 3.5px rgba(246,238,219,.9), 0 3px 10px rgba(138,42,31,.35); }
+button.lacquer.big { font-size: 20px; padding: 8px 22px; }
+/* 淡墨框按鈕 */
+button.ghost { background: rgba(255,250,238,.5); border: 1px solid var(--ink-3); }
+button.ghost:hover:not(:disabled) { background: rgba(255,250,238,.9); border-color: var(--ink); }
 input, select {
-  font: inherit; color: var(--ink); background: #fbf3df; border: 1px solid var(--parch-3); border-radius: 4px; padding: 5px 7px;
+  font: inherit; color: var(--ink); background: #fbf5e6; border: 1px solid var(--paper-3); border-radius: 3px; padding: 5px 7px;
 }
+
+/* ---------- 方形朱印 ---------- */
+.stamp-sq {
+  --sz: 28px;
+  display: inline-grid; place-items: center; flex: none; width: var(--sz); height: var(--sz);
+  font-family: var(--brush); font-weight: 700; font-size: calc(var(--sz) * .62); line-height: 1; color: #f6eedb;
+  background: var(--tex), var(--sc, var(--cinnabar)); border-radius: 3px; transform: rotate(-3deg);
+  box-shadow: inset 0 0 0 calc(var(--sz) * .06) var(--sc, var(--cinnabar)), inset 0 0 0 calc(var(--sz) * .1) rgba(246,238,219,.75);
+  vertical-align: middle;
+}
+.stamp-sq.neutral { --sc: #8d857a; }
 
 /* ---------- 標題畫面 ---------- */
-.screen {
-  position: fixed; inset: 0; overflow: auto; z-index: 5;
-  display: flex; align-items: center; justify-content: center; padding: 24px 16px;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(200,56,42,.35), transparent 55%),
-    radial-gradient(circle at 50% 120%, #000 20%, transparent 70%),
-    linear-gradient(180deg, #2a160c, #0c0604);
-}
-.mist {
-  position: fixed; inset: -20%; pointer-events: none; opacity: .5;
-  background:
-    radial-gradient(ellipse at 20% 60%, rgba(241,226,191,.10), transparent 40%),
-    radial-gradient(ellipse at 80% 40%, rgba(241,226,191,.08), transparent 40%),
-    radial-gradient(ellipse at 50% 80%, rgba(226,181,74,.08), transparent 45%);
-  animation: drift 18s ease-in-out infinite alternate;
-}
-@keyframes drift { from { transform: translateX(-4%) } to { transform: translateX(4%) } }
-.title-inner { position: relative; text-align: center; max-width: 980px; width: 100%; }
+.screen { position: fixed; inset: 0; overflow: auto; z-index: 5; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--paper); }
+.title-landscape { position: fixed; inset: 0; pointer-events: none; }
+.title-landscape svg { display: block; }
+.title-inner { position: relative; text-align: center; max-width: 1000px; width: 100%; }
 .title-seal {
-  display: inline-block; font-family: var(--brush); font-size: 22px; color: #fff3df;
-  background: var(--lacquer); border: 2px solid #fff3df; padding: 4px 10px; border-radius: 4px;
-  transform: rotate(-6deg); box-shadow: 0 0 0 3px var(--lacquer);
+  display: inline-block; font-family: var(--brush); font-size: 20px; color: #f6eedb; padding: 6px 8px; writing-mode: vertical-rl; letter-spacing: .1em;
+  background: var(--tex), var(--cinnabar); border-radius: 3px; transform: rotate(-4deg);
+  box-shadow: inset 0 0 0 2px var(--cinnabar), inset 0 0 0 3.5px rgba(246,238,219,.8);
+  position: absolute; left: calc(50% + clamp(150px, 26vw, 300px)); top: 0;
 }
 .game-title {
-  font-family: var(--brush); font-weight: 700; margin: 10px 0 0;
-  font-size: clamp(56px, 13vw, 128px); letter-spacing: .12em; line-height: 1.1;
-  background: linear-gradient(180deg, #fff2c4, var(--gold) 45%, #a8741f 75%, #ffe39a);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(0 4px 0 #3d0b07) drop-shadow(0 0 24px rgba(226,181,74,.35));
-  animation: rise .9s ease-out both;
+  font-family: var(--brush); font-weight: 700; margin: 0; color: var(--ink);
+  font-size: clamp(60px, 14vw, 140px); letter-spacing: .14em; line-height: 1.15;
+  text-shadow: 0 0 1px rgba(31,26,20,.6), 2px 3px 0 rgba(31,26,20,.08);
+  animation: inkin 1.2s ease-out both;
 }
-@keyframes rise { from { opacity: 0; transform: translateY(20px) scale(.96) } to { opacity: 1; transform: none } }
-.tagline { color: var(--parch-2); letter-spacing: .4em; margin: 8px 0 28px; font-size: 15px; animation: rise 1.2s ease-out both; }
-.title-menu { display: flex; flex-direction: column; gap: 12px; align-items: center; animation: rise 1.4s ease-out both; }
-.title-menu button { min-width: 240px; font-size: 18px; padding: 10px 20px; }
-.title-soldiers { display: flex; justify-content: center; gap: 4px; margin: 0 0 18px; }
-.title-soldiers svg { width: 28px; height: 38px; animation: bob 1.2s ease-in-out infinite; }
-.title-soldiers svg:nth-child(odd) { animation-delay: .3s; }
+@keyframes inkin { from { opacity: 0; filter: blur(8px); letter-spacing: .3em } to { opacity: 1; filter: blur(0); letter-spacing: .14em } }
+.tagline { color: var(--ink-2); letter-spacing: .5em; margin: 6px 0 26px; font-size: 15px; font-family: var(--brush); animation: rise 1.6s ease-out both; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+.title-menu { display: flex; flex-direction: column; gap: 12px; align-items: center; animation: rise 1.8s ease-out both; }
+.title-menu button { min-width: 250px; font-size: 18px; padding: 10px 20px; }
+.title-seals { display: flex; justify-content: center; gap: 8px; margin: 0 0 18px; }
+.title-soldiers { display: flex; justify-content: center; gap: 4px; margin: 0 0 12px; }
+.title-soldiers svg { width: 26px; height: 36px; }
 
-.faction-pick h2 { font-family: var(--brush); color: var(--gold); font-size: 28px; margin: 0 0 14px; letter-spacing: .1em; }
-.faction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; text-align: left; }
+.faction-pick h2 { font-family: var(--brush); color: var(--ink); font-size: 28px; margin: 0 0 14px; letter-spacing: .14em; }
+.faction-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; text-align: left; }
 .fcard {
-  position: relative; display: flex; gap: 12px; align-items: center; width: 100%;
-  color: var(--ink); text-align: left; padding: 12px 14px 12px 16px;
-  background: linear-gradient(180deg, var(--parch), var(--parch-2));
-  border: 2px solid var(--gold-dim); border-left: 8px solid var(--fc);
-  box-shadow: 0 6px 16px rgba(0,0,0,.4);
+  position: relative; display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 14px;
+  background: var(--tex), rgba(250,244,229,.92); border: 1px solid var(--ink-3); border-left: 6px solid var(--fc);
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, 0 6px 16px rgba(59,51,42,.18);
 }
-.fcard:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 10px 22px rgba(0,0,0,.5), 0 0 0 2px var(--fc); }
-.fcard .flag { width: 34px; height: 44px; flex: none; }
-.fcard .fname { font-family: var(--brush); font-size: 22px; font-weight: 700; }
+.fcard:hover { transform: translateY(-2px); border-color: var(--ink); box-shadow: 0 10px 22px rgba(59,51,42,.28); }
+.fcard .fname { font-family: var(--brush); font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
 .fcard .fmeta { font-size: 12px; color: var(--muted); }
-.fcard .stars { color: var(--lacquer); letter-spacing: 2px; font-size: 13px; }
-.fcard .troopline { display: flex; gap: 0; margin-left: auto; }
-.fcard .troopline svg { width: 16px; height: 22px; margin-left: -5px; }
+.fcard .stars { color: var(--cinnabar); letter-spacing: 2px; font-size: 13px; }
+.fcard .troopline { display: flex; margin-left: auto; }
+.fcard .troopline svg { width: 15px; height: 21px; margin-left: -5px; }
 
-/* ---------- HUD ---------- */
+/* ---------- HUD：墨色橫幅 ---------- */
 .hud {
-  position: sticky; top: 0; z-index: 4;
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 8px 16px;
-  background: linear-gradient(180deg, #3a2416, #22150d);
-  border-bottom: 3px solid var(--gold-dim);
-  box-shadow: 0 2px 0 #0c0604, 0 6px 18px rgba(0,0,0,.5);
+  position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 8px 16px;
+  color: #efe5cf; background: var(--tex), linear-gradient(180deg, #2a231b, #1a1510);
+  box-shadow: 0 3px 0 var(--cinnabar), 0 6px 18px rgba(31,26,20,.35);
 }
-.brand {
-  font-family: var(--brush); font-size: 24px; font-weight: 700; letter-spacing: .12em;
-  background: linear-gradient(180deg, #fff2c4, var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.date-badge {
-  display: flex; align-items: baseline; gap: 6px; font-family: var(--brush);
-  padding: 2px 12px; border: 1px solid var(--gold-dim); border-radius: 20px; background: rgba(0,0,0,.3);
-}
-.date-badge .y { color: var(--parch-2); font-size: 14px; }
-.date-badge .m { color: var(--gold-hi); font-size: 22px; font-weight: 700; }
-.date-badge .season { font-size: 13px; padding: 0 6px; border-radius: 10px; color: #fff; }
-.season.spring { background: #3f9b5a; } .season.summer { background: #d0702a; }
-.season.autumn { background: #b8862b; } .season.winter { background: #4b7fb3; }
-.hud-faction { display: flex; align-items: center; gap: 6px; font-family: var(--brush); font-size: 20px; font-weight: 700; }
-.hud-faction svg { width: 24px; height: 30px; }
-.hud-res { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
-.chip {
-  display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 6px;
-  background: rgba(0,0,0,.35); border: 1px solid rgba(226,181,74,.35); border-radius: 14px; font-variant-numeric: tabular-nums;
-}
-.chip b { color: #fff3df; }
-.chip.bump { animation: bump .5s; }
-@keyframes bump { 30% { transform: scale(1.12); border-color: var(--gold-hi) } }
+.brand { font-family: var(--brush); font-size: 24px; font-weight: 700; letter-spacing: .14em; color: #f6eedb; }
+.date-badge { display: flex; align-items: baseline; gap: 6px; font-family: var(--brush); padding: 0 6px; }
+.date-badge .y { color: #c9bda4; font-size: 14px; }
+.date-badge .m { color: #f6eedb; font-size: 24px; font-weight: 700; }
+.date-badge .season { font-size: 13px; padding: 0 6px; border-radius: 2px; color: #f6eedb; }
+.season.spring { background: var(--malachite); } .season.summer { background: var(--ochre); }
+.season.autumn { background: var(--cinnabar); } .season.winter { background: var(--azurite); }
+.hud-faction { display: flex; align-items: center; gap: 8px; font-family: var(--brush); font-size: 21px; font-weight: 700; color: #f6eedb; }
+.hud-res { display: flex; flex-wrap: wrap; gap: 4px 14px; flex: 1; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--brush); font-size: 17px; }
+.chip .ico { width: 22px; height: 22px; filter: sepia(.25) saturate(.8); }
+.chip b { color: #f6eedb; font-weight: 700; }
+.chip.bump b { animation: bump .6s; }
+@keyframes bump { 30% { color: #ffd88a; text-shadow: 0 0 8px rgba(255,216,138,.7) } }
 .hud-btns { display: flex; gap: 6px; }
+.hud button.ghost { color: #efe5cf; background: transparent; border-color: rgba(239,229,207,.4); font-family: var(--brush); }
+.hud button.ghost:hover:not(:disabled) { border-color: #efe5cf; background: rgba(239,229,207,.08); }
 
 /* ---------- 版面 ---------- */
-.layout {
-  display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto 210px;
-  gap: 14px; padding: 14px 16px;
-}
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto 210px; gap: 16px; padding: 16px; }
 .map-frame { grid-column: 1; grid-row: 1; position: relative; }
-.side { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.side { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .log-wrap { grid-column: 1; grid-row: 2; overflow: auto; }
 
+/* 紙卷面板：上下軸桿 */
 .panel {
-  color: var(--ink); border-radius: 6px; padding: 12px 14px;
-  background:
-    radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.35), transparent 60%),
-    linear-gradient(180deg, var(--parch), var(--parch-2));
-  border: 2px solid var(--gold-dim);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.4), inset 0 0 30px rgba(122,95,66,.25), 0 6px 18px rgba(0,0,0,.45);
+  position: relative; border-radius: 2px; padding: 16px 16px 14px;
+  background: var(--tex), linear-gradient(180deg, #f8f1df, #efe4c9);
+  border-left: 1px solid rgba(59,51,42,.25); border-right: 1px solid rgba(59,51,42,.25);
+  box-shadow: 0 8px 20px rgba(59,51,42,.18);
 }
-.panel-title, .panel h2 { font-family: var(--brush); margin: 0 0 8px; font-size: 20px; color: var(--lacquer); letter-spacing: .1em; }
-.panel h3 {
-  font-family: var(--brush); margin: 12px 0 6px; font-size: 16px; color: var(--muted);
-  display: flex; align-items: center; gap: 8px;
+.panel::before, .panel::after {
+  content: ""; position: absolute; left: -6px; right: -6px; height: 7px; border-radius: 4px;
+  background: linear-gradient(180deg, #5a4630, #2a1f15); box-shadow: 0 1px 2px rgba(0,0,0,.3);
 }
-.panel h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--parch-3), transparent); }
+.panel::before { top: -3px; } .panel::after { bottom: -3px; }
+.panel-title, .panel h2 { font-family: var(--brush); margin: 0 0 8px; font-size: 21px; color: var(--ink); letter-spacing: .14em; }
+.panel h3 { font-family: var(--brush); margin: 14px 0 7px; font-size: 16px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; letter-spacing: .1em; }
+.panel h3::before { content: ""; width: 6px; height: 6px; background: var(--cinnabar); transform: rotate(45deg); }
+.panel h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(59,51,42,.4), transparent); }
 
 /* ---------- 地圖 ---------- */
 #map {
-  width: 100%; height: auto; display: block; border-radius: 6px;
-  border: 3px solid var(--gold-dim); box-shadow: 0 0 0 2px #0c0604, 0 8px 24px rgba(0,0,0,.6);
-  background: var(--sea);
+  width: 100%; height: auto; display: block; background: var(--paper);
+  border: 1px solid rgba(59,51,42,.35); box-shadow: 0 0 0 6px #f4ecd8, 0 0 0 7px rgba(59,51,42,.35), 0 12px 28px rgba(59,51,42,.25);
 }
-#map .land { fill: url(#landGrad); stroke: #8d6e3f; stroke-width: 2; }
-#map .river { fill: none; stroke: #4f8fa3; stroke-width: 5; stroke-linecap: round; opacity: .85; }
-#map .mtn { fill: #9b7a52; stroke: #5e4429; stroke-width: 1; }
-#map .mtn-snow { fill: #f4ead2; }
-#map .forest { fill: #5f8a4a; }
-#map .road { stroke: #8d6e3f; stroke-width: 3; stroke-dasharray: 2 6; stroke-linecap: round; }
+#map .road { stroke: #6b5a44; stroke-width: 1.6; stroke-dasharray: 1 6; stroke-linecap: round; opacity: .7; }
+#map .map-label { font-family: var(--brush); font-size: 18px; fill: #4f6b70; letter-spacing: 10px; opacity: .8; }
 #map .city { cursor: pointer; }
-#map .city:hover .castle { filter: brightness(1.2) drop-shadow(0 0 6px rgba(255,217,120,.9)); }
-#map .castle { transition: filter .15s; }
-#map .plate { fill: rgba(28,16,9,.85); stroke: var(--gold-dim); stroke-width: 1; }
-#map .cname { font-family: var(--brush); font-size: 14px; fill: #fff3df; text-anchor: middle; font-weight: 700; pointer-events: none; }
-#map .ctroops { font-size: 10px; fill: var(--gold); text-anchor: middle; pointer-events: none; font-variant-numeric: tabular-nums; }
-#map .sel-ring { fill: none; stroke: var(--gold-hi); stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: pulse 1.4s ease-in-out infinite; }
-#map .target-mark { transform-box: fill-box; transform-origin: center; animation: pulse 1s ease-in-out infinite; }
-@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: .55; transform: scale(1.12) } }
+#map .city:hover .castle { filter: url(#ink-bleed) drop-shadow(0 0 4px rgba(178,58,44,.6)); }
+#map .cname {
+  font-family: var(--brush); font-size: 17px; font-weight: 700; fill: var(--ink); text-anchor: middle; pointer-events: none;
+  paint-order: stroke; stroke: #efe5cf; stroke-width: 4px; stroke-linejoin: round;
+}
+#map .city.mine .cname { fill: var(--cinnabar-d); }
+#map .seal-char { font-family: var(--brush); font-weight: 700; }
+#map .sel-ring { fill: none; stroke: var(--cinnabar); stroke-width: 2.6; stroke-dasharray: 150 14; filter: url(#ink-bleed); transform-box: fill-box; transform-origin: center; animation: spin 9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+#map .target-mark { transform-box: fill-box; transform-origin: center; animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: .5; transform: scale(1.12) } }
 #map .garrison svg { overflow: visible; }
-.bob { animation: bob 1.4s ease-in-out infinite; transform-box: fill-box; }
-@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2px) } }
+.bob { animation: bob 1.6s ease-in-out infinite; transform-box: fill-box; }
+@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-1.5px) } }
 
 .tip {
-  position: absolute; pointer-events: none; z-index: 3; min-width: 150px;
-  color: var(--ink); background: linear-gradient(180deg, var(--parch), var(--parch-2));
-  border: 2px solid var(--gold-dim); border-radius: 6px; padding: 8px 10px; font-size: 13px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.5);
+  position: absolute; pointer-events: none; z-index: 3; min-width: 130px; padding: 8px 12px; font-size: 13px;
+  background: var(--tex), #f8f1df; border: 1px solid var(--ink-3); box-shadow: 0 6px 16px rgba(59,51,42,.25);
 }
-.tip b { font-family: var(--brush); font-size: 17px; }
+.tip b { font-family: var(--brush); font-size: 18px; }
 
 /* ---------- 城市面板 ---------- */
-.city-head { display: flex; align-items: center; gap: 10px; margin: -2px 0 8px; }
-.city-head .flag { width: 32px; height: 42px; }
-.city-head .cn { font-family: var(--brush); font-size: 30px; font-weight: 700; line-height: 1; }
-.city-head .owner { font-size: 13px; color: #fff; padding: 1px 8px; border-radius: 10px; }
-.res-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
-.res-cell { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,.35); border: 1px solid var(--parch-3); border-radius: 6px; padding: 4px 8px; font-variant-numeric: tabular-nums; }
-.res-cell .ico { width: 22px; height: 22px; }
-.res-cell span { color: var(--muted); font-size: 12px; }
-.res-cell b { margin-left: auto; }
-.bars { display: grid; gap: 4px; margin-top: 8px; }
-.bar { display: grid; grid-template-columns: 22px 38px 1fr 34px; align-items: center; gap: 6px; font-size: 12px; }
-.bar .ico { width: 20px; height: 20px; }
-.bar .track { height: 10px; background: rgba(0,0,0,.15); border-radius: 5px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.3); }
-.bar .fill { height: 100%; border-radius: 5px; transition: width .5s; }
-.bar b { text-align: right; font-variant-numeric: tabular-nums; }
+.city-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
+.city-head .cn { font-family: var(--brush); font-size: 34px; font-weight: 700; line-height: 1; letter-spacing: .08em; }
+.city-head .owner { font-size: 13px; color: var(--ink-2); font-family: var(--brush); border-bottom: 2px solid currentColor; }
+.res-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; }
+.res-cell { display: grid; justify-items: center; gap: 1px; padding: 4px 2px; border-right: 1px dashed rgba(59,51,42,.25); }
+.res-cell:last-child { border-right: 0; }
+.res-cell .ico { width: 26px; height: 26px; filter: sepia(.3) saturate(.75); }
+.res-cell span { color: var(--muted); font-size: 11px; }
+.res-cell b { font-family: var(--brush); font-size: 18px; }
+.bars { display: grid; gap: 5px; margin-top: 10px; }
+.bar { display: grid; grid-template-columns: 22px 34px 1fr 36px; align-items: center; gap: 6px; font-size: 13px; }
+.bar .ico { width: 20px; height: 20px; filter: sepia(.3) saturate(.75); }
+.bar > span { color: var(--ink-2); }
+.bar .track { height: 7px; background: rgba(59,51,42,.1); border-radius: 4px; overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 4px; transition: width .5s; opacity: .85; filter: url(#ink-bleed); }
+.bar b { font-family: var(--brush); font-size: 14px; text-align: right; color: var(--ink-2); }
 
 .gen-list { display: grid; gap: 6px; }
 .gen {
-  position: relative; display: grid; grid-template-columns: 42px 1fr; gap: 8px; align-items: center;
-  background: rgba(255,255,255,.4); border: 1px solid var(--parch-3); border-radius: 6px; padding: 5px 8px;
+  position: relative; display: grid; grid-template-columns: 50px 1fr; gap: 10px; align-items: center; cursor: pointer;
+  padding: 6px 8px; border-radius: 2px; background: rgba(255,250,238,.55); border: 1px solid rgba(59,51,42,.18);
 }
-.gen.acted { opacity: .62; }
+.gen:hover { background: rgba(255,250,238,.95); border-color: var(--ink-3); }
+.gen.acted { opacity: .55; }
 .gen.acted::after {
-  content: "已行動"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%) rotate(-12deg);
-  font-family: var(--brush); font-size: 13px; color: var(--lacquer); border: 2px solid var(--lacquer); padding: 0 4px; border-radius: 3px; opacity: .85;
+  content: "已行動"; position: absolute; right: 8px; top: 50%; transform: translateY(-50%) rotate(-10deg);
+  font-family: var(--brush); font-size: 13px; color: var(--cinnabar); border: 2px solid var(--cinnabar); padding: 0 4px; border-radius: 2px; opacity: .85;
 }
-.seal {
-  width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
-  font-family: var(--brush); font-size: 22px; font-weight: 700; color: #fff;
-  border: 2px solid rgba(255,255,255,.7); box-shadow: 0 0 0 2px var(--sc, #555), 0 2px 4px rgba(0,0,0,.4);
-  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), transparent 50%), var(--sc, #555);
-  text-shadow: 0 1px 1px rgba(0,0,0,.5);
-}
-.seal.ruler { box-shadow: 0 0 0 2px var(--gold), 0 0 10px rgba(226,181,74,.8); }
-.gen .gname { font-weight: 700; display: flex; align-items: center; gap: 4px; }
-.gen .gstats { display: flex; gap: 6px; font-size: 12px; font-variant-numeric: tabular-nums; flex-wrap: wrap; }
-.gen .gstats i { font-style: normal; padding: 0 4px; border-radius: 3px; color: #fff; }
-.st-lead { background: #2e6fb5; } .st-war { background: #c0392b; } .st-int { background: #7d3c98; }
-.st-pol { background: #1e8449; } .st-cha { background: #d68910; } .st-loy { background: #7f8c8d; }
-.tag { display: inline-block; font-size: 11px; padding: 0 5px; border-radius: 3px; background: var(--gold); color: var(--ink); font-weight: 700; }
-.people { font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px; }
-.people span { background: rgba(255,255,255,.4); border: 1px dashed var(--parch-3); border-radius: 4px; padding: 1px 6px; }
+.gen .gname { font-family: var(--brush); font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.gen .gstats { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+.gr { font-style: normal; font-size: 12px; color: var(--ink-3); display: inline-flex; align-items: baseline; gap: 1px; padding-right: 4px; }
+.gr b, em[class^="gr-"] { font-family: var(--brush); font-style: normal; font-weight: 700; font-size: 15px; }
+.gr-S b, em.gr-S { color: var(--cinnabar); }
+.gr-A b, em.gr-A { color: var(--ochre); }
+.gr-B b, em.gr-B { color: var(--azurite); }
+.gr-C b, em.gr-C { color: var(--malachite); }
+.gr-D b, em.gr-D { color: #8d857a; }
+.tag { display: inline-block; font-family: var(--serif); font-size: 11px; font-weight: 700; padding: 0 5px; border-radius: 2px; background: var(--cinnabar); color: #f6eedb; }
+.tag.soft { background: transparent; color: var(--ink-3); border: 1px solid rgba(59,51,42,.3); font-weight: 400; }
+.tag.alt { background: var(--ink-2); }
+.people { font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px; font-family: var(--brush); }
+.people span { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; padding: 2px 8px 2px 2px; border: 1px dashed rgba(59,51,42,.3); border-radius: 16px; background: rgba(255,250,238,.5); }
+.people span:hover { background: rgba(255,250,238,.95); }
+.people .pmini { width: 26px; height: 26px; border-width: 1px; }
 
-.cmds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+/* 指令：紙籤 + 礦物色圓章 */
+.cmds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .cmd {
-  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 7px 2px 5px;
-  color: #fff; font-weight: 700; font-size: 13px; letter-spacing: .05em;
-  border: 1px solid rgba(0,0,0,.35);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--cc) 75%, #fff), var(--cc) 55%, color-mix(in srgb, var(--cc) 70%, #000));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 2px 0 rgba(0,0,0,.35);
-  text-shadow: 0 1px 1px rgba(0,0,0,.5);
+  display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 2px 6px;
+  font-family: var(--brush); font-size: 15px; font-weight: 700; letter-spacing: .1em; color: var(--ink);
+  background: var(--tex), rgba(255,250,238,.7); border: 1px solid rgba(59,51,42,.28); border-top: 3px solid var(--cc);
 }
-.cmd .ico { width: 30px; height: 30px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); background: rgba(255,255,255,.85); border-radius: 50%; padding: 3px; }
-.cmd:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 8px rgba(0,0,0,.35); }
+.cmd .ico {
+  width: 34px; height: 34px; padding: 5px; border-radius: 50%;
+  background: color-mix(in srgb, var(--cc) 22%, #fbf5e6); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--cc) 70%, transparent);
+  filter: sepia(.2) saturate(.85);
+}
+.cmd:hover:not(:disabled) { background: var(--tex), #fffaf0; border-color: var(--ink-3); border-top-color: var(--cc); transform: translateY(-1px); box-shadow: 0 4px 10px rgba(59,51,42,.18); }
 
-.factions { width: 100%; font-size: 13px; border-collapse: collapse; }
+.factions { width: 100%; font-size: 14px; border-collapse: collapse; font-family: var(--brush); }
 .factions td { padding: 3px 4px; vertical-align: middle; }
-.factions tr.me td { font-weight: 700; background: rgba(226,181,74,.25); }
-.factions tr.dead td { color: var(--muted); text-decoration: line-through; opacity: .6; }
-.factions .pbar { height: 8px; background: rgba(0,0,0,.12); border-radius: 4px; overflow: hidden; min-width: 60px; }
-.factions .pbar div { height: 100%; }
-.factions .num { text-align: right; font-variant-numeric: tabular-nums; }
-.factions svg { width: 16px; height: 20px; vertical-align: middle; }
+.factions tr.me td { color: var(--cinnabar-d); font-weight: 700; }
+.factions tr.dead td { color: var(--muted); text-decoration: line-through; opacity: .55; }
+.factions .pbar { height: 6px; background: rgba(59,51,42,.1); border-radius: 3px; overflow: hidden; min-width: 60px; }
+.factions .pbar div { height: 100%; opacity: .85; }
+.factions .num { text-align: right; }
 
 #log { list-style: none; margin: 0; padding: 0; font-size: 13px; }
-#log li { padding: 3px 0 3px 8px; border-bottom: 1px dotted var(--parch-3); border-left: 4px solid transparent; }
-#log li .d { color: var(--muted); margin-right: 6px; font-size: 12px; }
-#log li.other { color: var(--muted); }
-#log li.major { color: var(--lacquer); font-weight: 700; }
-#log li.warn { color: var(--bad); }
+#log li { padding: 3px 0 3px 10px; border-bottom: 1px dotted rgba(59,51,42,.25); border-left: 3px solid transparent; }
+#log li .d { color: var(--muted); margin-right: 8px; font-size: 12px; font-family: var(--brush); }
+#log li.other { color: var(--ink-3); }
+#log li.major { color: var(--cinnabar-d); font-weight: 700; }
+#log li.warn { color: var(--cinnabar); }
 
 /* ---------- 視窗 ---------- */
-.modal { position: fixed; inset: 0; background: rgba(8,4,2,.7); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; backdrop-filter: blur(2px); }
+.modal { position: fixed; inset: 0; background: rgba(31,26,20,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; backdrop-filter: blur(2px) sepia(.3); }
 .modal-box {
-  color: var(--ink); width: 100%; max-width: 540px; max-height: 90vh; overflow: auto; padding: 18px;
-  background: linear-gradient(180deg, var(--parch), var(--parch-2));
-  border: 3px solid var(--gold-dim); border-radius: 8px;
-  box-shadow: 0 0 0 2px #0c0604, inset 0 0 40px rgba(122,95,66,.3), 0 20px 50px rgba(0,0,0,.6);
-  animation: pop .18s ease-out;
+  position: relative; width: 100%; max-width: 560px; max-height: 90vh; overflow: auto; padding: 20px;
+  background: var(--tex), linear-gradient(180deg, #f8f1df, #efe4c9); border: 1px solid var(--ink-3);
+  box-shadow: 0 0 0 5px #f4ecd8, 0 0 0 6px rgba(59,51,42,.4), 0 24px 50px rgba(31,26,20,.45);
+  animation: pop .2s ease-out;
 }
-@keyframes pop { from { transform: scale(.94); opacity: 0 } to { transform: none; opacity: 1 } }
-.modal-box h2 { font-family: var(--brush); color: var(--lacquer); margin: 0 0 12px; font-size: 24px; display: flex; align-items: center; gap: 8px; }
-.modal-box h2 .ico { width: 28px; height: 28px; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-.modal-box button.ghost, .battle-box button.ghost { color: var(--ink); border-color: var(--parch-3); background: rgba(255,255,255,.4); }
+@keyframes pop { from { transform: scale(.95); opacity: 0 } to { transform: none; opacity: 1 } }
+.modal-box h2 { font-family: var(--brush); color: var(--ink); margin: 0 0 14px; font-size: 24px; display: flex; align-items: center; gap: 10px; letter-spacing: .12em; }
+.modal-box h2 .ico { width: 28px; height: 28px; filter: sepia(.3) saturate(.8); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 .field { margin: 10px 0; }
-.field > label { display: block; color: var(--muted); font-size: 13px; margin-bottom: 4px; font-weight: 700; }
+.field > label { display: block; color: var(--ink-2); font-size: 14px; margin-bottom: 4px; font-family: var(--brush); font-weight: 700; }
 .field select, .field input[type=number] { width: 100%; }
-.checks label { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 4px; }
-.checks label:hover { background: rgba(255,255,255,.4); }
+.checks label { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 2px; }
+.checks label:hover { background: rgba(255,250,238,.7); }
 .hint { color: var(--muted); font-size: 13px; }
 .report { padding-left: 20px; }
 .report li { margin: 4px 0; }
 
 /* ---------- 戰鬥 ---------- */
-.battle { position: fixed; inset: 0; z-index: 12; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(8,4,2,.82); }
+.battle { position: fixed; inset: 0; z-index: 12; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(31,26,20,.6); }
 .battle-box {
-  position: relative; width: 100%; max-width: 760px; color: var(--ink); padding: 18px; overflow: hidden;
-  background: linear-gradient(180deg, var(--parch), var(--parch-2));
-  border: 3px solid var(--gold-dim); border-radius: 8px; box-shadow: 0 0 0 2px #0c0604, 0 20px 50px rgba(0,0,0,.7);
+  position: relative; width: 100%; max-width: 780px; padding: 20px; overflow: hidden;
+  background: var(--tex), linear-gradient(180deg, #f8f1df, #efe4c9);
+  box-shadow: 0 0 0 5px #f4ecd8, 0 0 0 6px rgba(59,51,42,.4), 0 24px 50px rgba(31,26,20,.5);
   animation: pop .2s ease-out;
 }
-.battle-title { font-family: var(--brush); text-align: center; color: var(--lacquer); font-size: 30px; margin: 0 0 10px; letter-spacing: .2em; }
+.battle-title { font-family: var(--brush); text-align: center; color: var(--ink); font-size: 32px; margin: 0 0 12px; letter-spacing: .3em; }
 .armies { display: grid; grid-template-columns: 1fr 40px 1fr; align-items: center; gap: 8px; }
-.vs { font-size: 30px; text-align: center; color: var(--lacquer); }
-.army { display: grid; grid-template-columns: 54px 1fr; gap: 8px; align-items: center; }
-.army.right { grid-template-columns: 1fr 54px; text-align: right; }
-.army.right .seal { order: 2; }
-.army .seal { width: 54px; height: 54px; font-size: 28px; }
-.army .an { font-family: var(--brush); font-size: 20px; font-weight: 700; }
+.vs { font-family: var(--brush); font-size: 30px; text-align: center; color: var(--cinnabar); }
+.army { display: grid; grid-template-columns: 60px 1fr; gap: 10px; align-items: center; }
+.army.right { grid-template-columns: 1fr 60px; text-align: right; }
+.army.right .seal, .army.right .pmini { order: 2; justify-self: end; }
+.army .an { font-family: var(--brush); font-size: 21px; font-weight: 700; }
 .army .ag { font-size: 12px; color: var(--muted); }
-.army .num { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; }
-.army .hp { height: 12px; border-radius: 6px; background: rgba(0,0,0,.18); overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.35); }
-.army .hp div { height: 100%; transition: width .35s ease-out; }
+.army .num { font-family: var(--brush); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.army .hp { height: 8px; border-radius: 4px; background: rgba(59,51,42,.12); overflow: hidden; }
+.army .hp div { height: 100%; transition: width .35s ease-out; opacity: .85; }
 .battlefield {
-  position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 8px; padding: 12px 10px;
-  min-height: 150px; border-radius: 6px;
-  background: linear-gradient(180deg, #b9c98a, #8fa65f 60%, #7a8f4e);
-  box-shadow: inset 0 2px 8px rgba(0,0,0,.35);
+  position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 8px; padding: 14px 10px; min-height: 150px;
+  background: var(--tex), linear-gradient(180deg, rgba(168,116,58,.08), rgba(61,122,76,.18) 70%, rgba(59,51,42,.18));
+  border-top: 1px solid rgba(59,51,42,.3); border-bottom: 1px solid rgba(59,51,42,.3);
 }
 .units { display: flex; flex-wrap: wrap; align-content: center; gap: 2px; }
 .units.right { justify-content: flex-end; }
@@ -344,46 +317,74 @@ input, select {
 .units svg.fallen { opacity: 0; transform: rotate(80deg) translateY(10px); }
 .units.hit { animation: shake .25s; }
 @keyframes shake { 25% { transform: translateX(-4px) } 75% { transform: translateX(4px) } }
-.battle-event { min-height: 30px; text-align: center; font-family: var(--brush); font-size: 22px; font-weight: 700; color: var(--lacquer); }
+.battle-event { min-height: 30px; text-align: center; font-family: var(--brush); font-size: 22px; font-weight: 700; color: var(--cinnabar-d); }
 .battle-event.flash { animation: flash .6s; }
-@keyframes flash { from { transform: scale(1.5); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes flash { from { transform: scale(1.4); opacity: 0; filter: blur(4px) } to { transform: none; opacity: 1; filter: none } }
 .battle-lines { list-style: none; padding: 0; margin: 4px 0 0; font-size: 13px; max-height: 110px; overflow: auto; }
-.battle-lines li { padding: 2px 0; border-bottom: 1px dotted var(--parch-3); animation: rise .3s; }
+.battle-lines li { padding: 2px 0; border-bottom: 1px dotted rgba(59,51,42,.25); animation: rise .3s; }
 .stamp {
-  position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%) rotate(-12deg);
-  font-family: var(--brush); font-size: 84px; font-weight: 700; padding: 0 22px; border: 6px solid currentColor; border-radius: 10px;
-  background: rgba(241,226,191,.85); animation: stamp .35s cubic-bezier(.2, 1.6, .4, 1) both; pointer-events: none;
+  position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%) rotate(-10deg);
+  font-family: var(--brush); font-size: 80px; font-weight: 700; padding: 6px 20px; border-radius: 4px; color: #f6eedb;
+  background: var(--tex), var(--cinnabar); box-shadow: inset 0 0 0 4px var(--cinnabar), inset 0 0 0 7px rgba(246,238,219,.8);
+  animation: stamp .35s cubic-bezier(.2, 1.6, .4, 1) both; pointer-events: none; opacity: .93;
 }
-.stamp.win { color: var(--lacquer); } .stamp.lose { color: #34495e; }
-@keyframes stamp { from { transform: translate(-50%, -50%) rotate(-12deg) scale(2.4); opacity: 0 } to { transform: translate(-50%, -50%) rotate(-12deg) scale(1); opacity: 1 } }
+.stamp.lose { background: var(--tex), var(--ink-2); box-shadow: inset 0 0 0 4px var(--ink-2), inset 0 0 0 7px rgba(246,238,219,.8); }
+@keyframes stamp { from { transform: translate(-50%, -50%) rotate(-10deg) scale(2.2); opacity: 0 } to { transform: translate(-50%, -50%) rotate(-10deg) scale(1); opacity: .93 } }
 .duel-flash {
-  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
-  font-family: var(--brush); font-size: 64px; color: #fff; text-shadow: 0 0 20px var(--lacquer), 0 4px 0 #3d0b07;
-  background: radial-gradient(circle, rgba(200,56,42,.55), transparent 65%); animation: duel 1.1s ease-out both;
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; text-align: center;
+  font-family: var(--brush); font-size: 72px; color: var(--ink); text-shadow: 0 0 2px var(--paper);
+  background: radial-gradient(circle, rgba(239,229,207,.95) 30%, transparent 70%); animation: duel 1.1s ease-out both;
 }
-@keyframes duel { 0% { opacity: 0; transform: scale(2) } 20% { opacity: 1; transform: scale(1) } 80% { opacity: 1 } 100% { opacity: 0 } }
+@keyframes duel { 0% { opacity: 0; transform: scale(1.8); filter: blur(6px) } 20% { opacity: 1; transform: scale(1); filter: none } 80% { opacity: 1 } 100% { opacity: 0 } }
+.seal { /* 無武將時的圓章 */
+  width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-family: var(--brush); font-size: 28px; font-weight: 700; color: #f6eedb;
+  background: var(--tex), var(--sc, #8d857a);
+}
 
 /* ---------- 換月橫幅 ---------- */
-.month-banner {
-  position: fixed; inset: 0; z-index: 11; display: grid; place-items: center; pointer-events: none;
-  background: radial-gradient(ellipse, rgba(8,4,2,.75), rgba(8,4,2,.25) 70%);
-  animation: fadeinout 1.4s ease-in-out both;
-}
-.month-banner .mb {
-  text-align: center; font-family: var(--brush); color: var(--gold-hi);
-  padding: 18px 60px; border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold);
-  background: linear-gradient(90deg, transparent, rgba(155,31,22,.85) 20%, rgba(155,31,22,.85) 80%, transparent);
-}
-.month-banner .mb .y { font-size: 20px; color: var(--parch); }
-.month-banner .mb .m { font-size: 56px; font-weight: 700; letter-spacing: .2em; text-shadow: 0 3px 0 #3d0b07; }
+.month-banner { position: fixed; inset: 0; z-index: 11; display: grid; place-items: center; pointer-events: none; background: radial-gradient(ellipse, rgba(239,229,207,.85), rgba(239,229,207,.2) 70%); animation: fadeinout 1.4s ease-in-out both; }
+.month-banner .mb { text-align: center; font-family: var(--brush); color: var(--ink); }
+.month-banner .mb .y { font-size: 20px; color: var(--ink-2); letter-spacing: .3em; }
+.month-banner .mb .m { font-size: 84px; font-weight: 700; letter-spacing: .2em; line-height: 1.1; animation: inkin 1s ease-out both; }
 @keyframes fadeinout { 0% { opacity: 0 } 20% { opacity: 1 } 75% { opacity: 1 } 100% { opacity: 0 } }
 
-.toast {
-  position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20; max-width: 90vw;
-  color: #fff3df; background: linear-gradient(180deg, #3a2416, #22150d); border: 1px solid var(--gold);
-  padding: 9px 18px; border-radius: 20px; box-shadow: 0 6px 18px rgba(0,0,0,.6); animation: rise .2s;
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 20; max-width: 90vw; color: #f6eedb; background: var(--tex), #2a231b; padding: 9px 18px; border-radius: 2px; box-shadow: 0 6px 18px rgba(31,26,20,.4); animation: rise .2s; font-family: var(--brush); font-size: 16px; }
+.toast.bad { background: var(--tex), var(--cinnabar-d); }
+
+/* ---------- 武將肖像 ---------- */
+.pmini {
+  display: inline-block; flex: none; vertical-align: middle; padding: 0; overflow: hidden; cursor: pointer;
+  width: 34px; height: 34px; border-radius: 50%; background: var(--paper);
+  border: 1.5px solid var(--ink-2); box-shadow: 0 0 0 2px #f8f1df, 0 0 0 3px var(--sc, #8d857a);
 }
-.toast.bad { border-color: var(--lacquer-hi); }
+.pmini svg { width: 100%; height: 100%; display: block; }
+.pmini:hover { transform: scale(1.06); box-shadow: 0 0 0 2px #f8f1df, 0 0 0 3px var(--cinnabar), 0 4px 10px rgba(59,51,42,.3); }
+.pmini.lg { width: 48px; height: 48px; }
+.pmini.xl { width: 60px; height: 60px; }
+.pmini.ruler { box-shadow: 0 0 0 2px #f8f1df, 0 0 0 3.5px var(--gamboge); }
+.fcard .pmini.lg { width: 58px; height: 58px; }
+.p-img { display: block; width: 100%; height: 100%; background-repeat: no-repeat; }
+.p-img.head { background-size: 190%; background-position: 50% 14%; }
+.p-img.full { background-size: cover; background-position: 50% 0; }
+
+.gdetail { display: grid; grid-template-columns: 210px 1fr; gap: 20px; align-items: start; }
+.pbig {
+  width: 210px; height: 262px; overflow: hidden; background: var(--paper);
+  box-shadow: 0 0 0 1px var(--ink-3), 0 0 0 6px #f8f1df, 0 0 0 7px rgba(59,51,42,.35), 0 12px 24px rgba(59,51,42,.3);
+  animation: pop .25s ease-out;
+}
+.pbig svg { width: 100%; height: 100%; display: block; }
+.ginfo { display: grid; gap: 7px; }
+.gtitle { font-family: var(--brush); font-size: 40px; font-weight: 700; line-height: 1.1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; letter-spacing: .06em; }
+.epithet { font-size: 15px; color: #f6eedb; padding: 4px 6px; writing-mode: vertical-rl; letter-spacing: .12em; background: var(--tex), var(--cinnabar); border-radius: 2px; box-shadow: inset 0 0 0 1.5px var(--cinnabar), inset 0 0 0 2.5px rgba(246,238,219,.75); transform: rotate(-3deg); }
+.gtags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.gtags .owner { font-size: 13px; color: #f6eedb; padding: 1px 10px; border-radius: 2px; }
+.gstat { display: grid; grid-template-columns: 40px 1fr 54px; gap: 8px; align-items: center; font-size: 13px; }
+.gstat span { color: var(--ink-2); font-family: var(--brush); font-size: 15px; }
+.gstat .track { height: 7px; background: rgba(59,51,42,.1); border-radius: 4px; overflow: hidden; }
+.gstat .fill { height: 100%; border-radius: 4px; opacity: .85; animation: grow .6s ease-out; transform-origin: left; }
+@keyframes grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+.gstat b { text-align: right; font-weight: 400; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 @media (max-width: 960px) {
   .layout { grid-template-columns: 1fr; grid-template-rows: auto; }
@@ -394,74 +395,83 @@ input, select {
   .hud-res { flex-basis: 100%; order: 3; }
   .hud-btns { order: 4; }
   #btn-end { order: 5; margin-left: auto; }
+  .title-seal { position: static; writing-mode: horizontal-tb; margin-bottom: 8px; }
 }
-@media (max-width: 520px) {
+@media (max-width: 560px) {
   .cmds { grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .cmd { font-size: 12px; }
-  .stamp { font-size: 56px; }
+  .cmd { font-size: 13px; }
+  .stamp { font-size: 54px; }
   .army .an { font-size: 16px; }
-  .army .num { font-size: 18px; }
+  .army .num { font-size: 19px; }
   .armies { grid-template-columns: 1fr 24px 1fr; }
   .army, .army.right { grid-template-columns: 1fr; }
-  .army.right .seal { order: 0; justify-self: end; }
+  .army.right .seal, .army.right .pmini { order: 0; justify-self: end; }
   button.lacquer.big { font-size: 17px; padding: 6px 14px; }
+  .gdetail { grid-template-columns: 1fr; justify-items: center; }
+  .ginfo { width: 100%; }
+  .pbig { width: 180px; height: 225px; }
+  .gtitle { justify-content: center; }
+  .res-cell b { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
-/* ---------- 武將肖像 ---------- */
-.pmini {
-  display: inline-block; flex: none; vertical-align: middle; padding: 0; overflow: hidden; cursor: pointer;
-  width: 34px; height: 34px; border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.85); background: var(--sc, #555);
-  box-shadow: 0 0 0 2px var(--sc, #555), 0 2px 5px rgba(0,0,0,.45);
-}
-.pmini svg { width: 100%; height: 100%; display: block; }
-.pmini:hover { transform: scale(1.08); box-shadow: 0 0 0 2px var(--gold-hi), 0 0 12px rgba(255,217,120,.8); }
-.pmini.lg { width: 46px; height: 46px; }
-.pmini.xl { width: 60px; height: 60px; }
-.pmini.ruler { box-shadow: 0 0 0 2px var(--gold), 0 0 10px rgba(226,181,74,.85); }
-.fcard .pmini.lg { width: 56px; height: 56px; }
-.gen { grid-template-columns: 50px 1fr; cursor: pointer; }
-.gen:hover { background: rgba(255,255,255,.65); border-color: var(--gold-dim); }
-.people span { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; padding: 2px 8px 2px 2px; }
-.people span:hover { background: rgba(255,255,255,.7); }
-.people .pmini { width: 26px; height: 26px; border-width: 1px; }
-.army.right .pmini { order: 2; justify-self: end; }
-
-.gdetail { display: grid; grid-template-columns: 200px 1fr; gap: 18px; align-items: start; }
-.pbig {
-  width: 200px; height: 250px; overflow: hidden; border-radius: 6px;
-  border: 3px solid var(--gold); box-shadow: 0 0 0 3px #0c0604, 0 0 0 6px var(--sc, #555), 0 10px 24px rgba(0,0,0,.5);
-  animation: pop .25s ease-out;
-}
-.pbig svg { width: 100%; height: 100%; display: block; }
-.ginfo { display: grid; gap: 6px; }
-.gtitle { font-family: var(--brush); font-size: 36px; font-weight: 700; line-height: 1.1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.epithet { font-size: 15px; color: #fff3df; background: var(--lacquer); padding: 2px 10px; border-radius: 3px; letter-spacing: .1em; }
-.gtags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.gtags .owner { font-size: 13px; color: #fff; padding: 1px 10px; border-radius: 10px; }
-.tag.alt { background: #34495e; color: #fff; }
-.gstat { display: grid; grid-template-columns: 40px 1fr 30px; gap: 8px; align-items: center; font-size: 13px; }
-.gstat span { color: var(--muted); font-weight: 700; }
-.gstat .track { height: 12px; background: rgba(0,0,0,.15); border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.3); }
-.gstat .fill { height: 100%; border-radius: 6px; animation: grow .6s ease-out; transform-origin: left; }
-@keyframes grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
-.gstat b { text-align: right; font-variant-numeric: tabular-nums; }
-@media (max-width: 560px) {
-  .gdetail { grid-template-columns: 1fr; justify-items: center; }
-  .ginfo { width: 100%; }
-  .pbig { width: 176px; height: 220px; }
-  .gtitle { justify-content: center; }
-}
-
 </style>
 </head>
 <body>
+  <!-- 共用的水墨濾鏡與漸層（地圖、肖像共用；不可 display:none，否則 Chrome 會忽略濾鏡） -->
+  <svg class="ink-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="ink-rough" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="3" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/>
+      </filter>
+      <filter id="ink-wash" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" seed="8" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="14" result="d"/>
+        <feGaussianBlur in="d" stdDeviation="1.6"/>
+      </filter>
+      <filter id="ink-bleed" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="5" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="4" result="d"/>
+        <feGaussianBlur in="d" stdDeviation=".45"/>
+      </filter>
+      <filter id="paper-grain" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="2" stitchTiles="stitch" result="n"/>
+        <feColorMatrix in="n" values="0 0 0 0 .38  0 0 0 0 .30  0 0 0 0 .20  0 0 0 .16 0"/>
+      </filter>
+      <filter id="paper-fiber" x="0" y="0" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.25" numOctaves="2" seed="11" result="n"/>
+        <feColorMatrix in="n" values="0 0 0 0 .45  0 0 0 0 .36  0 0 0 0 .22  0 0 0 .12 0"/>
+      </filter>
+      <linearGradient id="mtn-ink" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#1f1a14" stop-opacity=".78"/>
+        <stop offset=".45" stop-color="#3b332a" stop-opacity=".38"/>
+        <stop offset="1" stop-color="#3b332a" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="mtn-ink-far" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#4a5560" stop-opacity=".42"/>
+        <stop offset="1" stop-color="#4a5560" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="p-fade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset=".72" stop-color="#efe5cf" stop-opacity="0"/>
+        <stop offset="1" stop-color="#efe5cf" stop-opacity=".95"/>
+      </linearGradient>
+      <radialGradient id="p-halo">
+        <stop offset="0" stop-color="#fff8e8" stop-opacity=".9"/>
+        <stop offset="1" stop-color="#fff8e8" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="map-burn">
+        <stop offset=".62" stop-color="#6b4a2a" stop-opacity="0"/>
+        <stop offset="1" stop-color="#6b4a2a" stop-opacity=".38"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
   <!-- 標題畫面 -->
   <section id="title-screen" class="screen">
-    <div class="mist"></div>
+    <div id="title-landscape" class="title-landscape" aria-hidden="true"></div>
     <div class="title-inner">
       <div class="title-seal">亂世</div>
       <h1 class="game-title">群雄逐鹿</h1>
@@ -551,15 +561,15 @@ input, select {
 
   // 勢力：id, 名稱, 君主, 顏色
   const factions = [
-    { id: 'cao', name: '曹操軍', ruler: '曹操', color: '#3b6fd8' },
-    { id: 'liu', name: '劉備軍', ruler: '劉備', color: '#2f9e5b' },
-    { id: 'sun', name: '孫堅軍', ruler: '孫堅', color: '#d64545' },
-    { id: 'yuans', name: '袁紹軍', ruler: '袁紹', color: '#d4a017' },
-    { id: 'dong', name: '董卓軍', ruler: '董卓', color: '#7b4fc9' },
-    { id: 'yuanshu', name: '袁術軍', ruler: '袁術', color: '#e07b28' },
-    { id: 'liubiao', name: '劉表軍', ruler: '劉表', color: '#1f9aa3' },
-    { id: 'ma', name: '馬騰軍', ruler: '馬騰', color: '#8a6d4f' },
-    { id: 'gongsun', name: '公孫瓚軍', ruler: '公孫瓚', color: '#c24f9c' },
+    { id: 'cao', name: '曹操軍', ruler: '曹操', color: '#2f5f8f' },
+    { id: 'liu', name: '劉備軍', ruler: '劉備', color: '#3d7a4c' },
+    { id: 'sun', name: '孫堅軍', ruler: '孫堅', color: '#b23a2c' },
+    { id: 'yuans', name: '袁紹軍', ruler: '袁紹', color: '#b8892c' },
+    { id: 'dong', name: '董卓軍', ruler: '董卓', color: '#5e4280' },
+    { id: 'yuanshu', name: '袁術軍', ruler: '袁術', color: '#c06a2e' },
+    { id: 'liubiao', name: '劉表軍', ruler: '劉表', color: '#2b7a78' },
+    { id: 'ma', name: '馬騰軍', ruler: '馬騰', color: '#7a5a3c' },
+    { id: 'gongsun', name: '公孫瓚軍', ruler: '公孫瓚', color: '#9c3f6c' },
   ];
 
   // 城市：id(名稱), x, y, 勢力, 兵, 金, 糧, 人口, 農業, 商業, 城防, 民心
@@ -1425,6 +1435,10 @@ input, select {
 
 </script>
   <script>
+/* portraits/manifest.js */
+(function (TK) { TK.PORTRAIT_FILES = {}; })(globalThis.TK = globalThis.TK || {});
+</script>
+  <script>
 /* js/portraits.js */
 /* 武將肖像：以特徵參數組合繪製的原創 SVG 半身像。
  * 特徵依身分與能力自動決定；部分人物依史書／演義中的公有領域描述加上特徵（例如老將、紅臉、眼罩）。
@@ -1522,22 +1536,31 @@ input, select {
   }
 
   function shade(hex, amt) { return TK.Icons.shade(hex, amt); }
+  // 與紙色混合，讓顏色像礦物顏料而非螢幕純色
+  function mute(hex, k) {
+    const a = parseInt(hex.slice(1), 16), b = 0xe8dcc0;
+    const m = (sh) => Math.round(((a >> sh) & 255) * (1 - k) + ((b >> sh) & 255) * k);
+    return '#' + ((1 << 24) | (m(16) << 16) | (m(8) << 8) | m(0)).toString(16).slice(1);
+  }
+  const INK = '#2a1d14';
 
   // 回傳 SVG 字串。mode: 'full'（半身大圖）或 'head'（頭像裁切）
   function svg(g, color, mode) {
     const t = traits(g);
     const skin = SKIN[t.skin] || SKIN.normal, skinD = shade(skin, -0.15);
     const hair = HAIR[t.hair] || HAIR.black;
-    const armor = t.armor || color;
+    const armor = mute(t.armor || color, 0.18);
     const armorD = shade(armor, -0.28), armorL = shade(armor, 0.15);
     const metal = '#6b7884', metalD = '#3e4851';
     const fat = t.fat ? 4 : 0;
     const p = [];
 
     // 背景
-    p.push(`<rect x="-10" y="-10" width="140" height="170" fill="${shade(color, -0.45)}"/>`);
-    p.push(`<circle cx="60" cy="58" r="58" fill="${shade(color, -0.2)}" opacity=".55"/>`);
-    p.push(`<circle cx="60" cy="58" r="40" fill="${shade(color, 0.05)}" opacity=".35"/>`);
+    const bg = [];
+    bg.push(`<rect x="-10" y="-10" width="140" height="170" fill="#efe5cf"/>`);
+    bg.push(`<circle cx="62" cy="60" r="54" fill="${mute(color, 0.35)}" opacity=".42" filter="url(#ink-wash)"/>`);
+    bg.push(`<circle cx="60" cy="56" r="34" fill="url(#p-halo)"/>`);
+    bg.push(`<path d="M-10,128 Q30,112 60,124 T130,118 L130,160 L-10,160 Z" fill="#3b332a" opacity=".10" filter="url(#ink-wash)"/>`);
 
     // 長柄武器（在身後）
     const shaft = (x, y1) => `<line x1="${x}" y1="150" x2="${x}" y2="${y1}" stroke="#6b4423" stroke-width="3.2"/>`;
@@ -1585,12 +1608,15 @@ input, select {
       p.push(`<path d="M46,99 Q60,108 74,99 L72,96 L48,96 Z" fill="${armorD}"/>`);
     }
 
+    p.push(`<path d="M60,98 L80,103 Q112,110 114,150 L60,150 Z" fill="${INK}" opacity=".12"/>`);
+    p.push(`<path d="M6,150 Q8,110 40,103 L52,97 L68,97 L80,103 Q112,110 114,150" fill="none" stroke="${INK}" stroke-width="1.6" stroke-opacity=".75"/>`);
     // 脖子、頭
     p.push(`<rect x="51" y="78" width="18" height="22" fill="${skinD}"/>`);
     // 頭髮（在頭後）
     if (t.hat !== 'helmet' && t.hat !== 'bald') p.push(`<ellipse cx="60" cy="54" rx="${24 + fat}" ry="25" fill="${hair}"/>`);
     p.push(`<ellipse cx="${37 - fat}" cy="62" rx="4" ry="6" fill="${skinD}"/><ellipse cx="${83 + fat}" cy="62" rx="4" ry="6" fill="${skinD}"/>`);
-    p.push(`<ellipse cx="60" cy="60" rx="${22 + fat}" ry="${26 + fat / 2}" fill="${skin}"/>`);
+    p.push(`<ellipse cx="60" cy="60" rx="${22 + fat}" ry="${26 + fat / 2}" fill="${skin}" stroke="${INK}" stroke-width="1.1" stroke-opacity=".7"/>`);
+    p.push(`<path d="M62,35 Q${84 + fat},40 ${82 + fat},62 Q80,82 60,86 Q75,72 73,58 Q71,42 62,35 Z" fill="#6b4a2a" opacity=".13"/>`);
     p.push(`<ellipse cx="${46 - fat / 2}" cy="70" rx="5" ry="3" fill="#e08a7a" opacity=".35"/><ellipse cx="${74 + fat / 2}" cy="70" rx="5" ry="3" fill="#e08a7a" opacity=".35"/>`);
     if (t.age === 'old') p.push(`<path d="M49,44 Q60,41 71,44 M51,48 Q60,46 69,48 M44,66 Q47,68 50,66 M70,66 Q73,68 76,66" stroke="${skinD}" stroke-width="1" fill="none"/>`);
 
@@ -1683,10 +1709,19 @@ input, select {
     }
 
     const vb = mode === 'head' ? '30 18 60 60' : '0 0 120 150';
-    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="portrait-svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">${p.join('')}</svg>`;
+    const grain = '<rect x="-10" y="-10" width="140" height="170" filter="url(#paper-grain)"/><rect x="-10" y="-10" width="140" height="170" filter="url(#paper-fiber)"/>';
+    const fade = mode === 'head' ? '' : '<rect x="0" y="0" width="120" height="150" fill="url(#p-fade)"/>';
+    return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="portrait-svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">`
+      + bg.join('') + `<g filter="url(#ink-rough)">${p.join('')}</g>` + fade + grain + '</svg>';
   }
 
-  TK.Portrait = { svg, traits, classLabel, WEAPON_NAME };
+  // 若 portraits/ 中有該武將的插畫，回傳其網址
+  function art(g) {
+    const files = TK.PORTRAIT_FILES || {};
+    return files[g.name] || null;
+  }
+
+  TK.Portrait = { svg, traits, classLabel, art, mute, WEAPON_NAME };
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
@@ -1808,7 +1843,27 @@ input, select {
   }
   const ic = (name) => raw(I.icon(name));
   function fmt(n) { return Math.round(n).toLocaleString('zh-Hant'); }
-  function color(fid) { return fid && S.factions[fid] ? S.factions[fid].color : NEUTRAL_COLOR; }
+  // 用「萬」表示大數字，減少畫面上的數字感
+  function fmtW(n) {
+    n = Math.round(n);
+    if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}萬`;
+    return String(n);
+  }
+  // 能力評等
+  function grade(v) { return v >= 90 ? 'S' : v >= 80 ? 'A' : v >= 70 ? 'B' : v >= 60 ? 'C' : 'D'; }
+  function gradeChip(label, v) { return h('i', { class: `gr gr-${grade(v)}`, title: `${label} ${v}` }, label, h('b', {}, grade(v))); }
+  function color(fid) {
+    const fs = S ? S.factions : null;
+    if (fid && fs && fs[fid]) return fs[fid].color;
+    const f = fid && TK.SCENARIO.factions.find((x) => x.id === fid);
+    return f ? f.color : NEUTRAL_COLOR;
+  }
+  // 勢力朱印（方形印章）
+  function sealStamp(fid, size) {
+    const f = fid && S && S.factions[fid] ? S.factions[fid] : TK.SCENARIO.factions.find((x) => x.id === fid);
+    if (!f) return h('span', { class: 'stamp-sq neutral', style: `--sz:${size || 28}px` }, '空');
+    return h('span', { class: 'stamp-sq', style: `--sc:${f.color};--sz:${size || 28}px` }, sealChar(f.ruler));
+  }
   function sealChar(name) { return name ? name.slice(-1) : '守'; }
   function seal(name, fid, ruler) {
     return h('div', { class: 'seal' + (ruler ? ' ruler' : ''), style: `--sc:${color(fid)}` }, sealChar(name));
@@ -1820,8 +1875,15 @@ input, select {
       class: 'pmini' + (g.ruler ? ' ruler' : '') + (opts.size ? ' ' + opts.size : ''),
       style: `--sc:${color(g.faction || g.formerFaction)}`, title: `${g.name}：查看列傳`,
       onclick: (e) => { e.stopPropagation(); SND.click(); showGeneral(g.id); },
-    }, raw(TK.Portrait.svg(g, color(g.faction || g.formerFaction), 'head')));
+    }, portraitArt(g, 'head'));
     return el;
+  }
+
+  // 有插畫用插畫，否則用向量肖像
+  function portraitArt(g, mode) {
+    const url = TK.Portrait.art(g);
+    if (url) return h('span', { class: 'p-img ' + mode, style: `background-image:url("${url}")`, role: 'img', 'aria-label': g.name });
+    return raw(TK.Portrait.svg(g, color(g.faction || g.formerFaction), mode));
   }
 
   function showGeneral(id) {
@@ -1832,9 +1894,10 @@ input, select {
     const t = TK.Portrait.traits(g);
     const statusText = { active: '仕官', free: '在野', prisoner: '俘虜', dead: '已故' }[g.status] || '';
     const bar = (label, v, c) => h('div', { class: 'gstat' }, h('span', {}, label),
-      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${v}%;background:${c}` })), h('b', {}, v));
+      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${v}%;background:${c}` })),
+      h('b', {}, h('em', { class: `gr-${grade(v)}` }, grade(v)), ` ${v}`));
     const body = h('div', { class: 'gdetail' },
-      h('div', { class: 'pbig', style: `--sc:${col}` }, raw(TK.Portrait.svg(g, col, 'full'))),
+      h('div', { class: 'pbig', style: `--sc:${col}` }, portraitArt(g, 'full')),
       h('div', { class: 'ginfo' },
         h('div', { class: 'gtitle' }, g.name, t.title ? h('span', { class: 'epithet' }, t.title) : null),
         h('div', { class: 'gtags' },
@@ -1842,13 +1905,13 @@ input, select {
           h('span', { class: 'tag' }, TK.Portrait.classLabel(g, t)),
           h('span', { class: 'tag alt' }, `武器：${TK.Portrait.WEAPON_NAME[t.weapon] || '—'}`)),
         h('div', { class: 'hint' }, g.city ? `所在：${g.city}（${statusText}）` : statusText),
-        bar('統率', g.lead, '#2e6fb5'), bar('武力', g.war, '#c0392b'), bar('智略', g.int, '#7d3c98'),
-        bar('政務', g.pol, '#1e8449'), bar('魅力', g.cha, '#d68910'),
-        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#7f8c8d')));
+        bar('統率', g.lead, '#2f5f8f'), bar('武力', g.war, '#b23a2c'), bar('智略', g.int, '#5e4280'),
+        bar('政務', g.pol, '#3d7a4c'), bar('魅力', g.cha, '#b8892c'),
+        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#6b6358')));
     openModal('武將列傳', body, null, { noOk: true, icon: 'general' });
   }
 
-  function genLabel(g) { return `${g.name}（統${g.lead} 武${g.war} 智${g.int} 政${g.pol} 魅${g.cha}）`; }
+  function genLabel(g) { return `${g.name}（統${grade(g.lead)} 武${grade(g.war)} 智${grade(g.int)} 政${grade(g.pol)} 魅${grade(g.cha)}）`; }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   let toastTimer = null;
@@ -1917,12 +1980,42 @@ input, select {
     $('faction-pick').classList.add('hidden');
     const menu = $('title-menu');
     menu.classList.remove('hidden');
-    const soldiers = h('div', { class: 'title-soldiers' }, TK.SCENARIO.factions.map((f) => raw(I.soldier(f.color))));
-    const btns = [soldiers, h('button', { class: 'lacquer', onclick: () => { SND.click(); showFactionPick(); } }, '開始新遊戲')];
+    renderTitleLandscape();
+    const seals = h('div', { class: 'title-seals' }, TK.SCENARIO.factions.map((f) => sealStamp(f.id, 30)));
+    const btns = [seals, h('button', { class: 'lacquer', onclick: () => { SND.click(); showFactionPick(); } }, '開始新遊戲')];
     const auto = saveMeta(AUTO_KEY), manual = saveMeta(SAVE_KEY);
     if (auto) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(AUTO_KEY) }, `繼續遊戲（${auto}）`));
     if (manual) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(SAVE_KEY) }, `讀取存檔（${manual}）`));
     menu.replaceChildren(...btns);
+  }
+
+  // 標題背景：層疊的水墨遠山、飛鳥與紅日
+  function renderTitleLandscape() {
+    const el = $('title-landscape');
+    if (el.firstChild) return;
+    let s = '<svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice" width="100%" height="100%">';
+    s += '<rect width="1200" height="700" fill="#efe5cf"/>';
+    s += '<circle cx="880" cy="190" r="62" fill="#b23a2c" opacity=".82" filter="url(#ink-bleed)"/>';
+    const layers = [
+      { y: 470, amp: 120, op: 0.22, seed: 1 }, { y: 530, amp: 150, op: 0.35, seed: 2 },
+      { y: 600, amp: 140, op: 0.55, seed: 3 }, { y: 680, amp: 110, op: 0.85, seed: 4 },
+    ];
+    for (const L of layers) {
+      let d = `M-40,700 L-40,${L.y}`;
+      for (let x = -40; x <= 1240; x += 80) {
+        const k = Math.sin(x * 0.011 * L.seed + L.seed) * 0.5 + Math.sin(x * 0.027 + L.seed * 3) * 0.5;
+        const peak = L.y - Math.max(0, k) * L.amp - 20;
+        d += ` Q${x + 40},${peak} ${x + 80},${L.y - Math.max(0, Math.sin((x + 80) * 0.019 + L.seed)) * L.amp * 0.4}`;
+      }
+      d += ' L1240,700 Z';
+      s += `<path d="${d}" fill="url(#mtn-ink)" opacity="${L.op}" filter="url(#ink-wash)"/>`;
+    }
+    for (const [x, y, sc] of [[300, 210, 1], [340, 190, 0.8], [372, 226, 0.7], [410, 205, 0.6]]) {
+      s += `<path d="M${x - 9 * sc},${y} Q${x - 4 * sc},${y - 5 * sc} ${x},${y} Q${x + 4 * sc},${y - 5 * sc} ${x + 9 * sc},${y}" fill="none" stroke="#1f1a14" stroke-width="1.6" opacity=".7"/>`;
+    }
+    s += '<rect width="1200" height="700" filter="url(#paper-grain)"/><rect width="1200" height="700" filter="url(#paper-fiber)"/>';
+    s += '</svg>';
+    el.innerHTML = s;
   }
 
   function showFactionPick() {
@@ -1937,11 +2030,11 @@ input, select {
       const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
       const n = Math.max(2, Math.min(6, Math.round(troops / 10000)));
       return h('button', { class: 'fcard', style: `--fc:${f.color}`, onclick: () => { SND.gong(); newGame(f.id); } },
-        h('span', { class: 'pmini lg', style: `--sc:${f.color}` }, raw(TK.Portrait.svg(sc.generals.find((x) => x.id === f.ruler), f.color, 'head'))),
+        h('span', { class: 'pmini lg', style: `--sc:${f.color}` }, portraitArt(sc.generals.find((x) => x.id === f.ruler), 'head')),
         h('div', {},
-          h('div', { class: 'fname' }, f.name),
+          h('div', { class: 'fname' }, f.name, sealStamp(f.id, 20)),
           h('div', { class: 'fmeta' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、')}`),
-          h('div', { class: 'fmeta' }, `武將 ${gens}｜兵 ${fmt(troops)}`),
+          h('div', { class: 'fmeta' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
           h('div', { class: 'stars' }, '難度 ' + '★'.repeat(diff) + '☆'.repeat(5 - diff))),
         h('span', { class: 'troopline' }, Array.from({ length: n }, () => raw(I.soldier(f.color)))));
     });
@@ -2193,9 +2286,9 @@ input, select {
     $('hud-date').replaceChildren(
       h('span', { class: 'y' }, `${S.year}年`), h('span', { class: 'm' }, MONTHS[S.month - 1]),
       h('span', { class: `season ${cls}` }, name));
-    $('hud-faction').replaceChildren(raw(I.flag(f.color, sealChar(f.ruler))), h('span', { style: `color:${f.color};filter:brightness(1.4)` }, f.name));
+    $('hud-faction').replaceChildren(sealStamp(S.player, 28), h('span', {}, f.name));
     const chip = (key, iconName, label, v) => {
-      const el = h('span', { class: 'chip', title: label }, ic(iconName), h('b', {}, fmt(v)));
+      const el = h('span', { class: 'chip', title: `${label} ${fmt(v)}` }, ic(iconName), h('b', {}, fmtW(v)));
       if (lastRes[key] !== undefined && lastRes[key] !== v) el.classList.add('bump');
       lastRes[key] = v;
       return el;
@@ -2207,35 +2300,87 @@ input, select {
     $('btn-sound').textContent = SND.isMuted() ? '♪✕' : '♪';
   }
 
-  // 自繪地形（非任何既有作品的地圖）
-  const LAND = 'M40,40 L960,30 L980,250 L940,320 L960,420 L930,520 L975,600 L960,705 L40,705 Z';
+  // ---------- 水墨地圖（自繪地形，非任何既有作品的地圖） ----------
+  // 海岸線控制點（東側為海），以平滑曲線連接
+  const COAST = [[930, -10], [950, 70], [985, 150], [952, 228], [990, 296], [958, 352], [978, 420], [938, 472], [962, 525], [992, 596], [958, 655], [985, 730]];
   const RIVERS = [
-    ['M60,250 C200,230 300,280 420,300 S600,250 700,260 S860,230 990,215', 470, 285, '黃河'],
-    ['M80,520 C200,560 330,580 470,590 S620,600 700,580 S820,540 990,545', 360, 588, '長江'],
+    ['M-10,252 C120,226 230,262 330,284 S470,312 560,270 S700,238 790,258 S900,242 960,222', 455, 300, '黃河'],
+    ['M40,515 C150,548 270,590 380,592 S520,612 610,598 S720,560 800,552 S900,548 975,552', 330, 608, '長江'],
+    ['M330,450 C390,480 450,520 520,545', 0, 0, ''],
+    ['M535,330 C560,360 600,390 640,410', 0, 0, ''],
   ];
-  const MOUNTAINS = [
-    [600, 150, 16], [622, 125, 12], [470, 190, 14], [445, 235, 12], [300, 395, 16], [335, 392, 12], [425, 400, 14],
-    [455, 385, 11], [262, 470, 14], [282, 515, 12], [100, 330, 15], [118, 420, 13], [90, 500, 14], [65, 120, 14], [250, 120, 12],
+  // 山脈：[x, y, 寬, 高, 遠近(0近 1遠)]
+  const RANGES = [
+    // 太行
+    [600, 160, 60, 46, 0], [628, 128, 44, 34, 1], [585, 252, 40, 30, 1], [470, 205, 52, 38, 0], [445, 250, 40, 30, 1],
+    // 秦嶺
+    [295, 400, 70, 52, 0], [350, 392, 52, 40, 1], [425, 405, 62, 46, 0], [462, 388, 40, 30, 1],
+    // 巴蜀
+    [262, 480, 58, 44, 0], [292, 528, 46, 34, 1], [110, 470, 56, 42, 1], [88, 545, 62, 46, 0],
+    // 西涼、北方
+    [95, 330, 64, 48, 0], [65, 120, 60, 44, 1], [250, 120, 56, 40, 0], [300, 160, 40, 28, 1], [700, 112, 46, 32, 1],
+    // 江南丘陵
+    [640, 650, 46, 30, 1], [780, 640, 44, 30, 1], [470, 690, 40, 26, 1],
   ];
-  const FORESTS = [[620, 645], [760, 650], [480, 665], [380, 560], [300, 640], [870, 470], [720, 120], [150, 640]];
+  const DOTS = [[380, 560], [300, 640], [870, 470], [150, 640], [720, 520], [560, 600], [420, 470], [760, 300], [180, 420]];
 
-  function castleMarkup(c, capital) {
-    const col = color(c.owner), dark = I.shade(col, -0.35);
-    let s = '<g class="castle">';
-    if (capital) {
-      s += `<rect x="-8" y="-17" width="16" height="12" fill="${col}" stroke="${dark}" stroke-width="1.2"/>`;
-      s += `<path d="M-12,-16 L0,-27 L12,-16 Z" fill="#9b1f16" stroke="#3d0b07" stroke-width="1"/>`;
-      s += `<circle cx="0" cy="-11" r="2" fill="#2a1a10"/>`;
+  function smooth(pts) {
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+      const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+      d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0]},${p2[1]}`;
     }
-    s += `<path d="M-17,12 V-3 H-13 V-7 H-9 V-3 H-5 V-7 H5 V-3 H9 V-7 H13 V-3 H17 V12 Z" fill="${col}" stroke="${dark}" stroke-width="1.5"/>`;
-    s += `<path d="M-17,4 H17 M-9,-3 V4 M9,-3 V4 M0,4 V12" stroke="${dark}" stroke-width=".7" opacity=".5"/>`;
-    s += `<path d="M-4.5,12 V6 a4.5,4.5 0 0 1 9,0 V12 Z" fill="#2a1a10"/>`;
+    return d;
+  }
+
+  // 一座水墨山：數個山峰疊染 + 筆觸山脊
+  function inkMountain(x, y, w, hgt, far, seed) {
+    const r = (k) => ((Math.sin(seed * 12.9898 + k * 78.233) * 43758.5453) % 1 + 1) % 1;
+    const fill = far ? 'url(#mtn-ink-far)' : 'url(#mtn-ink)';
+    let s = `<g filter="url(#ink-wash)" opacity="${far ? 0.75 : 0.95}">`;
+    const peaks = 3;
+    for (let i = 0; i < peaks; i++) {
+      const px = x + (i - 1) * w * 0.32 + (r(i) - 0.5) * w * 0.15;
+      const ph = hgt * (i === 1 ? 1 : 0.62 + r(i + 3) * 0.25);
+      const pw = w * (i === 1 ? 0.55 : 0.42);
+      s += `<path d="M${px - pw},${y} Q${px - pw * 0.35},${y - ph * 0.55} ${px - pw * 0.08},${y - ph} Q${px + pw * 0.1},${y - ph * 0.96} ${px + pw * 0.3},${y - ph * 0.6} Q${px + pw * 0.6},${y - ph * 0.3} ${px + pw},${y} Z" fill="${fill}"/>`;
+    }
     s += '</g>';
-    if (c.owner) {
-      s += `<line x1="15" y1="-4" x2="15" y2="-34" stroke="#5e3b20" stroke-width="2"/>`;
-      s += `<path d="M16,-34 L34,-30 L30,-26 L34,-22 L16,-22 Z" fill="${col}" stroke="${dark}" stroke-width="1"/>`;
+    if (!far) {
+      const ph = hgt;
+      s += `<path d="M${x - w * 0.3},${y - ph * 0.45} Q${x - w * 0.12},${y - ph * 0.92} ${x - w * 0.03},${y - ph} Q${x + w * 0.08},${y - ph * 0.8} ${x + w * 0.2},${y - ph * 0.55}" fill="none" stroke="#1f1a14" stroke-width="2.2" stroke-linecap="round" opacity=".7" filter="url(#ink-bleed)"/>`;
+      s += `<path d="M${x - w * 0.02},${y - ph * 0.9} Q${x + w * 0.02},${y - ph * 0.6} ${x - w * 0.06},${y - ph * 0.35}" fill="none" stroke="#1f1a14" stroke-width="1.1" opacity=".45" filter="url(#ink-bleed)"/>`;
     }
     return s;
+  }
+
+  // 城池：墨色城樓剪影 + 勢力朱印
+  function castleMarkup(c, capital) {
+    const ink = c.owner ? '#2a231b' : '#7d756a';
+    let s = `<g class="castle" filter="url(#ink-bleed)">`;
+    s += `<path d="M-19,13 L-16,-1 L16,-1 L19,13 Z" fill="${ink}"/>`;
+    s += `<path d="M-16,-1 V-5 H-12 V-1 M-8,-1 V-5 H-4 V-1 M4,-1 V-5 H8 V-1 M12,-1 V-5 H16 V-1" stroke="${ink}" stroke-width="3.2" fill="none"/>`;
+    s += `<path d="M-4.5,13 V7 Q0,2 4.5,7 V13 Z" fill="#efe5cf"/>`;
+    // 城樓
+    s += `<rect x="-8" y="-12" width="16" height="9" fill="${ink}"/>`;
+    s += `<path d="M-15,-11 Q-8,-14 0,-19 Q8,-14 15,-11 Q8,-12.5 0,-12 Q-8,-12.5 -15,-11 Z" fill="${ink}"/>`;
+    if (capital) {
+      s += `<rect x="-5" y="-25" width="10" height="7" fill="${ink}"/>`;
+      s += `<path d="M-11,-24 Q-5,-27 0,-31 Q5,-27 11,-24 Q5,-25.5 0,-25 Q-5,-25.5 -11,-24 Z" fill="${ink}"/>`;
+    }
+    s += '</g>';
+    return s;
+  }
+
+  function sealMarkup(c, x, y, size) {
+    if (!c.owner) return '';
+    const f = S.factions[c.owner];
+    return `<g class="seal-stamp" transform="translate(${x} ${y}) rotate(-4)" filter="url(#ink-bleed)">`
+      + `<rect x="0" y="0" width="${size}" height="${size}" rx="2" fill="${f.color}"/>`
+      + `<rect x="1.6" y="1.6" width="${size - 3.2}" height="${size - 3.2}" rx="1.5" fill="none" stroke="#f3ead6" stroke-width=".9"/>`
+      + `<text x="${size / 2}" y="${size * 0.74}" text-anchor="middle" font-size="${size * 0.66}" fill="#f3ead6" class="seal-char">${sealChar(f.ruler)}</text></g>`;
   }
 
   function placeSvg(str, x, y, w, hgt) {
@@ -2244,27 +2389,41 @@ input, select {
 
   function renderMap() {
     const map = $('map');
-    let s = `<defs>
-      <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe0b9"/><stop offset=".6" stop-color="#e2cf9c"/><stop offset="1" stop-color="#d5c08a"/></linearGradient>
-      <pattern id="waves" width="40" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 Q10 4 20 10 T40 10" fill="none" stroke="#3f7383" stroke-width="1.5" opacity=".6"/></pattern>
-      <radialGradient id="vignette"><stop offset=".65" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>
-    </defs>`;
-    s += '<rect width="1000" height="720" fill="#24505e"/><rect width="1000" height="720" fill="url(#waves)"/>';
-    s += `<path class="land" d="${LAND}"/>`;
-    for (const [d, lx, ly, name] of RIVERS) {
-      s += `<path class="river" d="${d}"/>`;
-      s += `<text x="${lx}" y="${ly}" font-size="16" fill="#3f7383" opacity=".75" style="font-family:var(--brush)" letter-spacing="8">${name}</text>`;
+    let s = '';
+    // 宣紙底
+    s += '<rect x="-20" y="-20" width="1040" height="760" fill="#efe5cf"/>';
+    // 海：淡青墨暈 + 浪紋筆觸
+    const coastD = smooth(COAST);
+    s += `<path d="${coastD} L1040,730 L1040,-10 Z" fill="#9fb3b0" opacity=".38" filter="url(#ink-wash)"/>`;
+    for (let i = 0; i < 26; i++) {
+      const y = 30 + i * 27, x = 980 - ((i * 37) % 30);
+      s += `<path d="M${x},${y} q8,-6 16,0 q8,6 16,0" fill="none" stroke="#4f6b70" stroke-width="1.2" opacity=".35"/>`;
     }
-    for (const [x, y] of FORESTS) {
-      for (const [dx, dy, r] of [[0, 0, 7], [10, 3, 6], [-9, 4, 6], [4, -6, 6]]) {
-        s += `<rect x="${x + dx - 1}" y="${y + dy}" width="2" height="6" fill="#6b4a2a"/><circle class="forest" cx="${x + dx}" cy="${y + dy}" r="${r}"/>`;
+    // 海岸線（濃淡兩筆）
+    s += `<path d="${coastD}" fill="none" stroke="#2a231b" stroke-width="3" opacity=".55" filter="url(#ink-bleed)"/>`;
+    s += `<path d="${coastD}" fill="none" stroke="#2a231b" stroke-width="8" opacity=".08" filter="url(#ink-wash)"/>`;
+    // 河流
+    for (const [d, lx, ly, name] of RIVERS) {
+      s += `<path d="${d}" fill="none" stroke="#7d9aa0" stroke-width="${name ? 9 : 4}" opacity=".35" stroke-linecap="round" filter="url(#ink-wash)"/>`;
+      s += `<path d="${d}" fill="none" stroke="#4f6b70" stroke-width="${name ? 1.8 : 1.1}" opacity=".6" stroke-linecap="round" filter="url(#ink-bleed)"/>`;
+      if (name) s += `<text x="${lx}" y="${ly}" class="map-label">${name}</text>`;
+    }
+    // 山脈（遠山先畫）
+    RANGES.slice().sort((a, b) => b[4] - a[4]).forEach(([x, y, w, hh, far], i) => { s += inkMountain(x, y, w, hh, far, i + 1); });
+    // 點苔（樹林）
+    // 點苔成林：每叢幾株小樹（樹幹＋米點樹冠）
+    for (const [x, y] of DOTS) {
+      for (let t = 0; t < 4; t++) {
+        const tx = x + (t - 1.5) * 9 + ((t * 7) % 5), ty = y + ((t * 11) % 7) - 3;
+        s += `<g filter="url(#ink-bleed)" opacity="${0.55 + (t % 2) * 0.2}"><line x1="${tx}" y1="${ty + 6}" x2="${tx}" y2="${ty - 3}" stroke="#2a231b" stroke-width="1.2"/>`;
+        for (let k = 0; k < 6; k++) {
+          const a = k * 1.05 + t, r = 3 + (k % 3);
+          s += `<ellipse cx="${(tx + Math.cos(a) * r).toFixed(1)}" cy="${(ty - 5 + Math.sin(a) * r * 0.8).toFixed(1)}" rx="2.4" ry="1.5" fill="#2a231b" opacity="${0.4 + (k % 3) * 0.2}"/>`;
+        }
+        s += '</g>';
       }
     }
-    for (const [x, y, z] of MOUNTAINS) {
-      s += `<path class="mtn" d="M${x - z},${y} L${x},${y - z * 1.3} L${x + z},${y} Z"/>`;
-      s += `<path class="mtn-snow" d="M${x - z * 0.3},${y - z * 0.9} L${x},${y - z * 1.3} L${x + z * 0.3},${y - z * 0.9} Z"/>`;
-      s += `<path class="mtn" d="M${x + z * 0.4},${y} L${x + z * 1.1},${y - z * 0.8} L${x + z * 1.8},${y} Z" opacity=".85"/>`;
-    }
+    // 道路
     for (const [a, b] of S.roads) {
       const A = S.cities[a], B = S.cities[b];
       s += `<line class="road" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
@@ -2273,23 +2432,24 @@ input, select {
     const targets = sel && sel.owner === S.player ? E.neighbors(S, sel.id).filter((id) => S.cities[id].owner !== S.player) : [];
     for (const c of Object.values(S.cities)) {
       const capital = E.generalsIn(S, c.id, (g) => g.ruler && g.status === 'active').length > 0;
-      s += `<g class="city" data-city="${c.id}" transform="translate(${c.x} ${c.y})" tabindex="0" role="button" aria-label="${c.name}">`;
-      s += '<ellipse cx="0" cy="13" rx="26" ry="6" fill="#000" opacity=".18"/>';
-      if (c.id === selected) s += '<circle class="sel-ring" r="30"/>';
+      s += `<g class="city${c.owner === S.player ? ' mine' : ''}" data-city="${c.id}" transform="translate(${c.x} ${c.y})" tabindex="0" role="button" aria-label="${c.name}">`;
+      s += '<ellipse cx="0" cy="14" rx="30" ry="7" fill="#3b332a" opacity=".16" filter="url(#ink-wash)"/>';
+      if (c.id === selected) s += '<ellipse class="sel-ring" cx="0" cy="2" rx="34" ry="26"/>';
+      if (c.owner) s += `<ellipse cx="0" cy="2" rx="28" ry="20" fill="${c.owner ? S.factions[c.owner].color : 'none'}" opacity=".16" filter="url(#ink-wash)"/>`;
       const n = c.troops <= 0 ? 0 : c.troops < 5000 ? 1 : c.troops < 15000 ? 2 : c.troops < 30000 ? 3 : 4;
-      const scol = color(c.owner);
       for (let i = 0; i < n; i++) {
-        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(scol), -36 - i * 9, -8 + (i % 2) * 4, 14, 19)}</g>`;
+        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(color(c.owner)), -38 - i * 8, -6 + (i % 2) * 4, 13, 18)}</g>`;
       }
       s += castleMarkup(c, capital);
-      s += `<rect class="plate" x="-31" y="16" width="62" height="31" rx="4"/>`;
-      s += `<text class="cname" y="31">${c.name}</text><text class="ctroops" y="43">${fmt(c.troops)}</text>`;
-      if (targets.includes(c.id)) {
-        s += `<g class="target-mark">${placeSvg(TK.Icons.ICONS.attack, 18, -46, 22, 22)}</g>`;
-      }
+      s += sealMarkup(c, 13, -30, 15);
+      s += `<text class="cname" y="32">${c.name}</text>`;
+      if (targets.includes(c.id)) s += `<g class="target-mark">${placeSvg(TK.Icons.ICONS.attack, -11, -54, 22, 22)}</g>`;
       s += '</g>';
     }
-    s += '<rect width="1000" height="720" fill="url(#vignette)" pointer-events="none"/>';
+    // 紙張紋理與焦邊
+    s += '<rect x="-20" y="-20" width="1040" height="760" filter="url(#paper-grain)" pointer-events="none"/>';
+    s += '<rect x="-20" y="-20" width="1040" height="760" filter="url(#paper-fiber)" pointer-events="none"/>';
+    s += '<rect x="-20" y="-20" width="1040" height="760" fill="url(#map-burn)" pointer-events="none"/>';
     map.innerHTML = s;
   }
 
@@ -2298,8 +2458,7 @@ input, select {
     const gens = c.owner ? E.officers(S, c.id).length : 0;
     tip.replaceChildren(
       h('div', {}, h('b', {}, c.name), ' ', h('span', { style: `color:${color(c.owner)};font-weight:700` }, E.factionName(S, c.owner))),
-      h('div', {}, `兵 ${fmt(c.troops)}｜城防 ${c.defense}`),
-      h('div', {}, `武將 ${gens}｜民心 ${c.order}`));
+      h('div', {}, `兵 ${fmtW(c.troops)}｜武將 ${gens} 名`));
     const frame = $('map').parentElement.getBoundingClientRect();
     let x = evt.clientX - frame.left + 14, y = evt.clientY - frame.top + 14;
     if (x > frame.width - 170) x -= 190;
@@ -2314,33 +2473,33 @@ input, select {
     const mine = c.owner === S.player;
     const ruler = c.owner ? S.factions[c.owner].ruler : '';
     const head = h('div', { class: 'city-head' },
-      h('span', { class: 'flag' }, raw(I.flag(color(c.owner), c.owner ? sealChar(ruler) : ''))),
+      sealStamp(c.owner, 34),
       h('span', { class: 'cn' }, c.name),
-      h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner)));
-    const cell = (iconName, label, v) => h('div', { class: 'res-cell' }, ic(iconName), h('span', {}, label), h('b', {}, fmt(v)));
+      h('span', { class: 'owner', style: `color:${color(c.owner)}` }, E.factionName(S, c.owner)));
+    const cell = (iconName, label, v) => h('div', { class: 'res-cell', title: `${label} ${fmt(v)}` }, ic(iconName), h('span', {}, label), h('b', {}, fmtW(v)));
     const res = h('div', { class: 'res-row' },
       cell('troops', '兵', c.troops), cell('gold', '金', c.gold), cell('food', '糧', c.food), cell('pop', '人口', c.pop));
-    const bar = (iconName, label, v, max, col) => h('div', { class: 'bar' }, ic(iconName), h('span', {}, label),
-      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${100 * v / max}%;background:${col}` })), h('b', {}, v));
+    // 發展度以文字等級 + 墨條表示，精確數值放在提示中
+    const level = (r) => r >= 0.85 ? '極盛' : r >= 0.65 ? '繁榮' : r >= 0.45 ? '尚可' : r >= 0.25 ? '薄弱' : '荒蕪';
+    const bar = (iconName, label, v, max, col) => h('div', { class: 'bar', title: `${label} ${v} / ${max}` }, ic(iconName), h('span', {}, label),
+      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${100 * v / max}%;background:${col}` })), h('b', {}, level(v / max)));
     const bars = h('div', { class: 'bars' },
-      bar('farm', '農業', c.farm, 999, '#3e9b4f'), bar('commerce', '商業', c.commerce, 999, '#d9822b'),
-      bar('defense', '城防', c.defense, 999, '#6c7a89'), bar('order', '民心', c.order, 100, '#c9a227'),
-      bar('train', '訓練', c.train, 100, '#b03a2e'));
+      bar('farm', '農業', c.farm, 999, '#3d7a4c'), bar('commerce', '商業', c.commerce, 999, '#c06a2e'),
+      bar('defense', '城防', c.defense, 999, '#4a5560'), bar('order', '民心', c.order, 100, '#b8892c'),
+      bar('train', '訓練', c.train, 100, '#b23a2c'));
 
     const gens = c.owner ? E.officers(S, c.id).sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int - a.lead - a.war - a.int)) : [];
     const genList = h('div', { class: 'gen-list' }, gens.map((g) =>
       h('div', { class: 'gen' + (g.acted && mine ? ' acted' : ''), onclick: () => showGeneral(g.id), title: '查看列傳' },
         portraitMini(g, { size: 'lg' }),
         h('div', {},
-          h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : null),
+          h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : h('span', { class: 'tag soft' }, TK.Portrait.classLabel(g, TK.Portrait.traits(g)))),
           h('div', { class: 'gstats' },
-            h('i', { class: 'st-lead' }, `統${g.lead}`), h('i', { class: 'st-war' }, `武${g.war}`),
-            h('i', { class: 'st-int' }, `智${g.int}`), h('i', { class: 'st-pol' }, `政${g.pol}`),
-            h('i', { class: 'st-cha' }, `魅${g.cha}`), g.ruler ? null : h('i', { class: 'st-loy' }, `忠${g.loyalty}`))))));
+            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha))))));
 
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const parts = [head, res, bars, h('h3', {}, `武將 ${gens.length} 名`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
+    const parts = [head, res, bars, h('h3', {}, `麾下武將`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
     if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (mine && !S.over) parts.push(h('h3', {}, '指令'), commandButtons(c));
@@ -2482,11 +2641,11 @@ input, select {
     $('faction-panel').replaceChildren(h('h2', {}, '勢力一覽'),
       h('table', { class: 'factions' },
         rows.map(({ f, p }) => h('tr', { class: (f.id === S.player ? 'me' : '') + (f.alive ? '' : ' dead') },
-          h('td', {}, raw(I.soldier(f.color))),
+          h('td', {}, sealStamp(f.id, 20)),
           h('td', {}, f.name),
           h('td', { class: 'num' }, `${p.cities}城`),
           h('td', { style: 'width:40%' }, h('div', { class: 'pbar' }, h('div', { style: `width:${100 * p.troops / maxT}%;background:${f.color}` }))),
-          h('td', { class: 'num' }, fmt(p.troops))))));
+          h('td', { class: 'num' }, fmtW(p.troops))))));
   }
 
   function renderLog() {
