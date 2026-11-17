@@ -49,9 +49,10 @@
           continue;
         }
         const want = threat ? Math.max(threat * 1.1, 8000) : 8000;
-        const max = Eng.maxDraft(s, city, g);
+        const unit = draftUnit(s, city, g);
+        const max = Eng.maxDraft(s, city, g, unit);
         if (city.troops < want && max >= 1000 && city.gold > 300 && city.food > city.troops / 40 * 6) {
-          Eng.exec(s, fid, { type: 'draft', city: city.id, general: g.id, amount: Math.min(max, Math.round(want - city.troops) + 1000, 5000) });
+          Eng.exec(s, fid, { type: 'draft', city: city.id, general: g.id, unit, amount: Math.min(max, Math.round(want - city.troops) + 1000, 5000) });
           continue;
         }
         if (city.train < 70 && city.troops > 3000) {
@@ -92,6 +93,28 @@
         troops: Math.floor(city.troops * 0.6), gold: Math.floor(city.gold * 0.3), food: Math.floor(city.food * 0.3),
       });
     }
+  }
+
+  // 選擇徵募的兵種：剋制鄰近敵軍最多的兵種，並參考武將適性與金錢
+  function draftUnit(s, city, g) {
+    const Eng = E();
+    const enemy = { spear: 0, cav: 0, xbow: 0 };
+    for (const n of Eng.neighbors(s, city.id)) {
+      const c = s.cities[n];
+      if (c.owner === city.owner) continue;
+      const m = Eng.mixOf(c);
+      for (const k of Eng.UNIT_KEYS) enemy[k] += m[k];
+    }
+    let best = 'spear', bestScore = -1;
+    for (const k of Eng.UNIT_KEYS) {
+      let score = 0;
+      for (const d of Eng.UNIT_KEYS) score += enemy[d] * Eng.matchup(k, d);
+      score *= Eng.APT_MULT[Eng.aptitude(g, k)];
+      if (city.gold < Eng.UNITS[k].cost * 3) score *= 0.5;
+      score *= 0.9 + Eng.rand(s) * 0.2;
+      if (score > bestScore) { bestScore = score; best = k; }
+    }
+    return best;
   }
 
   function hasNeutralNeighbor(s, city) {

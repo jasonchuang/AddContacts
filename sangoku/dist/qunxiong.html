@@ -417,6 +417,50 @@ input, select {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
+/* ---------- 兵種 ---------- */
+.mixline { display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: center; font-family: var(--brush); font-size: 15px; }
+.umix { display: inline-flex; align-items: center; gap: 2px; }
+.umix svg { width: 15px; height: 20px; }
+.umix svg[viewBox="0 0 40 36"] { width: 22px; height: 20px; }
+.mixrow { margin-top: 8px; display: grid; gap: 4px; }
+.mixbar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: rgba(59,51,42,.1); }
+.mixbar .seg { opacity: .8; }
+.seg-spear { background: var(--azurite); } .seg-cav { background: var(--cinnabar); } .seg-xbow { background: var(--malachite); }
+.gstats.apt { margin-top: 1px; }
+.gstats.apt .gr { color: var(--muted); font-size: 11px; }
+.gstats.apt .gr b { font-size: 13px; }
+.aptbig { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+.aptcell { display: grid; justify-items: center; padding: 6px 4px; border: 1px solid rgba(59,51,42,.2); background: rgba(255,250,238,.55); font-family: var(--brush); }
+.aptcell svg { width: 26px; height: 34px; }
+.aptcell svg[viewBox="0 0 40 36"] { width: 40px; height: 34px; }
+.aptcell em { font-style: normal; font-weight: 700; font-size: 22px; line-height: 1; }
+.aptcell.gr-S { border-color: var(--cinnabar); box-shadow: inset 0 0 0 1px var(--cinnabar); }
+.unit-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.ucard { display: grid; justify-items: center; gap: 2px; padding: 8px 4px; background: rgba(255,250,238,.55); border: 1px solid rgba(59,51,42,.25); text-align: center; }
+.ucard svg { width: 30px; height: 40px; }
+.ucard svg[viewBox="0 0 40 36"] { width: 44px; height: 40px; }
+.ucard b { font-family: var(--brush); font-size: 17px; }
+.ucard small { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.ucard.on { background: #fffaf0; border-color: var(--cinnabar); box-shadow: inset 0 0 0 1.5px var(--cinnabar); }
+.unit-inputs { display: grid; gap: 6px; }
+.uin { display: grid; grid-template-columns: 34px 1fr 110px; gap: 8px; align-items: center; font-family: var(--brush); }
+.uin svg { width: 22px; height: 30px; justify-self: center; }
+.uin svg[viewBox="0 0 40 36"] { width: 34px; height: 30px; }
+.uin small { font-family: var(--serif); color: var(--muted); font-size: 12px; }
+.uin input { width: 100%; }
+.intel { display: grid; gap: 4px; padding: 8px 10px; margin: 6px 0; border-left: 3px solid var(--ink-3); background: rgba(255,250,238,.55); }
+.verdict { font-family: var(--brush); font-weight: 700; padding: 0 8px; border-radius: 2px; color: #f6eedb; }
+.verdict.good { background: var(--malachite); } .verdict.bad { background: var(--cinnabar); } .verdict.even { background: var(--ink-3); }
+.units svg.u-cav { width: 34px; height: 31px; }
+.units svg.u-xbow, .units svg.u-spear { width: 22px; height: 30px; }
+.army .mixline { justify-content: inherit; font-size: 13px; }
+.army.right .mixline { justify-content: flex-end; }
+.tip .mixline { margin-top: 3px; font-size: 13px; }
+@media (max-width: 560px) {
+  .uin { grid-template-columns: 30px 1fr 90px; }
+  .unit-pick .ucard small:nth-of-type(2) { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -721,7 +765,24 @@ input, select {
     if (r) r.ruler = true;
   }
 
+  // 兵種適性（S/A/B/C）。未列出者依能力自動推得。依史書與演義中的公有領域描述設定。
+  const aptitude = {
+    '趙雲': { spear: 'S', cav: 'A' }, '張飛': { spear: 'S', cav: 'A' }, '關羽': { spear: 'A', cav: 'S' },
+    '馬超': { cav: 'S', spear: 'A' }, '呂布': { cav: 'S', spear: 'A' }, '張遼': { cav: 'S', spear: 'A' },
+    '公孫瓚': { cav: 'S', xbow: 'B' }, '馬騰': { cav: 'A' }, '龐德': { cav: 'A', spear: 'A' }, '韓遂': { cav: 'A' },
+    '夏侯淵': { cav: 'S', xbow: 'A' }, '夏侯惇': { spear: 'A', cav: 'A' }, '曹仁': { spear: 'S' }, '曹操': { cav: 'A', xbow: 'A', spear: 'A' },
+    '典韋': { spear: 'S', cav: 'B' }, '許褚': { spear: 'S', cav: 'B' }, '樂進': { spear: 'A' }, '徐晃': { spear: 'A', cav: 'A' },
+    '黃忠': { xbow: 'S', spear: 'A' }, '太史慈': { xbow: 'S', cav: 'A' }, '諸葛亮': { xbow: 'S', spear: 'B' }, '周瑜': { xbow: 'S', spear: 'A' },
+    '甘寧': { xbow: 'A', spear: 'A' }, '黃蓋': { xbow: 'A' }, '程普': { xbow: 'A', spear: 'A' }, '韓當': { cav: 'A', xbow: 'A' },
+    '孫堅': { spear: 'A', cav: 'A', xbow: 'A' }, '孫策': { cav: 'S', spear: 'A' }, '孫權': { xbow: 'A' },
+    '顏良': { cav: 'A', spear: 'A' }, '文醜': { cav: 'A' }, '張郃': { spear: 'S', xbow: 'A' }, '高覽': { spear: 'A' },
+    '袁紹': { xbow: 'A' }, '華雄': { cav: 'A' }, '董卓': { cav: 'A' }, '徐榮': { cav: 'A' }, '李傕': { cav: 'A' }, '郭汜': { cav: 'A' },
+    '紀靈': { spear: 'A' }, '文聘': { xbow: 'A', spear: 'A' }, '蔡瑁': { xbow: 'A' }, '黃祖': { xbow: 'A' },
+    '魏延': { spear: 'A', cav: 'A' }, '嚴顏': { xbow: 'A', spear: 'A' }, '張任': { xbow: 'A' }, '周泰': { spear: 'A' },
+  };
+
   TK.SCENARIO = {
+    aptitude,
     title: '群雄割據',
     year: 190,
     month: 1,
@@ -771,7 +832,7 @@ input, select {
       over: null,
     };
     for (const f of sc.factions) s.factions[f.id] = Object.assign({ alive: true }, f);
-    for (const c of sc.cities) s.cities[c.id] = c;
+    for (const c of sc.cities) { s.cities[c.id] = c; mixOf(c); }
     for (const g of sc.generals) s.generals[g.id] = Object.assign({ acted: false, formerFaction: null }, g);
     addLog(s, `${s.year}年，天下大亂，群雄並起。`, 'sys');
     return s;
@@ -805,6 +866,97 @@ input, select {
     if (s.log.length > 400) s.log.splice(0, s.log.length - 400);
   }
 
+  // ---------- 兵種 ----------
+  // 槍剋騎、騎剋弩、弩剋槍。cost＝每 1000 兵所需金
+  const UNITS = {
+    spear: { name: '槍兵', short: '槍', cost: 100, desc: '陣型穩固、損失較少，剋制騎兵' },
+    cav: { name: '騎兵', short: '騎', cost: 200, desc: '進攻時衝鋒加成，剋制弩兵' },
+    xbow: { name: '弩兵', short: '弩', cost: 150, desc: '守城時加成、首輪齊射，剋制槍兵' },
+  };
+  const UNIT_KEYS = ['spear', 'cav', 'xbow'];
+  const BEATS = { spear: 'cav', cav: 'xbow', xbow: 'spear' };
+  const APT_MULT = { S: 1.18, A: 1.07, B: 1, C: 0.9 };
+
+  function matchup(a, d) { return a === d ? 1 : BEATS[a] === d ? 1.3 : 0.8; }
+
+  // 武將兵種適性：劇本可指定，否則依能力推得
+  function aptitude(g, type) {
+    if (!g) return 'C';
+    const o = (TK.SCENARIO.aptitude || {})[g.name];
+    if (o && o[type]) return o[type];
+    if (type === 'spear') return g.lead >= 85 || g.war >= 88 ? 'A' : g.lead >= 68 ? 'B' : 'C';
+    if (type === 'cav') return g.war >= 85 ? 'A' : g.war >= 70 ? 'B' : 'C';
+    return g.int >= 85 ? 'A' : g.int >= 68 || g.lead >= 80 ? 'B' : 'C';
+  }
+
+  const FACTION_MIX = {
+    ma: { spear: 0.3, cav: 0.5, xbow: 0.2 }, gongsun: { spear: 0.3, cav: 0.5, xbow: 0.2 }, dong: { spear: 0.35, cav: 0.45, xbow: 0.2 },
+    sun: { spear: 0.4, cav: 0.15, xbow: 0.45 }, liubiao: { spear: 0.4, cav: 0.15, xbow: 0.45 },
+  };
+  function defaultMix(c) {
+    const r = !c.owner ? { spear: 0.55, cav: 0.1, xbow: 0.35 } : FACTION_MIX[c.owner] || { spear: 0.45, cav: 0.25, xbow: 0.3 };
+    const m = { spear: Math.floor(c.troops * r.spear), cav: Math.floor(c.troops * r.cav), xbow: 0 };
+    m.xbow = c.troops - m.spear - m.cav;
+    return m;
+  }
+  // 依比例分配 total，回傳整數且總和精確
+  function scaleMix(mix, total) {
+    const sum = UNIT_KEYS.reduce((a, k) => a + (mix[k] || 0), 0);
+    const out = { spear: 0, cav: 0, xbow: 0 };
+    if (total <= 0) return out;
+    if (sum <= 0) { out.spear = total; return out; }
+    let acc = 0, big = 'spear';
+    for (const k of UNIT_KEYS) {
+      out[k] = Math.floor((mix[k] || 0) * total / sum);
+      acc += out[k];
+      if ((mix[k] || 0) > (mix[big] || 0)) big = k;
+    }
+    out[big] += total - acc;
+    return out;
+  }
+  // 取得城市兵種組成；troops 為準，組成不一致時依比例校正
+  function mixOf(c) {
+    if (!c.mix) c.mix = defaultMix(c);
+    const sum = c.mix.spear + c.mix.cav + c.mix.xbow;
+    if (sum !== c.troops) c.mix = scaleMix(c.mix, c.troops);
+    return c.mix;
+  }
+  function addUnits(c, units, train) {
+    mixOf(c);
+    const n = UNIT_KEYS.reduce((a, k) => a + (units[k] || 0), 0);
+    if (n <= 0) return;
+    if (train !== undefined) c.train = Math.round((c.train * c.troops + train * n) / (c.troops + n));
+    for (const k of UNIT_KEYS) c.mix[k] += units[k] || 0;
+    c.troops += n;
+  }
+  function takeUnits(c, units) {
+    mixOf(c);
+    for (const k of UNIT_KEYS) { c.mix[k] -= units[k] || 0; c.troops -= units[k] || 0; }
+  }
+  function unitsTotal(u) { return UNIT_KEYS.reduce((a, k) => a + (u[k] || 0), 0); }
+  // 指令可給 units（分兵種）或 troops（依城內比例）
+  function unitsFromCmd(c, cmd) {
+    mixOf(c);
+    if (cmd.units) {
+      const u = {};
+      for (const k of UNIT_KEYS) {
+        u[k] = Math.floor(cmd.units[k] || 0);
+        if (u[k] < 0 || u[k] > c.mix[k]) return null;
+      }
+      return u;
+    }
+    const n = Math.floor(cmd.troops || 0);
+    if (n < 0 || n > c.troops) return null;
+    return scaleMix(c.mix, n);
+  }
+  function fractions(u) {
+    const t = unitsTotal(u) || 1;
+    return { spear: (u.spear || 0) / t, cav: (u.cav || 0) / t, xbow: (u.xbow || 0) / t };
+  }
+  function mixName(u) {
+    return UNIT_KEYS.filter((k) => u[k] > 0).map((k) => `${UNITS[k].short}${u[k]}`).join('・') || '無兵';
+  }
+
   // ---------- 指令 ----------
   const DEV = {
     farm: { label: '開墾', cost: 50, stat: 'pol', key: 'farm' },
@@ -814,8 +966,9 @@ input, select {
     train: { label: '訓練', cost: 0, stat: 'lead', key: 'train' },
   };
 
-  function maxDraft(s, city, g) {
-    return Math.max(0, Math.min(g.cha * 100, city.gold * 10, Math.floor(city.pop / 5), 120000 - city.troops));
+  function maxDraft(s, city, g, type) {
+    const cost = UNITS[type || 'spear'].cost;
+    return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), 120000 - city.troops));
   }
 
   function recruitChance(s, g, target) {
@@ -854,17 +1007,17 @@ input, select {
 
     switch (cmd.type) {
       case 'draft': {
+        const type = UNITS[cmd.unit] ? cmd.unit : 'spear';
         const amt = Math.floor(cmd.amount || 0);
-        const max = maxDraft(s, city, g);
+        const max = maxDraft(s, city, g, type);
         if (amt < 100) return fail('徵兵數至少 100');
         if (amt > max) return fail(`最多可徵 ${max}`);
-        city.gold -= Math.ceil(amt / 10);
+        city.gold -= Math.ceil(amt * UNITS[type].cost / 1000);
         city.pop -= amt;
-        city.train = Math.round((city.train * city.troops + 20 * amt) / (city.troops + amt));
-        city.troops += amt;
+        addUnits(city, { [type]: amt }, 20);
         city.order = Math.max(0, city.order - Math.ceil(amt / 2000));
         g.acted = true;
-        return ok(`${g.name}於${city.name}徵兵 ${amt}`);
+        return ok(`${g.name}於${city.name}徵募${UNITS[type].name} ${amt}`);
       }
       case 'search': {
         g.acted = true;
@@ -927,11 +1080,15 @@ input, select {
         for (const m of movers) {
           if (!m || m.faction !== fid || m.city !== city.id || m.status !== 'active' || m.acted) return fail('有武將無法移動');
         }
-        const troops = Math.floor(cmd.troops || 0), gold = Math.floor(cmd.gold || 0), food = Math.floor(cmd.food || 0);
-        if (troops < 0 || troops > city.troops || gold < 0 || gold > city.gold || food < 0 || food > city.food) {
+        const units = unitsFromCmd(city, cmd);
+        const gold = Math.floor(cmd.gold || 0), food = Math.floor(cmd.food || 0);
+        if (!units || gold < 0 || gold > city.gold || food < 0 || food > city.food) {
           return fail('兵、金或糧數量不正確');
         }
-        transferTroops(city, dest, troops);
+        const troops = unitsTotal(units);
+        mixOf(dest);
+        takeUnits(city, units);
+        addUnits(dest, units, city.train);
         city.gold -= gold; dest.gold += gold;
         city.food -= food; dest.food += food;
         for (const m of movers) { m.city = dest.id; m.acted = true; }
@@ -945,16 +1102,16 @@ input, select {
         for (const m of army) {
           if (!m || m.faction !== fid || m.city !== city.id || m.status !== 'active' || m.acted) return fail('有武將無法出陣');
         }
-        const troops = Math.floor(cmd.troops || 0);
+        const units = unitsFromCmd(city, cmd);
+        if (!units) return fail('兵力不足');
+        const troops = unitsTotal(units);
         if (troops < 1000) return fail('出陣兵力至少 1000');
-        if (troops > city.troops) return fail('兵力不足');
         const foodNeed = Math.ceil(troops / 10);
         if (city.food < foodNeed) return fail(`軍糧不足（需 ${foodNeed}）`);
-        if (city.troops - troops < 0) return fail('兵力不足');
         city.food -= foodNeed;
-        city.troops -= troops;
+        takeUnits(city, units);
         for (const m of army) m.acted = true;
-        const res = battle(s, { faction: fid, generals: army, troops, train: city.train, from: city.id }, target.id);
+        const res = battle(s, { faction: fid, generals: army, troops, units, train: city.train, from: city.id }, target.id);
         return ok(res.summary, res);
       }
       default:
@@ -977,12 +1134,6 @@ input, select {
     g.formerFaction = null;
   }
 
-  function transferTroops(from, to, n) {
-    if (n <= 0) return;
-    to.train = Math.round((to.train * to.troops + from.train * n) / (to.troops + n));
-    to.troops += n;
-    from.troops -= n;
-  }
 
   // ---------- 戰鬥 ----------
   function sideStats(gens) {
@@ -1002,6 +1153,19 @@ input, select {
     const defGens = defOwner ? officers(s, city.id).sort((a, b) => b.lead - a.lead).slice(0, 3) : [];
     const A = Object.assign(sideStats(atk.generals), { troops: atk.troops, train: atk.train });
     const D = Object.assign(sideStats(defGens), { troops: city.troops, train: city.train });
+    // 兵種：雙方組成比例、相剋、主將適性
+    const aUnits = atk.units || { spear: atk.troops, cav: 0, xbow: 0 };
+    const dUnits = Object.assign({}, mixOf(city));
+    const fA = fractions(aUnits), fD = fractions(dUnits);
+    let mA = 0, mD = 0, aptA = 0, aptD = 0;
+    for (const a of UNIT_KEYS) {
+      for (const d of UNIT_KEYS) { mA += fA[a] * fD[d] * matchup(a, d); mD += fD[d] * fA[a] * matchup(d, a); }
+      aptA += fA[a] * APT_MULT[aptitude(A.commander, a)];
+      aptD += fD[a] * (D.commander ? APT_MULT[aptitude(D.commander, a)] : 1);
+    }
+    const bonusA = mA * aptA * (1 + 0.12 * fA.cav);
+    const bonusD = mD * aptD * (1 + 0.15 * fD.xbow);
+    const sturdyA = 1 - 0.1 * fA.spear, sturdyD = 1 - 0.1 * fD.spear;
     const A0 = A.troops, D0 = D.troops;
     const aName = factionName(s, atk.faction), dName = factionName(s, defOwner);
     const parties = [atk.faction, defOwner].filter(Boolean);
@@ -1011,6 +1175,10 @@ input, select {
     lines.push(`${aName}（${aCmd}，${A0}兵）自${atk.from}進攻${city.name}（${dName}，${dCmd}，${D0}兵）`);
     // frames：給戰鬥畫面逐格播放 {a, d, ev, kind}
     const frames = [{ a: A0, d: D0, ev: null }];
+    const domA = UNIT_KEYS.reduce((b, k) => (fA[k] > fA[b] ? k : b), 'spear');
+    const domD = UNIT_KEYS.reduce((b, k) => (fD[k] > fD[b] ? k : b), 'spear');
+    if (mA > 1.06) lines.push(`兵種相剋：${aName}的${UNITS[domA].name}佔上風`);
+    else if (mD > 1.06) lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
 
     // 單挑
     if (A.war >= 80 && D.war >= 80 && rand(s) < 0.3) {
@@ -1026,11 +1194,21 @@ input, select {
 
     let result = null, schemes = 0;
     for (let round = 1; round <= 20 && !result; round++) {
-      const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6);
-      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 800);
-      let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3));
+      const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * bonusA;
+      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 800) * bonusD;
+      let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * sturdyD);
       let ev = null, kind = null;
-      let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3));
+      let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * sturdyA);
+      if (round === 1) {
+        // 開戰：弩兵齊射、騎兵衝鋒
+        if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
+        if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
+        if (fA.cav >= 0.3) {
+          if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
+          else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
+        }
+        if (ev) lines.push(ev);
+      }
       if (A.int >= 75 && rand(s) < (A.int - 60) / 200) {
         lossD = Math.round(lossD * 1.5);
         ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
@@ -1052,19 +1230,18 @@ input, select {
       else if (A.troops < A0 * 0.3 && A.troops < D.troops) result = 'lose';
     }
     if (!result) { result = 'lose'; lines.push('久攻不下，撤兵'); }
+    const aLeft = scaleMix(aUnits, A.troops);
     frames[frames.length - 1].a = A.troops;
     frames[frames.length - 1].d = D.troops;
 
     city.troops = D.troops;
     let summary;
     if (result === 'win') {
-      conquer(s, city, atk, A, lines);
+      conquer(s, city, atk, A, lines, aLeft);
       summary = `${aName}攻陷了${city.name}！（剩餘 ${A.troops} 兵）`;
     } else {
       const home = s.cities[atk.from];
-      if (home.owner === atk.faction) {
-        transferTroops({ troops: A.troops, train: atk.train }, home, A.troops);
-      }
+      if (home.owner === atk.faction) addUnits(home, aLeft, atk.train);
       summary = `${aName}進攻${city.name}失敗（我損 ${A0 - A.troops}，敵損 ${D0 - D.troops}）`;
     }
     lines.push(summary);
@@ -1072,18 +1249,19 @@ input, select {
     const res = {
       result, summary, lines, frames, atkLoss: A0 - A.troops, defLoss: D0 - D.troops,
       city: city.id, from: atk.from,
-      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0 },
-      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0 },
+      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0, units: aUnits },
+      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0, units: dUnits },
     };
     if (TK.Engine && typeof TK.Engine.onBattle === 'function') TK.Engine.onBattle(res);
     return res;
   }
 
-  function conquer(s, city, atk, A, lines) {
+  function conquer(s, city, atk, A, lines, aLeft) {
     const oldOwner = city.owner;
     const defenders = oldOwner ? generalsIn(s, city.id, (g) => g.status === 'active' && g.faction === oldOwner) : [];
     city.owner = atk.faction;
     city.troops = A.troops;
+    city.mix = aLeft;
     city.train = atk.train;
     city.order = Math.max(10, city.order - 15);
     for (const g of atk.generals) g.city = city.id;
@@ -1202,6 +1380,7 @@ input, select {
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
+    UNITS, UNIT_KEYS, BEATS, APT_MULT, matchup, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});
 
@@ -1259,9 +1438,10 @@ input, select {
           continue;
         }
         const want = threat ? Math.max(threat * 1.1, 8000) : 8000;
-        const max = Eng.maxDraft(s, city, g);
+        const unit = draftUnit(s, city, g);
+        const max = Eng.maxDraft(s, city, g, unit);
         if (city.troops < want && max >= 1000 && city.gold > 300 && city.food > city.troops / 40 * 6) {
-          Eng.exec(s, fid, { type: 'draft', city: city.id, general: g.id, amount: Math.min(max, Math.round(want - city.troops) + 1000, 5000) });
+          Eng.exec(s, fid, { type: 'draft', city: city.id, general: g.id, unit, amount: Math.min(max, Math.round(want - city.troops) + 1000, 5000) });
           continue;
         }
         if (city.train < 70 && city.troops > 3000) {
@@ -1302,6 +1482,28 @@ input, select {
         troops: Math.floor(city.troops * 0.6), gold: Math.floor(city.gold * 0.3), food: Math.floor(city.food * 0.3),
       });
     }
+  }
+
+  // 選擇徵募的兵種：剋制鄰近敵軍最多的兵種，並參考武將適性與金錢
+  function draftUnit(s, city, g) {
+    const Eng = E();
+    const enemy = { spear: 0, cav: 0, xbow: 0 };
+    for (const n of Eng.neighbors(s, city.id)) {
+      const c = s.cities[n];
+      if (c.owner === city.owner) continue;
+      const m = Eng.mixOf(c);
+      for (const k of Eng.UNIT_KEYS) enemy[k] += m[k];
+    }
+    let best = 'spear', bestScore = -1;
+    for (const k of Eng.UNIT_KEYS) {
+      let score = 0;
+      for (const d of Eng.UNIT_KEYS) score += enemy[d] * Eng.matchup(k, d);
+      score *= Eng.APT_MULT[Eng.aptitude(g, k)];
+      if (city.gold < Eng.UNITS[k].cost * 3) score *= 0.5;
+      score *= 0.9 + Eng.rand(s) * 0.2;
+      if (score > bestScore) { bestScore = score; best = k; }
+    }
+    return best;
   }
 
   function hasNeutralNeighbor(s, city) {
@@ -1395,6 +1597,32 @@ input, select {
     </g></svg>`;
   }
 
+  // 弩兵：半跪持弩
+  function xbowman(color, opts) {
+    opts = opts || {};
+    const dark = shade(color, -0.25), light = shade(color, 0.18);
+    const flip = opts.flip ? ' transform="translate(24 0) scale(-1 1)"' : '';
+    return `<svg viewBox="0 0 24 32" class="${opts.cls || ''}" aria-hidden="true"><g${flip}>
+      <rect x="6" y="25" width="3" height="6" rx="1" fill="#3a2a1e"/>
+      <path d="M11 24 L17 24 L17 27 L12 27 Z" fill="#3a2a1e"/>
+      <path d="M6 13 Q10.5 11 15 13 L15.5 25 L5.5 25 Z" fill="${color}" stroke="${dark}" stroke-width=".8"/>
+      <rect x="5.6" y="19" width="9.8" height="2" fill="#e2b54a"/>
+      <circle cx="10.5" cy="8.5" r="3.6" fill="#f1c99a"/>
+      <path d="M6.6 8 Q10.5 2.5 14.4 8 Z" fill="${light}" stroke="${dark}" stroke-width=".7"/>
+      <rect x="7" y="2.8" width="7" height="2" rx="1" fill="${dark}"/>
+      <line x1="9" y1="16" x2="23" y2="16" stroke="#6b4423" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M20 10 Q24.5 16 20 22" fill="none" stroke="#4a2e18" stroke-width="1.6"/>
+      <line x1="20" y1="10" x2="16" y2="16" stroke="#ddd" stroke-width=".6"/><line x1="20" y1="22" x2="16" y2="16" stroke="#ddd" stroke-width=".6"/>
+      <circle cx="13" cy="16.5" r="1.8" fill="#f1c99a"/>
+    </g></svg>`;
+  }
+
+  function unit(type, color, opts) {
+    if (type === 'cav') return cavalry(color, opts);
+    if (type === 'xbow') return xbowman(color, opts);
+    return soldier(color, opts);
+  }
+
   // 旗幟
   function flag(color, text) {
     return `<svg viewBox="0 0 28 36" aria-hidden="true">
@@ -1430,7 +1658,7 @@ input, select {
     return (ICONS[name] || '').replace('<svg ', `<svg class="ico ${cls || ''}" aria-hidden="true" `);
   }
 
-  TK.Icons = { soldier, cavalry, flag, icon, shade, ICONS };
+  TK.Icons = { soldier, cavalry, xbowman, unit, flag, icon, shade, ICONS };
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
@@ -1849,6 +2077,14 @@ input, select {
     if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}萬`;
     return String(n);
   }
+  // 兵種組成：小圖示 + 數量
+  function unitMixChips(u) {
+    return E.UNIT_KEYS.filter((k) => u[k] > 0).map((k) =>
+      h('span', { class: 'umix', title: `${E.UNITS[k].name} ${fmt(u[k])}` }, raw(I.unit(k, '#6b6358')), fmtW(u[k])));
+  }
+  function aptChips(g) {
+    return E.UNIT_KEYS.map((k) => h('i', { class: `gr gr-${E.aptitude(g, k)}`, title: `${E.UNITS[k].name}適性` }, E.UNITS[k].short, h('b', {}, E.aptitude(g, k))));
+  }
   // 能力評等
   function grade(v) { return v >= 90 ? 'S' : v >= 80 ? 'A' : v >= 70 ? 'B' : v >= 60 ? 'C' : 'D'; }
   function gradeChip(label, v) { return h('i', { class: `gr gr-${grade(v)}`, title: `${label} ${v}` }, label, h('b', {}, grade(v))); }
@@ -1907,7 +2143,9 @@ input, select {
         h('div', { class: 'hint' }, g.city ? `所在：${g.city}（${statusText}）` : statusText),
         bar('統率', g.lead, '#2f5f8f'), bar('武力', g.war, '#b23a2c'), bar('智略', g.int, '#5e4280'),
         bar('政務', g.pol, '#3d7a4c'), bar('魅力', g.cha, '#b8892c'),
-        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#6b6358')));
+        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#6b6358'),
+        h('div', { class: 'aptbig' }, E.UNIT_KEYS.map((k) => h('div', { class: `aptcell gr-${E.aptitude(g, k)}` },
+          raw(I.unit(k, color(g.faction || g.formerFaction))), h('span', {}, E.UNITS[k].name), h('em', { class: `gr-${E.aptitude(g, k)}` }, E.aptitude(g, k)))))));
     openModal('武將列傳', body, null, { noOk: true, icon: 'general' });
   }
 
@@ -2168,13 +2406,14 @@ input, select {
       const army = (side, info, col) => {
         const num = h('div', { class: 'num' }, fmt(info.troops));
         const fill = h('div', { style: `width:100%;background:${col}` });
+        const comp = info.units ? h('div', { class: 'ag mixline' }, unitMixChips(info.units)) : null;
         const el = h('div', { class: 'army' + (side === 'd' ? ' right' : '') },
           info.generals.length && S.generals[info.commander]
             ? portraitMini(S.generals[info.commander], { size: 'xl' })
             : seal('守', info.faction, false),
           h('div', {},
             h('div', { class: 'an' }, info.name, side === 'a' ? '（攻）' : '（守）'),
-            h('div', { class: 'ag' }, info.generals.length ? info.generals.join('・') : '守軍'),
+            h('div', { class: 'ag' }, info.generals.length ? info.generals.join('・') : '守軍'), comp,
             num, h('div', { class: 'hp' }, fill)));
         return { el, num, fill };
       };
@@ -2186,14 +2425,16 @@ input, select {
       const mkUnits = (side, troops, col) => {
         const n = Math.max(4, Math.round(30 * troops / big));
         const wrap = $(side === 'a' ? 'units-a' : 'units-d');
+        const info = side === 'a' ? r.atk : r.def;
+        const counts = E.scaleMix(info.units || { spear: troops }, n);
         const units = [];
-        for (let i = 0; i < n; i++) {
-          const svgStr = i === 0 && (side === 'a' ? r.atk.generals.length : r.def.generals.length)
-            ? I.cavalry(col, { flip: side === 'd', cls: 'cav march' })
-            : I.soldier(col, { flip: side === 'd', cls: 'march' });
-          const u = raw(svgStr);
-          u.style.animationDelay = `${(i % 5) * 0.1}s`;
-          units.push(u);
+        // 騎兵在前、槍兵居中、弩兵在後
+        for (const k of ['cav', 'spear', 'xbow']) {
+          for (let i = 0; i < counts[k]; i++) {
+            const u = raw(I.unit(k, col, { flip: side === 'd', cls: `u-${k} march` }));
+            u.style.animationDelay = `${(units.length % 5) * 0.1}s`;
+            units.push(u);
+          }
         }
         wrap.replaceChildren(...(side === 'd' ? units.slice().reverse() : units));
         return { wrap, units, n };
@@ -2437,8 +2678,13 @@ input, select {
       if (c.id === selected) s += '<ellipse class="sel-ring" cx="0" cy="2" rx="34" ry="26"/>';
       if (c.owner) s += `<ellipse cx="0" cy="2" rx="28" ry="20" fill="${c.owner ? S.factions[c.owner].color : 'none'}" opacity=".16" filter="url(#ink-wash)"/>`;
       const n = c.troops <= 0 ? 0 : c.troops < 5000 ? 1 : c.troops < 15000 ? 2 : c.troops < 30000 ? 3 : 4;
-      for (let i = 0; i < n; i++) {
-        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(color(c.owner)), -38 - i * 8, -6 + (i % 2) * 4, 13, 18)}</g>`;
+      const gc = E.scaleMix(E.mixOf(c), n);
+      let gi = 0;
+      for (const k of ['xbow', 'spear', 'cav']) {
+        for (let j = 0; j < gc[k]; j++, gi++) {
+          const w = k === 'cav' ? 20 : 13, hh = k === 'cav' ? 18 : 18;
+          s += `<g class="garrison bob" style="animation-delay:${gi * 0.2}s">${placeSvg(I.unit(k, color(c.owner)), -36 - gi * 9 - (k === 'cav' ? 6 : 0), -6 + (gi % 2) * 4, w, hh)}</g>`;
+        }
       }
       s += castleMarkup(c, capital);
       s += sealMarkup(c, 13, -30, 15);
@@ -2458,7 +2704,8 @@ input, select {
     const gens = c.owner ? E.officers(S, c.id).length : 0;
     tip.replaceChildren(
       h('div', {}, h('b', {}, c.name), ' ', h('span', { style: `color:${color(c.owner)};font-weight:700` }, E.factionName(S, c.owner))),
-      h('div', {}, `兵 ${fmtW(c.troops)}｜武將 ${gens} 名`));
+      h('div', {}, `兵 ${fmtW(c.troops)}｜武將 ${gens} 名`),
+      h('div', { class: 'mixline' }, unitMixChips(E.mixOf(c))));
     const frame = $('map').parentElement.getBoundingClientRect();
     let x = evt.clientX - frame.left + 14, y = evt.clientY - frame.top + 14;
     if (x > frame.width - 170) x -= 190;
@@ -2495,11 +2742,16 @@ input, select {
         h('div', {},
           h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : h('span', { class: 'tag soft' }, TK.Portrait.classLabel(g, TK.Portrait.traits(g)))),
           h('div', { class: 'gstats' },
-            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha))))));
+            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha)),
+          h('div', { class: 'gstats apt' }, aptChips(g))))));
 
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const parts = [head, res, bars, h('h3', {}, `麾下武將`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
+    const mix = E.mixOf(c);
+    const mixRow = h('div', { class: 'mixrow' },
+      h('div', { class: 'mixbar' }, E.UNIT_KEYS.map((k) => h('div', { class: `seg seg-${k}`, style: `flex:${mix[k] || 0}` }))),
+      h('div', { class: 'mixline' }, unitMixChips(mix)));
+    const parts = [head, res, mixRow, bars, h('h3', {}, `麾下武將`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
     if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (mine && !S.over) parts.push(h('h3', {}, '指令'), commandButtons(c));
@@ -2553,16 +2805,26 @@ input, select {
     const info = h('div', { class: 'hint' });
     const amt = numberOf(0, 3000, 500);
     const sel = execSelect(c, 'cha');
+    let unit = 'spear';
+    const picks = h('div', { class: 'unit-pick' });
     const update = () => {
-      const max = E.maxDraft(S, c, S.generals[sel.value]);
+      const g = S.generals[sel.value];
+      picks.replaceChildren(...E.UNIT_KEYS.map((k) => h('button', {
+        type: 'button', class: 'ucard' + (k === unit ? ' on' : ''),
+        onclick: () => { unit = k; SND.click(); update(); },
+      }, raw(I.unit(k, color(S.player))),
+      h('b', {}, E.UNITS[k].name), h('small', {}, `每千兵 金${E.UNITS[k].cost}`),
+      h('small', {}, E.UNITS[k].desc), h('i', { class: `gr gr-${E.aptitude(g, k)}` }, '適性', h('b', {}, E.aptitude(g, k))))));
+      const max = E.maxDraft(S, c, g, unit);
       amt.max = max;
-      info.textContent = `最多可徵 ${fmt(max)}（受魅力、金、人口限制）。每 1000 兵花費金 100，會降低民心。`;
+      if (+amt.value > max) amt.value = max;
+      info.textContent = `最多可徵 ${fmt(max)}（受魅力、金、人口限制）。徵兵會降低民心，新兵訓練度較低。`;
     };
     sel.addEventListener('change', update);
     update();
     amt.value = Math.min(3000, Number(amt.max));
-    openModal(`徵兵・${c.name}`, h('div', {}, field('執行武將', sel), field('徵兵數', amt), info),
-      () => run({ type: 'draft', city: c.id, general: sel.value, amount: Number(amt.value) }), { icon: 'draft' });
+    openModal(`徵兵・${c.name}`, h('div', {}, field('執行武將', sel), field('兵種', picks), field('徵兵數', amt), info),
+      () => run({ type: 'draft', city: c.id, general: sel.value, unit, amount: Number(amt.value) }), { icon: 'draft' });
   }
 
   function recruitDialog(c) {
@@ -2595,20 +2857,39 @@ input, select {
       () => run({ type: act.value, city: c.id, target: tsel.value }), { icon: 'prisoner' });
   }
 
+  // 分兵種輸入框
+  function unitInputs(c, ratio, onchange) {
+    const mix = E.mixOf(c);
+    const inputs = {};
+    const row = h('div', { class: 'unit-inputs' }, E.UNIT_KEYS.map((k) => {
+      inputs[k] = numberOf(mix[k], Math.floor(mix[k] * ratio / 100) * 100, 500);
+      if (onchange) inputs[k].addEventListener('input', onchange);
+      return h('label', { class: 'uin' }, raw(I.unit(k, color(S.player))),
+        h('span', {}, E.UNITS[k].name, h('small', {}, `（有 ${fmt(mix[k])}）`)), inputs[k]);
+    }));
+    const get = () => {
+      const u = {};
+      for (const k of E.UNIT_KEYS) u[k] = Math.max(0, Math.min(mix[k], Math.floor(+inputs[k].value || 0)));
+      return u;
+    };
+    return { el: row, get };
+  }
+
   function moveDialog(c) {
     const dests = E.neighbors(S, c.id).filter((id) => S.cities[id].owner === S.player);
     if (!dests.length) { toast('沒有相鄰的我方城市', true); return; }
     const dsel = selectOf(dests.map((id) => ({ value: id, label: id })));
     const ready = E.officers(S, c.id).filter((g) => !g.acted);
     const gbox = checksOf(ready.map((g) => ({ value: g.id, label: genLabel(g) })), 1);
-    const tr = numberOf(c.troops, 0, 1000), gold = numberOf(c.gold, 0, 100), food = numberOf(c.food, 0, 1000);
+    const ui = unitInputs(c, 0);
+    const gold = numberOf(c.gold, 0, 100), food = numberOf(c.food, 0, 1000);
     openModal(`移動・${c.name}`, h('div', {},
-      field('目的地', dsel), field('移動武將', gbox),
-      field(`帶兵（最多 ${fmt(c.troops)}）`, tr), field(`運金（最多 ${fmt(c.gold)}）`, gold), field(`運糧（最多 ${fmt(c.food)}）`, food)),
+      field('目的地', dsel), field('移動武將', gbox), field('帶兵', ui.el),
+      field(`運金（最多 ${fmt(c.gold)}）`, gold), field(`運糧（最多 ${fmt(c.food)}）`, food)),
     () => {
       const ids = checkedValues(gbox);
       if (!ids.length) { toast('請至少選一名武將', true); return false; }
-      return run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: dsel.value, troops: +tr.value, gold: +gold.value, food: +food.value });
+      return run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: dsel.value, units: ui.get(), gold: +gold.value, food: +food.value });
     }, { icon: 'move' });
   }
 
@@ -2617,20 +2898,41 @@ input, select {
     if (!targets.length) { toast('沒有相鄰的敵城', true); return; }
     const tsel = selectOf(targets.map((id) => {
       const t = S.cities[id];
-      return { value: id, label: `${id}（${E.factionName(S, t.owner)}，兵 ${fmt(t.troops)}，城防 ${t.defense}）` };
+      return { value: id, label: `${id}（${E.factionName(S, t.owner)}，兵 ${fmtW(t.troops)}）` };
     }));
     const ready = E.officers(S, c.id).filter((g) => !g.acted).sort((a, b) => (b.lead + b.war) - (a.lead + a.war));
     const gbox = checksOf(ready.map((g) => ({ value: g.id, label: genLabel(g) })), 1);
-    const tr = numberOf(c.troops, Math.floor(c.troops * 0.7), 1000);
+    const intel = h('div', { class: 'intel' });
+    const ui = unitInputs(c, 70, () => update());
+    const update = () => {
+      const t = S.cities[tsel.value];
+      const tm = E.mixOf(t);
+      const u = ui.get();
+      const ids = checkedValues(gbox);
+      const cmdr = ids.map((id) => S.generals[id]).sort((a, b) => b.lead - a.lead)[0];
+      const fa = E.fractions(u), fd = E.fractions(tm);
+      let m = 0;
+      for (const a of E.UNIT_KEYS) for (const d of E.UNIT_KEYS) m += fa[a] * fd[d] * E.matchup(a, d);
+      const verdict = m >= 1.08 ? ['good', '兵種佔優'] : m <= 0.92 ? ['bad', '兵種不利'] : ['even', '兵種相當'];
+      intel.replaceChildren(
+        h('div', {}, h('b', {}, `${t.name}守軍 `), unitMixChips(tm), h('span', { class: 'hint' }, `　城防 ${t.defense}`)),
+        h('div', {}, h('span', { class: `verdict ${verdict[0]}` }, verdict[1]),
+          cmdr ? h('span', { class: 'hint' }, `　主將 ${cmdr.name} 適性：`) : null,
+          cmdr ? aptChips(cmdr) : null),
+        h('div', { class: 'hint' }, '槍剋騎・騎剋弩・弩剋槍'));
+    };
+    tsel.addEventListener('change', update);
+    gbox.addEventListener('change', update);
+    update();
     openModal(`出征・${c.name}`, h('div', {},
-      field('目標', tsel),
+      field('目標', tsel), intel,
       field('出陣武將（最多 3 名，統率最高者為主將）', gbox),
-      field(`兵力（最多 ${fmt(c.troops)}）`, tr, `軍糧消耗：兵力 ÷ 10（城中有 ${fmt(c.food)}）。戰敗時殘兵撤回本城。`)),
+      field('出陣兵力', ui.el, `軍糧消耗：兵力 ÷ 10（城中有 ${fmt(c.food)}）。戰敗時殘兵撤回本城。`)),
     () => {
       const ids = checkedValues(gbox);
       if (!ids.length) { toast('請至少選一名武將', true); return false; }
       if (ids.length > 3) { toast('最多 3 名武將', true); return false; }
-      return run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: tsel.value, troops: +tr.value });
+      return run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: tsel.value, units: ui.get() });
     }, { icon: 'attack', okText: '出陣！' });
   }
 

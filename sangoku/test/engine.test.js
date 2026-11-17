@@ -16,6 +16,9 @@ function invariants(s) {
       assert(Number.isFinite(c[k]) && c[k] >= 0, `${c.id}.${k} = ${c[k]}`);
     }
     assert(c.order <= 100 && c.farm <= 999 && c.defense <= 999);
+    const m = E.mixOf(c);
+    for (const k of E.UNIT_KEYS) assert(Number.isInteger(m[k]) && m[k] >= 0, `${c.id}.mix.${k} = ${m[k]}`);
+    assert.strictEqual(m.spear + m.cav + m.xbow, c.troops, `${c.id} 兵種總和不符`);
     if (c.owner) assert(s.factions[c.owner].alive, `${c.id} 屬於已滅亡勢力`);
   }
   for (const g of Object.values(s.generals)) {
@@ -122,6 +125,57 @@ test('全 AI 模擬十年不出錯（多個亂數種子）', () => {
 test('玩家放置不動時 AI 仍正常運作', () => {
   const s = E.newGame('liu', 99);
   for (let i = 0; i < 60 && !s.over; i++) { E.endTurn(s); invariants(s); }
+});
+
+test('兵種：徵兵花費與組成', () => {
+  const s = E.newGame('cao', 12);
+  const c = s.cities['陳留'];
+  const before = Object.assign({}, E.mixOf(c)), gold = c.gold;
+  assert(E.exec(s, 'cao', { type: 'draft', city: '陳留', general: '典韋', unit: 'cav', amount: 2000 }).ok);
+  assert.strictEqual(c.gold, gold - 400, '騎兵每千 200 金');
+  assert.strictEqual(E.mixOf(c).cav, before.cav + 2000);
+  assert(E.exec(s, 'cao', { type: 'draft', city: '陳留', general: '荀彧', unit: 'xbow', amount: 1000 }).ok);
+  assert.strictEqual(E.mixOf(c).xbow, before.xbow + 1000);
+});
+
+test('兵種：分兵種移動與出征', () => {
+  const s = E.newGame('cao', 13);
+  const a = s.cities['濮陽'], b = s.cities['陳留'];
+  const ma = Object.assign({}, E.mixOf(a)), mb = Object.assign({}, E.mixOf(b));
+  assert(E.exec(s, 'cao', { type: 'move', city: '濮陽', general: '曹洪', dest: '陳留', units: { cav: 1000, spear: 500 } }).ok);
+  assert.strictEqual(E.mixOf(a).cav, ma.cav - 1000);
+  assert.strictEqual(E.mixOf(b).spear, mb.spear + 500);
+  assert(!E.exec(s, 'cao', { type: 'move', city: '濮陽', general: '曹仁', dest: '陳留', units: { cav: 999999 } }).ok, '超過該兵種數量');
+  s.cities['許昌'].troops = 300;
+  const r = E.exec(s, 'cao', { type: 'attack', city: '陳留', general: '曹操', target: '許昌', units: { cav: 3000, xbow: 1000 } });
+  assert(r.ok, r.msg);
+  assert.strictEqual(s.cities['許昌'].owner, 'cao');
+  const m = E.mixOf(s.cities['許昌']);
+  assert.strictEqual(m.spear, 0, '佔領後只剩出征的兵種');
+  assert(m.cav > 0);
+});
+
+test('兵種相剋：槍兵守城對騎兵比對弩兵更有利', () => {
+  const trial = (defType) => {
+    let atkLoss = 0;
+    for (let seed = 1; seed <= 20; seed++) {
+      const s = E.newGame('cao', seed);
+      const t = s.cities['許昌'];
+      t.troops = 8000; t.mix = { spear: 0, cav: 0, xbow: 0 }; t.mix[defType] = 8000; t.defense = 300;
+      const r = E.exec(s, 'cao', { type: 'attack', city: '陳留', general: '樂進', target: '許昌', units: { cav: 4000 } });
+      assert(r.ok, r.msg);
+      atkLoss += r.battle.atkLoss;
+    }
+    return atkLoss;
+  };
+  assert(trial('spear') > trial('xbow'), '騎兵攻打槍兵應損失較多');
+});
+
+test('武將適性：趙雲槍兵 S、黃忠弩兵 S，一般武將依能力推得', () => {
+  const s = E.newGame('cao', 14);
+  assert.strictEqual(E.aptitude(s.generals['趙雲'], 'spear'), 'S');
+  assert.strictEqual(E.aptitude(s.generals['黃忠'], 'xbow'), 'S');
+  assert(['A', 'B', 'C'].includes(E.aptitude(s.generals['簡雍'], 'cav')));
 });
 
 console.log(`\n${passed} tests passed`);

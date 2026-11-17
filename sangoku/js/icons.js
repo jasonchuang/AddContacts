@@ -50,6 +50,32 @@
     </g></svg>`;
   }
 
+  // 弩兵：半跪持弩
+  function xbowman(color, opts) {
+    opts = opts || {};
+    const dark = shade(color, -0.25), light = shade(color, 0.18);
+    const flip = opts.flip ? ' transform="translate(24 0) scale(-1 1)"' : '';
+    return `<svg viewBox="0 0 24 32" class="${opts.cls || ''}" aria-hidden="true"><g${flip}>
+      <rect x="6" y="25" width="3" height="6" rx="1" fill="#3a2a1e"/>
+      <path d="M11 24 L17 24 L17 27 L12 27 Z" fill="#3a2a1e"/>
+      <path d="M6 13 Q10.5 11 15 13 L15.5 25 L5.5 25 Z" fill="${color}" stroke="${dark}" stroke-width=".8"/>
+      <rect x="5.6" y="19" width="9.8" height="2" fill="#e2b54a"/>
+      <circle cx="10.5" cy="8.5" r="3.6" fill="#f1c99a"/>
+      <path d="M6.6 8 Q10.5 2.5 14.4 8 Z" fill="${light}" stroke="${dark}" stroke-width=".7"/>
+      <rect x="7" y="2.8" width="7" height="2" rx="1" fill="${dark}"/>
+      <line x1="9" y1="16" x2="23" y2="16" stroke="#6b4423" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M20 10 Q24.5 16 20 22" fill="none" stroke="#4a2e18" stroke-width="1.6"/>
+      <line x1="20" y1="10" x2="16" y2="16" stroke="#ddd" stroke-width=".6"/><line x1="20" y1="22" x2="16" y2="16" stroke="#ddd" stroke-width=".6"/>
+      <circle cx="13" cy="16.5" r="1.8" fill="#f1c99a"/>
+    </g></svg>`;
+  }
+
+  function unit(type, color, opts) {
+    if (type === 'cav') return cavalry(color, opts);
+    if (type === 'xbow') return xbowman(color, opts);
+    return soldier(color, opts);
+  }
+
   // 旗幟
   function flag(color, text) {
     return `<svg viewBox="0 0 28 36" aria-hidden="true">
@@ -85,5 +111,5 @@
     return (ICONS[name] || '').replace('<svg ', `<svg class="ico ${cls || ''}" aria-hidden="true" `);
   }
 
-  TK.Icons = { soldier, cavalry, flag, icon, shade, ICONS };
+  TK.Icons = { soldier, cavalry, xbowman, unit, flag, icon, shade, ICONS };
 })(globalThis.TK = globalThis.TK || {});

@@ -34,7 +34,7 @@
       over: null,
     };
     for (const f of sc.factions) s.factions[f.id] = Object.assign({ alive: true }, f);
-    for (const c of sc.cities) s.cities[c.id] = c;
+    for (const c of sc.cities) { s.cities[c.id] = c; mixOf(c); }
     for (const g of sc.generals) s.generals[g.id] = Object.assign({ acted: false, formerFaction: null }, g);
     addLog(s, `${s.year}年，天下大亂，群雄並起。`, 'sys');
     return s;
@@ -68,6 +68,97 @@
     if (s.log.length > 400) s.log.splice(0, s.log.length - 400);
   }
 
+  // ---------- 兵種 ----------
+  // 槍剋騎、騎剋弩、弩剋槍。cost＝每 1000 兵所需金
+  const UNITS = {
+    spear: { name: '槍兵', short: '槍', cost: 100, desc: '陣型穩固、損失較少，剋制騎兵' },
+    cav: { name: '騎兵', short: '騎', cost: 200, desc: '進攻時衝鋒加成，剋制弩兵' },
+    xbow: { name: '弩兵', short: '弩', cost: 150, desc: '守城時加成、首輪齊射，剋制槍兵' },
+  };
+  const UNIT_KEYS = ['spear', 'cav', 'xbow'];
+  const BEATS = { spear: 'cav', cav: 'xbow', xbow: 'spear' };
+  const APT_MULT = { S: 1.18, A: 1.07, B: 1, C: 0.9 };
+
+  function matchup(a, d) { return a === d ? 1 : BEATS[a] === d ? 1.3 : 0.8; }
+
+  // 武將兵種適性：劇本可指定，否則依能力推得
+  function aptitude(g, type) {
+    if (!g) return 'C';
+    const o = (TK.SCENARIO.aptitude || {})[g.name];
+    if (o && o[type]) return o[type];
+    if (type === 'spear') return g.lead >= 85 || g.war >= 88 ? 'A' : g.lead >= 68 ? 'B' : 'C';
+    if (type === 'cav') return g.war >= 85 ? 'A' : g.war >= 70 ? 'B' : 'C';
+    return g.int >= 85 ? 'A' : g.int >= 68 || g.lead >= 80 ? 'B' : 'C';
+  }
+
+  const FACTION_MIX = {
+    ma: { spear: 0.3, cav: 0.5, xbow: 0.2 }, gongsun: { spear: 0.3, cav: 0.5, xbow: 0.2 }, dong: { spear: 0.35, cav: 0.45, xbow: 0.2 },
+    sun: { spear: 0.4, cav: 0.15, xbow: 0.45 }, liubiao: { spear: 0.4, cav: 0.15, xbow: 0.45 },
+  };
+  function defaultMix(c) {
+    const r = !c.owner ? { spear: 0.55, cav: 0.1, xbow: 0.35 } : FACTION_MIX[c.owner] || { spear: 0.45, cav: 0.25, xbow: 0.3 };
+    const m = { spear: Math.floor(c.troops * r.spear), cav: Math.floor(c.troops * r.cav), xbow: 0 };
+    m.xbow = c.troops - m.spear - m.cav;
+    return m;
+  }
+  // 依比例分配 total，回傳整數且總和精確
+  function scaleMix(mix, total) {
+    const sum = UNIT_KEYS.reduce((a, k) => a + (mix[k] || 0), 0);
+    const out = { spear: 0, cav: 0, xbow: 0 };
+    if (total <= 0) return out;
+    if (sum <= 0) { out.spear = total; return out; }
+    let acc = 0, big = 'spear';
+    for (const k of UNIT_KEYS) {
+      out[k] = Math.floor((mix[k] || 0) * total / sum);
+      acc += out[k];
+      if ((mix[k] || 0) > (mix[big] || 0)) big = k;
+    }
+    out[big] += total - acc;
+    return out;
+  }
+  // 取得城市兵種組成；troops 為準，組成不一致時依比例校正
+  function mixOf(c) {
+    if (!c.mix) c.mix = defaultMix(c);
+    const sum = c.mix.spear + c.mix.cav + c.mix.xbow;
+    if (sum !== c.troops) c.mix = scaleMix(c.mix, c.troops);
+    return c.mix;
+  }
+  function addUnits(c, units, train) {
+    mixOf(c);
+    const n = UNIT_KEYS.reduce((a, k) => a + (units[k] || 0), 0);
+    if (n <= 0) return;
+    if (train !== undefined) c.train = Math.round((c.train * c.troops + train * n) / (c.troops + n));
+    for (const k of UNIT_KEYS) c.mix[k] += units[k] || 0;
+    c.troops += n;
+  }
+  function takeUnits(c, units) {
+    mixOf(c);
+    for (const k of UNIT_KEYS) { c.mix[k] -= units[k] || 0; c.troops -= units[k] || 0; }
+  }
+  function unitsTotal(u) { return UNIT_KEYS.reduce((a, k) => a + (u[k] || 0), 0); }
+  // 指令可給 units（分兵種）或 troops（依城內比例）
+  function unitsFromCmd(c, cmd) {
+    mixOf(c);
+    if (cmd.units) {
+      const u = {};
+      for (const k of UNIT_KEYS) {
+        u[k] = Math.floor(cmd.units[k] || 0);
+        if (u[k] < 0 || u[k] > c.mix[k]) return null;
+      }
+      return u;
+    }
+    const n = Math.floor(cmd.troops || 0);
+    if (n < 0 || n > c.troops) return null;
+    return scaleMix(c.mix, n);
+  }
+  function fractions(u) {
+    const t = unitsTotal(u) || 1;
+    return { spear: (u.spear || 0) / t, cav: (u.cav || 0) / t, xbow: (u.xbow || 0) / t };
+  }
+  function mixName(u) {
+    return UNIT_KEYS.filter((k) => u[k] > 0).map((k) => `${UNITS[k].short}${u[k]}`).join('・') || '無兵';
+  }
+
   // ---------- 指令 ----------
   const DEV = {
     farm: { label: '開墾', cost: 50, stat: 'pol', key: 'farm' },
@@ -77,8 +168,9 @@
     train: { label: '訓練', cost: 0, stat: 'lead', key: 'train' },
   };
 
-  function maxDraft(s, city, g) {
-    return Math.max(0, Math.min(g.cha * 100, city.gold * 10, Math.floor(city.pop / 5), 120000 - city.troops));
+  function maxDraft(s, city, g, type) {
+    const cost = UNITS[type || 'spear'].cost;
+    return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), 120000 - city.troops));
   }
 
   function recruitChance(s, g, target) {
@@ -117,17 +209,17 @@
 
     switch (cmd.type) {
       case 'draft': {
+        const type = UNITS[cmd.unit] ? cmd.unit : 'spear';
         const amt = Math.floor(cmd.amount || 0);
-        const max = maxDraft(s, city, g);
+        const max = maxDraft(s, city, g, type);
         if (amt < 100) return fail('徵兵數至少 100');
         if (amt > max) return fail(`最多可徵 ${max}`);
-        city.gold -= Math.ceil(amt / 10);
+        city.gold -= Math.ceil(amt * UNITS[type].cost / 1000);
         city.pop -= amt;
-        city.train = Math.round((city.train * city.troops + 20 * amt) / (city.troops + amt));
-        city.troops += amt;
+        addUnits(city, { [type]: amt }, 20);
         city.order = Math.max(0, city.order - Math.ceil(amt / 2000));
         g.acted = true;
-        return ok(`${g.name}於${city.name}徵兵 ${amt}`);
+        return ok(`${g.name}於${city.name}徵募${UNITS[type].name} ${amt}`);
       }
       case 'search': {
         g.acted = true;
@@ -190,11 +282,15 @@
         for (const m of movers) {
           if (!m || m.faction !== fid || m.city !== city.id || m.status !== 'active' || m.acted) return fail('有武將無法移動');
         }
-        const troops = Math.floor(cmd.troops || 0), gold = Math.floor(cmd.gold || 0), food = Math.floor(cmd.food || 0);
-        if (troops < 0 || troops > city.troops || gold < 0 || gold > city.gold || food < 0 || food > city.food) {
+        const units = unitsFromCmd(city, cmd);
+        const gold = Math.floor(cmd.gold || 0), food = Math.floor(cmd.food || 0);
+        if (!units || gold < 0 || gold > city.gold || food < 0 || food > city.food) {
           return fail('兵、金或糧數量不正確');
         }
-        transferTroops(city, dest, troops);
+        const troops = unitsTotal(units);
+        mixOf(dest);
+        takeUnits(city, units);
+        addUnits(dest, units, city.train);
         city.gold -= gold; dest.gold += gold;
         city.food -= food; dest.food += food;
         for (const m of movers) { m.city = dest.id; m.acted = true; }
@@ -208,16 +304,16 @@
         for (const m of army) {
           if (!m || m.faction !== fid || m.city !== city.id || m.status !== 'active' || m.acted) return fail('有武將無法出陣');
         }
-        const troops = Math.floor(cmd.troops || 0);
+        const units = unitsFromCmd(city, cmd);
+        if (!units) return fail('兵力不足');
+        const troops = unitsTotal(units);
         if (troops < 1000) return fail('出陣兵力至少 1000');
-        if (troops > city.troops) return fail('兵力不足');
         const foodNeed = Math.ceil(troops / 10);
         if (city.food < foodNeed) return fail(`軍糧不足（需 ${foodNeed}）`);
-        if (city.troops - troops < 0) return fail('兵力不足');
         city.food -= foodNeed;
-        city.troops -= troops;
+        takeUnits(city, units);
         for (const m of army) m.acted = true;
-        const res = battle(s, { faction: fid, generals: army, troops, train: city.train, from: city.id }, target.id);
+        const res = battle(s, { faction: fid, generals: army, troops, units, train: city.train, from: city.id }, target.id);
         return ok(res.summary, res);
       }
       default:
@@ -240,12 +336,6 @@
     g.formerFaction = null;
   }
 
-  function transferTroops(from, to, n) {
-    if (n <= 0) return;
-    to.train = Math.round((to.train * to.troops + from.train * n) / (to.troops + n));
-    to.troops += n;
-    from.troops -= n;
-  }
 
   // ---------- 戰鬥 ----------
   function sideStats(gens) {
@@ -265,6 +355,19 @@
     const defGens = defOwner ? officers(s, city.id).sort((a, b) => b.lead - a.lead).slice(0, 3) : [];
     const A = Object.assign(sideStats(atk.generals), { troops: atk.troops, train: atk.train });
     const D = Object.assign(sideStats(defGens), { troops: city.troops, train: city.train });
+    // 兵種：雙方組成比例、相剋、主將適性
+    const aUnits = atk.units || { spear: atk.troops, cav: 0, xbow: 0 };
+    const dUnits = Object.assign({}, mixOf(city));
+    const fA = fractions(aUnits), fD = fractions(dUnits);
+    let mA = 0, mD = 0, aptA = 0, aptD = 0;
+    for (const a of UNIT_KEYS) {
+      for (const d of UNIT_KEYS) { mA += fA[a] * fD[d] * matchup(a, d); mD += fD[d] * fA[a] * matchup(d, a); }
+      aptA += fA[a] * APT_MULT[aptitude(A.commander, a)];
+      aptD += fD[a] * (D.commander ? APT_MULT[aptitude(D.commander, a)] : 1);
+    }
+    const bonusA = mA * aptA * (1 + 0.12 * fA.cav);
+    const bonusD = mD * aptD * (1 + 0.15 * fD.xbow);
+    const sturdyA = 1 - 0.1 * fA.spear, sturdyD = 1 - 0.1 * fD.spear;
     const A0 = A.troops, D0 = D.troops;
     const aName = factionName(s, atk.faction), dName = factionName(s, defOwner);
     const parties = [atk.faction, defOwner].filter(Boolean);
@@ -274,6 +377,10 @@
     lines.push(`${aName}（${aCmd}，${A0}兵）自${atk.from}進攻${city.name}（${dName}，${dCmd}，${D0}兵）`);
     // frames：給戰鬥畫面逐格播放 {a, d, ev, kind}
     const frames = [{ a: A0, d: D0, ev: null }];
+    const domA = UNIT_KEYS.reduce((b, k) => (fA[k] > fA[b] ? k : b), 'spear');
+    const domD = UNIT_KEYS.reduce((b, k) => (fD[k] > fD[b] ? k : b), 'spear');
+    if (mA > 1.06) lines.push(`兵種相剋：${aName}的${UNITS[domA].name}佔上風`);
+    else if (mD > 1.06) lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
 
     // 單挑
     if (A.war >= 80 && D.war >= 80 && rand(s) < 0.3) {
@@ -289,11 +396,21 @@
 
     let result = null, schemes = 0;
     for (let round = 1; round <= 20 && !result; round++) {
-      const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6);
-      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 800);
-      let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3));
+      const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * bonusA;
+      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 800) * bonusD;
+      let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * sturdyD);
       let ev = null, kind = null;
-      let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3));
+      let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * sturdyA);
+      if (round === 1) {
+        // 開戰：弩兵齊射、騎兵衝鋒
+        if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
+        if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
+        if (fA.cav >= 0.3) {
+          if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
+          else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
+        }
+        if (ev) lines.push(ev);
+      }
       if (A.int >= 75 && rand(s) < (A.int - 60) / 200) {
         lossD = Math.round(lossD * 1.5);
         ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
@@ -315,19 +432,18 @@
       else if (A.troops < A0 * 0.3 && A.troops < D.troops) result = 'lose';
     }
     if (!result) { result = 'lose'; lines.push('久攻不下，撤兵'); }
+    const aLeft = scaleMix(aUnits, A.troops);
     frames[frames.length - 1].a = A.troops;
     frames[frames.length - 1].d = D.troops;
 
     city.troops = D.troops;
     let summary;
     if (result === 'win') {
-      conquer(s, city, atk, A, lines);
+      conquer(s, city, atk, A, lines, aLeft);
       summary = `${aName}攻陷了${city.name}！（剩餘 ${A.troops} 兵）`;
     } else {
       const home = s.cities[atk.from];
-      if (home.owner === atk.faction) {
-        transferTroops({ troops: A.troops, train: atk.train }, home, A.troops);
-      }
+      if (home.owner === atk.faction) addUnits(home, aLeft, atk.train);
       summary = `${aName}進攻${city.name}失敗（我損 ${A0 - A.troops}，敵損 ${D0 - D.troops}）`;
     }
     lines.push(summary);
@@ -335,18 +451,19 @@
     const res = {
       result, summary, lines, frames, atkLoss: A0 - A.troops, defLoss: D0 - D.troops,
       city: city.id, from: atk.from,
-      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0 },
-      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0 },
+      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0, units: aUnits },
+      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0, units: dUnits },
     };
     if (TK.Engine && typeof TK.Engine.onBattle === 'function') TK.Engine.onBattle(res);
     return res;
   }
 
-  function conquer(s, city, atk, A, lines) {
+  function conquer(s, city, atk, A, lines, aLeft) {
     const oldOwner = city.owner;
     const defenders = oldOwner ? generalsIn(s, city.id, (g) => g.status === 'active' && g.faction === oldOwner) : [];
     city.owner = atk.faction;
     city.troops = A.troops;
+    city.mix = aLeft;
     city.train = atk.train;
     city.order = Math.max(10, city.order - 15);
     for (const g of atk.generals) g.city = city.id;
@@ -465,5 +582,6 @@
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
+    UNITS, UNIT_KEYS, BEATS, APT_MULT, matchup, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});

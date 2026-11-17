@@ -54,6 +54,14 @@
     if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}萬`;
     return String(n);
   }
+  // 兵種組成：小圖示 + 數量
+  function unitMixChips(u) {
+    return E.UNIT_KEYS.filter((k) => u[k] > 0).map((k) =>
+      h('span', { class: 'umix', title: `${E.UNITS[k].name} ${fmt(u[k])}` }, raw(I.unit(k, '#6b6358')), fmtW(u[k])));
+  }
+  function aptChips(g) {
+    return E.UNIT_KEYS.map((k) => h('i', { class: `gr gr-${E.aptitude(g, k)}`, title: `${E.UNITS[k].name}適性` }, E.UNITS[k].short, h('b', {}, E.aptitude(g, k))));
+  }
   // 能力評等
   function grade(v) { return v >= 90 ? 'S' : v >= 80 ? 'A' : v >= 70 ? 'B' : v >= 60 ? 'C' : 'D'; }
   function gradeChip(label, v) { return h('i', { class: `gr gr-${grade(v)}`, title: `${label} ${v}` }, label, h('b', {}, grade(v))); }
@@ -112,7 +120,9 @@
         h('div', { class: 'hint' }, g.city ? `所在：${g.city}（${statusText}）` : statusText),
         bar('統率', g.lead, '#2f5f8f'), bar('武力', g.war, '#b23a2c'), bar('智略', g.int, '#5e4280'),
         bar('政務', g.pol, '#3d7a4c'), bar('魅力', g.cha, '#b8892c'),
-        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#6b6358')));
+        g.ruler || g.status !== 'active' ? null : bar('忠誠', g.loyalty, '#6b6358'),
+        h('div', { class: 'aptbig' }, E.UNIT_KEYS.map((k) => h('div', { class: `aptcell gr-${E.aptitude(g, k)}` },
+          raw(I.unit(k, color(g.faction || g.formerFaction))), h('span', {}, E.UNITS[k].name), h('em', { class: `gr-${E.aptitude(g, k)}` }, E.aptitude(g, k)))))));
     openModal('武將列傳', body, null, { noOk: true, icon: 'general' });
   }
 
@@ -373,13 +383,14 @@
       const army = (side, info, col) => {
         const num = h('div', { class: 'num' }, fmt(info.troops));
         const fill = h('div', { style: `width:100%;background:${col}` });
+        const comp = info.units ? h('div', { class: 'ag mixline' }, unitMixChips(info.units)) : null;
         const el = h('div', { class: 'army' + (side === 'd' ? ' right' : '') },
           info.generals.length && S.generals[info.commander]
             ? portraitMini(S.generals[info.commander], { size: 'xl' })
             : seal('守', info.faction, false),
           h('div', {},
             h('div', { class: 'an' }, info.name, side === 'a' ? '（攻）' : '（守）'),
-            h('div', { class: 'ag' }, info.generals.length ? info.generals.join('・') : '守軍'),
+            h('div', { class: 'ag' }, info.generals.length ? info.generals.join('・') : '守軍'), comp,
             num, h('div', { class: 'hp' }, fill)));
         return { el, num, fill };
       };
@@ -391,14 +402,16 @@
       const mkUnits = (side, troops, col) => {
         const n = Math.max(4, Math.round(30 * troops / big));
         const wrap = $(side === 'a' ? 'units-a' : 'units-d');
+        const info = side === 'a' ? r.atk : r.def;
+        const counts = E.scaleMix(info.units || { spear: troops }, n);
         const units = [];
-        for (let i = 0; i < n; i++) {
-          const svgStr = i === 0 && (side === 'a' ? r.atk.generals.length : r.def.generals.length)
-            ? I.cavalry(col, { flip: side === 'd', cls: 'cav march' })
-            : I.soldier(col, { flip: side === 'd', cls: 'march' });
-          const u = raw(svgStr);
-          u.style.animationDelay = `${(i % 5) * 0.1}s`;
-          units.push(u);
+        // 騎兵在前、槍兵居中、弩兵在後
+        for (const k of ['cav', 'spear', 'xbow']) {
+          for (let i = 0; i < counts[k]; i++) {
+            const u = raw(I.unit(k, col, { flip: side === 'd', cls: `u-${k} march` }));
+            u.style.animationDelay = `${(units.length % 5) * 0.1}s`;
+            units.push(u);
+          }
         }
         wrap.replaceChildren(...(side === 'd' ? units.slice().reverse() : units));
         return { wrap, units, n };
@@ -642,8 +655,13 @@
       if (c.id === selected) s += '<ellipse class="sel-ring" cx="0" cy="2" rx="34" ry="26"/>';
       if (c.owner) s += `<ellipse cx="0" cy="2" rx="28" ry="20" fill="${c.owner ? S.factions[c.owner].color : 'none'}" opacity=".16" filter="url(#ink-wash)"/>`;
       const n = c.troops <= 0 ? 0 : c.troops < 5000 ? 1 : c.troops < 15000 ? 2 : c.troops < 30000 ? 3 : 4;
-      for (let i = 0; i < n; i++) {
-        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(color(c.owner)), -38 - i * 8, -6 + (i % 2) * 4, 13, 18)}</g>`;
+      const gc = E.scaleMix(E.mixOf(c), n);
+      let gi = 0;
+      for (const k of ['xbow', 'spear', 'cav']) {
+        for (let j = 0; j < gc[k]; j++, gi++) {
+          const w = k === 'cav' ? 20 : 13, hh = k === 'cav' ? 18 : 18;
+          s += `<g class="garrison bob" style="animation-delay:${gi * 0.2}s">${placeSvg(I.unit(k, color(c.owner)), -36 - gi * 9 - (k === 'cav' ? 6 : 0), -6 + (gi % 2) * 4, w, hh)}</g>`;
+        }
       }
       s += castleMarkup(c, capital);
       s += sealMarkup(c, 13, -30, 15);
@@ -663,7 +681,8 @@
     const gens = c.owner ? E.officers(S, c.id).length : 0;
     tip.replaceChildren(
       h('div', {}, h('b', {}, c.name), ' ', h('span', { style: `color:${color(c.owner)};font-weight:700` }, E.factionName(S, c.owner))),
-      h('div', {}, `兵 ${fmtW(c.troops)}｜武將 ${gens} 名`));
+      h('div', {}, `兵 ${fmtW(c.troops)}｜武將 ${gens} 名`),
+      h('div', { class: 'mixline' }, unitMixChips(E.mixOf(c))));
     const frame = $('map').parentElement.getBoundingClientRect();
     let x = evt.clientX - frame.left + 14, y = evt.clientY - frame.top + 14;
     if (x > frame.width - 170) x -= 190;
@@ -700,11 +719,16 @@
         h('div', {},
           h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : h('span', { class: 'tag soft' }, TK.Portrait.classLabel(g, TK.Portrait.traits(g)))),
           h('div', { class: 'gstats' },
-            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha))))));
+            gradeChip('統', g.lead), gradeChip('武', g.war), gradeChip('智', g.int), gradeChip('政', g.pol), gradeChip('魅', g.cha)),
+          h('div', { class: 'gstats apt' }, aptChips(g))))));
 
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const parts = [head, res, bars, h('h3', {}, `麾下武將`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
+    const mix = E.mixOf(c);
+    const mixRow = h('div', { class: 'mixrow' },
+      h('div', { class: 'mixbar' }, E.UNIT_KEYS.map((k) => h('div', { class: `seg seg-${k}`, style: `flex:${mix[k] || 0}` }))),
+      h('div', { class: 'mixline' }, unitMixChips(mix)));
+    const parts = [head, res, mixRow, bars, h('h3', {}, `麾下武將`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
     if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', { onclick: () => showGeneral(g.id) }, portraitMini(g), g.name))));
     if (mine && !S.over) parts.push(h('h3', {}, '指令'), commandButtons(c));
@@ -758,16 +782,26 @@
     const info = h('div', { class: 'hint' });
     const amt = numberOf(0, 3000, 500);
     const sel = execSelect(c, 'cha');
+    let unit = 'spear';
+    const picks = h('div', { class: 'unit-pick' });
     const update = () => {
-      const max = E.maxDraft(S, c, S.generals[sel.value]);
+      const g = S.generals[sel.value];
+      picks.replaceChildren(...E.UNIT_KEYS.map((k) => h('button', {
+        type: 'button', class: 'ucard' + (k === unit ? ' on' : ''),
+        onclick: () => { unit = k; SND.click(); update(); },
+      }, raw(I.unit(k, color(S.player))),
+      h('b', {}, E.UNITS[k].name), h('small', {}, `每千兵 金${E.UNITS[k].cost}`),
+      h('small', {}, E.UNITS[k].desc), h('i', { class: `gr gr-${E.aptitude(g, k)}` }, '適性', h('b', {}, E.aptitude(g, k))))));
+      const max = E.maxDraft(S, c, g, unit);
       amt.max = max;
-      info.textContent = `最多可徵 ${fmt(max)}（受魅力、金、人口限制）。每 1000 兵花費金 100，會降低民心。`;
+      if (+amt.value > max) amt.value = max;
+      info.textContent = `最多可徵 ${fmt(max)}（受魅力、金、人口限制）。徵兵會降低民心，新兵訓練度較低。`;
     };
     sel.addEventListener('change', update);
     update();
     amt.value = Math.min(3000, Number(amt.max));
-    openModal(`徵兵・${c.name}`, h('div', {}, field('執行武將', sel), field('徵兵數', amt), info),
-      () => run({ type: 'draft', city: c.id, general: sel.value, amount: Number(amt.value) }), { icon: 'draft' });
+    openModal(`徵兵・${c.name}`, h('div', {}, field('執行武將', sel), field('兵種', picks), field('徵兵數', amt), info),
+      () => run({ type: 'draft', city: c.id, general: sel.value, unit, amount: Number(amt.value) }), { icon: 'draft' });
   }
 
   function recruitDialog(c) {
@@ -800,20 +834,39 @@
       () => run({ type: act.value, city: c.id, target: tsel.value }), { icon: 'prisoner' });
   }
 
+  // 分兵種輸入框
+  function unitInputs(c, ratio, onchange) {
+    const mix = E.mixOf(c);
+    const inputs = {};
+    const row = h('div', { class: 'unit-inputs' }, E.UNIT_KEYS.map((k) => {
+      inputs[k] = numberOf(mix[k], Math.floor(mix[k] * ratio / 100) * 100, 500);
+      if (onchange) inputs[k].addEventListener('input', onchange);
+      return h('label', { class: 'uin' }, raw(I.unit(k, color(S.player))),
+        h('span', {}, E.UNITS[k].name, h('small', {}, `（有 ${fmt(mix[k])}）`)), inputs[k]);
+    }));
+    const get = () => {
+      const u = {};
+      for (const k of E.UNIT_KEYS) u[k] = Math.max(0, Math.min(mix[k], Math.floor(+inputs[k].value || 0)));
+      return u;
+    };
+    return { el: row, get };
+  }
+
   function moveDialog(c) {
     const dests = E.neighbors(S, c.id).filter((id) => S.cities[id].owner === S.player);
     if (!dests.length) { toast('沒有相鄰的我方城市', true); return; }
     const dsel = selectOf(dests.map((id) => ({ value: id, label: id })));
     const ready = E.officers(S, c.id).filter((g) => !g.acted);
     const gbox = checksOf(ready.map((g) => ({ value: g.id, label: genLabel(g) })), 1);
-    const tr = numberOf(c.troops, 0, 1000), gold = numberOf(c.gold, 0, 100), food = numberOf(c.food, 0, 1000);
+    const ui = unitInputs(c, 0);
+    const gold = numberOf(c.gold, 0, 100), food = numberOf(c.food, 0, 1000);
     openModal(`移動・${c.name}`, h('div', {},
-      field('目的地', dsel), field('移動武將', gbox),
-      field(`帶兵（最多 ${fmt(c.troops)}）`, tr), field(`運金（最多 ${fmt(c.gold)}）`, gold), field(`運糧（最多 ${fmt(c.food)}）`, food)),
+      field('目的地', dsel), field('移動武將', gbox), field('帶兵', ui.el),
+      field(`運金（最多 ${fmt(c.gold)}）`, gold), field(`運糧（最多 ${fmt(c.food)}）`, food)),
     () => {
       const ids = checkedValues(gbox);
       if (!ids.length) { toast('請至少選一名武將', true); return false; }
-      return run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: dsel.value, troops: +tr.value, gold: +gold.value, food: +food.value });
+      return run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: dsel.value, units: ui.get(), gold: +gold.value, food: +food.value });
     }, { icon: 'move' });
   }
 
@@ -822,20 +875,41 @@
     if (!targets.length) { toast('沒有相鄰的敵城', true); return; }
     const tsel = selectOf(targets.map((id) => {
       const t = S.cities[id];
-      return { value: id, label: `${id}（${E.factionName(S, t.owner)}，兵 ${fmt(t.troops)}，城防 ${t.defense}）` };
+      return { value: id, label: `${id}（${E.factionName(S, t.owner)}，兵 ${fmtW(t.troops)}）` };
     }));
     const ready = E.officers(S, c.id).filter((g) => !g.acted).sort((a, b) => (b.lead + b.war) - (a.lead + a.war));
     const gbox = checksOf(ready.map((g) => ({ value: g.id, label: genLabel(g) })), 1);
-    const tr = numberOf(c.troops, Math.floor(c.troops * 0.7), 1000);
+    const intel = h('div', { class: 'intel' });
+    const ui = unitInputs(c, 70, () => update());
+    const update = () => {
+      const t = S.cities[tsel.value];
+      const tm = E.mixOf(t);
+      const u = ui.get();
+      const ids = checkedValues(gbox);
+      const cmdr = ids.map((id) => S.generals[id]).sort((a, b) => b.lead - a.lead)[0];
+      const fa = E.fractions(u), fd = E.fractions(tm);
+      let m = 0;
+      for (const a of E.UNIT_KEYS) for (const d of E.UNIT_KEYS) m += fa[a] * fd[d] * E.matchup(a, d);
+      const verdict = m >= 1.08 ? ['good', '兵種佔優'] : m <= 0.92 ? ['bad', '兵種不利'] : ['even', '兵種相當'];
+      intel.replaceChildren(
+        h('div', {}, h('b', {}, `${t.name}守軍 `), unitMixChips(tm), h('span', { class: 'hint' }, `　城防 ${t.defense}`)),
+        h('div', {}, h('span', { class: `verdict ${verdict[0]}` }, verdict[1]),
+          cmdr ? h('span', { class: 'hint' }, `　主將 ${cmdr.name} 適性：`) : null,
+          cmdr ? aptChips(cmdr) : null),
+        h('div', { class: 'hint' }, '槍剋騎・騎剋弩・弩剋槍'));
+    };
+    tsel.addEventListener('change', update);
+    gbox.addEventListener('change', update);
+    update();
     openModal(`出征・${c.name}`, h('div', {},
-      field('目標', tsel),
+      field('目標', tsel), intel,
       field('出陣武將（最多 3 名，統率最高者為主將）', gbox),
-      field(`兵力（最多 ${fmt(c.troops)}）`, tr, `軍糧消耗：兵力 ÷ 10（城中有 ${fmt(c.food)}）。戰敗時殘兵撤回本城。`)),
+      field('出陣兵力', ui.el, `軍糧消耗：兵力 ÷ 10（城中有 ${fmt(c.food)}）。戰敗時殘兵撤回本城。`)),
     () => {
       const ids = checkedValues(gbox);
       if (!ids.length) { toast('請至少選一名武將', true); return false; }
       if (ids.length > 3) { toast('最多 3 名武將', true); return false; }
-      return run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: tsel.value, troops: +tr.value });
+      return run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: tsel.value, units: ui.get() });
     }, { icon: 'attack', okText: '出陣！' });
   }
 

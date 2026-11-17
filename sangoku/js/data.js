@@ -166,7 +166,24 @@
     if (r) r.ruler = true;
   }
 
+  // 兵種適性（S/A/B/C）。未列出者依能力自動推得。依史書與演義中的公有領域描述設定。
+  const aptitude = {
+    '趙雲': { spear: 'S', cav: 'A' }, '張飛': { spear: 'S', cav: 'A' }, '關羽': { spear: 'A', cav: 'S' },
+    '馬超': { cav: 'S', spear: 'A' }, '呂布': { cav: 'S', spear: 'A' }, '張遼': { cav: 'S', spear: 'A' },
+    '公孫瓚': { cav: 'S', xbow: 'B' }, '馬騰': { cav: 'A' }, '龐德': { cav: 'A', spear: 'A' }, '韓遂': { cav: 'A' },
+    '夏侯淵': { cav: 'S', xbow: 'A' }, '夏侯惇': { spear: 'A', cav: 'A' }, '曹仁': { spear: 'S' }, '曹操': { cav: 'A', xbow: 'A', spear: 'A' },
+    '典韋': { spear: 'S', cav: 'B' }, '許褚': { spear: 'S', cav: 'B' }, '樂進': { spear: 'A' }, '徐晃': { spear: 'A', cav: 'A' },
+    '黃忠': { xbow: 'S', spear: 'A' }, '太史慈': { xbow: 'S', cav: 'A' }, '諸葛亮': { xbow: 'S', spear: 'B' }, '周瑜': { xbow: 'S', spear: 'A' },
+    '甘寧': { xbow: 'A', spear: 'A' }, '黃蓋': { xbow: 'A' }, '程普': { xbow: 'A', spear: 'A' }, '韓當': { cav: 'A', xbow: 'A' },
+    '孫堅': { spear: 'A', cav: 'A', xbow: 'A' }, '孫策': { cav: 'S', spear: 'A' }, '孫權': { xbow: 'A' },
+    '顏良': { cav: 'A', spear: 'A' }, '文醜': { cav: 'A' }, '張郃': { spear: 'S', xbow: 'A' }, '高覽': { spear: 'A' },
+    '袁紹': { xbow: 'A' }, '華雄': { cav: 'A' }, '董卓': { cav: 'A' }, '徐榮': { cav: 'A' }, '李傕': { cav: 'A' }, '郭汜': { cav: 'A' },
+    '紀靈': { spear: 'A' }, '文聘': { xbow: 'A', spear: 'A' }, '蔡瑁': { xbow: 'A' }, '黃祖': { xbow: 'A' },
+    '魏延': { spear: 'A', cav: 'A' }, '嚴顏': { xbow: 'A', spear: 'A' }, '張任': { xbow: 'A' }, '周泰': { spear: 'A' },
+  };
+
   TK.SCENARIO = {
+    aptitude,
     title: '群雄割據',
     year: 190,
     month: 1,
