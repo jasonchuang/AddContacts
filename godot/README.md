@@ -90,6 +90,12 @@ godot/
   art/portraits/              放武將插畫（檔名＝武將名.png），有圖就自動取代程式肖像
 ```
 
+## 美術（D 風格：日系動畫賽璐璐）
+
+- 風格規範：`art/STYLE_D.md`
+- 全部武將的生圖提示詞：`art/prompts_D.md`（由 `node godot/tools/gen_prompts.js` 依遊戲資料產生）
+- 生成的圖用武將名稱命名放進 `art/portraits/`（例如 `關羽.png`），遊戲會自動改用插畫
+
 ## 修改資料
 
 劇本資料由 `tools/gen_data.js` 產生，修改武將、城市、事件後執行：
