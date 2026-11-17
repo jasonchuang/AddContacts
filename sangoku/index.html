@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>群雄逐鹿</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>群雄逐鹿</h1>
+    <div id="status" class="status"></div>
+    <div class="actions">
+      <button id="btn-save">存檔</button>
+      <button id="btn-load">讀檔</button>
+      <button id="btn-new">新遊戲</button>
+      <button id="btn-end" class="primary">結束本月 ▶</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="map-wrap">
+      <svg id="map" viewBox="0 0 1000 720" role="img" aria-label="中原地圖"></svg>
+    </section>
+    <aside class="side">
+      <div id="city-panel" class="panel"></div>
+      <div id="faction-panel" class="panel"></div>
+    </aside>
+    <section class="log-wrap panel">
+      <h2>戰報</h2>
+      <ol id="log"></ol>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <h2 id="modal-title"></h2>
+      <div id="modal-body"></div>
+      <div class="modal-actions">
+        <button id="modal-cancel">取消</button>
+        <button id="modal-ok" class="primary">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

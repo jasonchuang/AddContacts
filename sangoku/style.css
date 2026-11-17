@@ -1,0 +1,133 @@
+:root {
+  --bg: #efe6d2;
+  --paper: #f8f2e3;
+  --ink: #2b2118;
+  --muted: #7a6a55;
+  --line: #c9b896;
+  --accent: #a3341f;
+  --sea: #cfdde0;
+  --land: #e9dcbc;
+  --road: #a8916a;
+  --good: #2f7d4a;
+  --bad: #b03a2e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1d1a16;
+    --paper: #26221c;
+    --ink: #ece3d0;
+    --muted: #a8997f;
+    --line: #4a4135;
+    --accent: #e0694f;
+    --sea: #1d2a2d;
+    --land: #302a20;
+    --road: #6e5f48;
+    --good: #6cc48a;
+    --bad: #ef7a6c;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Serif TC", "PMingLiU", "Songti TC", serif;
+  font-size: 15px;
+}
+button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+input, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 4px 6px; }
+
+.topbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 8px 16px; border-bottom: 2px solid var(--line); background: var(--paper);
+}
+.topbar h1 { margin: 0; font-size: 22px; letter-spacing: .2em; color: var(--accent); }
+.status { flex: 1; color: var(--muted); }
+.status b { color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-rows: auto 220px;
+  gap: 12px; padding: 12px 16px;
+}
+.map-wrap { grid-column: 1; grid-row: 1; }
+.side { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.log-wrap { grid-column: 1; grid-row: 2; overflow: auto; }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.panel h2 { margin: 0 0 8px; font-size: 17px; }
+.panel h3 { margin: 12px 0 6px; font-size: 15px; color: var(--muted); }
+
+#map { width: 100%; height: auto; display: block; background: var(--sea); border-radius: 8px; border: 1px solid var(--line); }
+#map .land { fill: var(--land); stroke: var(--line); }
+#map .river { fill: none; stroke: var(--sea); stroke-width: 6; stroke-linecap: round; }
+#map .road { stroke: var(--road); stroke-width: 2.5; stroke-dasharray: 6 4; }
+#map .city { cursor: pointer; }
+#map .city circle.ring { fill: none; stroke: none; }
+#map .city circle.dot { stroke: var(--ink); stroke-width: 1.5; }
+#map .city.sel circle.ring { stroke: var(--accent); stroke-width: 3; fill: none; }
+#map .city.target circle.ring { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; fill: none; }
+#map .city text { font-size: 15px; fill: var(--ink); text-anchor: middle; paint-order: stroke; stroke: var(--land); stroke-width: 4px; pointer-events: none; }
+#map .city text.troops { font-size: 11px; fill: var(--muted); }
+#map .city .ruler-mark { fill: #fff; font-size: 12px; stroke: none; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 10px; font-size: 14px; }
+.stats div span { color: var(--muted); margin-right: 4px; }
+.cmds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+.cmds button { padding: 6px 4px; }
+table.gens { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.gens th, table.gens td { padding: 3px 4px; text-align: right; border-bottom: 1px solid var(--line); }
+table.gens th:first-child, table.gens td:first-child { text-align: left; }
+table.gens tr.acted td { color: var(--muted); }
+.tag { display: inline-block; font-size: 11px; padding: 0 5px; border-radius: 3px; background: var(--line); color: var(--ink); margin-left: 4px; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; border: 1px solid var(--ink); }
+
+.factions { width: 100%; font-size: 13px; border-collapse: collapse; }
+.factions td { padding: 2px 4px; text-align: right; }
+.factions td:first-child { text-align: left; }
+.factions tr.me td { font-weight: bold; }
+.factions tr.dead td { color: var(--muted); text-decoration: line-through; }
+
+#log { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+#log li { padding: 2px 0; border-bottom: 1px dotted var(--line); }
+#log li .d { color: var(--muted); margin-right: 6px; }
+#log li.mine { color: var(--ink); }
+#log li.other { color: var(--muted); }
+#log li.major { color: var(--accent); font-weight: bold; }
+#log li.warn { color: var(--bad); }
+
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+.modal.hidden { display: none; }
+.modal-box { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow: auto; }
+.modal-box h2 { margin: 0 0 12px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.field { margin: 8px 0; }
+.field > label { display: block; color: var(--muted); font-size: 13px; margin-bottom: 3px; }
+.field select, .field input[type=number] { width: 100%; }
+.checks label { display: block; padding: 2px 0; }
+.hint { color: var(--muted); font-size: 13px; }
+.pick-list { display: grid; gap: 6px; }
+.pick-list button { text-align: left; display: flex; align-items: center; gap: 8px; }
+.pick-list small { color: var(--muted); margin-left: auto; }
+
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 8px 16px; border-radius: 6px; z-index: 20; max-width: 90vw; }
+.toast.hidden { display: none; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: auto; padding: 12px 16px; }
+  .map-wrap, .side, .log-wrap { grid-column: 1; grid-row: auto; }
+  .log-wrap { max-height: 260px; }
+  .cmds { grid-template-columns: repeat(3, 1fr); }
+}
