@@ -1,43 +1,69 @@
-/* 介面：地圖、城市面板、指令視窗、戰報、存讀檔。 */
+/* 介面：標題、地圖、城市面板、指令視窗、戰鬥動畫、換月橫幅、存讀檔。 */
 (function (TK) {
   'use strict';
-  const E = TK.Engine;
+  const E = TK.Engine, I = TK.Icons, SND = TK.Sound;
   const SAVE_KEY = 'qunxiong.save.v1';
   const AUTO_KEY = 'qunxiong.auto.v1';
   const $ = (id) => document.getElementById(id);
-  const SVG = 'http://www.w3.org/2000/svg';
+  const MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+  const SEASONS = [['spring', '春'], ['summer', '夏'], ['autumn', '秋'], ['winter', '冬']];
+  const NEUTRAL_COLOR = '#a39a8a';
+
+  const CMD = {
+    farm: { label: '開墾', icon: 'farm', color: '#3e9b4f' },
+    commerce: { label: '商業', icon: 'commerce', color: '#d9822b' },
+    defense: { label: '築城', icon: 'defense', color: '#6c7a89' },
+    order: { label: '巡察', icon: 'order', color: '#b8901c' },
+    train: { label: '訓練', icon: 'train', color: '#b03a2e' },
+    draft: { label: '徵兵', icon: 'draft', color: '#2e86c1' },
+    search: { label: '搜索', icon: 'search', color: '#16a085' },
+    recruit: { label: '登用', icon: 'recruit', color: '#8e44ad' },
+    reward: { label: '賞賜', icon: 'reward', color: '#c0392b' },
+    move: { label: '移動', icon: 'move', color: '#a0522d' },
+    attack: { label: '出征', icon: 'attack', color: '#8b1a12' },
+    prisoner: { label: '俘虜', icon: 'prisoner', color: '#566573' },
+  };
 
   let S = null;
   let selected = null;
+  let busy = false;
+  let lastRes = {};
 
   // ---------- 小工具 ----------
   function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs || {})) {
       if (k === 'class') el.className = v;
+      else if (k === 'style') el.style.cssText = v;
       else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
       else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
     }
-    for (const k of kids.flat()) if (k != null) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+    for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
     return el;
   }
-  function svg(tag, attrs, ...kids) {
-    const el = document.createElementNS(SVG, tag);
-    for (const [k, v] of Object.entries(attrs || {})) el.setAttribute(k, v);
-    for (const k of kids) el.append(k.nodeType ? k : document.createTextNode(String(k)));
-    return el;
+  function raw(html) {
+    const t = document.createElement('template');
+    t.innerHTML = html.trim();
+    return t.content.firstChild;
   }
+  const ic = (name) => raw(I.icon(name));
   function fmt(n) { return Math.round(n).toLocaleString('zh-Hant'); }
-  function color(fid) { return fid ? S.factions[fid].color : '#bdb3a0'; }
+  function color(fid) { return fid && S.factions[fid] ? S.factions[fid].color : NEUTRAL_COLOR; }
+  function sealChar(name) { return name ? name.slice(-1) : '守'; }
+  function seal(name, fid, ruler) {
+    return h('div', { class: 'seal' + (ruler ? ' ruler' : ''), style: `--sc:${color(fid)}` }, sealChar(name));
+  }
   function genLabel(g) { return `${g.name}（統${g.lead} 武${g.war} 智${g.int} 政${g.pol} 魅${g.cha}）`; }
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   let toastTimer = null;
-  function toast(msg) {
+  function toast(msg, bad) {
     const t = $('toast');
     t.textContent = msg;
-    t.classList.remove('hidden');
+    t.className = 'toast' + (bad ? ' bad' : '');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.add('hidden'), 2600);
+    if (bad) SND.error();
   }
 
   function store(key, val) {
@@ -47,14 +73,24 @@
       return true;
     } catch (e) { return null; }
   }
+  function saveMeta(key) {
+    const raw = store(key);
+    if (!raw) return null;
+    try {
+      const d = JSON.parse(raw);
+      return d && d.version === 1 ? `${d.year}年${d.month}月・${d.factions[d.player].name}` : null;
+    } catch (e) { return null; }
+  }
 
-  // ---------- 視窗 ----------
+  // ---------- 一般視窗 ----------
   let modalOk = null;
   function openModal(title, body, onOk, opts) {
     opts = opts || {};
-    $('modal-title').textContent = title;
-    const b = $('modal-body');
-    b.replaceChildren(body);
+    const t = $('modal-title');
+    t.replaceChildren();
+    if (opts.icon) t.append(ic(opts.icon));
+    t.append(title);
+    $('modal-body').replaceChildren(body);
     $('modal-ok').textContent = opts.okText || '確定';
     $('modal-ok').style.display = opts.noOk ? 'none' : '';
     $('modal-cancel').textContent = opts.cancelText || (opts.noOk ? '關閉' : '取消');
@@ -67,157 +103,411 @@
   function field(label, input, hint) {
     return h('div', { class: 'field' }, h('label', {}, label), input, hint ? h('div', { class: 'hint' }, hint) : null);
   }
-  function selectOf(options, onchange) {
-    const sel = h('select', onchange ? { onchange } : {}, options.map((o) => h('option', { value: o.value }, o.label)));
-    return sel;
+  function selectOf(options) {
+    return h('select', {}, options.map((o) => h('option', { value: o.value }, o.label)));
   }
   function numberOf(max, def, step) {
-    return h('input', { type: 'number', min: 0, max, step: step || 100, value: Math.min(def, max) });
+    return h('input', { type: 'number', min: 0, max, step: step || 100, value: Math.max(0, Math.min(def, max)) });
   }
   function checksOf(options, checkedCount) {
     return h('div', { class: 'checks' }, options.map((o, i) =>
-      h('label', {}, h('input', { type: 'checkbox', value: o.value, checked: i < (checkedCount || 0) }), ' ', o.label)));
+      h('label', {}, h('input', { type: 'checkbox', value: o.value, checked: i < (checkedCount || 0) }), o.label)));
   }
   function checkedValues(box) { return Array.from(box.querySelectorAll('input:checked')).map((x) => x.value); }
 
-  // ---------- 主流程 ----------
-  function startScreen(first) {
-    first = first === true;
-    const list = h('div', { class: 'pick-list' });
-    const auto = store(AUTO_KEY);
-    if (auto) {
-      list.append(h('button', { class: 'primary', onclick: () => { if (loadFrom(AUTO_KEY)) closeModal(); } }, '繼續上次的遊戲（自動存檔）'));
-    }
+  // ---------- 標題畫面 ----------
+  function showTitle() {
+    $('game').classList.add('hidden');
+    $('title-screen').classList.remove('hidden');
+    $('faction-pick').classList.add('hidden');
+    const menu = $('title-menu');
+    menu.classList.remove('hidden');
+    const soldiers = h('div', { class: 'title-soldiers' }, TK.SCENARIO.factions.map((f) => raw(I.soldier(f.color))));
+    const btns = [soldiers, h('button', { class: 'lacquer', onclick: () => { SND.click(); showFactionPick(); } }, '開始新遊戲')];
+    const auto = saveMeta(AUTO_KEY), manual = saveMeta(SAVE_KEY);
+    if (auto) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(AUTO_KEY) }, `繼續遊戲（${auto}）`));
+    if (manual) btns.push(h('button', { class: 'ghost', onclick: () => loadFrom(SAVE_KEY) }, `讀取存檔（${manual}）`));
+    menu.replaceChildren(...btns);
+  }
+
+  function showFactionPick() {
+    $('title-menu').classList.add('hidden');
+    const pick = $('faction-pick');
+    pick.classList.remove('hidden');
     const sc = TK.SCENARIO;
-    list.append(h('p', { class: 'hint' }, `劇本：${sc.year}年「${sc.title}」。選擇你要扮演的君主：`));
-    for (const f of sc.factions) {
+    const cards = sc.factions.map((f) => {
       const cities = sc.cities.filter((c) => c.owner === f.id);
       const gens = sc.generals.filter((g) => g.faction === f.id).length;
       const troops = cities.reduce((a, c) => a + c.troops, 0);
-      list.append(h('button', { onclick: () => { newGame(f.id); closeModal(); } },
-        h('span', { class: 'swatch', style: `background:${f.color}` }),
-        h('b', {}, f.ruler), ` ${f.name}`,
-        h('small', {}, `${cities.map((c) => c.name).join('、')}｜武將 ${gens}｜兵 ${fmt(troops)}`)));
-    }
-    openModal('群雄逐鹿', list, null, { noOk: true, noCancel: first });
+      const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
+      const n = Math.max(2, Math.min(6, Math.round(troops / 10000)));
+      return h('button', { class: 'fcard', style: `--fc:${f.color}`, onclick: () => { SND.gong(); newGame(f.id); } },
+        h('span', { class: 'flag' }, raw(I.flag(f.color, sealChar(f.ruler)))),
+        h('div', {},
+          h('div', { class: 'fname' }, f.name),
+          h('div', { class: 'fmeta' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、')}`),
+          h('div', { class: 'fmeta' }, `武將 ${gens}｜兵 ${fmt(troops)}`),
+          h('div', { class: 'stars' }, '難度 ' + '★'.repeat(diff) + '☆'.repeat(5 - diff))),
+        h('span', { class: 'troopline' }, Array.from({ length: n }, () => raw(I.soldier(f.color)))));
+    });
+    pick.replaceChildren(
+      h('h2', {}, `${sc.year}年「${sc.title}」・選擇君主`),
+      h('div', { class: 'faction-grid' }, cards),
+      h('div', { style: 'margin-top:16px' }, h('button', { class: 'ghost', onclick: showTitle }, '返回')));
+  }
+
+  function enterGame() {
+    $('title-screen').classList.add('hidden');
+    $('game').classList.remove('hidden');
+    lastRes = {};
+    render();
   }
 
   function newGame(fid) {
     S = E.newGame(fid);
     selected = E.citiesOf(S, fid)[0].id;
     E.addLog(S, `你成為了${S.factions[fid].name}的君主。目標：統一天下！`, 'major', [fid]);
-    render();
+    enterGame();
+    showMonthBanner();
   }
 
   function loadFrom(key) {
-    const raw = store(key);
-    if (!raw) { toast('沒有存檔'); return false; }
+    const rawData = store(key);
+    if (!rawData) { toast('沒有存檔', true); return false; }
     try {
-      const data = JSON.parse(raw);
+      const data = JSON.parse(rawData);
       if (!data || data.version !== 1) throw new Error('版本不符');
       S = data;
       const mine = E.citiesOf(S, S.player);
       selected = mine.length ? mine[0].id : Object.keys(S.cities)[0];
-      render();
+      closeModal();
+      enterGame();
+      SND.gong();
       toast(`已讀取 ${E.dateStr(S)} 的存檔`);
       return true;
     } catch (e) {
-      toast('存檔損毀，無法讀取');
+      toast('存檔損毀，無法讀取', true);
       return false;
     }
   }
 
-  function endMonth() {
-    if (!S || S.over) return;
+  // ---------- 換月 ----------
+  async function showMonthBanner() {
+    const b = $('month-banner');
+    const [cls, name] = SEASONS[Math.floor((S.month - 1) / 3)];
+    b.replaceChildren(h('div', { class: 'mb' },
+      h('div', { class: 'y' }, `${S.year}年`),
+      h('div', { class: 'm' }, MONTHS[S.month - 1]),
+      h('div', {}, h('span', { class: `season ${cls}`, style: 'padding:0 10px;border-radius:10px;color:#fff' }, name))));
+    b.classList.remove('hidden');
+    // 重新觸發動畫
+    b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+    SND.month();
+    await wait(1400);
+    b.classList.add('hidden');
+  }
+
+  async function endMonth() {
+    if (!S || S.over || busy) return;
+    busy = true;
+    $('btn-end').disabled = true;
+    const battles = [];
     const last = S.log[S.log.length - 1];
-    E.endTurn(S);
+    E.onBattle = (r) => {
+      if (r.atk.faction === S.player || r.def.faction === S.player) battles.push(r);
+    };
+    try { E.endTurn(S); } finally { E.onBattle = null; }
     store(AUTO_KEY, JSON.stringify(S));
     const fresh = S.log.slice(S.log.lastIndexOf(last) + 1);
-    const mine = fresh.filter((l) => l.kind === 'battle' && l.factions.includes(S.player) || l.kind === 'major');
     if (selected && S.cities[selected].owner !== S.player) {
       const c = E.citiesOf(S, S.player)[0];
       if (c) selected = c.id;
     }
     render();
+    await showMonthBanner();
+    for (const r of battles.slice(0, 3)) await playBattle(r);
+    const rest = battles.slice(3);
+    const majors = fresh.filter((l) => l.kind === 'major');
+    busy = false;
+    render();
     if (S.over) return gameOver();
-    if (mine.length) {
-      openModal(`${E.dateStr(S)}・本月戰報`, h('ol', { id: 'report' }, mine.map((l) => h('li', {}, l.text))), null, { noOk: true });
-    } else {
-      toast(`進入 ${E.dateStr(S)}`);
+    if (rest.length || majors.length) {
+      openModal(`${E.dateStr(S)}・天下情勢`, h('ol', { class: 'report' },
+        majors.map((l) => h('li', {}, l.text)),
+        rest.map((r) => h('li', {}, r.summary))), null, { noOk: true, icon: 'city' });
     }
   }
 
   function gameOver() {
     const win = S.over.result === 'win';
-    openModal(win ? '天下統一！' : '勢力覆滅', h('p', {}, win
-      ? `${E.dateStr(S)}，${S.factions[S.player].name}平定四方，結束了亂世。`
-      : `${E.dateStr(S)}，${S.factions[S.player].name}的最後一座城陷落了。`), () => { startScreen(); return false; }, { okText: '重新開始', cancelText: '查看地圖' });
+    if (win) SND.win(); else SND.lose();
+    openModal(win ? '天下統一！' : '勢力覆滅', h('div', {},
+      h('p', {}, win
+        ? `${E.dateStr(S)}，${S.factions[S.player].name}平定四方，結束了亂世。`
+        : `${E.dateStr(S)}，${S.factions[S.player].name}的最後一座城陷落了。`),
+      h('div', { class: 'title-soldiers' }, Array.from({ length: 8 }, () => raw(I.soldier(color(win ? S.player : null)))))),
+    () => { closeModal(); showTitle(); return false; }, { okText: '回到標題', cancelText: '查看地圖', icon: win ? 'reward' : 'prisoner' });
   }
 
-  function run(cmd) {
+  // ---------- 下指令 ----------
+  async function run(cmd) {
     const r = E.exec(S, S.player, cmd);
-    if (!r.ok) { toast(r.msg); return false; }
+    if (!r.ok) { toast(r.msg, true); return false; }
     if (!r.battle) E.addLog(S, r.msg, 'info', [S.player]);
+    closeModal();
     render();
     if (r.battle) {
-      openModal(r.battle.result === 'win' ? '攻城勝利' : '攻城失敗', h('ol', {}, r.battle.lines.map((l) => h('li', {}, l))), null, { noOk: true });
+      busy = true;
+      await playBattle(r.battle);
+      busy = false;
+      render();
       if (E.checkEnd(S)) gameOver();
-      return 'keep';
+    } else {
+      SND.click();
+      toast(r.msg);
     }
-    toast(r.msg);
-    return true;
+    return 'done';
+  }
+
+  // ---------- 戰鬥動畫 ----------
+  function playBattle(r) {
+    return new Promise((resolve) => {
+      const box = $('battle');
+      const aCol = color(r.atk.faction), dCol = color(r.def.faction);
+      const mine = r.atk.faction === S.player ? 'a' : r.def.faction === S.player ? 'd' : null;
+      $('battle-title').textContent = `${r.city}攻防戰`;
+
+      const army = (side, info, col) => {
+        const num = h('div', { class: 'num' }, fmt(info.troops));
+        const fill = h('div', { style: `width:100%;background:${col}` });
+        const el = h('div', { class: 'army' + (side === 'd' ? ' right' : '') },
+          seal(info.generals.length ? info.commander : '守', info.faction, false),
+          h('div', {},
+            h('div', { class: 'an' }, info.name, side === 'a' ? '（攻）' : '（守）'),
+            h('div', { class: 'ag' }, info.generals.length ? info.generals.join('・') : '守軍'),
+            num, h('div', { class: 'hp' }, fill)));
+        return { el, num, fill };
+      };
+      const A = army('a', r.atk, aCol), D = army('d', r.def, dCol);
+      $('army-a').replaceWith(Object.assign(A.el, { id: 'army-a' }));
+      $('army-d').replaceWith(Object.assign(D.el, { id: 'army-d' }));
+
+      const big = Math.max(r.atk.troops, r.def.troops, 1);
+      const mkUnits = (side, troops, col) => {
+        const n = Math.max(4, Math.round(30 * troops / big));
+        const wrap = $(side === 'a' ? 'units-a' : 'units-d');
+        const units = [];
+        for (let i = 0; i < n; i++) {
+          const svgStr = i === 0 && (side === 'a' ? r.atk.generals.length : r.def.generals.length)
+            ? I.cavalry(col, { flip: side === 'd', cls: 'cav march' })
+            : I.soldier(col, { flip: side === 'd', cls: 'march' });
+          const u = raw(svgStr);
+          u.style.animationDelay = `${(i % 5) * 0.1}s`;
+          units.push(u);
+        }
+        wrap.replaceChildren(...(side === 'd' ? units.slice().reverse() : units));
+        return { wrap, units, n };
+      };
+      const UA = mkUnits('a', r.atk.troops, aCol), UD = mkUnits('d', r.def.troops, dCol);
+
+      const ev = $('battle-event'), lines = $('battle-lines'), stamp = $('battle-stamp');
+      ev.textContent = ''; lines.replaceChildren(); stamp.className = 'stamp hidden';
+      const okBtn = $('battle-ok'), skipBtn = $('battle-skip');
+      okBtn.classList.add('hidden'); skipBtn.classList.remove('hidden');
+      box.querySelectorAll('.duel-flash').forEach((x) => x.remove());
+      box.classList.remove('hidden');
+
+      const apply = (f) => {
+        const setSide = (U, cur, init, ui) => {
+          const alive = init > 0 ? Math.ceil(U.n * cur / init) : 0;
+          U.units.forEach((u, i) => u.classList.toggle('fallen', i >= alive));
+          ui.num.textContent = fmt(cur);
+          ui.fill.style.width = `${init ? Math.max(0, 100 * cur / init) : 0}%`;
+        };
+        setSide(UA, f.a, r.atk.troops, A);
+        setSide(UD, f.d, r.def.troops, D);
+      };
+
+      let i = 1, timer = null, done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        apply(r.frames[r.frames.length - 1]);
+        const atkWon = r.result === 'win';
+        let text, good;
+        if (mine === 'a') { text = atkWon ? '勝利' : '敗退'; good = atkWon; }
+        else if (mine === 'd') { text = atkWon ? '失守' : '守住'; good = !atkWon; }
+        else { text = atkWon ? '攻陷' : '擊退'; good = true; }
+        stamp.textContent = text;
+        stamp.className = 'stamp ' + (good ? 'win' : 'lose');
+        if (good) SND.win(); else SND.lose();
+        ev.textContent = r.summary;
+        lines.replaceChildren(...r.lines.slice(1, -1).map((l) => h('li', {}, l)));
+        skipBtn.classList.add('hidden');
+        okBtn.classList.remove('hidden');
+        okBtn.focus();
+      };
+      const step = () => {
+        if (done) return;
+        if (i >= r.frames.length) { finish(); return; }
+        const prev = r.frames[i - 1], f = r.frames[i];
+        apply(f);
+        if (f.a < prev.a) { UA.wrap.classList.remove('hit'); void UA.wrap.offsetWidth; UA.wrap.classList.add('hit'); }
+        if (f.d < prev.d) { UD.wrap.classList.remove('hit'); void UD.wrap.offsetWidth; UD.wrap.classList.add('hit'); }
+        let delay = 420;
+        if (f.kind === 'duel') {
+          const fl = h('div', { class: 'duel-flash' }, h('div', {}, '單挑！', h('div', { style: 'font-size:28px' }, `${f.duel[0]} vs ${f.duel[1]}`)));
+          box.querySelector('.battle-box').append(fl);
+          SND.clash(); setTimeout(() => SND.clash(), 300);
+          delay = 1300;
+        } else if (i % 2) SND.drum(); else SND.clash();
+        if (f.ev) {
+          ev.textContent = f.ev;
+          ev.classList.remove('flash'); void ev.offsetWidth; ev.classList.add('flash');
+          lines.append(h('li', {}, f.ev));
+          if (f.kind !== 'duel') delay = 800;
+        }
+        i++;
+        timer = setTimeout(step, delay);
+      };
+
+      skipBtn.onclick = finish;
+      okBtn.onclick = () => { box.classList.add('hidden'); resolve(); };
+      apply(r.frames[0]);
+      timer = setTimeout(step, 700);
+    });
   }
 
   // ---------- 繪製 ----------
   function render() {
-    renderStatus();
+    if (!S) return;
+    renderHud();
     renderMap();
     renderCity();
     renderFactions();
     renderLog();
   }
 
-  function renderStatus() {
+  function renderHud() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
-    $('status').replaceChildren(
-      h('span', { class: 'swatch', style: `background:${f.color}` }),
-      h('b', {}, `${E.dateStr(S)}　${f.name}`),
-      `　城 ${p.cities}｜兵 ${fmt(p.troops)}｜金 ${fmt(p.gold)}｜糧 ${fmt(p.food)}｜武將 ${p.generals}`);
-    $('btn-end').disabled = !!S.over;
+    const [cls, name] = SEASONS[Math.floor((S.month - 1) / 3)];
+    $('hud-date').replaceChildren(
+      h('span', { class: 'y' }, `${S.year}年`), h('span', { class: 'm' }, MONTHS[S.month - 1]),
+      h('span', { class: `season ${cls}` }, name));
+    $('hud-faction').replaceChildren(raw(I.flag(f.color, sealChar(f.ruler))), h('span', { style: `color:${f.color};filter:brightness(1.4)` }, f.name));
+    const chip = (key, iconName, label, v) => {
+      const el = h('span', { class: 'chip', title: label }, ic(iconName), h('b', {}, fmt(v)));
+      if (lastRes[key] !== undefined && lastRes[key] !== v) el.classList.add('bump');
+      lastRes[key] = v;
+      return el;
+    };
+    $('hud-res').replaceChildren(
+      chip('c', 'city', '城', p.cities), chip('t', 'troops', '兵', p.troops),
+      chip('g', 'gold', '金', p.gold), chip('f', 'food', '糧', p.food), chip('w', 'general', '武將', p.generals));
+    $('btn-end').disabled = !!S.over || busy;
+    $('btn-sound').textContent = SND.isMuted() ? '♪✕' : '♪';
   }
 
-  // 自繪的簡化地形（非任何既有作品的地圖）
+  // 自繪地形（非任何既有作品的地圖）
   const LAND = 'M40,40 L960,30 L980,250 L940,320 L960,420 L930,520 L975,600 L960,705 L40,705 Z';
   const RIVERS = [
-    'M60,250 C200,230 300,280 420,300 S600,250 700,260 S860,230 990,215',
-    'M80,520 C200,560 330,580 470,590 S620,600 700,580 S820,540 990,545',
+    ['M60,250 C200,230 300,280 420,300 S600,250 700,260 S860,230 990,215', 470, 285, '黃河'],
+    ['M80,520 C200,560 330,580 470,590 S620,600 700,580 S820,540 990,545', 360, 588, '長江'],
   ];
+  const MOUNTAINS = [
+    [600, 150, 16], [622, 125, 12], [470, 190, 14], [445, 235, 12], [300, 395, 16], [335, 392, 12], [425, 400, 14],
+    [455, 385, 11], [262, 470, 14], [282, 515, 12], [100, 330, 15], [118, 420, 13], [90, 500, 14], [65, 120, 14], [250, 120, 12],
+  ];
+  const FORESTS = [[620, 645], [760, 650], [480, 665], [380, 560], [300, 640], [870, 470], [720, 120], [150, 640]];
+
+  function castleMarkup(c, capital) {
+    const col = color(c.owner), dark = I.shade(col, -0.35);
+    let s = '<g class="castle">';
+    if (capital) {
+      s += `<rect x="-8" y="-17" width="16" height="12" fill="${col}" stroke="${dark}" stroke-width="1.2"/>`;
+      s += `<path d="M-12,-16 L0,-27 L12,-16 Z" fill="#9b1f16" stroke="#3d0b07" stroke-width="1"/>`;
+      s += `<circle cx="0" cy="-11" r="2" fill="#2a1a10"/>`;
+    }
+    s += `<path d="M-17,12 V-3 H-13 V-7 H-9 V-3 H-5 V-7 H5 V-3 H9 V-7 H13 V-3 H17 V12 Z" fill="${col}" stroke="${dark}" stroke-width="1.5"/>`;
+    s += `<path d="M-17,4 H17 M-9,-3 V4 M9,-3 V4 M0,4 V12" stroke="${dark}" stroke-width=".7" opacity=".5"/>`;
+    s += `<path d="M-4.5,12 V6 a4.5,4.5 0 0 1 9,0 V12 Z" fill="#2a1a10"/>`;
+    s += '</g>';
+    if (c.owner) {
+      s += `<line x1="15" y1="-4" x2="15" y2="-34" stroke="#5e3b20" stroke-width="2"/>`;
+      s += `<path d="M16,-34 L34,-30 L30,-26 L34,-22 L16,-22 Z" fill="${col}" stroke="${dark}" stroke-width="1"/>`;
+    }
+    return s;
+  }
+
+  function placeSvg(str, x, y, w, hgt) {
+    return str.replace('<svg ', `<svg x="${x}" y="${y}" width="${w}" height="${hgt}" `);
+  }
 
   function renderMap() {
     const map = $('map');
-    const kids = [svg('path', { class: 'land', d: LAND })];
-    for (const d of RIVERS) kids.push(svg('path', { class: 'river', d }));
+    let s = `<defs>
+      <linearGradient id="landGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#efe0b9"/><stop offset=".6" stop-color="#e2cf9c"/><stop offset="1" stop-color="#d5c08a"/></linearGradient>
+      <pattern id="waves" width="40" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 Q10 4 20 10 T40 10" fill="none" stroke="#3f7383" stroke-width="1.5" opacity=".6"/></pattern>
+      <radialGradient id="vignette"><stop offset=".65" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>
+    </defs>`;
+    s += '<rect width="1000" height="720" fill="#24505e"/><rect width="1000" height="720" fill="url(#waves)"/>';
+    s += `<path class="land" d="${LAND}"/>`;
+    for (const [d, lx, ly, name] of RIVERS) {
+      s += `<path class="river" d="${d}"/>`;
+      s += `<text x="${lx}" y="${ly}" font-size="16" fill="#3f7383" opacity=".75" style="font-family:var(--brush)" letter-spacing="8">${name}</text>`;
+    }
+    for (const [x, y] of FORESTS) {
+      for (const [dx, dy, r] of [[0, 0, 7], [10, 3, 6], [-9, 4, 6], [4, -6, 6]]) {
+        s += `<rect x="${x + dx - 1}" y="${y + dy}" width="2" height="6" fill="#6b4a2a"/><circle class="forest" cx="${x + dx}" cy="${y + dy}" r="${r}"/>`;
+      }
+    }
+    for (const [x, y, z] of MOUNTAINS) {
+      s += `<path class="mtn" d="M${x - z},${y} L${x},${y - z * 1.3} L${x + z},${y} Z"/>`;
+      s += `<path class="mtn-snow" d="M${x - z * 0.3},${y - z * 0.9} L${x},${y - z * 1.3} L${x + z * 0.3},${y - z * 0.9} Z"/>`;
+      s += `<path class="mtn" d="M${x + z * 0.4},${y} L${x + z * 1.1},${y - z * 0.8} L${x + z * 1.8},${y} Z" opacity=".85"/>`;
+    }
     for (const [a, b] of S.roads) {
       const A = S.cities[a], B = S.cities[b];
-      kids.push(svg('line', { class: 'road', x1: A.x, y1: A.y, x2: B.x, y2: B.y }));
+      s += `<line class="road" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>`;
     }
     const sel = selected && S.cities[selected];
-    const targets = sel && sel.owner === S.player ? E.neighbors(S, sel.id) : [];
+    const targets = sel && sel.owner === S.player ? E.neighbors(S, sel.id).filter((id) => S.cities[id].owner !== S.player) : [];
     for (const c of Object.values(S.cities)) {
-      const hasRuler = E.generalsIn(S, c.id, (g) => g.ruler && g.status === 'active').length > 0;
-      const cls = 'city' + (c.id === selected ? ' sel' : '') + (targets.includes(c.id) && S.cities[c.id].owner !== S.player ? ' target' : '');
-      const grp = svg('g', { class: cls, tabindex: 0, role: 'button', 'aria-label': c.name },
-        svg('circle', { class: 'ring', cx: c.x, cy: c.y, r: 20 }),
-        svg('circle', { class: 'dot', cx: c.x, cy: c.y, r: 13, fill: color(c.owner) }),
-        svg('text', { x: c.x, y: c.y + 32 }, c.name),
-        svg('text', { class: 'troops', x: c.x, y: c.y - 19 }, fmt(c.troops)));
-      if (hasRuler) grp.append(svg('text', { class: 'ruler-mark', x: c.x, y: c.y + 4 }, '主'));
-      grp.addEventListener('click', () => { selected = c.id; render(); });
-      grp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { selected = c.id; render(); } });
-      kids.push(grp);
+      const capital = E.generalsIn(S, c.id, (g) => g.ruler && g.status === 'active').length > 0;
+      s += `<g class="city" data-city="${c.id}" transform="translate(${c.x} ${c.y})" tabindex="0" role="button" aria-label="${c.name}">`;
+      s += '<ellipse cx="0" cy="13" rx="26" ry="6" fill="#000" opacity=".18"/>';
+      if (c.id === selected) s += '<circle class="sel-ring" r="30"/>';
+      const n = c.troops <= 0 ? 0 : c.troops < 5000 ? 1 : c.troops < 15000 ? 2 : c.troops < 30000 ? 3 : 4;
+      const scol = color(c.owner);
+      for (let i = 0; i < n; i++) {
+        s += `<g class="garrison bob" style="animation-delay:${i * 0.2}s">${placeSvg(I.soldier(scol), -36 - i * 9, -8 + (i % 2) * 4, 14, 19)}</g>`;
+      }
+      s += castleMarkup(c, capital);
+      s += `<rect class="plate" x="-31" y="16" width="62" height="31" rx="4"/>`;
+      s += `<text class="cname" y="31">${c.name}</text><text class="ctroops" y="43">${fmt(c.troops)}</text>`;
+      if (targets.includes(c.id)) {
+        s += `<g class="target-mark">${placeSvg(TK.Icons.ICONS.attack, 18, -46, 22, 22)}</g>`;
+      }
+      s += '</g>';
     }
-    map.replaceChildren(...kids);
+    s += '<rect width="1000" height="720" fill="url(#vignette)" pointer-events="none"/>';
+    map.innerHTML = s;
+  }
+
+  function showTip(cityId, evt) {
+    const c = S.cities[cityId], tip = $('tip');
+    const gens = c.owner ? E.officers(S, c.id).length : 0;
+    tip.replaceChildren(
+      h('div', {}, h('b', {}, c.name), ' ', h('span', { style: `color:${color(c.owner)};font-weight:700` }, E.factionName(S, c.owner))),
+      h('div', {}, `兵 ${fmt(c.troops)}｜城防 ${c.defense}`),
+      h('div', {}, `武將 ${gens}｜民心 ${c.order}`));
+    const frame = $('map').parentElement.getBoundingClientRect();
+    let x = evt.clientX - frame.left + 14, y = evt.clientY - frame.top + 14;
+    if (x > frame.width - 170) x -= 190;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    tip.classList.remove('hidden');
   }
 
   function renderCity() {
@@ -225,29 +515,42 @@
     const c = S.cities[selected];
     if (!c) { panel.replaceChildren(h('p', {}, '點選地圖上的城市')); return; }
     const mine = c.owner === S.player;
-    const stat = (k, v) => h('div', {}, h('span', {}, k), v);
-    const head = h('h2', {}, h('span', { class: 'swatch', style: `background:${color(c.owner)}` }), `${c.name}　`,
-      h('small', { class: 'hint' }, E.factionName(S, c.owner)));
-    const stats = h('div', { class: 'stats' },
-      stat('兵', fmt(c.troops)), stat('訓練', c.train), stat('城防', c.defense),
-      stat('金', fmt(c.gold)), stat('糧', fmt(c.food)), stat('人口', fmt(c.pop)),
-      stat('農業', c.farm), stat('商業', c.commerce), stat('民心', c.order));
+    const ruler = c.owner ? S.factions[c.owner].ruler : '';
+    const head = h('div', { class: 'city-head' },
+      h('span', { class: 'flag' }, raw(I.flag(color(c.owner), c.owner ? sealChar(ruler) : ''))),
+      h('span', { class: 'cn' }, c.name),
+      h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner)));
+    const cell = (iconName, label, v) => h('div', { class: 'res-cell' }, ic(iconName), h('span', {}, label), h('b', {}, fmt(v)));
+    const res = h('div', { class: 'res-row' },
+      cell('troops', '兵', c.troops), cell('gold', '金', c.gold), cell('food', '糧', c.food), cell('pop', '人口', c.pop));
+    const bar = (iconName, label, v, max, col) => h('div', { class: 'bar' }, ic(iconName), h('span', {}, label),
+      h('div', { class: 'track' }, h('div', { class: 'fill', style: `width:${100 * v / max}%;background:${col}` })), h('b', {}, v));
+    const bars = h('div', { class: 'bars' },
+      bar('farm', '農業', c.farm, 999, '#3e9b4f'), bar('commerce', '商業', c.commerce, 999, '#d9822b'),
+      bar('defense', '城防', c.defense, 999, '#6c7a89'), bar('order', '民心', c.order, 100, '#c9a227'),
+      bar('train', '訓練', c.train, 100, '#b03a2e'));
 
-    const gens = c.owner ? E.officers(S, c.id) : [];
-    const table = h('table', { class: 'gens' },
-      h('tr', {}, ['武將', '統', '武', '智', '政', '魅', '忠'].map((t) => h('th', {}, t))),
-      gens.map((g) => h('tr', { class: g.acted ? 'acted' : '' },
-        h('td', {}, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : null, g.acted && mine ? h('span', { class: 'tag' }, '已行動') : null),
-        [g.lead, g.war, g.int, g.pol, g.cha, g.ruler ? '—' : g.loyalty].map((v) => h('td', {}, v)))));
+    const gens = c.owner ? E.officers(S, c.id).sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int - a.lead - a.war - a.int)) : [];
+    const genList = h('div', { class: 'gen-list' }, gens.map((g) =>
+      h('div', { class: 'gen' + (g.acted && mine ? ' acted' : '') },
+        seal(g.name, g.faction, g.ruler),
+        h('div', {},
+          h('div', { class: 'gname' }, g.name, g.ruler ? h('span', { class: 'tag' }, '君主') : null),
+          h('div', { class: 'gstats' },
+            h('i', { class: 'st-lead' }, `統${g.lead}`), h('i', { class: 'st-war' }, `武${g.war}`),
+            h('i', { class: 'st-int' }, `智${g.int}`), h('i', { class: 'st-pol' }, `政${g.pol}`),
+            h('i', { class: 'st-cha' }, `魅${g.cha}`), g.ruler ? null : h('i', { class: 'st-loy' }, `忠${g.loyalty}`))))));
 
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const extra = [];
-    if (free.length) extra.push(h('h3', {}, '在野人才'), h('div', {}, free.map((g) => g.name).join('、')));
-    if (prisoners.length) extra.push(h('h3', {}, '俘虜'), h('div', {}, prisoners.map((g) => g.name).join('、')));
-
-    const parts = [head, stats, h('h3', {}, `武將（${gens.length}）`), gens.length ? table : h('div', { class: 'hint' }, '無人駐守'), ...extra];
+    const parts = [head, res, bars, h('h3', {}, `武將 ${gens.length} 名`), gens.length ? genList : h('div', { class: 'hint' }, '無人駐守')];
+    if (free.length) parts.push(h('h3', {}, '在野人才'), h('div', { class: 'people' }, free.map((g) => h('span', {}, g.name))));
+    if (prisoners.length) parts.push(h('h3', {}, '俘虜'), h('div', { class: 'people' }, prisoners.map((g) => h('span', {}, g.name))));
     if (mine && !S.over) parts.push(h('h3', {}, '指令'), commandButtons(c));
+    else if (!mine) {
+      const from = E.neighbors(S, c.id).filter((id) => S.cities[id].owner === S.player);
+      if (from.length) parts.push(h('p', { class: 'hint' }, `可從 ${from.join('、')} 出征此城。`));
+    }
     panel.replaceChildren(...parts);
   }
 
@@ -255,16 +558,19 @@
     const ready = E.officers(S, c.id).filter((g) => !g.acted);
     const has = ready.length > 0;
     const prisoners = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const btn = (label, fn, enabled) => h('button', { onclick: fn, disabled: !enabled }, label);
+    const btn = (key, fn, enabled) => {
+      const d = CMD[key];
+      return h('button', { class: 'cmd', style: `--cc:${d.color}`, disabled: !enabled || busy, onclick: () => { SND.click(); fn(); } }, ic(d.icon), d.label);
+    };
     return h('div', { class: 'cmds' },
-      Object.entries(E.DEV).map(([type, d]) => btn(d.label, () => devDialog(c, type), has)),
-      btn('徵兵', () => draftDialog(c), has),
-      btn('搜索', () => simpleDialog(c, 'search', '搜索', '尋找在野人才或金錢。智略越高越容易發現人才。'), has),
-      btn('登用', () => recruitDialog(c), has),
-      btn('賞賜', () => rewardDialog(c), E.officers(S, c.id).some((g) => !g.ruler)),
-      btn('移動', () => moveDialog(c), has),
-      btn('出征', () => attackDialog(c), has),
-      btn('俘虜', () => prisonerDialog(c), prisoners.length > 0));
+      Object.keys(E.DEV).map((type) => btn(type, () => devDialog(c, type), has)),
+      btn('draft', () => draftDialog(c), has),
+      btn('search', () => simpleDialog(c, 'search', '搜索', '尋找在野人才或金錢。智略越高越容易發現人才。'), has),
+      btn('recruit', () => recruitDialog(c), has),
+      btn('reward', () => rewardDialog(c), E.officers(S, c.id).some((g) => !g.ruler)),
+      btn('move', () => moveDialog(c), has),
+      btn('attack', () => attackDialog(c), has),
+      btn('prisoner', () => prisonerDialog(c), prisoners.length > 0));
   }
 
   function execSelect(c, sortKey) {
@@ -276,35 +582,36 @@
     const d = E.DEV[type];
     const statName = { pol: '政務', lead: '統率', cha: '魅力' }[d.stat];
     const sel = execSelect(c, d.stat);
-    openModal(`${d.label}（${c.name}）`, h('div', {},
-      field('執行武將', sel, `花費金 ${d.cost}。效果取決於${statName}。`)), () => run({ type, city: c.id, general: sel.value }));
+    openModal(`${d.label}・${c.name}`, h('div', {},
+      field('執行武將', sel, `${d.cost ? `花費金 ${d.cost}。` : ''}效果取決於${statName}。`)),
+    () => run({ type, city: c.id, general: sel.value }), { icon: CMD[type].icon });
   }
 
   function simpleDialog(c, type, title, hint) {
     const sel = execSelect(c, 'int');
-    openModal(`${title}（${c.name}）`, h('div', {}, field('執行武將', sel, hint)), () => run({ type, city: c.id, general: sel.value }));
+    openModal(`${title}・${c.name}`, h('div', {}, field('執行武將', sel, hint)),
+      () => run({ type, city: c.id, general: sel.value }), { icon: CMD[type].icon });
   }
 
   function draftDialog(c) {
     const info = h('div', { class: 'hint' });
     const amt = numberOf(0, 3000, 500);
+    const sel = execSelect(c, 'cha');
     const update = () => {
-      const g = S.generals[sel.value];
-      const max = E.maxDraft(S, c, g);
+      const max = E.maxDraft(S, c, S.generals[sel.value]);
       amt.max = max;
       info.textContent = `最多可徵 ${fmt(max)}（受魅力、金、人口限制）。每 1000 兵花費金 100，會降低民心。`;
     };
-    const sel = execSelect(c, 'cha');
     sel.addEventListener('change', update);
     update();
     amt.value = Math.min(3000, Number(amt.max));
-    openModal(`徵兵（${c.name}）`, h('div', {}, field('執行武將', sel), field('徵兵數', amt), info),
-      () => run({ type: 'draft', city: c.id, general: sel.value, amount: Number(amt.value) }));
+    openModal(`徵兵・${c.name}`, h('div', {}, field('執行武將', sel), field('徵兵數', amt), info),
+      () => run({ type: 'draft', city: c.id, general: sel.value, amount: Number(amt.value) }), { icon: 'draft' });
   }
 
   function recruitDialog(c) {
     const targets = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
-    if (!targets.length) { toast('城中沒有可登用的人才，先「搜索」看看'); return; }
+    if (!targets.length) { toast('城中沒有可登用的人才，先「搜索」看看', true); return; }
     const sel = execSelect(c, 'cha');
     const tsel = selectOf(targets.map((g) => ({ value: g.id, label: (g.status === 'prisoner' ? '【俘】' : '') + genLabel(g) })));
     const hint = h('div', { class: 'hint' });
@@ -313,45 +620,45 @@
       hint.textContent = `成功率約 ${Math.round(p * 100)}%（取決於魅力）`;
     };
     sel.addEventListener('change', update); tsel.addEventListener('change', update); update();
-    openModal(`登用（${c.name}）`, h('div', {}, field('執行武將', sel), field('對象', tsel), hint),
-      () => run({ type: 'recruit', city: c.id, general: sel.value, target: tsel.value }));
+    openModal(`登用・${c.name}`, h('div', {}, field('執行武將', sel), field('對象', tsel), hint),
+      () => run({ type: 'recruit', city: c.id, general: sel.value, target: tsel.value }), { icon: 'recruit' });
   }
 
   function rewardDialog(c) {
     const list = E.officers(S, c.id).filter((g) => !g.ruler).sort((a, b) => a.loyalty - b.loyalty);
     const tsel = selectOf(list.map((g) => ({ value: g.id, label: `${g.name}（忠誠 ${g.loyalty}）` })));
-    openModal(`賞賜（${c.name}）`, h('div', {}, field('對象', tsel, '花費金 100，提升忠誠。不消耗行動。')),
-      () => run({ type: 'reward', city: c.id, target: tsel.value }));
+    openModal(`賞賜・${c.name}`, h('div', {}, field('對象', tsel, '花費金 100，提升忠誠。不消耗行動。')),
+      () => run({ type: 'reward', city: c.id, target: tsel.value }), { icon: 'reward' });
   }
 
   function prisonerDialog(c) {
     const list = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
     const tsel = selectOf(list.map((g) => ({ value: g.id, label: genLabel(g) })));
     const act = selectOf([{ value: 'release', label: '釋放' }, { value: 'execute', label: '處斬' }]);
-    openModal(`處置俘虜（${c.name}）`, h('div', {}, field('俘虜', tsel, '想收為己用請改用「登用」。'), field('處置', act)),
-      () => run({ type: act.value, city: c.id, target: tsel.value }));
+    openModal(`處置俘虜・${c.name}`, h('div', {}, field('俘虜', tsel, '想收為己用請改用「登用」。'), field('處置', act)),
+      () => run({ type: act.value, city: c.id, target: tsel.value }), { icon: 'prisoner' });
   }
 
   function moveDialog(c) {
     const dests = E.neighbors(S, c.id).filter((id) => S.cities[id].owner === S.player);
-    if (!dests.length) { toast('沒有相鄰的我方城市'); return; }
+    if (!dests.length) { toast('沒有相鄰的我方城市', true); return; }
     const dsel = selectOf(dests.map((id) => ({ value: id, label: id })));
     const ready = E.officers(S, c.id).filter((g) => !g.acted);
     const gbox = checksOf(ready.map((g) => ({ value: g.id, label: genLabel(g) })), 1);
     const tr = numberOf(c.troops, 0, 1000), gold = numberOf(c.gold, 0, 100), food = numberOf(c.food, 0, 1000);
-    openModal(`移動（${c.name}）`, h('div', {},
+    openModal(`移動・${c.name}`, h('div', {},
       field('目的地', dsel), field('移動武將', gbox),
       field(`帶兵（最多 ${fmt(c.troops)}）`, tr), field(`運金（最多 ${fmt(c.gold)}）`, gold), field(`運糧（最多 ${fmt(c.food)}）`, food)),
     () => {
       const ids = checkedValues(gbox);
-      if (!ids.length) { toast('請至少選一名武將'); return false; }
+      if (!ids.length) { toast('請至少選一名武將', true); return false; }
       return run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: dsel.value, troops: +tr.value, gold: +gold.value, food: +food.value });
-    });
+    }, { icon: 'move' });
   }
 
   function attackDialog(c) {
     const targets = E.neighbors(S, c.id).filter((id) => S.cities[id].owner !== S.player);
-    if (!targets.length) { toast('沒有相鄰的敵城'); return; }
+    if (!targets.length) { toast('沒有相鄰的敵城', true); return; }
     const tsel = selectOf(targets.map((id) => {
       const t = S.cities[id];
       return { value: id, label: `${id}（${E.factionName(S, t.owner)}，兵 ${fmt(t.troops)}，城防 ${t.defense}）` };
@@ -359,36 +666,38 @@
     const ready = E.officers(S, c.id).filter((g) => !g.acted).sort((a, b) => (b.lead + b.war) - (a.lead + a.war));
     const gbox = checksOf(ready.map((g) => ({ value: g.id, label: genLabel(g) })), 1);
     const tr = numberOf(c.troops, Math.floor(c.troops * 0.7), 1000);
-    openModal(`出征（${c.name}）`, h('div', {},
+    openModal(`出征・${c.name}`, h('div', {},
       field('目標', tsel),
       field('出陣武將（最多 3 名，統率最高者為主將）', gbox),
       field(`兵力（最多 ${fmt(c.troops)}）`, tr, `軍糧消耗：兵力 ÷ 10（城中有 ${fmt(c.food)}）。戰敗時殘兵撤回本城。`)),
     () => {
       const ids = checkedValues(gbox);
-      if (!ids.length) { toast('請至少選一名武將'); return false; }
-      if (ids.length > 3) { toast('最多 3 名武將'); return false; }
+      if (!ids.length) { toast('請至少選一名武將', true); return false; }
+      if (ids.length > 3) { toast('最多 3 名武將', true); return false; }
       return run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: tsel.value, troops: +tr.value });
-    });
+    }, { icon: 'attack', okText: '出陣！' });
   }
 
   function renderFactions() {
-    const rows = Object.values(S.factions).map((f) => {
-      const p = E.powerOf(S, f.id);
-      return { f, p };
-    }).sort((a, b) => b.p.cities - a.p.cities || b.p.troops - a.p.troops);
+    const rows = Object.values(S.factions).map((f) => ({ f, p: E.powerOf(S, f.id) }))
+      .sort((a, b) => (b.f.alive - a.f.alive) || b.p.cities - a.p.cities || b.p.troops - a.p.troops);
+    const maxT = Math.max(1, ...rows.map((r) => r.p.troops));
     $('faction-panel').replaceChildren(h('h2', {}, '勢力一覽'),
       h('table', { class: 'factions' },
-        h('tr', {}, ['勢力', '城', '兵', '武將'].map((t) => h('th', {}, t))),
         rows.map(({ f, p }) => h('tr', { class: (f.id === S.player ? 'me' : '') + (f.alive ? '' : ' dead') },
-          h('td', {}, h('span', { class: 'swatch', style: `background:${f.color}` }), f.name),
-          h('td', {}, p.cities), h('td', {}, fmt(p.troops)), h('td', {}, p.generals)))));
+          h('td', {}, raw(I.soldier(f.color))),
+          h('td', {}, f.name),
+          h('td', { class: 'num' }, `${p.cities}城`),
+          h('td', { style: 'width:40%' }, h('div', { class: 'pbar' }, h('div', { style: `width:${100 * p.troops / maxT}%;background:${f.color}` }))),
+          h('td', { class: 'num' }, fmt(p.troops))))));
   }
 
   function renderLog() {
     const items = S.log.slice(-120).reverse().map((l) => {
       const mine = l.factions.includes(S.player);
       const cls = l.kind === 'major' ? 'major' : l.kind === 'warn' && mine ? 'warn' : mine ? 'mine' : 'other';
-      return h('li', { class: cls }, h('span', { class: 'd' }, l.date), l.text);
+      const fc = l.factions.length ? color(l.factions[0]) : 'transparent';
+      return h('li', { class: cls, style: `border-left-color:${fc}` }, h('span', { class: 'd' }, l.date), l.text);
     });
     $('log').replaceChildren(...items);
   }
@@ -398,22 +707,41 @@
     $('modal-cancel').addEventListener('click', closeModal);
     $('modal-ok').addEventListener('click', () => {
       if (!modalOk) return closeModal();
-      const r = modalOk();
-      if (r === true) closeModal();
-      // 'keep'：已換成結果視窗；false：保留原視窗
+      Promise.resolve(modalOk()).then((r) => { if (r === true) closeModal(); });
     });
-    $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal' && $('modal-cancel').style.display !== 'none') closeModal(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal-cancel').style.display !== 'none') closeModal(); });
+    const cancellable = () => !$('modal').classList.contains('hidden') && $('modal-cancel').style.display !== 'none';
+    $('modal').addEventListener('click', (e) => { if (e.target.id === 'modal' && cancellable()) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && cancellable()) closeModal(); });
+
+    const map = $('map');
+    const cityOf = (e) => { const g = e.target.closest && e.target.closest('.city'); return g ? g.getAttribute('data-city') : null; };
+    map.addEventListener('click', (e) => {
+      const id = cityOf(e);
+      if (id) { selected = id; SND.click(); render(); }
+    });
+    map.addEventListener('keydown', (e) => {
+      const id = cityOf(e);
+      if (id && e.key === 'Enter') { selected = id; render(); }
+    });
+    map.addEventListener('mousemove', (e) => {
+      const id = cityOf(e);
+      if (id) showTip(id, e); else $('tip').classList.add('hidden');
+    });
+    map.addEventListener('mouseleave', () => $('tip').classList.add('hidden'));
+
     $('btn-end').addEventListener('click', endMonth);
-    $('btn-new').addEventListener('click', () => startScreen());
+    $('btn-menu').addEventListener('click', () => {
+      openModal('回到標題', h('p', {}, '每月結束時會自動存檔。要回到標題畫面嗎？'), () => { closeModal(); showTitle(); return false; }, { icon: 'city' });
+    });
+    $('btn-sound').addEventListener('click', () => { SND.toggle(); renderHud(); });
     $('btn-save').addEventListener('click', () => {
       if (!S) return;
-      toast(store(SAVE_KEY, JSON.stringify(S)) ? `已存檔（${E.dateStr(S)}）` : '此瀏覽器無法存檔');
+      if (store(SAVE_KEY, JSON.stringify(S))) { SND.click(); toast(`已存檔（${E.dateStr(S)}）`); }
+      else toast('此瀏覽器無法存檔', true);
     });
     $('btn-load').addEventListener('click', () => loadFrom(SAVE_KEY));
   }
 
   bind();
-  newGame('cao');
-  startScreen(true);
+  showTitle();
 })(globalThis.TK = globalThis.TK || {});

@@ -2,9 +2,14 @@
 
 原創的三國題材回合制策略遊戲。人物與城市取自公有領域的史實；能力值、公式、地圖與介面皆為本作自行設計。
 
-## 怎麼玩
+## 下載與執行
 
-直接用瀏覽器打開 `sangoku/index.html`，不需要安裝或伺服器。
+- **最簡單**：下載 `sangoku/dist/qunxiong.html` 這一個檔案，用瀏覽器（Chrome、Edge、Safari）雙擊打開就能玩。
+  所有程式與樣式都在這個檔案裡；連上網路時會載入書法字型，離線時改用系統字型。
+- **開發用**：打開 `sangoku/index.html`（會讀取 `js/` 與 `style.css`）。
+- 修改程式後重新打包單一檔案：`node sangoku/build.js`
+
+## 怎麼玩
 
 1. 選擇一位君主（9 個勢力，西元 190 年劇本）。
 2. 點地圖上的城市，在右側對我方城市下指令。每位武將每月可行動一次。
@@ -44,7 +49,11 @@ sangoku/
   js/data.js      劇本資料（勢力、城市、道路、武將）
   js/engine.js    遊戲核心：狀態、指令、戰鬥、結算（不碰 DOM）
   js/ai.js        電腦勢力（透過與玩家相同的指令介面行動）
-  js/ui.js        地圖、面板、指令視窗
+  js/icons.js     自繪 SVG 圖示（士兵、騎兵、旗幟、資源、指令）
+  js/sound.js     WebAudio 即時合成音效（無外部音檔）
+  js/ui.js        標題畫面、地圖、面板、指令視窗、戰鬥動畫
+  build.js        打包成單一 HTML
+  dist/qunxiong.html  打包好的單檔版
   test/engine.test.js
 ```
 

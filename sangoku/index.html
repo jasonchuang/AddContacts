@@ -4,50 +4,99 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>群雄逐鹿</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@400;700;900&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <h1>群雄逐鹿</h1>
-    <div id="status" class="status"></div>
-    <div class="actions">
-      <button id="btn-save">存檔</button>
-      <button id="btn-load">讀檔</button>
-      <button id="btn-new">新遊戲</button>
-      <button id="btn-end" class="primary">結束本月 ▶</button>
+  <!-- 標題畫面 -->
+  <section id="title-screen" class="screen">
+    <div class="mist"></div>
+    <div class="title-inner">
+      <div class="title-seal">亂世</div>
+      <h1 class="game-title">群雄逐鹿</h1>
+      <p class="tagline">烽煙四起・英雄並立・誰能一統天下</p>
+      <div id="title-menu" class="title-menu"></div>
+      <div id="faction-pick" class="faction-pick hidden"></div>
     </div>
-  </header>
+  </section>
 
-  <main class="layout">
-    <section class="map-wrap">
-      <svg id="map" viewBox="0 0 1000 720" role="img" aria-label="中原地圖"></svg>
-    </section>
-    <aside class="side">
-      <div id="city-panel" class="panel"></div>
-      <div id="faction-panel" class="panel"></div>
-    </aside>
-    <section class="log-wrap panel">
-      <h2>戰報</h2>
-      <ol id="log"></ol>
-    </section>
-  </main>
+  <!-- 遊戲主畫面 -->
+  <div id="game" class="game hidden">
+    <header class="hud">
+      <div class="brand">群雄逐鹿</div>
+      <div class="date-badge" id="hud-date"></div>
+      <div class="hud-faction" id="hud-faction"></div>
+      <div class="hud-res" id="hud-res"></div>
+      <div class="hud-btns">
+        <button id="btn-save" class="ghost" title="存檔">存檔</button>
+        <button id="btn-load" class="ghost" title="讀檔">讀檔</button>
+        <button id="btn-menu" class="ghost" title="回到標題">標題</button>
+        <button id="btn-sound" class="ghost" title="音效">♪</button>
+      </div>
+      <button id="btn-end" class="lacquer big">結束本月</button>
+    </header>
 
+    <main class="layout">
+      <section class="map-frame">
+        <svg id="map" viewBox="0 0 1000 720" role="img" aria-label="天下地圖"></svg>
+        <div id="tip" class="tip hidden"></div>
+      </section>
+      <aside class="side">
+        <div id="city-panel" class="panel"></div>
+        <div id="faction-panel" class="panel"></div>
+      </aside>
+      <section class="log-wrap panel">
+        <h2 class="panel-title">戰報</h2>
+        <ol id="log"></ol>
+      </section>
+    </main>
+  </div>
+
+  <!-- 一般視窗 -->
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-box">
       <h2 id="modal-title"></h2>
       <div id="modal-body"></div>
       <div class="modal-actions">
-        <button id="modal-cancel">取消</button>
-        <button id="modal-ok" class="primary">確定</button>
+        <button id="modal-cancel" class="ghost">取消</button>
+        <button id="modal-ok" class="lacquer">確定</button>
       </div>
     </div>
   </div>
 
+  <!-- 戰鬥畫面 -->
+  <div id="battle" class="battle hidden" role="dialog" aria-modal="true">
+    <div class="battle-box">
+      <h2 id="battle-title" class="battle-title"></h2>
+      <div class="armies">
+        <div class="army" id="army-a"></div>
+        <div class="vs">⚔</div>
+        <div class="army" id="army-d"></div>
+      </div>
+      <div class="battlefield">
+        <div class="units" id="units-a"></div>
+        <div class="units right" id="units-d"></div>
+      </div>
+      <div id="battle-event" class="battle-event"></div>
+      <ol id="battle-lines" class="battle-lines"></ol>
+      <div id="battle-stamp" class="stamp hidden"></div>
+      <div class="modal-actions">
+        <button id="battle-skip" class="ghost">跳過</button>
+        <button id="battle-ok" class="lacquer hidden">確定</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="month-banner" class="month-banner hidden"></div>
   <div id="toast" class="toast hidden"></div>
 
   <script src="js/data.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/sound.js"></script>
   <script src="js/ui.js"></script>
 </body>
 </html>

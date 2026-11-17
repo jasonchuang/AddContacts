@@ -272,6 +272,8 @@
     const aCmd = A.commander ? A.commander.name : '';
     const dCmd = D.commander ? D.commander.name : FREE_STATS.name;
     lines.push(`${aName}（${aCmd}，${A0}兵）自${atk.from}進攻${city.name}（${dName}，${dCmd}，${D0}兵）`);
+    // frames：給戰鬥畫面逐格播放 {a, d, ev, kind}
+    const frames = [{ a: A0, d: D0, ev: null }];
 
     // 單挑
     if (A.war >= 80 && D.war >= 80 && rand(s) < 0.3) {
@@ -282,6 +284,7 @@
       lines.push(`單挑！${ah.name} 對 ${dh.name}，${winner.name}擊退了${loser.name}`);
       if (winner === ah) D.troops = Math.round(D.troops * 0.9);
       else A.troops = Math.round(A.troops * 0.9);
+      frames.push({ a: A.troops, d: D.troops, ev: `${ah.name} 對 ${dh.name}，${winner.name}勝！`, kind: 'duel', duel: [ah.name, dh.name], winner: winner === ah ? 'a' : 'd' });
     }
 
     let result = null, schemes = 0;
@@ -289,18 +292,22 @@
       const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6);
       const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 800);
       let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3));
+      let ev = null, kind = null;
       let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3));
       if (A.int >= 75 && rand(s) < (A.int - 60) / 200) {
         lossD = Math.round(lossD * 1.5);
+        ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
         if (schemes++ < 2) lines.push(`${aName}施展計略，${city.name}守軍陷入混亂`);
       }
       if (D.int >= 75 && rand(s) < (D.int - 60) / 200) {
         lossA = Math.round(lossA * 1.5);
+        ev = `${dName}識破敵計並反擊`; kind = 'scheme-d';
         if (schemes++ < 2) lines.push(`${dName}識破敵計並反擊`);
       }
       A.troops = Math.max(0, A.troops - lossA);
       D.troops = Math.max(0, D.troops - lossD);
       city.defense = Math.max(0, city.defense - rint(s, 3, 12));
+      frames.push({ a: A.troops, d: D.troops, ev, kind });
 
       if (D.troops <= 0) result = 'win';
       else if (A.troops <= 0) result = 'lose';
@@ -308,6 +315,8 @@
       else if (A.troops < A0 * 0.3 && A.troops < D.troops) result = 'lose';
     }
     if (!result) { result = 'lose'; lines.push('久攻不下，撤兵'); }
+    frames[frames.length - 1].a = A.troops;
+    frames[frames.length - 1].d = D.troops;
 
     city.troops = D.troops;
     let summary;
@@ -323,7 +332,14 @@
     }
     lines.push(summary);
     for (const l of lines) addLog(s, l, 'battle', parties);
-    return { result, summary, lines, atkLoss: A0 - A.troops, defLoss: D0 - D.troops };
+    const res = {
+      result, summary, lines, frames, atkLoss: A0 - A.troops, defLoss: D0 - D.troops,
+      city: city.id, from: atk.from,
+      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0 },
+      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0 },
+    };
+    if (TK.Engine && typeof TK.Engine.onBattle === 'function') TK.Engine.onBattle(res);
+    return res;
   }
 
   function conquer(s, city, atk, A, lines) {
