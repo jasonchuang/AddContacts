@@ -1,0 +1,4088 @@
+{
+ "id": "y190",
+ "title": "群雄割據",
+ "year": 190,
+ "month": 1,
+ "description": "董卓專權，關東諸侯起兵。群雄各據一方，天下即將大亂。",
+ "factions": [
+  {
+   "id": "cao",
+   "name": "曹操軍",
+   "ruler": "曹操",
+   "color": "#2f5f8f",
+   "heirs": []
+  },
+  {
+   "id": "liu",
+   "name": "劉備軍",
+   "ruler": "劉備",
+   "color": "#3d7a4c",
+   "heirs": []
+  },
+  {
+   "id": "sun",
+   "name": "孫堅軍",
+   "ruler": "孫堅",
+   "color": "#b23a2c",
+   "heirs": [
+    "孫策",
+    "孫權"
+   ]
+  },
+  {
+   "id": "yuans",
+   "name": "袁紹軍",
+   "ruler": "袁紹",
+   "color": "#b8892c",
+   "heirs": []
+  },
+  {
+   "id": "dong",
+   "name": "董卓軍",
+   "ruler": "董卓",
+   "color": "#5e4280",
+   "heirs": [
+    "李傕"
+   ]
+  },
+  {
+   "id": "liubiao",
+   "name": "劉表軍",
+   "ruler": "劉表",
+   "color": "#2b7a78",
+   "heirs": [
+    "蔡瑁"
+   ]
+  }
+ ],
+ "cities": [
+  {
+   "name": "北平",
+   "x": 800,
+   "y": 70,
+   "owner": null,
+   "gold": 700,
+   "food": 9000,
+   "pop": 260000,
+   "farm": 420,
+   "commerce": 360,
+   "order": 65,
+   "defense": 420,
+   "region": "north",
+   "units": {
+    "infantry": 6300,
+    "spear": 3500,
+    "cav": 700,
+    "archer": 3500,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "南皮",
+   "x": 760,
+   "y": 165,
+   "owner": "yuans",
+   "gold": 900,
+   "food": 12000,
+   "pop": 300000,
+   "farm": 480,
+   "commerce": 420,
+   "order": 70,
+   "defense": 380,
+   "region": "central",
+   "units": {
+    "infantry": 5400,
+    "spear": 3600,
+    "cav": 3600,
+    "archer": 5400,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "鄴",
+   "x": 655,
+   "y": 200,
+   "owner": "yuans",
+   "gold": 1500,
+   "food": 18000,
+   "pop": 480000,
+   "farm": 620,
+   "commerce": 600,
+   "order": 75,
+   "defense": 560,
+   "region": "central",
+   "units": {
+    "infantry": 7500,
+    "spear": 5000,
+    "cav": 5000,
+    "archer": 7500,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "晉陽",
+   "x": 540,
+   "y": 120,
+   "owner": null,
+   "gold": 500,
+   "food": 6000,
+   "pop": 220000,
+   "farm": 380,
+   "commerce": 300,
+   "order": 60,
+   "defense": 400,
+   "region": "north",
+   "units": {
+    "infantry": 3600,
+    "spear": 2000,
+    "cav": 400,
+    "archer": 2000,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "平原",
+   "x": 805,
+   "y": 255,
+   "owner": "liu",
+   "gold": 600,
+   "food": 8000,
+   "pop": 230000,
+   "farm": 400,
+   "commerce": 340,
+   "order": 80,
+   "defense": 300,
+   "region": "central",
+   "units": {
+    "infantry": 3200,
+    "spear": 2700,
+    "cav": 1300,
+    "archer": 1800,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "北海",
+   "x": 900,
+   "y": 300,
+   "owner": null,
+   "gold": 500,
+   "food": 6000,
+   "pop": 250000,
+   "farm": 420,
+   "commerce": 380,
+   "order": 60,
+   "defense": 300,
+   "region": "central",
+   "units": {
+    "infantry": 2700,
+    "spear": 1500,
+    "cav": 300,
+    "archer": 1500,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "濮陽",
+   "x": 705,
+   "y": 305,
+   "owner": "cao",
+   "gold": 800,
+   "food": 10000,
+   "pop": 280000,
+   "farm": 460,
+   "commerce": 420,
+   "order": 70,
+   "defense": 380,
+   "region": "central",
+   "units": {
+    "infantry": 4200,
+    "spear": 3500,
+    "cav": 2800,
+    "archer": 3500,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "陳留",
+   "x": 640,
+   "y": 345,
+   "owner": "cao",
+   "gold": 1000,
+   "food": 12000,
+   "pop": 320000,
+   "farm": 500,
+   "commerce": 480,
+   "order": 75,
+   "defense": 420,
+   "region": "central",
+   "units": {
+    "infantry": 5400,
+    "spear": 4500,
+    "cav": 3600,
+    "archer": 4500,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "小沛",
+   "x": 772,
+   "y": 338,
+   "owner": null,
+   "gold": 400,
+   "food": 5000,
+   "pop": 160000,
+   "farm": 360,
+   "commerce": 300,
+   "order": 60,
+   "defense": 260,
+   "region": "central",
+   "units": {
+    "infantry": 2400,
+    "spear": 1200,
+    "cav": 200,
+    "archer": 1200,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "洛陽",
+   "x": 535,
+   "y": 330,
+   "owner": "dong",
+   "gold": 2000,
+   "food": 25000,
+   "pop": 500000,
+   "farm": 600,
+   "commerce": 700,
+   "order": 50,
+   "defense": 720,
+   "region": "central",
+   "units": {
+    "infantry": 10000,
+    "spear": 8000,
+    "cav": 16000,
+    "archer": 6000,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "長安",
+   "x": 375,
+   "y": 340,
+   "owner": "dong",
+   "gold": 1500,
+   "food": 18000,
+   "pop": 450000,
+   "farm": 580,
+   "commerce": 620,
+   "order": 55,
+   "defense": 680,
+   "region": "central",
+   "units": {
+    "infantry": 6300,
+    "spear": 5000,
+    "cav": 10000,
+    "archer": 3700,
+    "navy": 0
+   },
+   "train": 50
+  },
+  {
+   "name": "天水",
+   "x": 225,
+   "y": 315,
+   "owner": null,
+   "gold": 500,
+   "food": 8000,
+   "pop": 200000,
+   "farm": 380,
+   "commerce": 300,
+   "order": 65,
+   "defense": 380,
+   "region": "west",
+   "units": {
+    "infantry": 3000,
+    "spear": 2000,
+    "cav": 3500,
+    "archer": 1500,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "武威",
+   "x": 130,
+   "y": 195,
+   "owner": null,
+   "gold": 500,
+   "food": 8000,
+   "pop": 150000,
+   "farm": 320,
+   "commerce": 240,
+   "order": 70,
+   "defense": 320,
+   "region": "west",
+   "units": {
+    "infantry": 3600,
+    "spear": 2400,
+    "cav": 4200,
+    "archer": 1800,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "漢中",
+   "x": 330,
+   "y": 450,
+   "owner": null,
+   "gold": 600,
+   "food": 9000,
+   "pop": 230000,
+   "farm": 480,
+   "commerce": 300,
+   "order": 65,
+   "defense": 520,
+   "region": "west",
+   "units": {
+    "infantry": 2800,
+    "spear": 1800,
+    "cav": 3100,
+    "archer": 1300,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "上庸",
+   "x": 425,
+   "y": 470,
+   "owner": null,
+   "gold": 400,
+   "food": 5000,
+   "pop": 120000,
+   "farm": 340,
+   "commerce": 220,
+   "order": 60,
+   "defense": 360,
+   "region": "central",
+   "units": {
+    "infantry": 2400,
+    "spear": 1200,
+    "cav": 200,
+    "archer": 1200,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "成都",
+   "x": 195,
+   "y": 580,
+   "owner": null,
+   "gold": 1200,
+   "food": 16000,
+   "pop": 450000,
+   "farm": 720,
+   "commerce": 520,
+   "order": 65,
+   "defense": 600,
+   "region": "west",
+   "units": {
+    "infantry": 4600,
+    "spear": 3000,
+    "cav": 5200,
+    "archer": 2200,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "永安",
+   "x": 325,
+   "y": 570,
+   "owner": null,
+   "gold": 400,
+   "food": 6000,
+   "pop": 140000,
+   "farm": 360,
+   "commerce": 260,
+   "order": 60,
+   "defense": 440,
+   "region": "south",
+   "units": {
+    "infantry": 2100,
+    "spear": 1200,
+    "cav": 0,
+    "archer": 1500,
+    "navy": 1200
+   },
+   "train": 40
+  },
+  {
+   "name": "許昌",
+   "x": 640,
+   "y": 420,
+   "owner": null,
+   "gold": 600,
+   "food": 7000,
+   "pop": 300000,
+   "farm": 520,
+   "commerce": 460,
+   "order": 60,
+   "defense": 360,
+   "region": "central",
+   "units": {
+    "infantry": 2700,
+    "spear": 1500,
+    "cav": 300,
+    "archer": 1500,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "汝南",
+   "x": 665,
+   "y": 495,
+   "owner": null,
+   "gold": 600,
+   "food": 8000,
+   "pop": 300000,
+   "farm": 520,
+   "commerce": 400,
+   "order": 55,
+   "defense": 380,
+   "region": "central",
+   "units": {
+    "infantry": 4200,
+    "spear": 2200,
+    "cav": 400,
+    "archer": 2200,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "壽春",
+   "x": 775,
+   "y": 485,
+   "owner": null,
+   "gold": 1000,
+   "food": 11000,
+   "pop": 380000,
+   "farm": 560,
+   "commerce": 560,
+   "order": 55,
+   "defense": 480,
+   "region": "central",
+   "units": {
+    "infantry": 5400,
+    "spear": 3000,
+    "cav": 600,
+    "archer": 3000,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "下邳",
+   "x": 835,
+   "y": 385,
+   "owner": null,
+   "gold": 700,
+   "food": 8000,
+   "pop": 300000,
+   "farm": 480,
+   "commerce": 460,
+   "order": 60,
+   "defense": 420,
+   "region": "central",
+   "units": {
+    "infantry": 4200,
+    "spear": 2200,
+    "cav": 400,
+    "archer": 2200,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "宛",
+   "x": 530,
+   "y": 445,
+   "owner": null,
+   "gold": 600,
+   "food": 8000,
+   "pop": 300000,
+   "farm": 520,
+   "commerce": 420,
+   "order": 60,
+   "defense": 380,
+   "region": "central",
+   "units": {
+    "infantry": 3300,
+    "spear": 1700,
+    "cav": 300,
+    "archer": 1700,
+    "navy": 0
+   },
+   "train": 40
+  },
+  {
+   "name": "襄陽",
+   "x": 515,
+   "y": 540,
+   "owner": "liubiao",
+   "gold": 1300,
+   "food": 16000,
+   "pop": 400000,
+   "farm": 620,
+   "commerce": 580,
+   "order": 80,
+   "defense": 600,
+   "region": "south",
+   "units": {
+    "infantry": 5000,
+    "spear": 4000,
+    "cav": 1000,
+    "archer": 4000,
+    "navy": 6000
+   },
+   "train": 50
+  },
+  {
+   "name": "江陵",
+   "x": 430,
+   "y": 615,
+   "owner": "liubiao",
+   "gold": 900,
+   "food": 12000,
+   "pop": 300000,
+   "farm": 600,
+   "commerce": 440,
+   "order": 75,
+   "defense": 480,
+   "region": "south",
+   "units": {
+    "infantry": 3000,
+    "spear": 2400,
+    "cav": 600,
+    "archer": 2400,
+    "navy": 3600
+   },
+   "train": 50
+  },
+  {
+   "name": "江夏",
+   "x": 605,
+   "y": 570,
+   "owner": null,
+   "gold": 600,
+   "food": 8000,
+   "pop": 220000,
+   "farm": 440,
+   "commerce": 380,
+   "order": 60,
+   "defense": 420,
+   "region": "south",
+   "units": {
+    "infantry": 2800,
+    "spear": 1600,
+    "cav": 0,
+    "archer": 2000,
+    "navy": 1600
+   },
+   "train": 40
+  },
+  {
+   "name": "長沙",
+   "x": 555,
+   "y": 670,
+   "owner": "sun",
+   "gold": 900,
+   "food": 12000,
+   "pop": 260000,
+   "farm": 480,
+   "commerce": 380,
+   "order": 80,
+   "defense": 420,
+   "region": "south",
+   "units": {
+    "infantry": 5000,
+    "spear": 4000,
+    "cav": 1000,
+    "archer": 5000,
+    "navy": 5000
+   },
+   "train": 50
+  },
+  {
+   "name": "柴桑",
+   "x": 690,
+   "y": 620,
+   "owner": null,
+   "gold": 500,
+   "food": 7000,
+   "pop": 200000,
+   "farm": 420,
+   "commerce": 360,
+   "order": 60,
+   "defense": 360,
+   "region": "south",
+   "units": {
+    "infantry": 2500,
+    "spear": 1400,
+    "cav": 0,
+    "archer": 1700,
+    "navy": 1400
+   },
+   "train": 40
+  },
+  {
+   "name": "廬江",
+   "x": 748,
+   "y": 560,
+   "owner": null,
+   "gold": 500,
+   "food": 7000,
+   "pop": 200000,
+   "farm": 440,
+   "commerce": 360,
+   "order": 60,
+   "defense": 340,
+   "region": "south",
+   "units": {
+    "infantry": 2100,
+    "spear": 1200,
+    "cav": 0,
+    "archer": 1500,
+    "navy": 1200
+   },
+   "train": 40
+  },
+  {
+   "name": "建業",
+   "x": 845,
+   "y": 560,
+   "owner": null,
+   "gold": 800,
+   "food": 9000,
+   "pop": 320000,
+   "farm": 520,
+   "commerce": 560,
+   "order": 60,
+   "defense": 460,
+   "region": "south",
+   "units": {
+    "infantry": 3200,
+    "spear": 1800,
+    "cav": 0,
+    "archer": 2200,
+    "navy": 1800
+   },
+   "train": 40
+  },
+  {
+   "name": "會稽",
+   "x": 900,
+   "y": 665,
+   "owner": null,
+   "gold": 500,
+   "food": 7000,
+   "pop": 220000,
+   "farm": 440,
+   "commerce": 380,
+   "order": 60,
+   "defense": 300,
+   "region": "south",
+   "units": {
+    "infantry": 2100,
+    "spear": 1200,
+    "cav": 0,
+    "archer": 1500,
+    "navy": 1200
+   },
+   "train": 40
+  }
+ ],
+ "roads": [
+  {
+   "a": "北平",
+   "b": "南皮",
+   "water": false
+  },
+  {
+   "a": "南皮",
+   "b": "鄴",
+   "water": false
+  },
+  {
+   "a": "南皮",
+   "b": "平原",
+   "water": false
+  },
+  {
+   "a": "鄴",
+   "b": "晉陽",
+   "water": false
+  },
+  {
+   "a": "鄴",
+   "b": "濮陽",
+   "water": false
+  },
+  {
+   "a": "晉陽",
+   "b": "洛陽",
+   "water": false
+  },
+  {
+   "a": "平原",
+   "b": "北海",
+   "water": false
+  },
+  {
+   "a": "平原",
+   "b": "濮陽",
+   "water": false
+  },
+  {
+   "a": "北海",
+   "b": "下邳",
+   "water": false
+  },
+  {
+   "a": "濮陽",
+   "b": "陳留",
+   "water": false
+  },
+  {
+   "a": "濮陽",
+   "b": "小沛",
+   "water": false
+  },
+  {
+   "a": "小沛",
+   "b": "下邳",
+   "water": false
+  },
+  {
+   "a": "陳留",
+   "b": "小沛",
+   "water": false
+  },
+  {
+   "a": "陳留",
+   "b": "洛陽",
+   "water": false
+  },
+  {
+   "a": "陳留",
+   "b": "許昌",
+   "water": false
+  },
+  {
+   "a": "洛陽",
+   "b": "長安",
+   "water": false
+  },
+  {
+   "a": "洛陽",
+   "b": "宛",
+   "water": false
+  },
+  {
+   "a": "長安",
+   "b": "天水",
+   "water": false
+  },
+  {
+   "a": "長安",
+   "b": "漢中",
+   "water": false
+  },
+  {
+   "a": "天水",
+   "b": "武威",
+   "water": false
+  },
+  {
+   "a": "天水",
+   "b": "漢中",
+   "water": false
+  },
+  {
+   "a": "漢中",
+   "b": "成都",
+   "water": false
+  },
+  {
+   "a": "漢中",
+   "b": "上庸",
+   "water": false
+  },
+  {
+   "a": "上庸",
+   "b": "宛",
+   "water": false
+  },
+  {
+   "a": "上庸",
+   "b": "襄陽",
+   "water": false
+  },
+  {
+   "a": "成都",
+   "b": "永安",
+   "water": true
+  },
+  {
+   "a": "永安",
+   "b": "江陵",
+   "water": true
+  },
+  {
+   "a": "許昌",
+   "b": "汝南",
+   "water": false
+  },
+  {
+   "a": "許昌",
+   "b": "宛",
+   "water": false
+  },
+  {
+   "a": "汝南",
+   "b": "壽春",
+   "water": false
+  },
+  {
+   "a": "汝南",
+   "b": "江夏",
+   "water": false
+  },
+  {
+   "a": "壽春",
+   "b": "下邳",
+   "water": false
+  },
+  {
+   "a": "壽春",
+   "b": "廬江",
+   "water": false
+  },
+  {
+   "a": "廬江",
+   "b": "柴桑",
+   "water": true
+  },
+  {
+   "a": "廬江",
+   "b": "建業",
+   "water": true
+  },
+  {
+   "a": "宛",
+   "b": "襄陽",
+   "water": false
+  },
+  {
+   "a": "襄陽",
+   "b": "江陵",
+   "water": true
+  },
+  {
+   "a": "襄陽",
+   "b": "江夏",
+   "water": true
+  },
+  {
+   "a": "江陵",
+   "b": "長沙",
+   "water": true
+  },
+  {
+   "a": "江夏",
+   "b": "長沙",
+   "water": true
+  },
+  {
+   "a": "江夏",
+   "b": "柴桑",
+   "water": true
+  },
+  {
+   "a": "長沙",
+   "b": "柴桑",
+   "water": false
+  },
+  {
+   "a": "柴桑",
+   "b": "建業",
+   "water": true
+  },
+  {
+   "a": "建業",
+   "b": "會稽",
+   "water": false
+  },
+  {
+   "a": "下邳",
+   "b": "建業",
+   "water": true
+  }
+ ],
+ "generals": [
+  {
+   "name": "曹操",
+   "faction": "cao",
+   "city": "陳留",
+   "lead": 92,
+   "war": 72,
+   "int": 90,
+   "pol": 92,
+   "cha": 94,
+   "loyalty": 100,
+   "apt": {
+    "cav": "A",
+    "archer": "A",
+    "spear": "A",
+    "infantry": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "crown",
+    "weapon": "sword",
+    "eyes": "sly",
+    "title": "治世能臣"
+   },
+   "ruler": true,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "荀彧",
+   "faction": "cao",
+   "city": "陳留",
+   "lead": 50,
+   "war": 18,
+   "int": 94,
+   "pol": 97,
+   "cha": 88,
+   "loyalty": 92,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "典韋",
+   "faction": "cao",
+   "city": "陳留",
+   "lead": 58,
+   "war": 95,
+   "int": 32,
+   "pol": 25,
+   "cha": 50,
+   "loyalty": 95,
+   "apt": {
+    "infantry": "S",
+    "spear": "A"
+   },
+   "look": {
+    "skin": "tan",
+    "beard": "full",
+    "hat": "headband",
+    "weapon": "axe",
+    "eyes": "fierce",
+    "title": "古之惡來"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "樂進",
+   "faction": "cao",
+   "city": "陳留",
+   "lead": 77,
+   "war": 82,
+   "int": 50,
+   "pol": 40,
+   "cha": 60,
+   "loyalty": 88,
+   "apt": {
+    "infantry": "A",
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "李典",
+   "faction": "cao",
+   "city": "陳留",
+   "lead": 75,
+   "war": 72,
+   "int": 70,
+   "pol": 65,
+   "cha": 68,
+   "loyalty": 86,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "程昱",
+   "faction": "cao",
+   "city": "陳留",
+   "lead": 70,
+   "war": 40,
+   "int": 90,
+   "pol": 82,
+   "cha": 50,
+   "loyalty": 88,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "夏侯惇",
+   "faction": "cao",
+   "city": "濮陽",
+   "lead": 88,
+   "war": 89,
+   "int": 58,
+   "pol": 67,
+   "cha": 76,
+   "loyalty": 100,
+   "apt": {
+    "spear": "A",
+    "cav": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "helmet",
+    "weapon": "spear",
+    "eyes": "fierce",
+    "patch": true,
+    "title": "獨眼將軍"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "夏侯淵",
+   "faction": "cao",
+   "city": "濮陽",
+   "lead": 87,
+   "war": 90,
+   "int": 54,
+   "pol": 52,
+   "cha": 70,
+   "loyalty": 100,
+   "apt": {
+    "cav": "S",
+    "archer": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "曹仁",
+   "faction": "cao",
+   "city": "濮陽",
+   "lead": 86,
+   "war": 85,
+   "int": 63,
+   "pol": 60,
+   "cha": 72,
+   "loyalty": 100,
+   "apt": {
+    "infantry": "S",
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "曹洪",
+   "faction": "cao",
+   "city": "濮陽",
+   "lead": 72,
+   "war": 78,
+   "int": 45,
+   "pol": 48,
+   "cha": 60,
+   "loyalty": 98,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "于禁",
+   "faction": "cao",
+   "city": "濮陽",
+   "lead": 80,
+   "war": 75,
+   "int": 60,
+   "pol": 50,
+   "cha": 55,
+   "loyalty": 85,
+   "apt": {
+    "infantry": "S"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "劉備",
+   "faction": "liu",
+   "city": "平原",
+   "lead": 76,
+   "war": 74,
+   "int": 76,
+   "pol": 80,
+   "cha": 98,
+   "loyalty": 100,
+   "apt": {},
+   "look": {
+    "beard": "short",
+    "hat": "crown",
+    "weapon": "twin",
+    "eyes": "calm",
+    "title": "仁德之君"
+   },
+   "ruler": true,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "關羽",
+   "faction": "liu",
+   "city": "平原",
+   "lead": 95,
+   "war": 96,
+   "int": 76,
+   "pol": 64,
+   "cha": 92,
+   "loyalty": 100,
+   "apt": {
+    "cav": "S",
+    "spear": "A",
+    "navy": "B"
+   },
+   "look": {
+    "skin": "red",
+    "beard": "long",
+    "hat": "headband",
+    "band": "#2e7d32",
+    "weapon": "glaive",
+    "eyes": "calm",
+    "title": "美髯公"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "張飛",
+   "faction": "liu",
+   "city": "平原",
+   "lead": 86,
+   "war": 97,
+   "int": 30,
+   "pol": 22,
+   "cha": 46,
+   "loyalty": 100,
+   "apt": {
+    "spear": "S",
+    "cav": "A"
+   },
+   "look": {
+    "skin": "dark",
+    "beard": "full",
+    "hat": "helmet",
+    "weapon": "snake",
+    "eyes": "fierce",
+    "title": "萬人之敵"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "簡雍",
+   "faction": "liu",
+   "city": "平原",
+   "lead": 30,
+   "war": 30,
+   "int": 65,
+   "pol": 72,
+   "cha": 80,
+   "loyalty": 95,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "孫乾",
+   "faction": "liu",
+   "city": "平原",
+   "lead": 30,
+   "war": 30,
+   "int": 70,
+   "pol": 76,
+   "cha": 82,
+   "loyalty": 92,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "孫堅",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 92,
+   "war": 90,
+   "int": 72,
+   "pol": 70,
+   "cha": 88,
+   "loyalty": 100,
+   "apt": {
+    "infantry": "A",
+    "spear": "A",
+    "navy": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "headband",
+    "band": "#c0392b",
+    "weapon": "sword",
+    "eyes": "fierce",
+    "title": "江東猛虎"
+   },
+   "ruler": true,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "孫策",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 92,
+   "war": 94,
+   "int": 70,
+   "pol": 66,
+   "cha": 92,
+   "loyalty": 100,
+   "apt": {
+    "cav": "S",
+    "spear": "A",
+    "navy": "A"
+   },
+   "look": {
+    "age": "young",
+    "beard": "none",
+    "hat": "helmet",
+    "weapon": "spear",
+    "eyes": "fierce",
+    "title": "小霸王"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "孫權",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 76,
+   "war": 66,
+   "int": 80,
+   "pol": 88,
+   "cha": 94,
+   "loyalty": 100,
+   "apt": {
+    "navy": "A"
+   },
+   "look": {
+    "age": "young",
+    "beard": "mustache",
+    "hat": "crown",
+    "weapon": "sword",
+    "eyes": "calm",
+    "eyeColor": "#2e86c1",
+    "title": "碧眼兒"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "程普",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 82,
+   "war": 77,
+   "int": 72,
+   "pol": 63,
+   "cha": 76,
+   "loyalty": 95,
+   "apt": {
+    "navy": "A",
+    "spear": "A"
+   },
+   "look": {
+    "age": "old",
+    "hair": "grey",
+    "beard": "long",
+    "hat": "helmet",
+    "weapon": "spear",
+    "eyes": "calm"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "黃蓋",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 79,
+   "war": 82,
+   "int": 66,
+   "pol": 58,
+   "cha": 70,
+   "loyalty": 96,
+   "apt": {
+    "navy": "A",
+    "infantry": "A"
+   },
+   "look": {
+    "age": "old",
+    "hair": "grey",
+    "beard": "full",
+    "hat": "helmet",
+    "weapon": "axe",
+    "eyes": "fierce"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "韓當",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 78,
+   "war": 82,
+   "int": 50,
+   "pol": 46,
+   "cha": 62,
+   "loyalty": 94,
+   "apt": {
+    "navy": "A",
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "朱治",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 70,
+   "war": 66,
+   "int": 62,
+   "pol": 70,
+   "cha": 70,
+   "loyalty": 92,
+   "apt": {
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "祖茂",
+   "faction": "sun",
+   "city": "長沙",
+   "lead": 60,
+   "war": 70,
+   "int": 40,
+   "pol": 38,
+   "cha": 50,
+   "loyalty": 92,
+   "apt": {
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "袁紹",
+   "faction": "yuans",
+   "city": "鄴",
+   "lead": 80,
+   "war": 68,
+   "int": 72,
+   "pol": 74,
+   "cha": 88,
+   "loyalty": 100,
+   "apt": {
+    "archer": "A"
+   },
+   "look": {
+    "beard": "mustache",
+    "hat": "crown",
+    "weapon": "sword",
+    "eyes": "calm"
+   },
+   "ruler": true,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "田豐",
+   "faction": "yuans",
+   "city": "鄴",
+   "lead": 70,
+   "war": 30,
+   "int": 92,
+   "pol": 85,
+   "cha": 60,
+   "loyalty": 80,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "沮授",
+   "faction": "yuans",
+   "city": "鄴",
+   "lead": 75,
+   "war": 35,
+   "int": 90,
+   "pol": 82,
+   "cha": 72,
+   "loyalty": 85,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "審配",
+   "faction": "yuans",
+   "city": "鄴",
+   "lead": 74,
+   "war": 60,
+   "int": 72,
+   "pol": 78,
+   "cha": 62,
+   "loyalty": 90,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "逢紀",
+   "faction": "yuans",
+   "city": "鄴",
+   "lead": 40,
+   "war": 30,
+   "int": 78,
+   "pol": 70,
+   "cha": 46,
+   "loyalty": 82,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "郭圖",
+   "faction": "yuans",
+   "city": "鄴",
+   "lead": 40,
+   "war": 30,
+   "int": 76,
+   "pol": 66,
+   "cha": 40,
+   "loyalty": 80,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "顏良",
+   "faction": "yuans",
+   "city": "南皮",
+   "lead": 80,
+   "war": 93,
+   "int": 40,
+   "pol": 32,
+   "cha": 55,
+   "loyalty": 90,
+   "apt": {
+    "cav": "A",
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "文醜",
+   "faction": "yuans",
+   "city": "南皮",
+   "lead": 79,
+   "war": 92,
+   "int": 30,
+   "pol": 30,
+   "cha": 50,
+   "loyalty": 90,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "張郃",
+   "faction": "yuans",
+   "city": "南皮",
+   "lead": 88,
+   "war": 87,
+   "int": 68,
+   "pol": 54,
+   "cha": 64,
+   "loyalty": 72,
+   "apt": {
+    "spear": "S",
+    "archer": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "高覽",
+   "faction": "yuans",
+   "city": "南皮",
+   "lead": 72,
+   "war": 81,
+   "int": 45,
+   "pol": 40,
+   "cha": 50,
+   "loyalty": 78,
+   "apt": {
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "董卓",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 82,
+   "war": 86,
+   "int": 64,
+   "pol": 30,
+   "cha": 38,
+   "loyalty": 100,
+   "apt": {
+    "cav": "A"
+   },
+   "look": {
+    "fat": true,
+    "beard": "full",
+    "hat": "crown",
+    "weapon": "sword",
+    "eyes": "sly",
+    "title": "魔王"
+   },
+   "ruler": true,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "呂布",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 96,
+   "war": 100,
+   "int": 26,
+   "pol": 16,
+   "cha": 40,
+   "loyalty": 60,
+   "apt": {
+    "cav": "S",
+    "spear": "A"
+   },
+   "look": {
+    "beard": "none",
+    "hat": "feather",
+    "weapon": "halberd",
+    "eyes": "fierce",
+    "title": "飛將"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "李儒",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 40,
+   "war": 30,
+   "int": 88,
+   "pol": 70,
+   "cha": 30,
+   "loyalty": 95,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "華雄",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 78,
+   "war": 89,
+   "int": 40,
+   "pol": 30,
+   "cha": 40,
+   "loyalty": 85,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "張遼",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 92,
+   "war": 91,
+   "int": 76,
+   "pol": 60,
+   "cha": 78,
+   "loyalty": 65,
+   "apt": {
+    "cav": "S",
+    "spear": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "helmet",
+    "weapon": "glaive",
+    "eyes": "fierce",
+    "title": "威震逍遙"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "徐榮",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 80,
+   "war": 76,
+   "int": 62,
+   "pol": 50,
+   "cha": 52,
+   "loyalty": 78,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "高順",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 86,
+   "war": 86,
+   "int": 50,
+   "pol": 40,
+   "cha": 66,
+   "loyalty": 70,
+   "apt": {
+    "infantry": "S",
+    "spear": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "helmet",
+    "weapon": "spear",
+    "eyes": "calm",
+    "title": "陷陣"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "胡軫",
+   "faction": "dong",
+   "city": "洛陽",
+   "lead": 64,
+   "war": 70,
+   "int": 30,
+   "pol": 30,
+   "cha": 34,
+   "loyalty": 80,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "李傕",
+   "faction": "dong",
+   "city": "長安",
+   "lead": 70,
+   "war": 78,
+   "int": 32,
+   "pol": 22,
+   "cha": 30,
+   "loyalty": 80,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "郭汜",
+   "faction": "dong",
+   "city": "長安",
+   "lead": 68,
+   "war": 76,
+   "int": 30,
+   "pol": 20,
+   "cha": 28,
+   "loyalty": 80,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "賈詡",
+   "faction": "dong",
+   "city": "長安",
+   "lead": 82,
+   "war": 48,
+   "int": 97,
+   "pol": 80,
+   "cha": 56,
+   "loyalty": 70,
+   "apt": {},
+   "look": {
+    "beard": "goatee",
+    "hat": "scholar",
+    "robe": true,
+    "weapon": "scroll",
+    "eyes": "sly",
+    "title": "毒士"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "牛輔",
+   "faction": "dong",
+   "city": "長安",
+   "lead": 60,
+   "war": 66,
+   "int": 30,
+   "pol": 30,
+   "cha": 30,
+   "loyalty": 90,
+   "apt": {},
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "劉表",
+   "faction": "liubiao",
+   "city": "襄陽",
+   "lead": 66,
+   "war": 42,
+   "int": 72,
+   "pol": 82,
+   "cha": 84,
+   "loyalty": 100,
+   "apt": {
+    "navy": "B"
+   },
+   "look": {
+    "age": "old",
+    "hair": "grey",
+    "beard": "long",
+    "hat": "crown",
+    "weapon": "scroll",
+    "robe": true,
+    "eyes": "calm"
+   },
+   "ruler": true,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "蔡瑁",
+   "faction": "liubiao",
+   "city": "襄陽",
+   "lead": 74,
+   "war": 64,
+   "int": 66,
+   "pol": 60,
+   "cha": 50,
+   "loyalty": 80,
+   "apt": {
+    "navy": "S"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "蒯良",
+   "faction": "liubiao",
+   "city": "襄陽",
+   "lead": 40,
+   "war": 30,
+   "int": 84,
+   "pol": 82,
+   "cha": 70,
+   "loyalty": 88,
+   "apt": {
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "蒯越",
+   "faction": "liubiao",
+   "city": "襄陽",
+   "lead": 50,
+   "war": 40,
+   "int": 86,
+   "pol": 80,
+   "cha": 66,
+   "loyalty": 86,
+   "apt": {
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "張允",
+   "faction": "liubiao",
+   "city": "襄陽",
+   "lead": 62,
+   "war": 58,
+   "int": 50,
+   "pol": 46,
+   "cha": 40,
+   "loyalty": 78,
+   "apt": {
+    "navy": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "黃祖",
+   "faction": "liubiao",
+   "city": "江陵",
+   "lead": 70,
+   "war": 70,
+   "int": 50,
+   "pol": 48,
+   "cha": 46,
+   "loyalty": 88,
+   "apt": {
+    "navy": "A",
+    "archer": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "文聘",
+   "faction": "liubiao",
+   "city": "江陵",
+   "lead": 82,
+   "war": 82,
+   "int": 60,
+   "pol": 62,
+   "cha": 70,
+   "loyalty": 90,
+   "apt": {
+    "navy": "A",
+    "archer": "A"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "王威",
+   "faction": "liubiao",
+   "city": "江陵",
+   "lead": 64,
+   "war": 66,
+   "int": 56,
+   "pol": 50,
+   "cha": 56,
+   "loyalty": 86,
+   "apt": {
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "active",
+   "hidden": false
+  },
+  {
+   "name": "郭嘉",
+   "faction": null,
+   "city": "許昌",
+   "lead": 60,
+   "war": 20,
+   "int": 98,
+   "pol": 80,
+   "cha": 70,
+   "loyalty": 0,
+   "apt": {},
+   "look": {
+    "age": "young",
+    "beard": "none",
+    "hat": "scholar",
+    "robe": true,
+    "weapon": "scroll",
+    "eyes": "sly",
+    "title": "鬼才"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "荀攸",
+   "faction": null,
+   "city": "宛",
+   "lead": 70,
+   "war": 20,
+   "int": 94,
+   "pol": 82,
+   "cha": 70,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "許褚",
+   "faction": null,
+   "city": "汝南",
+   "lead": 66,
+   "war": 96,
+   "int": 30,
+   "pol": 22,
+   "cha": 48,
+   "loyalty": 0,
+   "apt": {
+    "infantry": "S",
+    "spear": "A"
+   },
+   "look": {
+    "skin": "tan",
+    "beard": "full",
+    "hat": "bald",
+    "weapon": "axe",
+    "eyes": "fierce",
+    "title": "虎痴"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "李通",
+   "faction": null,
+   "city": "汝南",
+   "lead": 72,
+   "war": 76,
+   "int": 56,
+   "pol": 50,
+   "cha": 66,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "張勳",
+   "faction": null,
+   "city": "汝南",
+   "lead": 68,
+   "war": 70,
+   "int": 50,
+   "pol": 48,
+   "cha": 52,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "徐晃",
+   "faction": null,
+   "city": "晉陽",
+   "lead": 88,
+   "war": 88,
+   "int": 64,
+   "pol": 50,
+   "cha": 62,
+   "loyalty": 0,
+   "apt": {
+    "spear": "A",
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "滿寵",
+   "faction": null,
+   "city": "小沛",
+   "lead": 76,
+   "war": 60,
+   "int": 82,
+   "pol": 80,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "臧霸",
+   "faction": null,
+   "city": "小沛",
+   "lead": 78,
+   "war": 80,
+   "int": 52,
+   "pol": 48,
+   "cha": 64,
+   "loyalty": 0,
+   "apt": {
+    "infantry": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "張繡",
+   "faction": null,
+   "city": "宛",
+   "lead": 80,
+   "war": 82,
+   "int": 62,
+   "pol": 50,
+   "cha": 64,
+   "loyalty": 0,
+   "apt": {
+    "cav": "A",
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "胡車兒",
+   "faction": null,
+   "city": "宛",
+   "lead": 50,
+   "war": 80,
+   "int": 30,
+   "pol": 20,
+   "cha": 36,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "徐庶",
+   "faction": null,
+   "city": "宛",
+   "lead": 72,
+   "war": 64,
+   "int": 92,
+   "pol": 82,
+   "cha": 80,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "陳宮",
+   "faction": null,
+   "city": "下邳",
+   "lead": 74,
+   "war": 54,
+   "int": 88,
+   "pol": 78,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "陳登",
+   "faction": null,
+   "city": "下邳",
+   "lead": 76,
+   "war": 60,
+   "int": 84,
+   "pol": 82,
+   "cha": 70,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "糜竺",
+   "faction": null,
+   "city": "下邳",
+   "lead": 30,
+   "war": 30,
+   "int": 60,
+   "pol": 84,
+   "cha": 80,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "孔融",
+   "faction": null,
+   "city": "北海",
+   "lead": 30,
+   "war": 20,
+   "int": 76,
+   "pol": 70,
+   "cha": 84,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "太史慈",
+   "faction": null,
+   "city": "北海",
+   "lead": 82,
+   "war": 93,
+   "int": 66,
+   "pol": 50,
+   "cha": 74,
+   "loyalty": 0,
+   "apt": {
+    "archer": "S",
+    "cav": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "helmet",
+    "weapon": "bow",
+    "eyes": "fierce",
+    "title": "神射"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "公孫瓚",
+   "faction": null,
+   "city": "北平",
+   "lead": 84,
+   "war": 84,
+   "int": 60,
+   "pol": 52,
+   "cha": 72,
+   "loyalty": 0,
+   "apt": {
+    "cav": "S",
+    "archer": "B"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "helmet",
+    "armor": "#ecf0f1",
+    "weapon": "spear",
+    "eyes": "fierce",
+    "title": "白馬將軍"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "趙雲",
+   "faction": null,
+   "city": "北平",
+   "lead": 92,
+   "war": 96,
+   "int": 76,
+   "pol": 64,
+   "cha": 82,
+   "loyalty": 0,
+   "apt": {
+    "spear": "S",
+    "cav": "A"
+   },
+   "look": {
+    "age": "young",
+    "beard": "none",
+    "hat": "helmet",
+    "armor": "#dfe6ea",
+    "weapon": "spear",
+    "eyes": "calm",
+    "title": "一身是膽"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "袁術",
+   "faction": null,
+   "city": "壽春",
+   "lead": 66,
+   "war": 62,
+   "int": 60,
+   "pol": 50,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {},
+   "look": {
+    "beard": "mustache",
+    "hat": "crown",
+    "weapon": "sword",
+    "eyes": "sly"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "紀靈",
+   "faction": null,
+   "city": "壽春",
+   "lead": 76,
+   "war": 83,
+   "int": 50,
+   "pol": 42,
+   "cha": 56,
+   "loyalty": 0,
+   "apt": {
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "閻象",
+   "faction": null,
+   "city": "壽春",
+   "lead": 40,
+   "war": 30,
+   "int": 76,
+   "pol": 70,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "周瑜",
+   "faction": null,
+   "city": "廬江",
+   "lead": 96,
+   "war": 72,
+   "int": 96,
+   "pol": 86,
+   "cha": 92,
+   "loyalty": 0,
+   "apt": {
+    "navy": "S",
+    "archer": "A"
+   },
+   "look": {
+    "age": "young",
+    "beard": "none",
+    "hat": "crown",
+    "weapon": "sword",
+    "eyes": "calm",
+    "title": "美周郎"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "魯肅",
+   "faction": null,
+   "city": "廬江",
+   "lead": 80,
+   "war": 54,
+   "int": 92,
+   "pol": 90,
+   "cha": 86,
+   "loyalty": 0,
+   "apt": {
+    "navy": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "呂蒙",
+   "faction": null,
+   "city": "廬江",
+   "lead": 84,
+   "war": 82,
+   "int": 88,
+   "pol": 70,
+   "cha": 76,
+   "loyalty": 0,
+   "apt": {
+    "navy": "S",
+    "infantry": "A"
+   },
+   "look": {
+    "beard": "short",
+    "hat": "helmet",
+    "weapon": "glaive",
+    "eyes": "calm",
+    "title": "士別三日"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "張昭",
+   "faction": null,
+   "city": "建業",
+   "lead": 30,
+   "war": 20,
+   "int": 82,
+   "pol": 94,
+   "cha": 80,
+   "loyalty": 0,
+   "apt": {
+    "navy": "B"
+   },
+   "look": {
+    "age": "old",
+    "hair": "white",
+    "beard": "long",
+    "hat": "scholar",
+    "robe": true,
+    "weapon": "scroll",
+    "eyes": "calm"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "張紘",
+   "faction": null,
+   "city": "建業",
+   "lead": 30,
+   "war": 20,
+   "int": 80,
+   "pol": 88,
+   "cha": 78,
+   "loyalty": 0,
+   "apt": {
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "周泰",
+   "faction": null,
+   "city": "會稽",
+   "lead": 72,
+   "war": 90,
+   "int": 38,
+   "pol": 30,
+   "cha": 58,
+   "loyalty": 0,
+   "apt": {
+    "navy": "A",
+    "infantry": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "蔣欽",
+   "faction": null,
+   "city": "會稽",
+   "lead": 74,
+   "war": 82,
+   "int": 50,
+   "pol": 46,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {
+    "navy": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "陸遜",
+   "faction": null,
+   "city": "會稽",
+   "lead": 92,
+   "war": 70,
+   "int": 96,
+   "pol": 88,
+   "cha": 86,
+   "loyalty": 0,
+   "apt": {
+    "navy": "S",
+    "archer": "S"
+   },
+   "look": {
+    "age": "young",
+    "beard": "none",
+    "hat": "scholar",
+    "weapon": "sword",
+    "eyes": "calm",
+    "title": "書生都督"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "甘寧",
+   "faction": null,
+   "city": "江夏",
+   "lead": 82,
+   "war": 92,
+   "int": 66,
+   "pol": 32,
+   "cha": 56,
+   "loyalty": 0,
+   "apt": {
+    "navy": "S",
+    "archer": "A"
+   },
+   "look": {
+    "beard": "mustache",
+    "hat": "headband",
+    "band": "#8e44ad",
+    "weapon": "sword",
+    "eyes": "fierce",
+    "title": "錦帆賊"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "黃忠",
+   "faction": null,
+   "city": "長沙",
+   "lead": 86,
+   "war": 94,
+   "int": 60,
+   "pol": 54,
+   "cha": 68,
+   "loyalty": 0,
+   "apt": {
+    "archer": "S",
+    "spear": "A",
+    "navy": "B"
+   },
+   "look": {
+    "age": "old",
+    "hair": "white",
+    "beard": "long",
+    "hat": "helmet",
+    "weapon": "bow",
+    "eyes": "fierce",
+    "title": "老當益壯"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "魏延",
+   "faction": null,
+   "city": "襄陽",
+   "lead": 82,
+   "war": 92,
+   "int": 64,
+   "pol": 40,
+   "cha": 44,
+   "loyalty": 0,
+   "apt": {
+    "spear": "A",
+    "infantry": "A",
+    "navy": "B"
+   },
+   "look": {
+    "skin": "tan",
+    "beard": "short",
+    "hat": "helmet",
+    "weapon": "glaive",
+    "eyes": "fierce"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "諸葛亮",
+   "faction": null,
+   "city": "襄陽",
+   "lead": 92,
+   "war": 38,
+   "int": 100,
+   "pol": 96,
+   "cha": 92,
+   "loyalty": 0,
+   "apt": {
+    "archer": "S",
+    "infantry": "A",
+    "navy": "B"
+   },
+   "look": {
+    "beard": "long",
+    "hat": "scholar",
+    "robe": true,
+    "weapon": "fan",
+    "eyes": "calm",
+    "title": "臥龍"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "龐統",
+   "faction": null,
+   "city": "江陵",
+   "lead": 70,
+   "war": 34,
+   "int": 97,
+   "pol": 84,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {
+    "navy": "B"
+   },
+   "look": {
+    "beard": "full",
+    "hat": "scholar",
+    "robe": true,
+    "weapon": "scroll",
+    "eyes": "sly",
+    "title": "鳳雛"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "馬騰",
+   "faction": null,
+   "city": "武威",
+   "lead": 82,
+   "war": 84,
+   "int": 50,
+   "pol": 52,
+   "cha": 82,
+   "loyalty": 0,
+   "apt": {
+    "cav": "A"
+   },
+   "look": {
+    "beard": "long",
+    "hat": "helmet",
+    "weapon": "spear",
+    "eyes": "calm"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "馬超",
+   "faction": null,
+   "city": "武威",
+   "lead": 88,
+   "war": 97,
+   "int": 40,
+   "pol": 30,
+   "cha": 82,
+   "loyalty": 0,
+   "apt": {
+    "cav": "S",
+    "spear": "A"
+   },
+   "look": {
+    "age": "young",
+    "beard": "none",
+    "hat": "helmet",
+    "armor": "#dfe6ea",
+    "weapon": "spear",
+    "eyes": "fierce",
+    "title": "錦馬超"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "韓遂",
+   "faction": null,
+   "city": "武威",
+   "lead": 76,
+   "war": 74,
+   "int": 72,
+   "pol": 66,
+   "cha": 64,
+   "loyalty": 0,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "龐德",
+   "faction": null,
+   "city": "天水",
+   "lead": 82,
+   "war": 92,
+   "int": 66,
+   "pol": 60,
+   "cha": 72,
+   "loyalty": 0,
+   "apt": {
+    "cav": "A",
+    "spear": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "馬岱",
+   "faction": null,
+   "city": "天水",
+   "lead": 74,
+   "war": 80,
+   "int": 50,
+   "pol": 46,
+   "cha": 62,
+   "loyalty": 0,
+   "apt": {
+    "cav": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "劉璋",
+   "faction": null,
+   "city": "成都",
+   "lead": 40,
+   "war": 30,
+   "int": 50,
+   "pol": 58,
+   "cha": 66,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "法正",
+   "faction": null,
+   "city": "成都",
+   "lead": 76,
+   "war": 50,
+   "int": 94,
+   "pol": 80,
+   "cha": 50,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "張任",
+   "faction": null,
+   "city": "成都",
+   "lead": 84,
+   "war": 84,
+   "int": 72,
+   "pol": 50,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {
+    "archer": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "黃權",
+   "faction": null,
+   "city": "成都",
+   "lead": 74,
+   "war": 58,
+   "int": 82,
+   "pol": 76,
+   "cha": 70,
+   "loyalty": 0,
+   "apt": {},
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "李嚴",
+   "faction": null,
+   "city": "永安",
+   "lead": 82,
+   "war": 76,
+   "int": 78,
+   "pol": 80,
+   "cha": 56,
+   "loyalty": 0,
+   "apt": {
+    "infantry": "A",
+    "navy": "B"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "嚴顏",
+   "faction": null,
+   "city": "永安",
+   "lead": 80,
+   "war": 82,
+   "int": 66,
+   "pol": 56,
+   "cha": 70,
+   "loyalty": 0,
+   "apt": {
+    "archer": "A",
+    "spear": "A",
+    "navy": "B"
+   },
+   "look": {
+    "age": "old",
+    "hair": "white",
+    "beard": "long",
+    "hat": "helmet",
+    "weapon": "glaive",
+    "eyes": "fierce",
+    "title": "老將"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  },
+  {
+   "name": "王平",
+   "faction": null,
+   "city": "漢中",
+   "lead": 80,
+   "war": 76,
+   "int": 70,
+   "pol": 50,
+   "cha": 60,
+   "loyalty": 0,
+   "apt": {
+    "infantry": "A",
+    "archer": "A"
+   },
+   "ruler": false,
+   "status": "free",
+   "hidden": true
+  }
+ ],
+ "events": [
+  {
+   "id": "coalition",
+   "title": "反董卓聯盟",
+   "historical": true,
+   "cond": {
+    "from": [
+     190,
+     1
+    ],
+    "until": [
+     190,
+     3
+    ],
+    "alive": [
+     "dong"
+    ]
+   },
+   "effects": [
+    {
+     "do": "coalition_against",
+     "faction": "dong"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "曹操",
+     "text": "董卓廢立天子、焚掠百姓，天下共憤。各路諸侯，願同舉義兵！"
+    },
+    {
+     "speaker": "袁紹",
+     "text": "我袁家四世三公，願為盟主，號令諸軍討賊。"
+    }
+   ]
+  },
+  {
+   "id": "oath",
+   "title": "桃園之誓",
+   "historical": true,
+   "cond": {
+    "from": [
+     190,
+     1
+    ],
+    "until": [
+     190,
+     3
+    ],
+    "alive": [
+     "liu"
+    ],
+    "general_faction": {
+     "關羽": "liu",
+     "張飛": "liu"
+    }
+   },
+   "effects": [
+    {
+     "do": "loyalty_of",
+     "generals": [
+      "關羽",
+      "張飛"
+     ],
+     "value": 100
+    },
+    {
+     "do": "loyalty",
+     "faction": "liu",
+     "amount": 5
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "劉備",
+     "text": "你我三人雖非同姓，願結為兄弟，同心協力，上報國家，下安黎民。"
+    },
+    {
+     "speaker": "關羽",
+     "text": "此生願隨兄長，絕無二心。"
+    },
+    {
+     "speaker": "張飛",
+     "text": "哈哈！從今以後，誰欺負大哥，就是跟我張飛過不去！"
+    }
+   ]
+  },
+  {
+   "id": "capital_move",
+   "title": "遷都長安",
+   "historical": true,
+   "cond": {
+    "from": [
+     190,
+     3
+    ],
+    "until": [
+     191,
+     12
+    ],
+    "alive": [
+     "dong"
+    ],
+    "owns": {
+     "dong": [
+      "洛陽",
+      "長安"
+     ]
+    }
+   },
+   "effects": [
+    {
+     "do": "city_scale",
+     "city": "洛陽",
+     "field": "commerce",
+     "mult": 0.5
+    },
+    {
+     "do": "city_scale",
+     "city": "洛陽",
+     "field": "pop",
+     "mult": 0.6
+    },
+    {
+     "do": "city_add",
+     "city": "長安",
+     "field": "gold",
+     "amount": 1500
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "李儒",
+     "text": "關東諸侯勢大，洛陽難守。不如遷都長安，依山河之險。"
+    },
+    {
+     "speaker": "董卓",
+     "text": "好！把洛陽的財寶全運走，百姓也一併遷去！"
+    }
+   ]
+  },
+  {
+   "id": "seal",
+   "title": "傳國玉璽",
+   "historical": true,
+   "cond": {
+    "from": [
+     190,
+     6
+    ],
+    "alive": [
+     "sun"
+    ],
+    "near": {
+     "faction": "sun",
+     "city": "洛陽"
+    },
+    "city_owner_not": {
+     "洛陽": "dong"
+    },
+    "chance": 0.3
+   },
+   "effects": [
+    {
+     "do": "gold",
+     "faction": "sun",
+     "amount": 500
+    },
+    {
+     "do": "loyalty",
+     "faction": "sun",
+     "amount": 5
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "程普",
+     "text": "主公，在宮中井裡撈出一方玉印，上面刻著篆字……"
+    },
+    {
+     "speaker": "孫堅",
+     "text": "這是傳國玉璽！此事萬萬不可外傳。"
+    }
+   ]
+  },
+  {
+   "id": "dong_falls",
+   "title": "董卓之死",
+   "historical": true,
+   "cond": {
+    "from": [
+     192,
+     4
+    ],
+    "alive": [
+     "dong"
+    ],
+    "general_faction": {
+     "董卓": "dong",
+     "呂布": "dong"
+    }
+   },
+   "effects": [
+    {
+     "do": "ruler_dies",
+     "faction": "dong"
+    },
+    {
+     "do": "leave",
+     "general": "呂布"
+    },
+    {
+     "do": "leave",
+     "general": "張遼"
+    },
+    {
+     "do": "leave",
+     "general": "高順"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "呂布",
+     "text": "義父？哼……我奉詔討賊，今日便是你的死期！"
+    },
+    {
+     "speaker": "董卓",
+     "text": "奉先，你竟敢——！"
+    }
+   ]
+  },
+  {
+   "id": "qingzhou",
+   "title": "收編青州兵",
+   "historical": true,
+   "cond": {
+    "from": [
+     192,
+     1
+    ],
+    "until": [
+     193,
+     12
+    ],
+    "alive": [
+     "cao"
+    ],
+    "owns": {
+     "cao": [
+      "濮陽"
+     ]
+    }
+   },
+   "effects": [
+    {
+     "do": "troops",
+     "city": "濮陽",
+     "unit": "infantry",
+     "amount": 12000
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "荀彧",
+     "text": "黃巾餘黨數十萬已歸降，可挑選精壯編為一軍。"
+    },
+    {
+     "speaker": "曹操",
+     "text": "就稱他們為「青州兵」吧，好好操練。"
+    }
+   ]
+  },
+  {
+   "id": "xuzhou",
+   "title": "陶謙讓徐州",
+   "historical": true,
+   "cond": {
+    "from": [
+     194,
+     1
+    ],
+    "until": [
+     196,
+     12
+    ],
+    "alive": [
+     "liu"
+    ],
+    "neutral_city": "下邳",
+    "near": {
+     "faction": "liu",
+     "city": "下邳"
+    }
+   },
+   "effects": [
+    {
+     "do": "give_city",
+     "city": "下邳",
+     "faction": "liu",
+     "units": {
+      "infantry": 5000,
+      "spear": 3000,
+      "archer": 2000
+     }
+    },
+    {
+     "do": "join",
+     "general": "糜竺",
+     "faction": "liu"
+    },
+    {
+     "do": "join",
+     "general": "陳登",
+     "faction": "liu"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "糜竺",
+     "text": "陶使君臨終前再三囑咐，徐州非劉玄德不能保全。"
+    },
+    {
+     "speaker": "劉備",
+     "text": "既然百姓相託，劉備只能勉力承擔。"
+    }
+   ]
+  },
+  {
+   "id": "sun_ce",
+   "title": "孫策渡江",
+   "historical": true,
+   "cond": {
+    "from": [
+     195,
+     1
+    ],
+    "alive": [
+     "sun"
+    ],
+    "general_faction": {
+     "孫策": "sun"
+    },
+    "general_free": [
+     "周瑜"
+    ]
+   },
+   "effects": [
+    {
+     "do": "join",
+     "general": "周瑜",
+     "faction": "sun"
+    },
+    {
+     "do": "gold",
+     "faction": "sun",
+     "amount": 500
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "周瑜",
+     "text": "伯符，江東之地正待英雄。我願率部相助！"
+    },
+    {
+     "speaker": "孫策",
+     "text": "有公瑾在，何愁大事不成！"
+    }
+   ]
+  },
+  {
+   "id": "emperor",
+   "title": "奉迎天子",
+   "historical": true,
+   "cond": {
+    "from": [
+     196,
+     1
+    ],
+    "alive": [
+     "cao"
+    ],
+    "owns": {
+     "cao": [
+      "許昌"
+     ]
+    }
+   },
+   "effects": [
+    {
+     "do": "gold",
+     "faction": "cao",
+     "amount": 1000
+    },
+    {
+     "do": "loyalty",
+     "faction": "cao",
+     "amount": 8
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "荀彧",
+     "text": "天子流離在外，主公若能迎奉至許昌，便可號令天下。"
+    },
+    {
+     "speaker": "曹操",
+     "text": "正合我意。即刻派兵迎駕！"
+    }
+   ]
+  },
+  {
+   "id": "zhang_xiu",
+   "title": "張繡歸降",
+   "historical": true,
+   "cond": {
+    "from": [
+     197,
+     1
+    ],
+    "alive": [
+     "cao"
+    ],
+    "general_free": [
+     "張繡"
+    ],
+    "near": {
+     "faction": "cao",
+     "city": "宛"
+    }
+   },
+   "effects": [
+    {
+     "do": "join",
+     "general": "張繡",
+     "faction": "cao"
+    },
+    {
+     "do": "join",
+     "general": "胡車兒",
+     "faction": "cao"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "張繡",
+     "text": "過去多有得罪……今日願率部歸順曹公。"
+    },
+    {
+     "speaker": "曹操",
+     "text": "前事不提。將軍來得正好！"
+    }
+   ]
+  },
+  {
+   "id": "heroes",
+   "title": "煮酒論英雄",
+   "historical": true,
+   "cond": {
+    "from": [
+     197,
+     1
+    ],
+    "until": [
+     199,
+     12
+    ],
+    "alive": [
+     "cao",
+     "liu"
+    ],
+    "adjacent_factions": [
+     "cao",
+     "liu"
+    ],
+    "chance": 0.4
+   },
+   "effects": [
+    {
+     "do": "relation",
+     "a": "cao",
+     "b": "liu",
+     "state": "truce",
+     "months": 6
+    },
+    {
+     "do": "gold",
+     "faction": "liu",
+     "amount": 300
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "曹操",
+     "text": "當今天下，誰可稱英雄？依我看，只有你我二人。"
+    },
+    {
+     "speaker": "劉備",
+     "text": "（手中筷子掉落）……方才雷聲大作，嚇了一跳，讓丞相見笑了。"
+    }
+   ]
+  },
+  {
+   "id": "guandu",
+   "title": "官渡對峙",
+   "historical": true,
+   "cond": {
+    "from": [
+     199,
+     6
+    ],
+    "alive": [
+     "cao",
+     "yuans"
+    ],
+    "adjacent_factions": [
+     "cao",
+     "yuans"
+    ]
+   },
+   "effects": [
+    {
+     "do": "relation",
+     "a": "cao",
+     "b": "yuans",
+     "state": "war"
+    },
+    {
+     "do": "gold",
+     "faction": "yuans",
+     "amount": 800
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "袁紹",
+     "text": "曹阿瞞不過一介宦官之後，我率十萬大軍南下，定叫他灰飛煙滅！"
+    },
+    {
+     "speaker": "沮授",
+     "text": "主公，曹軍糧少而精，宜持久消耗，不可急戰。"
+    }
+   ]
+  },
+  {
+   "id": "return",
+   "title": "千里尋兄",
+   "historical": true,
+   "cond": {
+    "from": [
+     190,
+     6
+    ],
+    "alive": [
+     "liu"
+    ],
+    "general_elsewhere": {
+     "關羽": "liu"
+    }
+   },
+   "effects": [
+    {
+     "do": "join",
+     "general": "關羽",
+     "faction": "liu",
+     "force": true
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "關羽",
+     "text": "受人之恩，已經報答。如今得知兄長下落，縱有千里，也要前去相會！"
+    }
+   ]
+  },
+  {
+   "id": "three_visits",
+   "title": "三顧茅廬",
+   "historical": true,
+   "cond": {
+    "from": [
+     195,
+     1
+    ],
+    "alive": [
+     "liu"
+    ],
+    "general_free": [
+     "諸葛亮"
+    ],
+    "near": {
+     "faction": "liu",
+     "city": "襄陽"
+    }
+   },
+   "effects": [
+    {
+     "do": "join",
+     "general": "諸葛亮",
+     "faction": "liu"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "劉備",
+     "text": "劉備三度登門，只盼先生出山，共扶漢室。"
+    },
+    {
+     "speaker": "諸葛亮",
+     "text": "將軍誠意至此，亮願效犬馬之勞。依我之見，天下大勢可三分……"
+    }
+   ]
+  },
+  {
+   "id": "zilong",
+   "title": "子龍來投",
+   "historical": true,
+   "cond": {
+    "from": [
+     191,
+     6
+    ],
+    "alive": [
+     "liu"
+    ],
+    "general_free": [
+     "趙雲"
+    ],
+    "chance": 0.25
+   },
+   "effects": [
+    {
+     "do": "join",
+     "general": "趙雲",
+     "faction": "liu"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "趙雲",
+     "text": "常山趙子龍，久仰劉使君仁德，特來投效！"
+    },
+    {
+     "speaker": "劉備",
+     "text": "得子龍相助，如虎添翼！"
+    }
+   ]
+  },
+  {
+   "id": "liubiao_dies",
+   "title": "劉表病逝",
+   "historical": true,
+   "cond": {
+    "from": [
+     207,
+     1
+    ],
+    "alive": [
+     "liubiao"
+    ],
+    "general_faction": {
+     "劉表": "liubiao"
+    },
+    "chance": 0.15
+   },
+   "effects": [
+    {
+     "do": "ruler_dies",
+     "faction": "liubiao"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "蒯越",
+     "text": "主公病重不起……荊州今後該何去何從？"
+    }
+   ]
+  },
+  {
+   "id": "alliance",
+   "title": "孫劉同盟",
+   "historical": true,
+   "cond": {
+    "from": [
+     205,
+     1
+    ],
+    "alive": [
+     "cao",
+     "sun",
+     "liu"
+    ],
+    "cities_at_least": {
+     "cao": 10
+    }
+   },
+   "effects": [
+    {
+     "do": "relation",
+     "a": "sun",
+     "b": "liu",
+     "state": "alliance"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "魯肅",
+     "text": "北方強敵壓境，孫劉兩家唯有聯手，方能自保。"
+    },
+    {
+     "speaker": "諸葛亮",
+     "text": "正是。兩家同心，必能以少勝多。"
+    }
+   ]
+  },
+  {
+   "id": "taishi",
+   "title": "太史慈歸吳",
+   "historical": true,
+   "cond": {
+    "from": [
+     194,
+     1
+    ],
+    "alive": [
+     "sun"
+    ],
+    "general_free": [
+     "太史慈"
+    ],
+    "general_faction": {
+     "孫策": "sun"
+    },
+    "chance": 0.3
+   },
+   "effects": [
+    {
+     "do": "join",
+     "general": "太史慈",
+     "faction": "sun"
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "孫策",
+     "text": "你我一場惡戰不分勝負，正是英雄相惜。可願助我？"
+    },
+    {
+     "speaker": "太史慈",
+     "text": "大丈夫生於亂世，當帶三尺劍立不世之功。願隨將軍！"
+    }
+   ]
+  },
+  {
+   "id": "locusts",
+   "title": "蝗災",
+   "historical": false,
+   "repeat": true,
+   "cooldown": 24,
+   "cond": {
+    "month": 6,
+    "chance": 0.1
+   },
+   "effects": [
+    {
+     "do": "harvest_mult",
+     "mult": 0.5
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "",
+     "text": "各地蝗蟲蔽天，今年秋收恐怕只有往年的一半。"
+    }
+   ]
+  },
+  {
+   "id": "bumper",
+   "title": "豐年",
+   "historical": false,
+   "repeat": true,
+   "cooldown": 24,
+   "cond": {
+    "month": 6,
+    "chance": 0.1
+   },
+   "effects": [
+    {
+     "do": "harvest_mult",
+     "mult": 1.4
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "",
+     "text": "風調雨順，今年各地可望豐收。"
+    }
+   ]
+  }
+ ],
+ "terrain": {
+  "coast": [
+   [
+    930,
+    -10
+   ],
+   [
+    950,
+    70
+   ],
+   [
+    985,
+    150
+   ],
+   [
+    952,
+    228
+   ],
+   [
+    990,
+    296
+   ],
+   [
+    958,
+    352
+   ],
+   [
+    978,
+    420
+   ],
+   [
+    938,
+    472
+   ],
+   [
+    962,
+    525
+   ],
+   [
+    992,
+    596
+   ],
+   [
+    958,
+    655
+   ],
+   [
+    985,
+    730
+   ]
+  ],
+  "rivers": [
+   {
+    "name": "黃河",
+    "label": [
+     455,
+     300
+    ],
+    "points": [
+     [
+      -10,
+      252
+     ],
+     [
+      60,
+      238
+     ],
+     [
+      120,
+      232
+     ],
+     [
+      180,
+      244
+     ],
+     [
+      230,
+      262
+     ],
+     [
+      290,
+      276
+     ],
+     [
+      330,
+      284
+     ],
+     [
+      380,
+      298
+     ],
+     [
+      430,
+      310
+     ],
+     [
+      470,
+      312
+     ],
+     [
+      520,
+      295
+     ],
+     [
+      560,
+      270
+     ],
+     [
+      610,
+      252
+     ],
+     [
+      660,
+      242
+     ],
+     [
+      700,
+      238
+     ],
+     [
+      750,
+      250
+     ],
+     [
+      790,
+      258
+     ],
+     [
+      840,
+      252
+     ],
+     [
+      900,
+      242
+     ],
+     [
+      940,
+      230
+     ],
+     [
+      960,
+      222
+     ]
+    ]
+   },
+   {
+    "name": "長江",
+    "label": [
+     250,
+     600
+    ],
+    "points": [
+     [
+      40,
+      515
+     ],
+     [
+      100,
+      530
+     ],
+     [
+      150,
+      548
+     ],
+     [
+      210,
+      568
+     ],
+     [
+      270,
+      590
+     ],
+     [
+      330,
+      594
+     ],
+     [
+      380,
+      592
+     ],
+     [
+      430,
+      598
+     ],
+     [
+      480,
+      606
+     ],
+     [
+      520,
+      612
+     ],
+     [
+      570,
+      606
+     ],
+     [
+      610,
+      598
+     ],
+     [
+      660,
+      584
+     ],
+     [
+      720,
+      560
+     ],
+     [
+      760,
+      554
+     ],
+     [
+      800,
+      552
+     ],
+     [
+      860,
+      548
+     ],
+     [
+      920,
+      550
+     ],
+     [
+      975,
+      552
+     ]
+    ]
+   },
+   {
+    "name": "",
+    "label": null,
+    "points": [
+     [
+      330,
+      450
+     ],
+     [
+      390,
+      480
+     ],
+     [
+      450,
+      520
+     ],
+     [
+      520,
+      545
+     ],
+     [
+      600,
+      568
+     ]
+    ]
+   }
+  ],
+  "mountains": [
+   [
+    600,
+    160,
+    60,
+    46
+   ],
+   [
+    628,
+    128,
+    44,
+    34
+   ],
+   [
+    585,
+    252,
+    40,
+    30
+   ],
+   [
+    470,
+    205,
+    52,
+    38
+   ],
+   [
+    445,
+    250,
+    40,
+    30
+   ],
+   [
+    295,
+    400,
+    70,
+    52
+   ],
+   [
+    350,
+    392,
+    52,
+    40
+   ],
+   [
+    440,
+    405,
+    50,
+    40
+   ],
+   [
+    262,
+    480,
+    58,
+    44
+   ],
+   [
+    292,
+    528,
+    46,
+    34
+   ],
+   [
+    110,
+    470,
+    56,
+    42
+   ],
+   [
+    88,
+    545,
+    62,
+    46
+   ],
+   [
+    95,
+    330,
+    64,
+    48
+   ],
+   [
+    65,
+    120,
+    60,
+    44
+   ],
+   [
+    250,
+    120,
+    56,
+    40
+   ],
+   [
+    300,
+    160,
+    40,
+    28
+   ],
+   [
+    700,
+    112,
+    46,
+    32
+   ],
+   [
+    640,
+    650,
+    46,
+    30
+   ],
+   [
+    470,
+    690,
+    40,
+    26
+   ]
+  ]
+ }
+}
