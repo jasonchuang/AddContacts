@@ -1233,6 +1233,6 @@
   // 供自動測試直接播放戰鬥畫面
   TK.UI = { playBattle };
   const start = () => showTitle();
-  if (document.fonts && document.fonts.load) document.fonts.load('24px Pixel12').then(start, start);
+  if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('24px Kai'), document.fonts.load('16px Body')]).then(start, start);
   else start();
 })(globalThis.TK = globalThis.TK || {});

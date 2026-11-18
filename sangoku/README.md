@@ -83,7 +83,7 @@ sangoku/
   tools/build_font.py  重新產生像素字型子集（新增文字後執行）
   js/mapview.js   向量地圖（紙底、勢力領土、黃河長江、城池、圖例）
   js/ui.js        視窗與選單、標題、指令流程、軍師訊息、像素戰鬥
-  fonts/          內文 Noto Sans TC 與像素字 Fusion Pixel 12px 子集（皆 OFL-1.1）
+  fonts/          內文思源宋體 Noto Serif TC、標題霞鶩文楷 LXGW WenKai TC 子集（皆 OFL-1.1）
   build.js        打包成單一 HTML
   portraits/      放武將插畫（檔名＝武將名，如 黃忠.png），build.js 會自動套用
   art/ART_GUIDE.md  美術製作流程；art/portrait-briefs.md 為各武將繪製說明

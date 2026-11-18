@@ -1,11 +1,8 @@
-Fusion Pixel Font
-https://github.com/TakWolf/fusion-pixel-font
-
-Copyright (c) 2022, TakWolf (https://takwolf.com).
+Google Inc.
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
-https://openfontlicense.org
+http://scripts.sil.org/OFL
 
 
 -----------------------------------------------------------

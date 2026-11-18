@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""網頁版字型：把遊戲用到的字從 Noto Sans TC（內文）與 Fusion Pixel Font 12px（標題）抽出成 WOFF2（皆 OFL-1.1）。
+"""網頁版字型：把遊戲用到的字從思源宋體 Noto Serif TC（內文）與霞鶩文楷 LXGW WenKai TC（標題、名字）抽出成 WOFF2（皆 OFL-1.1）。
 
 執行：python3 sangoku/tools/build_font.py
 需要：pip install fonttools brotli，以及 npm（用來下載字型套件）
-輸出：sangoku/fonts/body.woff2、sangoku/fonts/pixel12.woff2 與授權檔
+輸出：sangoku/fonts/body.woff2、sangoku/fonts/kai.woff2 與授權檔
 """
 import glob
 import os
@@ -25,17 +25,17 @@ CACHE = os.path.join(tempfile.gettempdir(), 'qunxiong-fonts')
 SOURCES = [
     {
         'out': 'body.woff2',
-        'package': 'noto-sans-tc@36.0.0',
-        'glob': 'package/noto_sans_tc_medium/*.woff2',
-        'license': 'package/LICENSE_OFL.txt',
-        'license_out': 'OFL-NotoSansTC.txt',
+        'package': '@fontsource/noto-serif-tc@5.3.1',
+        'glob': 'package/files/noto-serif-tc-*-500-normal.woff2',
+        'license': 'package/LICENSE',
+        'license_out': 'OFL-NotoSerifTC.txt',
     },
     {
-        'out': 'pixel12.woff2',
-        'package': '@vp-tw/cjk-web-fonts-fusion-pixel-font@0.0.1',
-        'glob': 'package/dist/12px/proportional/*/*.woff2',
-        'license': 'package/LICENSE.font.txt',
-        'license_out': 'OFL-FusionPixel.txt',
+        'out': 'kai.woff2',
+        'package': '@fontsource/lxgw-wenkai-tc@5.3.1',
+        'glob': 'package/files/lxgw-wenkai-tc-*-700-normal.woff2',
+        'license': 'package/LICENSE',
+        'license_out': 'OFL-LXGWWenKaiTC.txt',
     },
 ]
 

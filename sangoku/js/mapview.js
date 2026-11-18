@@ -17,7 +17,7 @@
     [700, 112, 46, 32], [640, 650, 46, 30], [780, 640, 44, 30], [470, 690, 40, 26],
   ];
   const PAPER = '#efe5cf', INK = '#1f1a14', INK2 = '#3b332a', RIVER = '61,134,166', GOLD = '#b8892c', RED = '#b23a2c';
-  const FONT = '"Body", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", sans-serif';
+  const FONT = '"Kai", "Body", "Kaiti TC", "DFKai-SB", serif';
 
   function rgba(hex, a) {
     const n = parseInt(hex.slice(1), 16);
