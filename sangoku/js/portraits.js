@@ -418,9 +418,10 @@
   // 遊戲使用動畫風肖像（js/anime.js）；Q 版與水墨版保留作參考
   function svg(g, color, mode) { return TK.Anime ? TK.Anime.svg(g, color, mode, traits(g)) : svgChibi(g, color, mode); }
 
-  // 若 portraits/ 中有該武將的插畫，回傳其網址
-  function art(g) {
+  // 若 portraits/ 中有該武將的插畫，回傳其網址。頭像優先用 <名>_head，否則用半身像
+  function art(g, mode) {
     const files = TK.PORTRAIT_FILES || {};
+    if (mode === 'head' && files[g.name + '_head']) return files[g.name + '_head'];
     return files[g.name] || null;
   }
 

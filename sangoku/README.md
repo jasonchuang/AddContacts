@@ -85,7 +85,8 @@ sangoku/
   js/ui.js        視窗與選單、標題、指令流程、軍師訊息、像素戰鬥
   fonts/          內文思源宋體 Noto Serif TC、標題霞鶩文楷 LXGW WenKai TC 子集（皆 OFL-1.1）
   build.js        打包成單一 HTML
-  portraits/      放武將插畫（檔名＝武將名，如 黃忠.png），build.js 會自動套用
+  portraits/      武將插畫（<名>.jpg 半身像、<名>_head.jpg 頭像），build.js 會自動套用；沒有插畫的武將用程式繪製的肖像
+  art/raw/        外部原圖（檔名＝武將名）與 crops.json（臉部位置）；執行 python3 sangoku/tools/import_portraits.py 轉成 portraits/
   art/ART_GUIDE.md  美術製作流程；art/portrait-briefs.md 為各武將繪製說明
   art/PUBLIC_DOMAIN_SOURCES.md  公有領域三國人物圖像（繡像）來源與使用注意事項
   tools/portrait-briefs.js  產生繪製說明

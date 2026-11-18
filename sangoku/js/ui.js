@@ -65,11 +65,15 @@
         cv.width = w; cv.height = hgt;
         const ctx = cv.getContext('2d');
         ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(img, 0, 0, w, hgt);
+        ctx.imageSmoothingQuality = 'high';
+        // 外部插畫比例不一定相同：等比縮放後置中裁切（頭像偏上，保留臉部）
+        const sc = Math.max(w / img.width, hgt / img.height);
+        const dw = img.width * sc, dh = img.height * sc;
+        ctx.drawImage(img, (w - dw) / 2, mode === 'head' ? Math.min(0, (hgt - dh) / 4) : (hgt - dh) / 2, dw, dh);
         resolve(cv.toDataURL());
       };
       img.onerror = () => resolve('');
-      const art = PT.art && PT.art(g);
+      const art = PT.art && PT.art(g, mode);
       img.src = art || 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(PT.svg(g, col, mode));
     });
     faceCache.set(key, p);
