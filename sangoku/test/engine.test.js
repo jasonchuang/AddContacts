@@ -345,14 +345,16 @@ test('戰報順序：勢力滅亡記錄在攻城戰報之後', () => {
   assert(texts.indexOf('劉備軍滅亡了。') > texts.findIndex((t) => t.includes('攻陷了平原')));
 });
 
-test('自動試玩：電腦勢力會互相征戰，十年內城池易主', () => {
-  const T = globalThis.TK;
-  const s = E.newGame(null, 33);
-  const start = JSON.stringify(Object.values(s.cities).map((c) => c.owner));
-  for (let i = 0; i < 120 && !s.over; i++) E.endTurn(s);
-  const changed = Object.values(s.cities).map((c) => c.owner);
-  assert.notStrictEqual(JSON.stringify(changed), start);
-  assert(Object.values(s.factions).filter((f) => !f.alive).length >= 1, '十年內應有勢力滅亡');
+test('自動試玩：電腦勢力會互相征戰，十年內城池易主、有勢力滅亡', () => {
+  let fallen = 0, moved = 0;
+  for (const seed of [33, 34, 35]) {
+    const s = E.newGame(null, seed);
+    const start = Object.values(s.cities).map((c) => c.owner);
+    for (let i = 0; i < 120 && !s.over; i++) E.endTurn(s);
+    moved += Object.values(s.cities).filter((c, i) => c.owner !== start[i]).length;
+    fallen += Object.values(s.factions).filter((f) => !f.alive).length;
+  }
+  assert(moved >= 15, `三局共只有 ${moved} 城易主`);
+  assert(fallen >= 1, '三局十年內都沒有勢力滅亡');
 });
-
 console.log(`\n${passed} tests passed`);

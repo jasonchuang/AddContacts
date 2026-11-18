@@ -136,22 +136,44 @@
     // 依作戰計畫集結兵力
     concentrate(s, fid, p);
 
-    // 後方往前線輸送兵力與武將
+    // 後方往前線輸送兵力與武將：有作戰計畫時，沿著我方領土的最短路線送往集結地
+    const dist = p ? distances(s, fid, p.staging) : null;
     for (const city of Eng.citiesOf(s, fid)) {
       if (threatTo(s, city) > 0 || hasNeutralNeighbor(s, city)) continue;
       const fronts = Eng.neighbors(s, city.id).map((id) => s.cities[id]).filter((c) => c.owner === fid);
       if (!fronts.length) continue;
-      const dest = fronts.sort((a, b) => threatTo(s, b) - threatTo(s, a))[0];
+      let dest;
+      if (dist && dist[city.id] != null) {
+        dest = fronts.filter((c) => dist[c.id] != null && dist[c.id] < dist[city.id]).sort((a, b) => dist[a.id] - dist[b.id])[0];
+      }
+      dest = dest || fronts.sort((a, b) => threatTo(s, b) - threatTo(s, a))[0];
       const movers = idle(s, city.id, fid).sort((a, b) => b.lead - a.lead);
       const all = Eng.officers(s, city.id);
-      if (!movers.length || all.length < 2) continue; // 至少留一人守城
+      // 後方安全的城可以不留武將；兵太少就不必送
+      if (!movers.length || city.troops < 3000) continue;
       const carrier = movers[0];
       const extra = all.length >= 4 && movers.length >= 2 ? [movers[1].id] : [];
       Eng.exec(s, fid, {
         type: 'move', city: city.id, general: carrier.id, dest: dest.id, generals: extra,
-        troops: Math.floor(city.troops * 0.6), gold: Math.floor(city.gold * 0.3), food: Math.floor(city.food * 0.3),
+        troops: Math.floor(city.troops * (all.length < 2 ? 0.9 : 0.7)), gold: Math.floor(city.gold * 0.3), food: Math.floor(city.food * 0.3),
       });
     }
+  }
+
+  // 我方領土內，各城到某城的步數
+  function distances(s, fid, from) {
+    const Eng = E();
+    const d = { [from]: 0 };
+    const q = [from];
+    while (q.length) {
+      const cur = q.shift();
+      for (const n of Eng.neighbors(s, cur)) {
+        if (d[n] != null || s.cities[n].owner !== fid) continue;
+        d[n] = d[cur] + 1;
+        q.push(n);
+      }
+    }
+    return d;
   }
 
   // 選擇徵募的兵種：剋制鄰近敵軍最多的兵種，並參考武將適性與金錢

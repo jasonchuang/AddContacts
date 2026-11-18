@@ -398,7 +398,7 @@
     if ((e.key === 'Enter' || e.key === ' ') && advanceMsg()) { e.preventDefault(); return; }
     const top = stack[stack.length - 1];
     if (top && top.onKey) { if (top.onKey(e)) e.preventDefault(); return; }
-    if (rootKey && rootKey(e)) e.preventDefault();
+    if (rootKey && !busy && rootKey(e)) e.preventDefault();
   });
 
   // ---------- 標題 ----------
@@ -495,6 +495,7 @@
     enterGame();
     const ruler = S.generals[S.factions[fid].ruler];
     busy = true;
+    renderCmd(); // 開場對話與事件播放時，指令先鎖住
     const opening = TK.Events ? TK.Events.run(S) : [];
     banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
