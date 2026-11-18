@@ -137,7 +137,7 @@ static func button(text: String, cb: Callable, is_primary: bool = false) -> Butt
 	return b
 
 
-## 能力百分比長條
+## 能力值長條（1–100 分）
 static func stat_bar(label_text: String, value: int, color_hex: String, width: int = 120) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	var l := label(label_text, 13, INK_2)
@@ -152,7 +152,7 @@ static func stat_bar(label_text: String, value: int, color_hex: String, width: i
 	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	bar.add_theme_stylebox_override("fill", box(Color(color_hex), Color(0, 0, 0, 0), 0, 3, 0))
 	row.add_child(bar)
-	var v := label("%d%%" % value, 13, INK_2)
+	var v := label(str(value), 13, INK_2)
 	v.custom_minimum_size.x = 42
 	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(v)

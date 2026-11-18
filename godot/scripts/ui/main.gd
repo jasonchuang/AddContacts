@@ -307,7 +307,7 @@ func _open_diplomacy() -> void:
 
 # ---------- 指令表單 ----------
 func _gen_label(g: Dictionary) -> String:
-	return "%s（統%d%% 武%d%% 智%d%% 政%d%% 魅%d%%）" % [g["name"], int(g["lead"]), int(g["war"]), int(g["int"]), int(g["pol"]), int(g["cha"])]
+	return "%s（統%d 武%d 智%d 政%d 魅%d）" % [g["name"], int(g["lead"]), int(g["war"]), int(g["int"]), int(g["pol"]), int(g["cha"])]
 
 
 func _gen_picker(cname: String, sort_key: String) -> OptionButton:
@@ -376,7 +376,7 @@ func _on_command(type: String) -> void:
 			for g in World.officers(st, cname):
 				if g["ruler"] and type == "reward":
 					continue
-				ob.add_item("%s（忠誠 %d%%，政務 %d%%）" % [g["name"], int(g["loyalty"]), int(g["pol"])])
+				ob.add_item("%s（忠誠 %d，政務 %d）" % [g["name"], int(g["loyalty"]), int(g["pol"])])
 				ob.set_item_metadata(ob.item_count - 1, g["name"])
 			m.field("對象", ob)
 			m.body.add_child(UI.label("花費金 100，提升忠誠。不消耗行動。" if type == "reward" else "太守每月依政務自動開發農業與商業，魅力高者還會安定治安。不消耗行動。", 14, UI.MUTED))

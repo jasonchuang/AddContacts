@@ -102,7 +102,7 @@ static func general_list(parent: Control, on_changed: Callable) -> void:
 	for g in gens:
 		if g["ruler"]:
 			continue
-		strat.add_item("%s（智略 %d%%）" % [g["name"], int(g["int"])])
+		strat.add_item("%s（智略 %d）" % [g["name"], int(g["int"])])
 		strat.set_item_metadata(strat.item_count - 1, g["name"])
 		if f.get("strategist", "") == g["name"]:
 			cur = strat.item_count - 1
@@ -205,7 +205,7 @@ static func _envoy(parent: Control, fid: String, action: String, on_changed: Cal
 	var gens := World.faction_generals(st, me).filter(func(g): return not g["acted"])
 	gens.sort_custom(func(a, b): return int(a["cha"]) + int(a["int"]) > int(b["cha"]) + int(b["int"]))
 	for g in gens:
-		pick.add_item("%s（%s，魅力 %d%%、智略 %d%%）" % [g["name"], g["city"], int(g["cha"]), int(g["int"])])
+		pick.add_item("%s（%s，魅力 %d、智略 %d）" % [g["name"], g["city"], int(g["cha"]), int(g["int"])])
 		pick.set_item_metadata(pick.item_count - 1, g["name"])
 	if gens.is_empty():
 		m.body.add_child(UI.label("本月沒有可以出使的武將。", 15, UI.CINNABAR))
