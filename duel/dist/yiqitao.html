@@ -397,7 +397,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
     const F = m[me], O = m[me === 'a' ? 'b' : 'a'];
     const hist = m.history[me === 'a' ? 'b' : 'a'];
     if (F.stun > 0) return 'guard';
-    if (canSpecial(F) && rnd() < 0.8) return 'special';
+    // 前幾關的對手比較隨性：有一定機率亂出招（第 1 關約四成，第 9 關以後不會）
+    if (level > 0 && rnd() < Math.max(0, 0.45 - level * 0.05)) return ['atk', 'tech', 'guard', 'charge'][Math.floor(rnd() * 4)];
+    if (canSpecial(F) && rnd() < (level > 0 && level <= 3 ? 0.55 : 0.8)) return 'special';
     // 對手氣力滿：多半架擋
     if (canSpecial(O) && rnd() < 0.3 + level * 0.04) return 'guard';
     // 對手被震懾：放心蓄氣或猛攻
