@@ -2,7 +2,7 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-for (const f of ['data.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
 const { Engine: E } = globalThis.TK;
 
 let passed = 0;
@@ -223,6 +223,102 @@ test('歷史事件：三顧茅廬、君主繼承', () => {
   E.rulerDies(s, 'sun');
   assert.strictEqual(s.factions.sun.ruler, '孫策');
   assert.strictEqual(s.generals['孫堅'].status, 'dead');
+});
+
+// ---------- 劇本 ----------
+const withScenario = (id, fn) => {
+  const T = globalThis.TK, keep = T.SCENARIO;
+  T.SCENARIO = T.scenarioById(id);
+  try { return fn(); } finally { T.SCENARIO = keep; }
+};
+const jump = (s, y, m) => { s.year = y; s.month = m; };
+
+test('劇本：六個劇本都能開局，每個勢力都有君主與城，AI 跑三年不出錯', () => {
+  const T = globalThis.TK;
+  assert.deepStrictEqual(T.SCENARIOS.map((x) => x.id), ['190', '197', '200', '208', '219', '221']);
+  for (const sc of T.SCENARIOS) {
+    withScenario(sc.id, () => {
+      const s = E.newGame(null, 7);
+      assert.strictEqual(s.scenario, sc.id);
+      assert.strictEqual(s.year, sc.year);
+      for (const f of Object.values(s.factions)) {
+        assert(E.citiesOf(s, f.id).length > 0, `${sc.title} ${f.name} 無城`);
+        const r = s.generals[f.ruler];
+        assert(r && r.ruler && r.faction === f.id, `${sc.title} ${f.name} 君主`);
+      }
+      for (let i = 0; i < 36 && !s.over; i++) E.endTurn(s);
+      for (const c of Object.values(s.cities)) assert(c.troops >= 0 && Number.isFinite(c.troops));
+    });
+  }
+});
+
+test('劇本：初始外交關係（赤壁孫劉同盟、夷陵蜀吳交戰）', () => {
+  const D = globalThis.TK.Diplomacy;
+  withScenario('208', () => { const s = E.newGame('liu', 1); assert.strictEqual(D.stateOf(s, 'sun', 'liu'), 'alliance'); assert.strictEqual(D.stateOf(s, 'cao', 'liu'), 'war'); });
+  withScenario('221', () => { const s = E.newGame('liu', 1); assert.strictEqual(D.stateOf(s, 'sun', 'liu'), 'war'); });
+});
+
+test('劇本事件：宛城之變（典韋戰死、張繡反目）', () => {
+  const D = globalThis.TK.Diplomacy, EV = globalThis.TK.Events;
+  withScenario('197', () => {
+    const s = E.newGame('cao', 3);
+    EV.run(s);
+    jump(s, 197, 2);
+    const ids = EV.run(s).map((e) => e.id);
+    assert(ids.includes('wancheng'));
+    assert.strictEqual(s.generals['典韋'].status, 'dead');
+    assert.strictEqual(D.stateOf(s, 'cao', 'zhangxiu'), 'war');
+    assert(!ids.includes('coalition'), '190 年的事件不應出現');
+  });
+});
+
+test('劇本事件：官渡（斬顏良、千里尋兄、烏巢）', () => {
+  const EV = globalThis.TK.Events;
+  withScenario('200', () => {
+    const s = E.newGame('cao', 4);
+    assert.strictEqual(s.generals['關羽'].faction, 'cao');
+    jump(s, 200, 2); EV.run(s);
+    assert.strictEqual(s.generals['顏良'].status, 'dead');
+    jump(s, 200, 4); EV.run(s);
+    assert.strictEqual(s.generals['關羽'].faction, 'liu');
+    jump(s, 200, 9);
+    const food = s.cities['鄴'].food;
+    EV.run(s);
+    assert.strictEqual(s.generals['許攸'].faction, 'cao');
+    assert(s.cities['鄴'].food < food);
+  });
+});
+
+test('劇本事件：赤壁火攻、水淹七軍與白衣渡江、夷陵', () => {
+  const EV = globalThis.TK.Events;
+  withScenario('208', () => {
+    const s = E.newGame('sun', 5);
+    s.rng = 1;
+    const before = s.cities['江陵'].troops;
+    for (let m = 10; m <= 12 && s.cities['江陵'].troops === before; m++) { jump(s, 208, m); EV.run(s); }
+    for (let y = 209; y <= 210 && s.cities['江陵'].troops === before; y++) for (let m = 1; m <= 12; m++) { jump(s, y, m); EV.run(s); }
+    assert(s.cities['江陵'].troops < before * 0.5, '火燒赤壁');
+  });
+  withScenario('219', () => {
+    const s = E.newGame('liu', 6);
+    jump(s, 219, 8); EV.run(s);
+    assert.strictEqual(s.generals['龐德'].status, 'dead');
+    assert.strictEqual(s.generals['于禁'].faction, 'liu');
+    s.cities['江陵'].troops = 12000;
+    for (let m = 10; m <= 12 && s.cities['江陵'].owner === 'liu'; m++) { jump(s, 219, m); EV.run(s); }
+    for (let m = 1; m <= 12 && s.cities['江陵'].owner === 'liu'; m++) { jump(s, 220, m); EV.run(s); }
+    assert.strictEqual(s.cities['江陵'].owner, 'sun', '白衣渡江');
+    assert(s.generals['關羽'].city !== '江陵');
+  });
+  withScenario('221', () => {
+    const s = E.newGame('sun', 8);
+    const before = s.cities['成都'].troops;
+    for (let m = 6; m <= 12 && s.generals['馮習'].status !== 'dead'; m++) { jump(s, 222, m); EV.run(s); }
+    assert.strictEqual(s.generals['馮習'].status, 'dead');
+    assert(s.cities['成都'].troops < before);
+    jump(s, 223, 4); EV.run(s);
+    assert.strictEqual(s.factions.liu.ruler, '劉禪');
+  });
 });
 
 console.log(`\n${passed} tests passed`);

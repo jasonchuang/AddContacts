@@ -382,13 +382,14 @@
   function showTitle() {
     closeAll();
     S = null;
+    TK.SCENARIO = TK.SCENARIOS ? TK.SCENARIOS[0] : TK.SCENARIO;
     $('game').classList.add('hidden');
     $('title').classList.remove('hidden');
     const preview = E.newGame(null, 1);
     MV.render($('title-bg'), preview, { selected: null, hovered: null, targets: [], blink: false, color: (f) => preview.factions[f].color, legend: false });
     const auto = meta(AUTO_KEY);
     const items = [
-      { label: '新遊戲', act: chooseFaction },
+      { label: '新遊戲', act: chooseScenario },
       { label: '繼續遊戲', hint: auto, off: !auto, act: () => loadKey(AUTO_KEY) },
       { label: '讀取存檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); showTitle(); } },
@@ -407,6 +408,15 @@
     } catch (e) { return ''; }
   }
 
+  // 選擇劇本
+  function chooseScenario() {
+    const list = TK.SCENARIOS || [TK.SCENARIO];
+    menuWin('選擇劇本', list.map((sc) => ({
+      label: `${sc.year}年　${sc.title}`, hint: sc.tag,
+      act: () => { closeAll(); TK.SCENARIO = sc; chooseFaction(); say(null, sc.desc); },
+    })), null, { center: true, width: 900, shade: true });
+  }
+
   function chooseFaction() {
     const sc = TK.SCENARIO;
     const rows = sc.factions.map((f) => {
@@ -416,7 +426,7 @@
       const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
       return { f, cities, cells: [f.name, f.ruler, cities.length, gens, fmtW(troops), '★'.repeat(diff)] };
     });
-    tableWin('選擇君主　190年「群雄割據」', [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '將' }, { label: '兵力' }, { label: '難度' }], rows, (r) => {
+    tableWin(`選擇君主　${sc.year}年「${sc.title}」`, [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '將' }, { label: '兵力' }, { label: '難度' }], rows, (r) => {
       menuWin('劇本模式', [
         { label: '歷史劇本', hint: '依條件發生歷史事件', act: () => { closeAll(); newGame(r.f.id, 'historical'); } },
         { label: '自由模式', hint: '各勢力自由發展', act: () => { closeAll(); newGame(r.f.id, 'free'); } },
@@ -450,6 +460,7 @@
       const d = JSON.parse(store(key) || 'null');
       if (!d || d.version !== 1) throw new Error('bad');
       S = d;
+      if (TK.scenarioById) TK.SCENARIO = TK.scenarioById(d.scenario);
       enterGame();
       say(null, `讀取了 ${E.dateStr(S)} 的記錄。`);
     } catch (e) { SND.error(); }
@@ -929,7 +940,7 @@
     for (const c of mine) {
       for (const n of E.neighbors(S, c.id)) {
         const o = S.cities[n];
-        if (!warned && o.owner && o.owner !== S.player && o.troops > c.troops * 1.5 && o.troops > 8000) {
+        if (!warned && o.owner && o.owner !== S.player && (!TK.Diplomacy || TK.Diplomacy.canAttack(S, o.owner, S.player)) && o.troops > c.troops * 1.5 && o.troops > 8000) {
           out.push(`${E.factionName(S, o.owner)}在${o.name}屯兵${fmtW(o.troops)}，${c.name}恐有危險。`);
           warned = true;
         }

@@ -57,11 +57,15 @@
       events_done: {},
       harvest_mult: 1,
       pending: [],
+      scenario: sc.id || '190',
     };
     for (const f of sc.factions) s.factions[f.id] = Object.assign({ alive: true }, f);
     for (const c of sc.cities) { s.cities[c.id] = c; mixOf(c); }
     for (const g of sc.generals) s.generals[g.id] = Object.assign({ acted: false, formerFaction: null }, g);
-    addLog(s, `${s.year}年，天下大亂，群雄並起。`, 'sys');
+    for (const [a, b, st, months] of sc.relations || []) {
+      if (TK.Diplomacy && s.factions[a] && s.factions[b]) TK.Diplomacy.setState(s, a, b, st, months || (st === 'truce' ? 12 : 0));
+    }
+    addLog(s, sc.id && sc.id !== '190' ? `${s.year}年，${sc.title}。${sc.desc}` : `${s.year}年，天下大亂，群雄並起。`, 'sys');
     return s;
   }
 
@@ -212,6 +216,7 @@
     if (!s.pending) s.pending = [];
     if (!s.mode) s.mode = 'historical';
     if (!s.harvest_mult) s.harvest_mult = 1;
+    if (!s.scenario) s.scenario = '190';
   }
 
   // 回傳 {ok, msg}
@@ -646,6 +651,7 @@
 
   TK.Engine = {
     duel,
+    destroyFaction,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,

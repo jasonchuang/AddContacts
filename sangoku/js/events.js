@@ -157,6 +157,7 @@
     }
     for (const [f, n] of Object.entries(cond.cities_at_least || {})) if (E().citiesOf(s, f).length < n) return false;
     if (cond.adjacent_factions && !adjacent(s, cond.adjacent_factions[0], cond.adjacent_factions[1])) return false;
+    for (const [c, n] of Object.entries(cond.troops_below || {})) if (s.cities[c].troops >= n) return false;
     if (cond.chance && E().rand(s) >= cond.chance) return false;
     return true;
   }
@@ -223,6 +224,36 @@
       case 'ruler_dies': E().rulerDies(s, e.faction); break;
       case 'relation': if (alive(s, e.a) && alive(s, e.b)) D().setState(s, e.a, e.b, e.state, e.months); break;
       case 'harvest_mult': s.harvest_mult = e.mult; break;
+      case 'troops_scale': {
+        const c = s.cities[e.city];
+        c.troops = Math.round(c.troops * e.mult);
+        E().mixOf(c);
+        break;
+      }
+      case 'die': {
+        const g = s.generals[e.general];
+        if (!g || g.status === 'dead') break;
+        if (g.ruler && g.status === 'active') E().rulerDies(s, g.faction);
+        else Object.assign(g, { status: 'dead', city: null, ruler: false });
+        break;
+      }
+      case 'absorb': if (alive(s, e.faction) && alive(s, e.into)) D().absorb(s, e.into, e.faction); break;
+      case 'seize': {
+        // 城池易主：原守將退往本國其他城
+        const c = s.cities[e.city], old = c.owner;
+        if (!alive(s, e.faction) || old === e.faction) break;
+        c.owner = e.faction;
+        if (old) {
+          const back = E().citiesOf(s, old).find((x) => x.id !== c.id);
+          for (const g of Object.values(s.generals)) {
+            if (g.city === c.id && g.faction === old && g.status === 'active') {
+              if (back) g.city = back.id; else Object.assign(g, { status: 'free', faction: null });
+            }
+          }
+          if (!back) E().destroyFaction(s, old);
+        }
+        break;
+      }
       default: break;
     }
   }
@@ -233,8 +264,12 @@
     const historical = (s.mode || 'historical') === 'historical';
     const now = ym(s.year, s.month);
     const fired = [];
-    for (const ev of EVENTS) {
+    // 190 劇本的歷史事件只在 190 劇本發生；其他劇本有各自的事件
+    const sid = s.scenario || '190';
+    const own = TK.scenarioById ? TK.scenarioById(sid).events || [] : [];
+    for (const ev of EVENTS.concat(own)) {
       if (ev.historical && !historical) continue;
+      if (ev.historical && sid !== '190' && !own.includes(ev)) continue;
       const last = s.events_done[ev.id];
       if (last !== undefined && (!ev.repeat || now - last < (ev.cooldown || 12))) continue;
       if (!check(s, ev.cond)) continue;
