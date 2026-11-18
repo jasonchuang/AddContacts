@@ -197,9 +197,14 @@
     train: { label: '訓練', cost: 0, stat: 'lead', key: 'train' },
   };
 
+  // 每月金收入（商業與人口，受民心影響）與軍餉（每 250 兵 1 金）
+  function goldIncome(c) { return Math.round(c.commerce * 0.35 * (0.5 + c.order / 200) + c.pop / 10000); }
+  function upkeep(c) { return Math.floor(c.troops / 250); }
+  // 一城可養的兵力上限：人口的 12%（至少 15000）
+  function troopCap(city) { return Math.max(15000, Math.floor(city.pop * 0.12)); }
   function maxDraft(s, city, g, type) {
     const cost = UNITS[type || 'spear'].cost;
-    return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), 120000 - city.troops));
+    return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), troopCap(city) - city.troops));
   }
 
   function recruitChance(s, g, target) {
@@ -443,7 +448,7 @@
     let result = null, schemes = 0;
     for (let round = 1; round <= 20 && !result; round++) {
       const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * bonusA;
-      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 800) * bonusD;
+      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 2500) * bonusD;
       let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * sturdyD);
       let ev = null, kind = null;
       let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * sturdyA);
@@ -483,9 +488,9 @@
     frames[frames.length - 1].d = D.troops;
 
     city.troops = D.troops;
-    let summary;
+    let summary, gone = null;
     if (result === 'win') {
-      conquer(s, city, atk, A, lines, aLeft);
+      gone = conquer(s, city, atk, A, lines, aLeft);
       summary = `${aName}攻陷了${city.name}！（剩餘 ${A.troops} 兵）`;
     } else {
       const home = s.cities[atk.from];
@@ -494,6 +499,7 @@
     }
     lines.push(summary);
     for (const l of lines) addLog(s, l, 'battle', parties);
+    if (gone) destroyFaction(s, gone);
     const res = {
       result, summary, lines, frames, atkLoss: A0 - A.troops, defLoss: D0 - D.troops,
       city: city.id, from: atk.from,
@@ -533,7 +539,8 @@
       joinFaction(p, atk.faction, Math.max(p.loyalty, 70));
       lines.push(`${p.name}獲救歸隊`);
     }
-    if (oldOwner && citiesOf(s, oldOwner).length === 0) destroyFaction(s, oldOwner);
+    // 滅亡由 battle() 在戰報寫完之後處理，記錄順序才正確
+    return oldOwner && citiesOf(s, oldOwner).length === 0 ? oldOwner : null;
   }
 
   // 君主去世：由繼承人（資料指定，否則魅力最高者）接任
@@ -597,11 +604,19 @@
         continue;
       }
       const ord = 0.5 + c.order / 200;
-      c.gold += Math.round(c.commerce * 0.35 * ord + c.pop / 10000);
+      c.gold += goldIncome(c);
       if (s.month === 7) {
         const harvest = Math.round(c.farm * 30 * ord * (s.harvest_mult || 1));
         c.food += harvest;
         if (c.owner === s.player) addLog(s, `${c.name}秋收，得糧 ${harvest}`, 'info', [c.owner]);
+      }
+      // 軍餉：每 250 兵每月 1 金，付不出時部分士兵逃散
+      const pay = upkeep(c);
+      if (c.gold >= pay) c.gold -= pay;
+      else {
+        const left = Math.round(c.troops * 0.05);
+        c.gold = 0; c.troops -= left;
+        addLog(s, `${c.name}欠餉，${left} 兵逃散`, 'warn', [c.owner]);
       }
       c.food -= Math.ceil(c.troops / 40);
       if (c.food < 0) {
@@ -651,7 +666,7 @@
 
   TK.Engine = {
     duel,
-    destroyFaction,
+    destroyFaction, troopCap, goldIncome, upkeep,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,

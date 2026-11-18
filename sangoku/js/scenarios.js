@@ -45,7 +45,7 @@
       factions: [['cao', '曹操軍', '曹操'], ['zhangxiu', '張繡軍', '張繡'], ['lubu', '呂布軍', '呂布'], ['yuanshu', '袁術軍', '袁術'],
         ['yuans', '袁紹軍', '袁紹', '袁尚', '袁譚'], ['gongsun', '公孫瓚軍', '公孫瓚'], ['liu', '劉備軍', '劉備'], ['sun', '孫策軍', '孫策', '孫權'],
         ['liubiao', '劉表軍', '劉表', '蔡瑁'], ['lijue', '李傕軍', '李傕', '郭汜'], ['ma', '馬騰軍', '馬騰', '馬超'], ['liuzhang', '劉璋軍', '劉璋'], ['zhanglu', '張魯軍', '張魯']],
-      cities: { 許昌: ['cao', 30000], 陳留: ['cao', 18000], 濮陽: ['cao', 15000], 宛: ['zhangxiu', 16000], 下邳: ['lubu', 24000], 北海: ['liu', 9000],
+      cities: { 許昌: ['cao', 30000], 陳留: ['cao', 18000], 濮陽: ['cao', 15000], 宛: ['zhangxiu', 16000], 下邳: ['lubu', 24000], 北海: ['liu', 14000],
         壽春: ['yuanshu', 30000], 汝南: ['yuanshu', 16000], 鄴: ['yuans', 40000], 南皮: ['yuans', 25000], 平原: ['yuans', 16000], 晉陽: ['yuans', 12000],
         北平: ['gongsun', 22000], 建業: ['sun', 22000], 會稽: ['sun', 12000], 襄陽: ['liubiao', 28000], 江陵: ['liubiao', 16000], 江夏: ['liubiao', 12000],
         長沙: ['liubiao', 10000], 長安: ['lijue', 25000], 天水: ['ma', 18000], 武威: ['ma', 12000], 成都: ['liuzhang', 28000], 漢中: ['zhanglu', 15000] },
@@ -65,7 +65,7 @@
         zhanglu: { 漢中: '張魯 閻圃 張衛 楊松' },
       },
       free: { 襄陽: '諸葛亮 徐庶', 江陵: '龐統 魏延', 江夏: '甘寧', 柴桑: '魯肅' },
-      relations: [['cao', 'zhangxiu', 'truce', 3], ['yuanshu', 'lubu', 'war'], ['yuanshu', 'sun', 'war'], ['yuans', 'gongsun', 'war'], ['liu', 'lubu', 'truce', 12]],
+      relations: [['cao', 'zhangxiu', 'truce', 3], ['yuanshu', 'lubu', 'war'], ['yuanshu', 'sun', 'war'], ['yuans', 'gongsun', 'war'], ['liu', 'lubu', 'truce', 12], ['liu', 'yuans', 'truce', 12]],
       events: [
         {
           id: 'wancheng', title: '宛城之變',
@@ -96,7 +96,7 @@
         ['liubiao', '劉表軍', '劉表', '蔡瑁'], ['ma', '馬騰軍', '馬騰', '馬超'], ['liuzhang', '劉璋軍', '劉璋'], ['zhanglu', '張魯軍', '張魯']],
       cities: { 許昌: ['cao', 35000], 陳留: ['cao', 25000], 濮陽: ['cao', 20000], 下邳: ['cao', 14000], 宛: ['cao', 12000], 洛陽: ['cao', 14000], 長安: ['cao', 12000],
         鄴: ['yuans', 60000], 南皮: ['yuans', 30000], 平原: ['yuans', 22000], 北海: ['yuans', 15000], 北平: ['yuans', 20000], 晉陽: ['yuans', 15000],
-        汝南: ['liu', 12000], 建業: ['sun', 28000], 會稽: ['sun', 14000], 柴桑: ['sun', 15000],
+        汝南: ['liu', 16000], 建業: ['sun', 28000], 會稽: ['sun', 14000], 柴桑: ['sun', 15000],
         襄陽: ['liubiao', 30000], 江陵: ['liubiao', 18000], 江夏: ['liubiao', 15000], 長沙: ['liubiao', 12000],
         天水: ['ma', 20000], 武威: ['ma', 15000], 成都: ['liuzhang', 30000], 漢中: ['zhanglu', 16000] },
       people: {
@@ -111,7 +111,7 @@
       },
       free: { 襄陽: '諸葛亮 徐庶', 江陵: '龐統 魏延 馬良', 下邳: '魯肅', 壽春: '陸遜' },
       loyalty: { 關羽: 35, 張繡: 70 },
-      relations: [['cao', 'yuans', 'war'], ['cao', 'liu', 'war'], ['liu', 'yuans', 'alliance']],
+      relations: [['cao', 'yuans', 'war'], ['cao', 'liu', 'truce', 8], ['liu', 'yuans', 'alliance']],
       events: [
         {
           id: 'baima', title: '白馬解圍',
@@ -153,8 +153,8 @@
         ['liuzhang', '劉璋軍', '劉璋'], ['zhanglu', '張魯軍', '張魯']],
       cities: { 許昌: ['cao', 40000], 陳留: ['cao', 20000], 濮陽: ['cao', 18000], 鄴: ['cao', 45000], 南皮: ['cao', 20000], 平原: ['cao', 15000], 北海: ['cao', 15000],
         北平: ['cao', 18000], 晉陽: ['cao', 15000], 洛陽: ['cao', 20000], 下邳: ['cao', 16000], 壽春: ['cao', 18000], 汝南: ['cao', 15000], 宛: ['cao', 18000],
-        襄陽: ['cao', 45000], 江陵: ['cao', 60000],
-        建業: ['sun', 25000], 會稽: ['sun', 15000], 柴桑: ['sun', 40000], 江夏: ['liu', 20000],
+        襄陽: ['cao', 25000], 江陵: ['cao', 70000],
+        建業: ['sun', 25000], 會稽: ['sun', 15000], 柴桑: ['sun', 40000], 江夏: ['liu', 28000],
         長安: ['ma', 18000], 天水: ['ma', 20000], 武威: ['ma', 15000], 成都: ['liuzhang', 32000], 漢中: ['zhanglu', 18000] },
       people: {
         cao: { 江陵: '曹操 曹仁 張遼 徐晃 許褚 于禁 樂進 蔡瑁 張允 蔣幹 程昱 荀攸 賈詡', 襄陽: '文聘 曹洪 李典 滿寵', 許昌: '荀彧 夏侯惇 曹丕 司馬懿',
@@ -176,8 +176,8 @@
         },
         {
           id: 'chibi_fire', title: '火燒赤壁',
-          cond: { from: [208, 11], alive: ['cao', 'sun'], general_faction: { 黃蓋: 'sun', 周瑜: 'sun' }, owns: { cao: ['江陵'] }, chance: 0.6 },
-          effects: [{ do: 'troops_scale', city: '江陵', mult: 0.35 }, { do: 'troops_scale', city: '襄陽', mult: 0.8 }, { do: 'die', general: '蔡瑁' }, { do: 'die', general: '張允' },
+          cond: { from: [208, 10], alive: ['cao', 'sun'], general_faction: { 黃蓋: 'sun', 周瑜: 'sun' }, owns: { cao: ['江陵'] } },
+          effects: [{ do: 'troops_scale', city: '江陵', mult: 0.35 }, { do: 'troops_scale', city: '襄陽', mult: 0.6 }, { do: 'die', general: '蔡瑁' }, { do: 'die', general: '張允' },
             { do: 'troops', city: '柴桑', unit: 'xbow', amount: 6000 }, { do: 'troops', city: '江夏', unit: 'xbow', amount: 4000 }],
           lines: [['諸葛亮', '東南風起了。'], ['黃蓋', '點火！二十艘火船，全部衝向曹營！'], ['', '曹軍戰船以鐵索相連，避無可避。烈焰映紅長江，曹軍死傷無數。'], ['曹操', '撤！撤回江陵、襄陽！']],
         },
@@ -292,6 +292,8 @@
       c.owner = o ? o[0] : null;
       c.troops = o ? o[1] : Math.round(c0.troops * 0.6 / 1000) * 1000;
       c.train = c.owner ? 55 : 40;
+      // 金庫至少夠付一年軍餉
+      if (c.owner) c.gold = Math.max(c.gold, Math.round(c.troops / 250 * 12));
       delete c.mix;
       owner[c.id] = c.owner;
       return c;

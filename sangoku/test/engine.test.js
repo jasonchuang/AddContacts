@@ -321,4 +321,38 @@ test('劇本事件：赤壁火攻、水淹七軍與白衣渡江、夷陵', () =>
   });
 });
 
+test('平衡：徵兵受人口上限、軍餉每月扣金、同盟三年期滿', () => {
+  const D = globalThis.TK.Diplomacy;
+  const s = E.newGame('liu', 31);
+  const c = s.cities['平原'], g = s.generals['劉備'];
+  c.gold = 999999;
+  assert(E.maxDraft(s, c, g, 'spear') <= E.troopCap(c) - c.troops);
+  const before = c.gold;
+  E.monthEnd(s);
+  assert(c.gold < before + E.goldIncome(c), '軍餉應扣金');
+  D.setState(s, 'liu', 'cao', 'alliance');
+  for (let i = 0; i < 36; i++) E.monthEnd(s);
+  assert.strictEqual(D.stateOf(s, 'liu', 'cao'), 'neutral');
+});
+
+test('戰報順序：勢力滅亡記錄在攻城戰報之後', () => {
+  const s = E.newGame('cao', 32);
+  s.cities['平原'].troops = 500; s.cities['濮陽'].troops = 60000;
+  globalThis.TK.Diplomacy.setState(s, 'cao', 'liu', 'war');
+  const r = E.exec(s, 'cao', { type: 'attack', city: '濮陽', general: '夏侯惇', generals: ['夏侯惇', '夏侯淵'], target: '平原', troops: 50000 });
+  assert(r.ok && r.battle.result === 'win');
+  const texts = s.log.map((l) => l.text);
+  assert(texts.indexOf('劉備軍滅亡了。') > texts.findIndex((t) => t.includes('攻陷了平原')));
+});
+
+test('自動試玩：電腦勢力會互相征戰，十年內城池易主', () => {
+  const T = globalThis.TK;
+  const s = E.newGame(null, 33);
+  const start = JSON.stringify(Object.values(s.cities).map((c) => c.owner));
+  for (let i = 0; i < 120 && !s.over; i++) E.endTurn(s);
+  const changed = Object.values(s.cities).map((c) => c.owner);
+  assert.notStrictEqual(JSON.stringify(changed), start);
+  assert(Object.values(s.factions).filter((f) => !f.alive).length >= 1, '十年內應有勢力滅亡');
+});
+
 console.log(`\n${passed} tests passed`);

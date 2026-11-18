@@ -22,7 +22,7 @@
   function setState(s, a, b, state, months) {
     const r = rel(s, a, b);
     r.state = state;
-    r.months = months || 0;
+    r.months = months || (state === 'alliance' ? 36 : 0);
     if (state === 'alliance') r.rel = Math.max(r.rel, 40);
     if (state === 'war') r.rel = Math.min(r.rel, -20);
   }
@@ -129,10 +129,11 @@
 
   function monthTick(s) {
     for (const [k, r] of Object.entries(s.relations || {})) {
-      if (r.state === 'truce' && --r.months <= 0) {
+      if ((r.state === 'truce' || (r.state === 'alliance' && r.months > 0)) && --r.months <= 0) {
+        const was = r.state;
         r.state = 'neutral';
         const [a, b] = k.split('|');
-        E().addLog(s, `${E().factionName(s, a)}與${E().factionName(s, b)}的停戰期滿。`, 'info', [a, b]);
+        E().addLog(s, `${E().factionName(s, a)}與${E().factionName(s, b)}的${was === 'truce' ? '停戰' : '同盟'}期滿。`, 'info', [a, b]);
       }
       if (r.rel > 0) r.rel -= 1; else if (r.rel < 0) r.rel += 1;
     }

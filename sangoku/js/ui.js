@@ -548,6 +548,11 @@
     MV.render($('map'), S, { selected, hovered, targets: attackTargets(), blink, color, player: S.player });
   }
 
+  // 每月金收支：商業收入減軍餉
+  function netGold(c) {
+    const net = E.goldIncome(c) - E.upkeep(c);
+    return h('small', { class: net >= 0 ? 'up' : 'down', title: `收入 ${E.goldIncome(c)}，軍餉 ${E.upkeep(c)}` }, ` ${net >= 0 ? '+' : ''}${net}/月`);
+  }
   function renderCity() {
     const c = S.cities[selected];
     const box = $('city-win');
@@ -559,7 +564,8 @@
     const kv = (k, v) => [h('span', { class: 'k' }, k), h('span', { class: 'v' }, v)];
     box.replaceChildren(
       h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name), h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner))),
-      h('div', { class: 'kv' }, kv('金', fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)), kv('兵', fmtW(c.troops)),
+      h('div', { class: 'kv' }, kv('金', c.owner === S.player ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)),
+        kv('兵', c.owner === S.player ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
         kv('農業', c.farm), kv('商業', c.commerce), kv('民心', c.order), kv('城防', c.defense), kv('訓練', c.train), kv('武將', gens.length)),
       h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k])))),
       h('div', { class: 'gens-line' }, gens.length ? gens.map((g, i) => h('span', { class: g.acted && c.owner === S.player ? 'acted' : '' }, (i ? ' ' : '') + g.name)) : h('span', { class: 'dim' }, '無人駐守')),
@@ -913,11 +919,67 @@
   }
 
   // 依序演出歷史事件
+  // 事件場景：背景插圖＋說話者立繪＋對話框（Enter／點擊前進，Esc 略過）
+  function playScene(ev) {
+    return new Promise((resolve) => {
+      const kind = TK.Scenes ? TK.Scenes.forEvent(ev) : 'palace';
+      const bg = h('div', { class: 'scene-bg', style: TK.Scenes ? `background-image:url("${TK.Scenes.url(kind)}")` : '' });
+      const actors = { left: h('div', { class: 'actor left' }), right: h('div', { class: 'actor right' }) };
+      const nameEl = h('div', { class: 'sc-name' }), textEl = h('div', { class: 'sc-text' });
+      const root = h('div', { class: 'scene scene-' + kind }, bg, actors.left, actors.right,
+        h('div', { class: 'sc-title' }, ev.title),
+        h('div', { class: 'sc-box' }, nameEl, textEl, h('div', { class: 'sc-more' }, '▼')),
+        h('div', { class: 'sc-skip' }, 'Enter：下一句　Esc：略過'));
+      $('layer').append(root);
+      const onStage = { left: null, right: null };
+      let lastSide = 'right', i = -1, typingTimer = null, full = '';
+      const place = (name) => {
+        if (onStage.left === name) return 'left';
+        if (onStage.right === name) return 'right';
+        const side = !onStage.left ? 'left' : !onStage.right ? 'right' : (lastSide === 'left' ? 'right' : 'left');
+        onStage[side] = name;
+        const g = S.generals[name];
+        actors[side].replaceChildren(g ? face(g, 'full', 0, 0, 'sc-face') : h('div', { class: 'sc-noface' }, name.slice(0, 1)));
+        actors[side].classList.remove('enter'); void actors[side].offsetWidth; actors[side].classList.add('enter');
+        return side;
+      };
+      const close = () => { clearInterval(typingTimer); battleKey = null; root.remove(); resolve(); };
+      const next = () => {
+        if (typingTimer) { clearInterval(typingTimer); typingTimer = null; textEl.textContent = full; return; }
+        i++;
+        if (i >= ev.lines.length) { close(); return; }
+        const [sp, text] = ev.lines[i];
+        let side = null;
+        if (sp) { side = place(sp); lastSide = side; }
+        for (const k of ['left', 'right']) actors[k].classList.toggle('on', k === side);
+        root.classList.toggle('narration', !sp);
+        nameEl.textContent = sp || '';
+        nameEl.style.display = sp ? '' : 'none';
+        full = text;
+        let n = 0;
+        textEl.textContent = '';
+        typingTimer = setInterval(() => {
+          n += 1;
+          textEl.textContent = full.slice(0, n);
+          if (n % 2) SND.type();
+          if (n >= full.length) { clearInterval(typingTimer); typingTimer = null; }
+        }, 28);
+      };
+      root.addEventListener('click', next);
+      battleKey = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { next(); return true; }
+        if (e.key === 'Escape') { close(); return true; }
+        return false;
+      };
+      SND.event();
+      setTimeout(next, 450);
+    });
+  }
+
   async function playEvents(list) {
     for (const ev of list) {
-      SND.event();
-      await say(null, `【${ev.title}】`, { wait: true });
-      for (const [sp, text] of ev.lines) await say(sp ? (S.generals[sp] || sp) : null, text, { wait: true });
+      await playScene(ev);
+      say(null, `【${ev.title}】${ev.lines[ev.lines.length - 1][1]}`);
     }
     if (list.length) render();
   }
@@ -963,6 +1025,9 @@
     if (S.month === 8) out.push('秋收已過，各城的糧倉都充實了。');
     for (const c of mine) {
       if (c.troops > 0 && c.food < c.troops / 40 * 3) { out.push(`${c.name}的糧食只夠撐三個月，請盡快運糧或開墾。`); break; }
+    }
+    for (const c of mine) {
+      if (E.goldIncome(c) < E.upkeep(c) && c.gold < E.upkeep(c) * 6) { out.push(`${c.name}的軍餉比收入還多，金庫快見底了。發展商業，或把兵移到別城吧。`); break; }
     }
     let warned = false;
     for (const c of mine) {
