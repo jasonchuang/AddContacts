@@ -174,6 +174,25 @@
   }
   function closeAll() { while (stack.length) popWin(); }
 
+  // 選單圖示：依項目名稱自動配上彩色圖示（也可在項目上指定 icon / unit）
+  const MENU_ICON = {
+    內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
+    開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner',
+  };
+  const UNIT_BY_NAME = { 槍兵: 'spear', 騎兵: 'cav', 弩兵: 'xbow' };
+  function svgNode(str) {
+    const t = document.createElement('template');
+    t.innerHTML = str.trim();
+    return t.content.firstChild;
+  }
+  function menuIcon(it) {
+    const unit = it.unit || UNIT_BY_NAME[it.label];
+    if (unit && S) return h('span', { class: 'mi unit' }, svgNode(TK.Icons.unit(unit, color(S.player))));
+    const name = it.icon || MENU_ICON[it.label];
+    return name && TK.Icons.ICONS[name] ? h('span', { class: 'mi' }, svgNode(TK.Icons.icon(name))) : null;
+  }
+
   // 游標選單
   function makeMenu(items, onChoose, opts) {
     opts = opts || {};
@@ -184,7 +203,7 @@
         class: (i === m.index ? 'sel ' : '') + (it.off ? 'off' : ''),
         onmouseenter: () => { if (m.index !== i) { m.index = i; m.render(); } },
         onclick: () => { m.index = i; m.choose(); },
-      }, it.label, it.hint ? h('span', { class: 'hint' }, it.hint) : null)));
+      }, menuIcon(it), h('span', { class: 'lbl' }, it.label), it.hint ? h('span', { class: 'hint' }, it.hint) : null)));
     };
     m.choose = () => {
       const it = items[m.index];
@@ -239,7 +258,7 @@
         onmouseenter: () => { if (win.index !== i) { win.index = i; render(); } },
         onclick: () => { win.index = i; choose(); },
       }, r.cells.map((v, ci) => h('td', { class: (cols[ci].hl ? 'hl ' : '') + (opts.multi && ci === 0 && win.marks.has(i) ? 'mark' : '') },
-        opts.multi && ci === 0 ? `${win.marks.has(i) ? '●' : '○'}${v}` : v))));
+        opts.multi && ci === 0 ? [win.marks.has(i) ? '●' : '○', v] : v))));
       if (opts.multi) {
         trs.push(h('tr', {
           class: win.index === rows.length ? 'sel' : '',
@@ -575,8 +594,13 @@
     opts = opts || {};
     return list.map((g) => ({
       g, off: opts.off ? opts.off(g) : false, why: opts.why,
-      cells: [g.name + (g.ruler ? '★' : ''), ...STAT_COLS.map(([, k]) => g[k]), g.ruler || g.status !== 'active' ? '－' : g.loyalty, ...(opts.extra ? opts.extra(g) : [])],
+      cells: [h('span', { class: 'gname' }, face(g, 'head', 0, 0, 'mini'), g.name + (g.ruler ? '★' : '')), ...STAT_COLS.map(([l, k]) => statCell(l, g[k])),
+        g.ruler || g.status !== 'active' ? '－' : statCell('忠', g.loyalty), ...(opts.extra ? opts.extra(g) : [])],
     }));
+  }
+  const STAT_COLOR = { 統: '#2f6db0', 武: '#c0392b', 智: '#7b4fb0', 政: '#2e8b57', 魅: '#c9962a', 忠: '#7a6a5a' };
+  function statCell(l, v) {
+    return h('span', { class: 'scell' }, h('b', {}, v), h('i', {}, h('u', { style: `width:${Math.max(0, Math.min(100, v))}%;background:${STAT_COLOR[l]}` })));
   }
   function genCols(hlKey, extra) {
     return [{ label: '武將' }, ...STAT_COLS.map(([l, k]) => ({ label: l, hl: k === hlKey })), { label: '忠' }, ...(extra || []).map((l) => ({ label: l }))];
@@ -997,22 +1021,6 @@
   }
 
   // ---------- 戰鬥 ----------
-  function sprite(ctx, type, x, y, col, flip, dead) {
-    const P = (dx, dy, c, w, hh) => { ctx.fillStyle = c; ctx.fillRect(flip ? x - dx - (w || 1) + 1 : x + dx, y + dy, w || 1, hh || 1); };
-    if (dead) { P(0, 7, '#5a1a14', 6, 2); P(2, 6, '#7a6a5a', 2, 1); return; }
-    const skin = '#f1c99a', dark = '#1a1424';
-    if (type === 'cav') {
-      P(0, 4, '#7a4a24', 9, 3); P(8, 2, '#7a4a24', 2, 3); P(9, 1, dark, 1, 1);
-      P(1, 7, '#4a2a14', 1, 2); P(3, 7, '#4a2a14', 1, 2); P(6, 7, '#4a2a14', 1, 2); P(8, 7, '#4a2a14', 1, 2);
-      P(3, 0, skin, 2, 2); P(3, -1, dark, 2, 1); P(3, 2, col, 3, 2); P(6, -2, '#d8d8e0', 1, 5);
-    } else if (type === 'xbow') {
-      P(2, 0, skin, 2, 2); P(1, -1, dark, 4, 1); P(1, 2, col, 4, 4); P(1, 6, dark, 1, 2); P(3, 6, dark, 1, 2);
-      P(4, 3, '#8a5a2a', 4, 1); P(7, 2, '#5a3a1a', 1, 3);
-    } else {
-      P(2, 0, skin, 2, 2); P(1, -1, dark, 4, 1); P(1, 2, col, 4, 4); P(1, 6, dark, 1, 2); P(3, 6, dark, 1, 2);
-      P(5, -3, '#8a6a3a', 1, 10); P(5, -4, '#e0e0e8', 1, 1); P(0, 3, '#c8a040', 1, 2);
-    }
-  }
 
   // ---------- 一騎討動畫：兩名武將立繪互相衝刺出招，體力條遞減，敗者倒下 ----------
   function playDuel(el, f, timers) {
@@ -1065,84 +1073,69 @@
   function playBattle(r) {
     return new Promise((resolve) => {
       closeAll();
-      const W = 290, H = 90;
-      const cv = h('canvas', { width: W, height: H });
-      const ctx = cv.getContext('2d');
       const aCol = color(r.atk.faction), dCol = color(r.def.faction);
       const side = (info, right) => {
         const g = S.generals[info.commander];
         const num = h('div', { class: 'troops' }, fmt(info.troops));
         const bar = h('div', { style: `width:100%;background:${right ? dCol : aCol}` });
-        const mixTxt = UK.filter((k) => (info.units || {})[k] > 0).map((k) => `${E.UNITS[k].short}${fmtW(info.units[k])}`).join(' ');
-        const el = h('div', { class: 'side' + (right ? ' right' : '') }, g ? face(g, 'head', 36, 36) : h('div', { class: 'face', style: 'width:96px;height:96px;display:grid;place-items:center;font-size:48px;color:#8a7a5c;background:#e6dcc4' }, '守'),
-          h('div', { style: 'flex:1' }, h('div', { class: 'hi' }, `${info.name}${right ? '（守）' : '（攻）'}`), h('div', { class: 'dim' }, info.generals.length ? info.generals.join('・') : '守軍'), h('div', {}, mixTxt), num, h('div', { class: 'hp' }, bar)));
+        const mix = h('div', { class: 'mixline' }, ...UK.filter((k) => (info.units || {})[k] > 0).map((k) =>
+          h('span', { class: 'chip' }, svgNode(TK.Icons.unit(k, right ? dCol : aCol)), fmtW(info.units[k]))));
+        const el = h('div', { class: 'side' + (right ? ' right' : '') }, g ? face(g, 'head', 36, 36) : h('div', { class: 'face guard', style: `--c:${dCol}` }, '守'),
+          h('div', { style: 'flex:1' }, h('div', { class: 'hi' }, `${info.name}${right ? '（守）' : '（攻）'}`), h('div', { class: 'dim' }, info.generals.length ? info.generals.join('・') : '守軍'), mix, num, h('div', { class: 'hp' }, bar)));
         return { el, num, bar };
       };
       const A = side(r.atk, false), D = side(r.def, true);
-      const resultEl = h('div', { class: 'result hidden' });
+      const resultEl = h('div', { class: 'stamp hidden' });
       const duelEl = h('div', { class: 'duel hidden' });
       const duelTimers = [];
-      const box = h('div', { class: 'win battle' }, h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), cv, resultEl, duelEl,
+      const evEl = h('div', { class: 'bevent' });
+      // 戰場：雙方士兵（騎兵在前、槍兵居中、弩兵在後），守方背後是城牆
+      const big = Math.max(r.atk.troops, r.def.troops, 1);
+      const army = (info, right, col) => {
+        const n = Math.max(5, Math.round(32 * info.troops / big));
+        const cnt = E.scaleMix(info.units || { spear: info.troops }, n);
+        const list = [];
+        for (const k of ['cav', 'spear', 'xbow']) for (let i = 0; i < cnt[k]; i++) list.push(k);
+        const units = list.map((k, i) => {
+          const u = svgNode(TK.Icons.unit(k, col, { flip: right, cls: `u u-${k} march` }));
+          u.style.animationDelay = `${(i % 5) * 0.12}s`;
+          return u;
+        });
+        const wrap = h('div', { class: 'units' + (right ? ' right' : '') }, ...(right ? units.slice().reverse() : units));
+        return { wrap, units, n: units.length };
+      };
+      const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
+      const fx = h('div', { class: 'bfx' });
+      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
+      const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
+      const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, 'Enter：略過'));
       const shade = h('div', { class: 'shade' });
       $('layer').append(shade, box);
 
-      // 部隊配置
-      const big = Math.max(r.atk.troops, r.def.troops, 1);
-      const units = (info, right) => {
-        const n = Math.max(6, Math.round(36 * info.troops / big));
-        const cnt = E.scaleMix(info.units || { spear: info.troops }, n);
-        const list = [];
-        for (const k of ['cav', 'spear', 'xbow']) for (let i = 0; i < cnt[k]; i++) list.push(k);
-        return list.map((k, i) => {
-          const col = Math.floor(i / 6), row = i % 6;
-          const bx = right ? W - 42 - col * 11 : 10 + col * 12;
-          return { k, x: bx + (row % 2) * 3, y: 18 + row * 11, alive: true };
-        });
-      };
-      const UA = units(r.atk, false), UD = units(r.def, true);
-      let advance = 0, shakeA = 0, shakeD = 0, arrows = [];
-
-      const draw = () => {
-        ctx.imageSmoothingEnabled = false;
-        for (let y = 0; y < H; y += 3) {
-          for (let x = 0; x < W; x += 3) {
-            const v = ((x * 7 + y * 13) % 11) / 11;
-            ctx.fillStyle = y < 12 ? (v < 0.5 ? '#4a7ac8' : '#5a8ad8') : (v < 0.15 ? '#4d8834' : v > 0.9 ? '#73ad4f' : '#5c9a3f');
-            ctx.fillRect(x, y, 3, 3);
-          }
-        }
-        // 守方城牆
-        ctx.fillStyle = '#4a4458'; ctx.fillRect(W - 28, 10, 28, H - 10);
-        ctx.fillStyle = '#b0aab8'; ctx.fillRect(W - 26, 12, 24, H - 14);
-        for (let y = 15; y < H; y += 6) { ctx.fillStyle = '#8a8496'; ctx.fillRect(W - 26, y, 24, 1); }
-        for (let x = W - 26; x < W; x += 5) { ctx.fillStyle = '#4a4458'; ctx.fillRect(x, 7, 3, 4); }
-        UA.forEach((u) => sprite(ctx, u.k, u.x + advance + (shakeA && u.alive ? (Math.random() * 3 | 0) - 1 : 0), u.y, aCol, false, !u.alive));
-        UD.forEach((u) => sprite(ctx, u.k, u.x + (shakeD && u.alive ? (Math.random() * 3 | 0) - 1 : 0), u.y, dCol, true, !u.alive));
-        arrows.forEach((a) => { ctx.fillStyle = '#f4f0e0'; ctx.fillRect(a.x, a.y, 4, 1); ctx.fillStyle = '#c03028'; ctx.fillRect(a.dir > 0 ? a.x + 3 : a.x, a.y, 1, 1); });
-      };
       const apply = (f) => {
         const setSide = (U, cur, init, ui) => {
-          const alive = init > 0 ? Math.ceil(U.length * cur / init) : 0;
-          U.forEach((u, i) => { u.alive = i < alive; });
+          const alive = init > 0 ? Math.ceil(U.n * cur / init) : 0;
+          U.units.forEach((u, i) => u.classList.toggle('fallen', i >= alive));
           ui.num.textContent = fmt(cur);
-          ui.bar.style.width = `${init ? 100 * cur / init : 0}%`;
+          ui.bar.style.width = `${init ? Math.max(0, 100 * cur / init) : 0}%`;
         };
         setSide(UA, f.a, r.atk.troops, A);
         setSide(UD, f.d, r.def.troops, D);
       };
-
-      let i = 1, done = false, timer = null, anim = null, last = 0;
-      const loop = (t) => {
-        if (t - last > 60) {
-          last = t;
-          arrows = arrows.map((a) => ({ x: a.x + a.dir * 7, y: a.y + 0.3, dir: a.dir })).filter((a) => a.x > 0 && a.x < W);
-          draw();
+      const hit = (U) => { U.wrap.classList.remove('hit'); void U.wrap.offsetWidth; U.wrap.classList.add('hit'); };
+      const volley = (dir) => {
+        for (let k = 0; k < 12; k++) {
+          const ar = h('i', { class: 'arrow ' + (dir > 0 ? 'r' : 'l'), style: `top:${18 + Math.random() * 62}%;animation-delay:${Math.random() * 0.25}s` });
+          fx.append(ar);
+          setTimeout(() => ar.remove(), 1000);
         }
-        anim = requestAnimationFrame(loop);
       };
+      const flashEv = (t) => { evEl.textContent = t; evEl.classList.remove('flash'); void evEl.offsetWidth; evEl.classList.add('flash'); };
+      let advance = 0;
+
+      let i = 1, done = false, timer = null;
       const close = () => {
-        cancelAnimationFrame(anim);
         clearTimeout(timer);
         battleKey = null;
         box.remove(); shade.remove();
@@ -1161,8 +1154,8 @@
         else if (r.def.faction === me) { text = atkWon ? '失守' : '守住'; good = !atkWon; }
         else text = atkWon ? '攻陷' : '擊退';
         resultEl.textContent = text;
-        resultEl.style.color = good ? 'var(--hi)' : 'var(--red)';
-        resultEl.classList.remove('hidden');
+        resultEl.className = 'stamp ' + (good ? 'win' : 'lose');
+        flashEv(r.summary);
         if (good) SND.win(); else SND.lose();
         const extra = r.lines.filter((l) => /被俘|逃往|獲救/.test(l)).slice(0, 3).join('　');
         say(null, r.summary + (extra ? `\n${extra}` : ''));
@@ -1174,9 +1167,10 @@
         if (i >= r.frames.length) { finish(); return; }
         const prev = r.frames[i - 1], f = r.frames[i];
         apply(f);
-        shakeA = f.a < prev.a ? 1 : 0;
-        shakeD = f.d < prev.d ? 1 : 0;
-        advance = Math.min(advance + 4, 90);
+        if (f.a < prev.a) hit(UA);
+        if (f.d < prev.d) hit(UD);
+        advance = Math.min(advance + 14, 160);
+        UA.wrap.style.transform = `translateX(${advance}px)`;
         let delay = 520;
         if (f.kind === 'duel') {
           say(null, `單挑！${f.ev}`);
@@ -1184,17 +1178,15 @@
         } else {
           if (/volley/.test(f.kind || '')) {
             SND.volley();
-            const dir = f.kind === 'volley-d' ? -1 : 1;
-            for (let k = 0; k < 14; k++) arrows.push({ x: dir > 0 ? 50 + Math.random() * 40 : W - 50 - Math.random() * 40, y: 16 + Math.random() * 64, dir });
+            volley(f.kind === 'volley-d' ? -1 : 1);
           } else if (i % 2) SND.drum(); else SND.clash();
-          if (f.ev) { say(null, f.ev); delay = 950; }
+          if (f.ev) { say(null, f.ev); flashEv(f.ev); delay = 950; }
         }
         i++;
         timer = setTimeout(step, delay);
       };
       battleKey = (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { finish(); return true; } return false; };
       apply(r.frames[0]);
-      anim = requestAnimationFrame(loop);
       say(null, r.lines[0]);
       timer = setTimeout(step, 900);
     });

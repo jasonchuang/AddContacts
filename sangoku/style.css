@@ -83,10 +83,23 @@ body { font-family: Body, "Noto Serif TC", "PMingLiU", "Songti TC", serif; color
 .menu li.sel::before { content: "▶"; position: absolute; left: 10px; color: var(--red); font-size: 13px; }
 .menu li.off { color: #b5aa98; }
 .menu li .hint { float: right; color: var(--dim); font-size: 15px; }
+.menu li .mi { display: inline-block; width: 26px; height: 26px; margin-right: 8px; vertical-align: -6px; }
+.menu li .mi svg { width: 100%; height: 100%; }
+.menu li .mi.unit { width: 22px; height: 30px; vertical-align: -8px; }
+.menu li.off .mi { filter: grayscale(1); opacity: .45; }
 .menu-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 6px; }
 .menu-cols li { border: 1px solid var(--line); background: var(--panel-2); text-align: center; padding: 0 10px; font-family: Kai, Body, sans-serif; font-size: 22px; }
 .menu-cols li.sel { border-color: var(--red); }
 .menu-cols li.sel::before { display: none; }
+.menu-cols li { display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; line-height: 44px; border-radius: 8px; }
+.menu-cols li .mi { width: 30px; height: 30px; margin: 0; vertical-align: 0; }
+.menu-cols li.sel { background: #fbecd9; box-shadow: inset 0 0 0 2px var(--red); }
+/* 武將表：小頭像與彩色能力條 */
+.gname { display: inline-flex; align-items: center; gap: 6px; }
+.gname .face.mini { width: 28px; height: 28px; border-radius: 4px; }
+.scell { display: inline-flex; flex-direction: column; align-items: flex-end; min-width: 40px; line-height: 1.1; }
+.scell i { display: block; width: 40px; height: 4px; margin-top: 2px; background: rgba(59,51,42,.12); border-radius: 2px; overflow: hidden; }
+.scell u { display: block; height: 100%; }
 
 /* 疊加視窗層 */
 #layer { position: absolute; inset: 0; pointer-events: none; }
@@ -172,7 +185,45 @@ table.grid tr.sel td.hl { color: var(--hi); }
 .battle .vs { text-align: center; font-family: Kai, Body; font-size: 48px; color: var(--red); }
 .battle .hp { height: 12px; background: rgba(59, 51, 42, .12); border-radius: 6px; overflow: hidden; margin-top: 4px; }
 .battle .hp div { height: 100%; transition: width .3s; }
-.battle canvas { display: block; width: 1160px; height: 360px; margin-top: 12px; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--line); }
+/* 戰場：自繪士兵 */
+.battle .btitle { margin: 0 0 6px; text-align: center; font-family: Kai, Body; font-size: 30px; letter-spacing: .3em; color: var(--ink); }
+.battle .side .face.guard { display: grid; place-items: center; font-family: Kai, Body; font-size: 52px; color: #fff; background: var(--c, #8a7a5c); }
+.battle .mixline { display: flex; gap: 10px; margin: 2px 0; font-size: 15px; }
+.battle .side.right .mixline { justify-content: flex-end; }
+.battle .mixline .chip { display: inline-flex; align-items: center; gap: 2px; }
+.battle .mixline svg { width: 18px; height: 24px; }
+.battlefield { position: relative; height: 300px; margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line);
+  background: linear-gradient(180deg, #cfe0e8 0%, #e8eee4 30%, #c9d9a8 31%, #a9c27f 70%, #95ad6c 100%); }
+.battlefield .bsky { position: absolute; left: 0; right: 0; top: 0; height: 31%; background: radial-gradient(ellipse at 20% 40%, rgba(255,255,255,.7), transparent 40%), radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.6), transparent 35%); }
+.battlefield .bwall { position: absolute; right: 0; top: 14%; bottom: 0; width: 90px; background:
+  repeating-linear-gradient(0deg, transparent 0 21px, rgba(60,50,40,.35) 21px 23px), linear-gradient(90deg, #a49a8c, #c8bfb2 40%, #9a9082);
+  border-left: 3px solid #6a6054; }
+.battlefield .bwall::before { content: ''; position: absolute; left: -3px; right: 0; top: -14px; height: 14px; background: repeating-linear-gradient(90deg, #8a8074 0 14px, transparent 14px 22px); }
+.battlefield .bflag { position: absolute; left: 30px; top: -40px; width: 30px; height: 26px; font-size: 18px !important; display: grid; place-items: center; color: #fff; font-family: Kai, Body; font-size: 24px; border: 2px solid rgba(0,0,0,.25); }
+.battlefield .bflag::before { content: ''; position: absolute; left: -6px; top: -4px; width: 3px; height: 54px; background: #5e3b20; }
+.battlefield .units { position: absolute; top: 33%; bottom: 6%; width: 44%; display: flex; flex-flow: column wrap; align-content: flex-start; justify-content: center; gap: 0 4px; transition: transform .6s ease-out; }
+.battlefield .units:not(.right) { left: 2%; }
+.battlefield .units.right { right: 100px; align-content: flex-end; }
+.battlefield .u { width: 34px; height: 45px; transition: opacity .5s, transform .5s; }
+.battlefield .u.u-cav { width: 60px; height: 54px; }
+.battlefield .u.march { animation: bob .6s ease-in-out infinite; }
+.battlefield .u.fallen { opacity: 0; transform: rotate(80deg) translateY(14px); animation: none; }
+.battlefield .units.hit { animation: shake .25s; }
+.battlefield .bfx { position: absolute; inset: 0; pointer-events: none; }
+.battlefield .arrow { position: absolute; width: 26px; height: 2px; background: linear-gradient(90deg, #6b4423 0 80%, #c0392b 80%); animation: fly .8s linear forwards; }
+.battlefield .arrow.r { left: 12%; }
+.battlefield .arrow.l { right: 14%; transform: scaleX(-1); animation-name: flyl; }
+@keyframes fly { from { transform: translateX(0) } to { transform: translateX(700px); opacity: .2 } }
+@keyframes flyl { from { transform: scaleX(-1) translateX(0) } to { transform: scaleX(-1) translateX(700px); opacity: .2 } }
+@keyframes bob { 0%,100% { translate: 0 0 } 50% { translate: 0 -2px } }
+@keyframes shake { 25% { translate: -5px 0 } 75% { translate: 5px 0 } }
+.battle .bevent { min-height: 34px; margin-top: 8px; text-align: center; font-family: Kai, Body; font-size: 24px; color: var(--red); }
+.battle .bevent.flash { animation: evflash .6s; }
+@keyframes evflash { from { transform: scale(1.4); opacity: 0; filter: blur(4px) } to { transform: none; opacity: 1; filter: none } }
+.battle .stamp { position: absolute; top: 46%; left: 50%; z-index: 4; transform: translate(-50%, -50%) rotate(-10deg); font-family: Kai, Body; font-size: 92px; padding: 6px 26px; border-radius: 6px; color: #fbf3df;
+  background: var(--red); box-shadow: inset 0 0 0 4px var(--red), inset 0 0 0 8px rgba(251,243,223,.85), 0 6px 18px rgba(0,0,0,.25); animation: stampin .35s cubic-bezier(.2, 1.6, .4, 1) both; pointer-events: none; opacity: .95; }
+.battle .stamp.lose { background: #4a4038; box-shadow: inset 0 0 0 4px #4a4038, inset 0 0 0 8px rgba(251,243,223,.85), 0 6px 18px rgba(0,0,0,.25); }
+@keyframes stampin { from { transform: translate(-50%, -50%) rotate(-10deg) scale(2.2); opacity: 0 } to { transform: translate(-50%, -50%) rotate(-10deg) scale(1); opacity: .95 } }
 .battle .result { position: absolute; left: 0; right: 0; top: 230px; text-align: center; font-family: Kai, Body; font-size: 96px; line-height: 110px; text-shadow: 0 0 8px #fff, 4px 4px 0 rgba(255, 255, 255, .8); animation: pop .4s ease-out both; }
 @keyframes pop { from { transform: scale(1.8); opacity: 0 } to { transform: none; opacity: 1 } }
 /* ---------- 一騎討 ---------- */
