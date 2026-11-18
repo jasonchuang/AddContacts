@@ -175,6 +175,35 @@ table.grid tr.sel td.hl { color: var(--hi); }
 .battle canvas { display: block; width: 1160px; height: 360px; margin-top: 12px; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--line); }
 .battle .result { position: absolute; left: 0; right: 0; top: 230px; text-align: center; font-family: Pixel12, Body; font-size: 96px; line-height: 110px; text-shadow: 0 0 8px #fff, 4px 4px 0 rgba(255, 255, 255, .8); animation: pop .4s ease-out both; }
 @keyframes pop { from { transform: scale(1.8); opacity: 0 } to { transform: none; opacity: 1 } }
-.battle .duel { position: absolute; left: 0; right: 0; top: 150px; display: flex; justify-content: center; align-items: center; gap: 40px; animation: pop .3s ease-out both; }
-.battle .duel .face { width: 170px; height: 170px; }
-.battle .duel .vs2 { font-family: Pixel12, Body; font-size: 72px; color: var(--red); text-shadow: 0 0 10px #fff; }
+/* ---------- 一騎討 ---------- */
+.battle .duel { position: absolute; inset: 0; z-index: 5; background: radial-gradient(ellipse at 50% 70%, #f8f1df 0%, #e8dcc0 60%, #cdbb94 100%); border-radius: 6px; display: flex; flex-direction: column; align-items: center; overflow: hidden; animation: pop .3s ease-out both; }
+.battle .duel .dcap { font-family: Pixel12, Body; font-size: 56px; color: var(--red); margin-top: 18px; text-shadow: 0 2px 0 #fff; letter-spacing: 8px; }
+.battle .duel .arena { position: relative; flex: 1; width: 100%; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 12% 24px; box-sizing: border-box; }
+.battle .duel .arena::after { content: ''; position: absolute; left: 6%; right: 6%; bottom: 30px; height: 18px; border-radius: 50%; background: rgba(90,70,40,.18); }
+.battle .duel .fighter { display: flex; flex-direction: column; align-items: center; gap: 6px; transition: transform .6s, opacity .6s; z-index: 1; }
+.battle .duel .dname { font-size: 26px; font-weight: 700; color: var(--hud); }
+.battle .duel .dname small { font-size: 15px; color: #7a6a50; margin-left: 8px; font-weight: 400; }
+.battle .duel .dhp { width: 220px; height: 12px; background: #d8ccb0; border: 1px solid #8a7a5c; border-radius: 6px; overflow: hidden; }
+.battle .duel .dhp-fill { height: 100%; width: 100%; transition: width .35s; }
+.battle .duel .dbody { width: 232px; height: 290px; }
+.battle .duel .dface { width: 100%; height: 100%; object-fit: contain; border: 0; background: none; box-shadow: none; }
+.battle .duel .fighter.right .dface { transform: scaleX(-1); }
+.battle .duel .dbody.lunge { animation: lungeL .45s ease-in-out; }
+.battle .duel .fighter.right .dbody.lunge { animation: lungeR .45s ease-in-out; }
+.battle .duel .dbody.hit { animation: hitShake .35s; }
+.battle .duel .dbody.dodge { animation: dodgeL .35s; }
+.battle .duel .fighter.right .dbody.dodge { animation: dodgeR .35s; }
+.battle .duel .fighter.down { transform: translateY(40px) rotate(-12deg); opacity: .35; filter: grayscale(1); }
+.battle .duel .fighter.right.down { transform: translateY(40px) rotate(12deg); }
+.battle .duel .fighter.victor .dbody { animation: victory .5s ease-out 2; }
+.battle .duel .dfx { position: absolute; inset: 0; pointer-events: none; }
+.battle .duel .dpop { position: absolute; top: 34%; font-family: Pixel12, Body; font-size: 40px; color: var(--red); text-shadow: 0 2px 0 #fff, 0 0 6px #fff; animation: popUp .8s ease-out forwards; }
+.battle .duel .dpop.crit { font-size: 52px; color: #d8761a; }
+.battle .duel .dpop.miss { color: #5a6a7a; }
+@keyframes lungeL { 0% { transform: none; } 45% { transform: translateX(170px) rotate(6deg); } 100% { transform: none; } }
+@keyframes lungeR { 0% { transform: none; } 45% { transform: translateX(-170px) rotate(-6deg); } 100% { transform: none; } }
+@keyframes hitShake { 0%,100% { transform: none; filter: none; } 20% { transform: translateX(-12px); filter: brightness(1.8) sepia(1) hue-rotate(-30deg) saturate(4); } 40% { transform: translateX(10px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+@keyframes dodgeL { 0%,100% { transform: none; } 50% { transform: translate(-40px,-10px); } }
+@keyframes dodgeR { 0%,100% { transform: none; } 50% { transform: translate(40px,-10px); } }
+@keyframes victory { 0%,100% { transform: none; } 50% { transform: translateY(-24px); } }
+@keyframes popUp { 0% { opacity: 0; transform: translateY(10px) scale(.6); } 20% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: translateY(-60px); } }

@@ -999,6 +999,54 @@
     }
   }
 
+  // ---------- 一騎討動畫：兩名武將立繪互相衝刺出招，體力條遞減，敗者倒下 ----------
+  function playDuel(el, f, timers) {
+    const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+    const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
+    const fighter = (g, right) => {
+      const hp = h('div', { class: 'dhp-fill', style: `background:${color(g.faction)}` });
+      const body = h('div', { class: 'dbody' }, face(g, 'full', 0, 0, 'dface'));
+      const root = h('div', { class: 'fighter' + (right ? ' right' : '') },
+        h('div', { class: 'dname' }, g.name, h('small', {}, `武${g.war}`)), h('div', { class: 'dhp' }, hp), body);
+      return { root, body, hp };
+    };
+    const A = fighter(ga, false), D = fighter(gd, true);
+    const fx = h('div', { class: 'dfx' });
+    const caption = h('div', { class: 'dcap' }, '一騎討');
+    el.replaceChildren(caption, h('div', { class: 'arena' }, A.root, fx, D.root));
+    el.classList.remove('hidden');
+    SND.march();
+    const STEP = 620;
+    let t = 900;
+    f.bouts.forEach((b) => {
+      later(t, () => {
+        const atk = b.who === 'a' ? A : D, def = b.who === 'a' ? D : A;
+        atk.body.classList.remove('lunge'); void atk.body.offsetWidth; atk.body.classList.add('lunge');
+        later(230, () => {
+          def.body.classList.remove('hit', 'dodge'); void def.body.offsetWidth;
+          const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: b.who === 'a' ? 'right:22%' : 'left:22%' },
+            b.dmg ? (b.crit ? `會心 -${b.dmg}` : `-${b.dmg}`) : '閃');
+          fx.append(pop);
+          later(800, () => pop.remove());
+          if (b.dmg) { def.body.classList.add('hit'); SND.clash(); if (b.crit) later(90, SND.clash); }
+          else { def.body.classList.add('dodge'); SND.cursor(); }
+          A.hp.style.width = b.hpA + '%';
+          D.hp.style.width = b.hpD + '%';
+        });
+      });
+      t += STEP;
+    });
+    later(t + 150, () => {
+      const win = f.winner === 'a' ? A : D, lose = f.winner === 'a' ? D : A;
+      lose.root.classList.add('down');
+      win.root.classList.add('victor');
+      caption.textContent = `${S.generals[f.duel[f.winner === 'a' ? 0 : 1]].name} 勝！`;
+      SND.win();
+    });
+    later(t + 1700, () => el.classList.add('hidden'));
+    return t + 1800;
+  }
+
   function playBattle(r) {
     return new Promise((resolve) => {
       closeAll();
@@ -1018,6 +1066,7 @@
       const A = side(r.atk, false), D = side(r.def, true);
       const resultEl = h('div', { class: 'result hidden' });
       const duelEl = h('div', { class: 'duel hidden' });
+      const duelTimers = [];
       const box = h('div', { class: 'win battle' }, h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), cv, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, 'Enter：略過'));
       const shade = h('div', { class: 'shade' });
@@ -1088,6 +1137,7 @@
         if (done) return;
         done = true;
         clearTimeout(timer);
+        duelTimers.forEach(clearTimeout);
         duelEl.classList.add('hidden');
         apply(r.frames[r.frames.length - 1]);
         const me = S.player, atkWon = r.result === 'win';
@@ -1114,12 +1164,8 @@
         advance = Math.min(advance + 4, 90);
         let delay = 520;
         if (f.kind === 'duel') {
-          duelEl.replaceChildren(face(S.generals[f.duel[0]], 'head', 36, 36), h('div', { class: 'vs2' }, '單挑'), face(S.generals[f.duel[1]], 'head', 36, 36));
-          duelEl.classList.remove('hidden');
-          SND.clash(); setTimeout(SND.clash, 260); setTimeout(SND.clash, 520);
           say(null, `單挑！${f.ev}`);
-          delay = 1800;
-          setTimeout(() => duelEl.classList.add('hidden'), 1600);
+          delay = playDuel(duelEl, f, duelTimers) + 300;
         } else {
           if (/volley/.test(f.kind || '')) {
             SND.volley();
@@ -1173,6 +1219,8 @@
   }
 
   bind();
+  // 供自動測試直接播放戰鬥畫面
+  TK.UI = { playBattle };
   const start = () => showTitle();
   if (document.fonts && document.fonts.load) document.fonts.load('24px Pixel12').then(start, start);
   else start();

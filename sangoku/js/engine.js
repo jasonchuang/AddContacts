@@ -14,6 +14,26 @@
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   }
   function rint(s, a, b) { return a + Math.floor(rand(s) * (b - a + 1)); }
+
+  // 一騎討：雙方體力 100，輪流出招；武力高者命中率與傷害較高。回傳每一招的紀錄供動畫播放。
+  function duel(s, a, d) {
+    let hpA = 100, hpD = 100;
+    const bouts = [];
+    for (let n = 0; n < 12 && hpA > 0 && hpD > 0; n++) {
+      const who = n % 2 === 0 ? 'a' : 'd';
+      const me = who === 'a' ? a : d, foe = who === 'a' ? d : a;
+      const hitP = Math.min(0.9, Math.max(0.35, 0.6 + (me.war - foe.war) / 60));
+      let dmg = 0, crit = false;
+      if (rand(s) < hitP) {
+        dmg = Math.max(6, Math.round(14 + (me.war - 60) * 0.45 + rint(s, 0, 10)));
+        if (rand(s) < 0.12 + Math.max(0, me.war - 85) / 50) { dmg = Math.round(dmg * 1.8); crit = true; }
+      }
+      if (who === 'a') hpD = Math.max(0, hpD - dmg); else hpA = Math.max(0, hpA - dmg);
+      bouts.push({ who, dmg, crit, hpA, hpD });
+    }
+    const winner = hpD <= 0 ? 'a' : hpA <= 0 ? 'd' : (hpA >= hpD ? 'a' : 'd');
+    return { winner, bouts };
+  }
   function pick(s, arr) { return arr[Math.floor(rand(s) * arr.length)]; }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
@@ -402,16 +422,17 @@
     if (mA > 1.06) lines.push(`兵種相剋：${aName}的${UNITS[domA].name}佔上風`);
     else if (mD > 1.06) lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
 
-    // 單挑
-    if (A.war >= 80 && D.war >= 80 && rand(s) < 0.3) {
-      const ah = atk.generals.slice().sort((a, b) => b.war - a.war)[0];
-      const dh = defGens.slice().sort((a, b) => b.war - a.war)[0];
-      const ar = ah.war + rint(s, 0, 25), dr = dh.war + rint(s, 0, 25);
-      const winner = ar >= dr ? ah : dh, loser = ar >= dr ? dh : ah;
-      lines.push(`單挑！${ah.name} 對 ${dh.name}，${winner.name}擊退了${loser.name}`);
-      if (winner === ah) D.troops = Math.round(D.troops * 0.9);
-      else A.troops = Math.round(A.troops * 0.9);
-      frames.push({ a: A.troops, d: D.troops, ev: `${ah.name} 對 ${dh.name}，${winner.name}勝！`, kind: 'duel', duel: [ah.name, dh.name], winner: winner === ah ? 'a' : 'd' });
+    // 單挑：雙方最強武將武力夠高時常會出陣一騎討（約六成機率）
+    const ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0];
+    const dhero = defGens.slice().sort((a, b) => b.war - a.war)[0];
+    if (ahero && dhero && Math.max(ahero.war, dhero.war) >= 70 && Math.min(ahero.war, dhero.war) >= 50 && rand(s) < 0.6) {
+      const d = duel(s, ahero, dhero);
+      const winner = d.winner === 'a' ? ahero : dhero, loser = d.winner === 'a' ? dhero : ahero;
+      lines.push(`單挑！${ahero.name} 對 ${dhero.name}，${d.bouts.length}回合後${winner.name}擊退了${loser.name}`);
+      // 勝方士氣大振，敗方軍心動搖
+      if (d.winner === 'a') D.troops = Math.round(D.troops * 0.85);
+      else A.troops = Math.round(A.troops * 0.85);
+      frames.push({ a: A.troops, d: D.troops, ev: `${ahero.name} 對 ${dhero.name}，${winner.name}勝！`, kind: 'duel', duel: [ahero.name, dhero.name], winner: d.winner, bouts: d.bouts });
     }
 
     let result = null, schemes = 0;
@@ -624,6 +645,7 @@
   }
 
   TK.Engine = {
+    duel,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
