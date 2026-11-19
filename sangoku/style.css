@@ -414,3 +414,7 @@ body.mobile .win-foot .act { flex: 1; height: 48px; }
 body.mobile .win.pop > .win-x { width: 40px; height: 40px; right: 4px; top: 2px; font-size: 22px; }
 body.mobile .win.pop > *:last-child:not(.win-foot) { margin-bottom: 10px; }
 body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8px; }
+
+#status .strat { color: #ffe3a8; }
+#city-win .gov { margin-left: auto; }
+#city-win .mixrow { display: flex; gap: 12px; }

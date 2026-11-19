@@ -74,8 +74,29 @@
     return E().officers(s, cityId).filter((g) => g.faction === fid && !g.acted);
   }
 
+  // 電腦勢力自動任命官職：智略最高者為軍師，各城政務最高者為太守
+  function appointOfficials(s, fid) {
+    const Eng = E();
+    if (!Eng.strategistOf(s, fid)) {
+      const best = Object.values(s.generals).filter((g) => g.faction === fid && g.status === 'active' && !g.ruler).sort((a, b) => b.int - a.int)[0];
+      const cap = Eng.citiesOf(s, fid)[0];
+      if (best && cap) Eng.exec(s, fid, { type: 'appoint', role: 'strategist', city: cap.id, target: best.id });
+    }
+    for (const c of Eng.citiesOf(s, fid)) {
+      if (Eng.governorOf(s, c)) continue;
+      const best = Eng.officers(s, c.id).sort((a, b) => b.pol - a.pol)[0];
+      if (best) Eng.exec(s, fid, { type: 'appoint', role: 'governor', city: c.id, target: best.id });
+    }
+  }
+
+  // 估計從某城派 troops 兵攻打 target 的勝算比（>1 代表佔優）
+  function estimate(s, from, troops, target) {
+    return atkPow(s, from, troops) / defPow(s, target);
+  }
+
   function run(s, fid) {
     const Eng = E();
+    appointOfficials(s, fid);
     const cities = Eng.citiesOf(s, fid);
     const p = plan(s, fid);
 
@@ -233,5 +254,5 @@
     }
   }
 
-  TK.AI = { run, threatTo, defenseValue };
+  TK.AI = { run, threatTo, defenseValue, estimate, appointOfficials };
 })(globalThis.TK = globalThis.TK || {});

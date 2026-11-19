@@ -197,8 +197,22 @@
     train: { label: '訓練', cost: 0, stat: 'lead', key: 'train' },
   };
 
-  // 每月金收入（商業與人口，受民心影響）與軍餉（每 250 兵 1 金）
-  function goldIncome(c) { return Math.round(c.commerce * 0.35 * (0.5 + c.order / 200) + c.pop / 10000); }
+  // 官職：軍師（勢力）與太守（城），人已離開或不在職位上就視為空缺
+  function strategistOf(s, fid) {
+    const f = fid && s.factions[fid];
+    const g = f && f.strategist ? s.generals[f.strategist] : null;
+    return g && g.status === 'active' && g.faction === fid && !g.ruler ? g : null;
+  }
+  function governorOf(s, c) {
+    const g = c && c.governor ? s.generals[c.governor] : null;
+    return g && g.status === 'active' && g.faction === c.owner && g.city === c.id ? g : null;
+  }
+  // 每月金收入（商業與人口，受民心影響；太守依政務加成）與軍餉（每 250 兵 1 金）
+  function goldIncome(c, s) {
+    const base = c.commerce * 0.35 * (0.5 + c.order / 200) + c.pop / 10000;
+    const gov = s ? governorOf(s, c) : null;
+    return Math.round(base * (gov ? 1 + gov.pol / 500 : 1));
+  }
   function upkeep(c) { return Math.floor(c.troops / 250); }
   // 一城可養的兵力上限：人口的 12%（至少 15000）
   function troopCap(city) { return Math.max(15000, Math.floor(city.pop * 0.12)); }
@@ -232,7 +246,7 @@
     const city = s.cities[cmd.city];
     if (!city || city.owner !== fid) return fail('不是我方城市');
     let g = null;
-    const needsExec = !['reward', 'release', 'execute'].includes(cmd.type);
+    const needsExec = !['reward', 'release', 'execute', 'appoint'].includes(cmd.type);
     if (needsExec) {
       g = s.generals[cmd.general];
       if (!g || g.faction !== fid || g.status !== 'active' || g.city !== city.id) return fail('武將不在此城');
@@ -295,6 +309,22 @@
           return ok(`${t.name}接受了${g.name}的邀請，加入${factionName(s, fid)}！`);
         }
         return ok(`${t.name}拒絕了${g.name}的登用`);
+      }
+      case 'appoint': {
+        // 任命官職：軍師（全勢力一位）、太守（每城一位）；不消耗行動
+        const t = cmd.target ? s.generals[cmd.target] : null;
+        if (t && (t.faction !== fid || t.status !== 'active')) return fail('找不到武將');
+        if (cmd.role === 'strategist') {
+          if (t && t.ruler) return fail('君主不能兼任軍師');
+          s.factions[fid].strategist = t ? t.id : null;
+          return ok(t ? `任命${t.name}為軍師` : '解除了軍師的職務');
+        }
+        if (cmd.role === 'governor') {
+          if (t && t.city !== city.id) return fail('太守必須駐在本城');
+          city.governor = t ? t.id : null;
+          return ok(t ? `任命${t.name}為${city.name}太守` : `解除了${city.name}太守`);
+        }
+        return fail('未知的官職');
       }
       case 'reward': {
         const t = s.generals[cmd.target];
@@ -405,6 +435,10 @@
     const defGens = defOwner ? officers(s, city.id).sort((a, b) => b.lead - a.lead).slice(0, 3) : [];
     const A = Object.assign(sideStats(atk.generals), { troops: atk.troops, train: atk.train });
     const D = Object.assign(sideStats(defGens), { troops: city.troops, train: city.train });
+    // 軍師運籌帷幄：計略以軍師與出陣武將中較高的智略計算（軍師不在場略打折扣）
+    const sa = strategistOf(s, atk.faction), sd = defOwner ? strategistOf(s, defOwner) : null;
+    if (sa) A.int = Math.max(A.int, sa.int - 5);
+    if (sd) D.int = Math.max(D.int, sd.int - 5);
     // 兵種：雙方組成比例、相剋、主將適性
     const aUnits = atk.units || { spear: atk.troops, cav: 0, xbow: 0 };
     const dUnits = Object.assign({}, mixOf(city));
@@ -604,7 +638,9 @@
         continue;
       }
       const ord = 0.5 + c.order / 200;
-      c.gold += goldIncome(c);
+      c.gold += goldIncome(c, s);
+      const gov = governorOf(s, c);
+      if (gov && gov.cha >= 60 && c.order < 100) c.order = Math.min(100, c.order + 1);
       if (s.month === 7) {
         const harvest = Math.round(c.farm * 30 * ord * (s.harvest_mult || 1));
         c.food += harvest;
@@ -666,7 +702,7 @@
 
   TK.Engine = {
     duel,
-    destroyFaction, troopCap, goldIncome, upkeep,
+    destroyFaction, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,

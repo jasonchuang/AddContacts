@@ -357,4 +357,27 @@ test('自動試玩：電腦勢力會互相征戰，十年內城池易主、有�
   assert(moved >= 15, `三局共只有 ${moved} 城易主`);
   assert(fallen >= 1, '三局十年內都沒有勢力滅亡');
 });
+test('官職：任命軍師與太守、君主不能當軍師、太守增加收入、離開後職位空缺', () => {
+  const s = E.newGame('liu', 41);
+  assert(!E.exec(s, 'liu', { type: 'appoint', role: 'strategist', city: '平原', target: '劉備' }).ok);
+  assert(E.exec(s, 'liu', { type: 'appoint', role: 'strategist', city: '平原', target: '簡雍' }).ok);
+  assert.strictEqual(E.strategistOf(s, 'liu').name, '簡雍');
+  const c = s.cities['平原'];
+  const base = E.goldIncome(c, s);
+  assert(E.exec(s, 'liu', { type: 'appoint', role: 'governor', city: '平原', target: '簡雍' }).ok);
+  assert(E.goldIncome(c, s) > base, '太守應增加收入');
+  assert.strictEqual(s.generals['簡雍'].acted, false, '任命不消耗行動');
+  s.generals['簡雍'].status = 'dead';
+  assert.strictEqual(E.strategistOf(s, 'liu'), null);
+  assert.strictEqual(E.governorOf(s, c), null);
+});
+
+test('官職：電腦勢力自動任命軍師與太守', () => {
+  const s = E.newGame('liu', 42);
+  E.endTurn(s);
+  const st = E.strategistOf(s, 'cao');
+  assert(st && !st.ruler, '曹操軍應有軍師');
+  assert(E.governorOf(s, s.cities['陳留']), '陳留應有太守');
+});
+
 console.log(`\n${passed} tests passed`);

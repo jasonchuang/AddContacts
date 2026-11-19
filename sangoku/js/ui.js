@@ -190,7 +190,7 @@
   const MENU_ICON = {
     內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
-    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
   };
   const UNIT_BY_NAME = { 槍兵: 'spear', 騎兵: 'cav', 弩兵: 'xbow' };
   function svgNode(str) {
@@ -551,6 +551,7 @@
       h('span', { class: 'hi' }, `${S.year}年 ${MONTHS[S.month - 1]}（${SEASON(S.month)}）`),
       h('span', {}, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
       h('span', {}, `城${p.cities} 兵${fmtW(p.troops)} 金${fmtW(p.gold)} 糧${fmtW(p.food)} 將${p.generals}`),
+      h('span', { class: 'strat' }, `軍師 ${E.strategistOf(S, S.player) ? E.strategistOf(S, S.player).name : '空缺'}`),
       h('span', { class: 'grow' }, hov ? `${hov.name}（${E.factionName(S, hov.owner)}）兵${fmtW(hov.troops)}` : 'Tab 切換城市'));
   }
 
@@ -566,8 +567,8 @@
 
   // 每月金收支：商業收入減軍餉
   function netGold(c) {
-    const net = E.goldIncome(c) - E.upkeep(c);
-    return h('small', { class: net >= 0 ? 'up' : 'down', title: `收入 ${E.goldIncome(c)}，軍餉 ${E.upkeep(c)}` }, ` ${net >= 0 ? '+' : ''}${net}/月`);
+    const net = E.goldIncome(c, S) - E.upkeep(c);
+    return h('small', { class: net >= 0 ? 'up' : 'down', title: `收入 ${E.goldIncome(c, S)}，軍餉 ${E.upkeep(c)}` }, ` ${net >= 0 ? '+' : ''}${net}/月`);
   }
   function renderCity() {
     const c = S.cities[selected];
@@ -583,7 +584,8 @@
       h('div', { class: 'kv' }, kv('金', c.owner === S.player ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)),
         kv('兵', c.owner === S.player ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
         kv('農業', c.farm), kv('商業', c.commerce), kv('民心', c.order), kv('城防', c.defense), kv('訓練', c.train), kv('武將', gens.length)),
-      h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k])))),
+      h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k]))),
+        c.owner ? h('span', { class: 'gov' }, h('span', { class: 'dim' }, '太守 '), E.governorOf(S, c) ? E.governorOf(S, c).name : '空缺') : null),
       h('div', { class: 'gens-line' }, gens.length ? gens.map((g, i) => h('span', { class: g.acted && c.owner === S.player ? 'acted' : '' }, (i ? ' ' : '') + g.name)) : h('span', { class: 'dim' }, '無人駐守')),
       ...(free.length || pris.length ? [h('div', { class: 'gens-line dim' }, free.length ? `在野 ${free.map((g) => g.name).join(' ')} ` : '', pris.length ? `俘虜 ${pris.map((g) => g.name).join(' ')}` : '')] : []));
   }
@@ -627,10 +629,17 @@
   function genCols(hlKey, extra) {
     return [{ label: '武將' }, ...STAT_COLS.map(([l, k]) => ({ label: l, hl: k === hlKey })), { label: '忠' }, ...(extra || []).map((l) => ({ label: l }))];
   }
+  function roleOf(g) {
+    if (!g || g.status !== 'active' || !g.faction) return '';
+    if (E.strategistOf(S, g.faction) === g) return '軍師';
+    const c = S.cities[g.city];
+    if (c && E.governorOf(S, c) === g) return `${c.name}太守`;
+    return '';
+  }
   function genSide(r) {
     const g = r.g;
     const apt = UK.map((k) => h('span', { class: `g-${E.aptitude(g, k)}` }, `${E.UNITS[k].short}${E.aptitude(g, k)} `));
-    return h('div', {}, face(g, 'head', 36, 36), h('div', { class: 'desc' }, g.name, h('br'), h('span', { class: 'dim' }, PT.classLabel(g, PT.traits(g))), h('br'), apt));
+    return h('div', {}, face(g, 'head', 36, 36), h('div', { class: 'desc' }, g.name, h('br'), h('span', { class: 'dim' }, [roleOf(g), PT.classLabel(g, PT.traits(g))].filter(Boolean).join('・')), h('br'), apt));
   }
 
   function pickGeneral(c, statKey, title, cb, opts) {
@@ -704,7 +713,34 @@
       { label: '登用', off: !idle || !cand.length, why: cand.length ? '本城的武將本月都已行動了。' : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) },
       { label: '賞賜', hint: '金100', off: c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) },
       { label: '俘虜', off: !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) },
+      { label: '任命', hint: '軍師・太守', act: () => appointMenu(c) },
     ], null, SUB);
+  }
+
+  // 官職：軍師（全勢力一位）與太守（本城一位）
+  const ROLE_TEXT = {
+    strategist: '軍師：每月獻策並估計出征勝算；戰鬥時以軍師的智略施展計略。',
+    governor: '太守：依政務增加本城每月金收入；魅力 60 以上時民心每月 +1。',
+  };
+  function appointMenu(c) {
+    const st = E.strategistOf(S, S.player), gov = E.governorOf(S, c);
+    const pick = (role) => {
+      const list = role === 'strategist'
+        ? Object.values(S.generals).filter((g) => g.faction === S.player && g.status === 'active' && !g.ruler).sort((a, b) => b.int - a.int)
+        : E.officers(S, c.id).sort((a, b) => b.pol - a.pol);
+      if (!list.length) { SND.error(); say(null, role === 'strategist' ? '沒有可以擔任軍師的武將。' : '本城沒有武將。'); return; }
+      const title = role === 'strategist' ? '任命軍師（依智略排序）' : `任命${c.name}太守（依政務排序）`;
+      tableWin(title, genCols(role === 'strategist' ? 'int' : 'pol', ['所在']), genRows(list, { extra: (g) => [g.city] }), (r) => {
+        run({ type: 'appoint', role, city: c.id, target: r.g.id }, r.g, () => (role === 'strategist'
+          ? `承蒙主公信任，在下必當竭盡所能，為主公運籌帷幄。`
+          : `遵命，在下必定好好治理${c.name}。`));
+      }, { side: genSide, width: 860, x: 200, info: () => ROLE_TEXT[role] });
+    };
+    menuWin('任命', [
+      { label: '軍師', hint: st ? st.name : '空缺', act: () => pick('strategist') },
+      { label: '太守', hint: gov ? gov.name : '空缺', act: () => pick('governor') },
+      ...(st ? [{ label: '解除軍師', hint: st.name, act: () => run({ type: 'appoint', role: 'strategist', city: c.id, target: null }) }] : []),
+    ], null, { x: 640, y: 300, width: 340 });
   }
 
   function draftFlow(c) {
@@ -755,7 +791,9 @@
           allocWin(`出征${t.name}：派遣兵力`, UK.map((k) => ({ key: k, label: E.UNITS[k].name, max: mix[k], init: Math.floor(mix[k] * 0.7 / 100) * 100, icon: unitIcon(k) })),
             (u) => {
               const n = u.spear + u.cav + u.xbow;
-              return `出陣 ${n} 人（軍糧 ${Math.ceil(n / 10)}／城中 ${c.food}）主將 ${cmdr.name}\n守軍 ${fmtW(t.troops)}：${verdictOf(u, E.mixOf(t))}（槍剋騎・騎剋弩・弩剋槍）`;
+              const st = E.strategistOf(S, S.player);
+              const est = st ? `\n軍師${st.name}：${oddsText(TK.AI.estimate(S, c, n, t))}` : '\n（任命軍師後可估計勝算）';
+              return `出陣 ${n} 人（軍糧 ${Math.ceil(n / 10)}／城中 ${c.food}）主將 ${cmdr.name}\n守軍 ${fmtW(t.troops)}：${verdictOf(u, E.mixOf(t))}（槍剋騎・騎剋弩・弩剋槍）${est}`;
             },
             (u) => {
               const ids = gens.map((g) => g.id);
@@ -1030,20 +1068,51 @@
   }
 
   function advisor() {
+    const st = E.strategistOf(S, S.player);
+    if (st) return st;
     const gens = Object.values(S.generals).filter((g) => g.faction === S.player && g.status === 'active' && !g.ruler);
     gens.sort((a, b) => b.int - a.int);
     return gens[0] || S.generals[S.factions[S.player].ruler];
   }
 
-  function tips() {
+  // 軍師獻策：找出勝算最高的進攻目標與最大的威脅
+  function strategistAdvice() {
+    const st = E.strategistOf(S, S.player);
+    if (!st || !TK.AI.estimate) return [];
     const out = [];
+    let best = null;
+    for (const c of E.citiesOf(S, S.player)) {
+      if (!E.officers(S, c.id).length || c.troops < 3000) continue;
+      for (const n of E.neighbors(S, c.id)) {
+        const t = S.cities[n];
+        if (t.owner === S.player || (t.owner && !TK.Diplomacy.canAttack(S, S.player, t.owner))) continue;
+        const r = TK.AI.estimate(S, c, c.troops * 0.85, t);
+        if (!best || r > best.r) best = { r, from: c, t };
+      }
+    }
+    // 智略越高，判斷越準：低智略的軍師估計會有偏差
+    const fuzz = (r) => r * (1 + (100 - st.int) / 250 * (S.month % 2 ? 1 : -1));
+    if (best) {
+      const r = fuzz(best.r);
+      const owner = best.t.owner ? E.factionName(S, best.t.owner) : '無主的';
+      if (r >= 1.25) out.push(`依在下之見，${owner}${best.t.name}可取。自${best.from.name}出兵，${oddsText(r)}。`);
+      else out.push(`眼下沒有十足把握的目標。最好的是${best.t.name}（${oddsText(r)}），不妨先從鄰城移兵到${best.from.name}集結。`);
+    }
+    return out;
+  }
+  function oddsText(r) {
+    return r >= 1.6 ? '勝算極大' : r >= 1.25 ? '約有七成勝算' : r >= 1.05 ? '勝負五五波' : r >= 0.85 ? '勝算偏低' : '幾無勝算';
+  }
+
+  function tips() {
+    const out = strategistAdvice();
     const mine = E.citiesOf(S, S.player);
     if (S.month === 8) out.push('秋收已過，各城的糧倉都充實了。');
     for (const c of mine) {
       if (c.troops > 0 && c.food < c.troops / 40 * 3) { out.push(`${c.name}的糧食只夠撐三個月，請盡快運糧或開墾。`); break; }
     }
     for (const c of mine) {
-      if (E.goldIncome(c) < E.upkeep(c) && c.gold < E.upkeep(c) * 6) { out.push(`${c.name}的軍餉比收入還多，金庫快見底了。發展商業，或把兵移到別城吧。`); break; }
+      if (E.goldIncome(c, S) < E.upkeep(c) && c.gold < E.upkeep(c) * 6) { out.push(`${c.name}的軍餉比收入還多，金庫快見底了。發展商業，或把兵移到別城吧。`); break; }
     }
     let warned = false;
     for (const c of mine) {
