@@ -1,4 +1,4 @@
-/* 群雄逐鹿：與 Godot 版一致的宣紙風格。紙底面板、墨色字、朱紅重點、深色資訊列。 */
+/* 三國 逐鹿中原：與 Godot 版一致的宣紙風格。紙底面板、墨色字、朱紅重點、深色資訊列。 */
 @font-face { font-family: Body; src: url("fonts/body.woff2") format("woff2"); font-display: block; }
 @font-face { font-family: Kai; src: url("fonts/kai.woff2") format("woff2"); font-display: block; }
 :root {
@@ -159,6 +159,7 @@ table.grid tr.sel td.hl { color: var(--hi); }
 .screen { position: absolute; inset: 0; }
 #title-bg { position: absolute; inset: 0; width: 1280px; height: 800px; filter: brightness(.75) saturate(.85); }
 .title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.title-pre { font-family: Kai, Body; font-size: 40px; letter-spacing: .8em; padding-left: .8em; color: var(--red); text-shadow: 0 0 6px var(--paper); }
 .title-logo {
   font-family: Kai, Body, sans-serif; font-size: 120px; line-height: 132px; color: var(--ink); letter-spacing: 12px;
   text-shadow: 0 0 2px var(--paper), 4px 4px 0 rgba(239, 229, 207, .9), -2px -2px 0 rgba(239, 229, 207, .9);
@@ -290,3 +291,102 @@ table.grid tr.sel td.hl { color: var(--hi); }
 .scene.narration .sc-text { font-family: Kai, Body; text-align: center; color: #4a3a2a; }
 .scene .sc-more { position: absolute; right: 20px; bottom: 10px; color: var(--red); animation: blink 1s steps(2) infinite; }
 .scene .sc-skip { position: absolute; right: 30px; top: 30px; font-size: 14px; color: rgba(255,255,255,.75); text-shadow: 0 1px 2px #000; z-index: 3; }
+
+/* =====================================================================
+   手機直向版面（body.mobile）：地圖在上、指令格在中、城市資訊在下，訊息列固定在底部；
+   彈出視窗、戰鬥、事件場景改為全寬。
+   ===================================================================== */
+body.mobile { overflow: auto; }
+body.mobile #stage { position: static; overflow: visible; }
+body.mobile #app { position: relative; left: 0; top: 0; width: 100%; height: auto; min-height: 100dvh; transform: none !important; overflow: visible; }
+body.mobile .win { font-size: 15px; line-height: 22px; padding: 8px 10px; }
+body.mobile .win h3 { font-size: 18px; line-height: 24px; margin-bottom: 4px; }
+
+/* 標題 */
+body.mobile #title { position: relative; min-height: 100dvh; overflow: hidden; }
+body.mobile #title-bg { width: 100%; height: 100%; object-fit: cover; }
+body.mobile .title-pre { font-size: 26px; }
+body.mobile .title-logo { font-size: 64px !important; line-height: 1.2 !important; }
+body.mobile .title-sub { font-size: 16px; margin-bottom: 18px; }
+body.mobile #title-menu .win { min-width: 0; width: 80vw; }
+body.mobile #title-menu .menu li { font-size: 20px; height: 46px; line-height: 46px; }
+body.mobile .title-foot { display: none; }
+
+/* 遊戲畫面：直式排列 */
+body.mobile #game { display: flex; flex-direction: column; gap: 6px; padding: 0 0 calc(96px + env(safe-area-inset-bottom)); }
+body.mobile #game .win { position: relative; left: auto; top: auto; width: auto; height: auto; margin: 0 6px; }
+body.mobile #status { order: 0; position: sticky !important; top: 0; z-index: 5; margin: 0 !important; height: auto; flex-wrap: wrap; gap: 4px 12px; padding: 6px 10px; font-size: 13px; white-space: normal; }
+body.mobile #status .hi { font-size: 18px; }
+body.mobile #status .grow { display: none; }
+body.mobile #map-win { order: 1; aspect-ratio: 856 / 614; }
+body.mobile #map { width: 100%; height: 100%; }
+body.mobile #cmd-win { order: 2; padding: 6px; }
+body.mobile #cmd-win > h3 { display: none; }
+body.mobile #cmd-win .menu-cols { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+body.mobile #cmd-win .menu-cols li { flex-direction: column; height: 62px; line-height: 18px; gap: 2px; padding: 4px 2px; font-size: 14px; }
+body.mobile #cmd-win .menu-cols li .mi { width: 28px; height: 28px; }
+body.mobile #city-win { order: 3; }
+body.mobile .city-head .name { font-size: 26px; line-height: 30px; }
+body.mobile .kv { grid-template-columns: 40px 1fr 40px 1fr; font-size: 14px; line-height: 22px; }
+body.mobile #msg-win { position: fixed !important; left: 0 !important; right: 0; bottom: 0; top: auto !important; margin: 0 !important; z-index: 6; width: auto !important;
+  min-height: 84px; height: auto !important; border-radius: 10px 10px 0 0; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); gap: 8px; font-size: 15px; line-height: 22px; }
+body.mobile #msg-win .face { width: 56px; height: 56px; }
+
+/* 彈出視窗：固定在畫面中間，全寬 */
+body.mobile #layer { position: fixed; inset: 0; z-index: 20; pointer-events: none; }
+body.mobile #layer > * { pointer-events: auto; }
+body.mobile .win.pop { position: fixed !important; left: 6px !important; right: 6px !important; top: 52px !important; width: auto !important; transform: none !important;
+  max-height: calc(100dvh - 160px); overflow: auto; z-index: 21; }
+body.mobile .with-side { display: block; }
+body.mobile .side-card { display: none; }
+body.mobile table.grid { font-size: 14px; }
+body.mobile table.grid td { height: 40px; padding: 0 4px; }
+body.mobile table.grid th { padding: 0 4px; }
+body.mobile .scell { min-width: 26px; }
+body.mobile .scell i { width: 26px; }
+body.mobile .gname .face.mini { width: 24px; height: 24px; }
+body.mobile .menu li { height: 44px; line-height: 44px; font-size: 17px; }
+body.mobile .numbox .btns { flex-wrap: wrap; }
+body.mobile .numbox .btn, body.mobile .btns .btn { padding: 6px 12px; }
+body.mobile .alloc .row { grid-template-columns: 28px 52px 1fr 80px; height: 48px; }
+body.mobile #banner .m { font-size: 48px; line-height: 56px; }
+
+/* 戰鬥 */
+body.mobile .battle { position: fixed !important; inset: 0 !important; width: auto !important; height: auto !important; border-radius: 0; padding: 8px; overflow: auto; }
+body.mobile .battle .btitle { font-size: 22px; }
+body.mobile .battle .top { grid-template-columns: 1fr 36px 1fr; }
+body.mobile .battle .side { gap: 6px; align-items: flex-start; }
+body.mobile .battle .side .face { width: 52px; height: 52px; }
+body.mobile .battle .side .face.guard { font-size: 28px; }
+body.mobile .battle .troops { font-size: 24px; line-height: 28px; }
+body.mobile .battle .vs { font-size: 26px; }
+body.mobile .battle .mixline { flex-wrap: wrap; gap: 4px; font-size: 12px; }
+body.mobile .battle .mixline svg { width: 12px; height: 16px; }
+body.mobile .battle .hi { font-size: 14px; }
+body.mobile .battle .dim { font-size: 12px; }
+body.mobile .battlefield { height: 220px; }
+body.mobile .battlefield .u { width: 18px; height: 24px; }
+body.mobile .battlefield .u.u-cav { width: 32px; height: 29px; }
+body.mobile .battlefield .units { width: 42%; }
+body.mobile .battlefield .units.right { right: 54px; }
+body.mobile .battlefield .bwall { width: 50px; }
+body.mobile .battlefield .bflag { left: 12px; }
+body.mobile .battle .bevent { font-size: 17px; }
+body.mobile .battle .stamp { font-size: 54px; }
+body.mobile .battle .duel .dcap { font-size: 32px; }
+body.mobile .battle .duel .arena { padding: 0 4% 24px; }
+body.mobile .battle .duel .dbody { width: 40vw; height: 50vw; }
+body.mobile .battle .duel .dhp { width: 40vw; }
+body.mobile .battle .duel .dname { font-size: 18px; }
+
+/* 事件場景 */
+body.mobile .scene { position: fixed; }
+body.mobile .scene .actor { width: 46vw; height: 57.5vw; bottom: 200px; }
+body.mobile .scene .actor.left { left: 2vw; }
+body.mobile .scene .actor.right { right: 2vw; }
+body.mobile .scene .sc-title { font-size: 22px; padding: 6px 24px; top: 14px; white-space: nowrap; }
+body.mobile .scene .sc-box { left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); min-height: 150px; padding: 14px 14px; }
+body.mobile .scene .sc-name { font-size: 18px; margin-top: -32px; }
+body.mobile .scene .sc-text { font-size: 18px; }
+body.mobile .scene .sc-skip { display: none; }
+body.mobile .scene .sc-noface { font-size: 80px; }

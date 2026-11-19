@@ -46,9 +46,18 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   // ---------- 畫面縮放 ----------
+  // 手機直向：改用直式版面（地圖在上、指令在下），不再整張縮放
+  const isMobile = () => innerWidth < innerHeight && innerWidth <= 820;
   function fit() {
-    const s = Math.min(innerWidth / 1280, innerHeight / 800);
-    $('app').style.transform = `translate(-50%, -50%) scale(${s})`;
+    const mobile = isMobile();
+    const was = document.body.classList.contains('mobile');
+    document.body.classList.toggle('mobile', mobile);
+    if (mobile) $('app').style.transform = 'none';
+    else {
+      const s = Math.min(innerWidth / 1280, innerHeight / 800);
+      $('app').style.transform = `translate(-50%, -50%) scale(${s})`;
+    }
+    if (was !== mobile && S) render();
   }
 
   // ---------- 像素頭像 ----------

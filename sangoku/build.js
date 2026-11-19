@@ -52,3 +52,10 @@ fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, html);
 const kb = html.length / 1024;
 console.log(`已輸出 ${path.relative(process.cwd(), out)}（${kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb.toFixed(0) + ' KB'}）`);
+
+// GitHub Pages：repo 根目錄的 docs/ 就是網站（docs/index.html）
+const site = path.join(root, '..', 'docs');
+fs.mkdirSync(site, { recursive: true });
+fs.writeFileSync(path.join(site, 'index.html'), html);
+fs.writeFileSync(path.join(site, '.nojekyll'), '');
+console.log('已更新 GitHub Pages：docs/index.html');
