@@ -164,6 +164,9 @@
       $('layer').append(win.shade);
     }
     const el = win.el;
+    if (!el.querySelector(':scope > .win-x')) {
+      el.prepend(h('button', { class: 'win-x', title: '關閉（Esc）', onclick: (e) => { e.stopPropagation(); if (win.onKey) win.onKey({ key: 'Escape' }); else { SND.cancel(); popWin(); } } }, '✕'));
+    }
     if (opts.center) {
       el.style.left = '50%'; el.style.top = '50%'; el.style.transform = 'translate(-50%, -50%)';
     } else {
@@ -255,10 +258,13 @@
     const win = { el, index: Math.max(0, rows.findIndex((r) => !r.off)), marks: new Set(opts.marks || []) };
     const side = opts.side ? h('div', { class: 'side-card' }) : null;
     const table = h('table', { class: 'grid' });
-    const scroller = h('div', { style: `max-height:${opts.maxH || 500}px;overflow:auto;flex:1` }, table);
+    const scroller = h('div', { class: 'tscroll', style: `max-height:${opts.maxH || 500}px;overflow:auto;flex:1` }, table);
     el.append(side ? h('div', { class: 'with-side' }, scroller, side) : scroller);
     const info = opts.info ? h('div', { class: 'info' }) : null;
     if (info) el.append(info);
+    // 多選時，「決定」是固定在視窗底部的按鈕
+    const decide = opts.multi ? h('button', { class: 'act primary', onclick: () => { win.index = rows.length; choose(); } }) : null;
+    if (decide) el.append(h('div', { class: 'win-foot' }, decide, h('button', { class: 'act', onclick: () => win.onKey({ key: 'Escape' }) }, '取消')));
     const total = rows.length + (opts.multi ? 1 : 0);
     const render = () => {
       const head = h('tr', {}, cols.map((c) => h('th', {}, c.label)));
@@ -268,12 +274,10 @@
         onclick: () => { win.index = i; choose(); },
       }, r.cells.map((v, ci) => h('td', { class: (cols[ci].hl ? 'hl ' : '') + (opts.multi && ci === 0 && win.marks.has(i) ? 'mark' : '') },
         opts.multi && ci === 0 ? [win.marks.has(i) ? '●' : '○', v] : v))));
-      if (opts.multi) {
-        trs.push(h('tr', {
-          class: win.index === rows.length ? 'sel' : '',
-          onmouseenter: () => { if (win.index !== rows.length) { win.index = rows.length; render(); } },
-          onclick: () => { win.index = rows.length; choose(); },
-        }, h('td', { colspan: cols.length, style: 'text-align:center' }, `── 決定（已選 ${win.marks.size}）──`)));
+      if (decide) {
+        decide.textContent = `決定（已選 ${win.marks.size}）`;
+        decide.classList.toggle('sel', win.index === rows.length);
+        decide.disabled = !win.marks.size;
       }
       table.replaceChildren(head, ...trs);
       const selTr = table.querySelectorAll('tr')[win.index + 1];
@@ -354,7 +358,9 @@
     const win = { index: 0 };
     const box = h('div', { class: 'alloc' });
     const infoEl = h('div', { class: 'info' });
-    win.el = h('div', { class: 'win pop' }, h('h3', {}, title), box, infoEl);
+    const okBtn = h('button', { class: 'act primary', onclick: () => ok() }, '決定');
+    win.el = h('div', { class: 'win pop' }, h('h3', {}, title), box, infoEl,
+      h('div', { class: 'win-foot' }, okBtn, h('button', { class: 'act', onclick: () => win.onKey({ key: 'Escape' }) }, '取消')));
     const values = () => { const o = {}; rows.forEach((r, i) => { o[r.key] = vals[i]; }); return o; };
     const adj = (i, d) => { vals[i] = Math.max(0, Math.min(rows[i].max, vals[i] + d)); SND.cursor(); render(); };
     const ok = () => { const v = values(); if (opts.validate && !opts.validate(v)) { SND.error(); if (opts.why) say(null, opts.why(v)); return; } SND.ok(); onOk(v); };
@@ -365,8 +371,8 @@
       }, r.icon ? h('img', { src: r.icon }) : h('span', {}, ''), h('span', {}, r.label),
       h('span', {}, h('span', { class: 'btn', onclick: () => adj(i, -(r.step || 500)) }, '◀'), ' ', h('span', { class: 'btn', onclick: () => adj(i, r.step || 500) }, '▶'), ' ',
         h('span', { class: 'btn', onclick: () => { vals[i] = vals[i] === r.max ? 0 : r.max; SND.cursor(); render(); } }, '全'), h('span', { class: 'have' }, ` /${fmt(r.max)}`)),
-      h('span', { class: 'val' }, fmt(vals[i])))),
-      h('div', { class: 'row ok' + (win.index === rows.length ? ' sel' : ''), onmouseenter: () => { if (win.index !== rows.length) { win.index = rows.length; render(); } }, onclick: ok }, '── 決定 ──'));
+      h('span', { class: 'val' }, fmt(vals[i])))));
+      okBtn.classList.toggle('sel', win.index === rows.length);
       infoEl.textContent = info ? info(values()) : '';
     };
     win.onKey = (e) => {
@@ -1184,9 +1190,10 @@
       const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
       const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
-        h('div', { class: 'info', style: 'text-align:right' }, 'Enter：略過'));
+        h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
       const shade = h('div', { class: 'shade' });
       $('layer').append(shade, box);
+      box.addEventListener('click', () => { if (!done) finish(); });
 
       const apply = (f) => {
         const setSide = (U, cur, init, ui) => {
