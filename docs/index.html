@@ -359,7 +359,11 @@ body.mobile .gname .face.mini { width: 24px; height: 24px; }
 body.mobile .menu li { height: 44px; line-height: 44px; font-size: 17px; }
 body.mobile .numbox .btns { flex-wrap: wrap; }
 body.mobile .numbox .btn, body.mobile .btns .btn { padding: 6px 12px; }
-body.mobile .alloc .row { grid-template-columns: 28px 52px 1fr 80px; height: 48px; }
+body.mobile .alloc .row { grid-template-columns: 26px 58px 1fr 64px; height: 52px; padding: 0 2px; font-size: 14px; }
+body.mobile .alloc .row.ok { grid-template-columns: 1fr; }
+body.mobile .alloc .row .have { font-size: 11px; display: block; line-height: 14px; }
+body.mobile .alloc .row .val { font-size: 18px; }
+body.mobile .alloc .row .btn { padding: 4px 8px; }
 body.mobile #banner .m { font-size: 48px; line-height: 56px; }
 
 /* 戰鬥 */
@@ -4919,7 +4923,8 @@ function svg(g, color, mode, t) {
         apply(f);
         if (f.a < prev.a) hit(UA);
         if (f.d < prev.d) hit(UD);
-        advance = Math.min(advance + 14, 160);
+        const fw = field.clientWidth || 1160;
+        advance = Math.min(advance + fw * 0.012, fw * 0.13);
         UA.wrap.style.transform = `translateX(${advance}px)`;
         let delay = 520;
         if (f.kind === 'duel') {

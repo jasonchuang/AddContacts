@@ -1244,7 +1244,8 @@
         apply(f);
         if (f.a < prev.a) hit(UA);
         if (f.d < prev.d) hit(UD);
-        advance = Math.min(advance + 14, 160);
+        const fw = field.clientWidth || 1160;
+        advance = Math.min(advance + fw * 0.012, fw * 0.13);
         UA.wrap.style.transform = `translateX(${advance}px)`;
         let delay = 520;
         if (f.kind === 'duel') {
