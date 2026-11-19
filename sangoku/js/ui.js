@@ -62,31 +62,17 @@
 
   // ---------- 像素頭像 ----------
   const faceCache = new Map();
+  // 頭像網址：有插畫就直接用插畫（JPG），否則用程式繪製的 SVG。
+  // 不再經過 canvas 轉成 PNG：手機（尤其 iPhone Safari）同時解碼大量大圖時會超過記憶體上限而變成空白。
+  // 裁切交給 CSS 的 object-fit: cover。
   function faceURL(g, mode) {
     const col = color(g.faction || g.formerFaction);
-    const w = mode === 'full' ? 400 : 224, hgt = mode === 'full' ? 500 : 224;
-    const key = `${g.id}|${col}|${mode}|${w}x${hgt}`;
-    if (faceCache.has(key)) return faceCache.get(key);
-    const p = new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const cv = document.createElement('canvas');
-        cv.width = w; cv.height = hgt;
-        const ctx = cv.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        // 外部插畫比例不一定相同：等比縮放後置中裁切（頭像偏上，保留臉部）
-        const sc = Math.max(w / img.width, hgt / img.height);
-        const dw = img.width * sc, dh = img.height * sc;
-        ctx.drawImage(img, (w - dw) / 2, mode === 'head' ? Math.min(0, (hgt - dh) / 4) : (hgt - dh) / 2, dw, dh);
-        resolve(cv.toDataURL());
-      };
-      img.onerror = () => resolve('');
+    const key = `${g.id}|${col}|${mode}`;
+    if (!faceCache.has(key)) {
       const art = PT.art && PT.art(g, mode);
-      img.src = art || 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(PT.svg(g, col, mode));
-    });
-    faceCache.set(key, p);
-    return p;
+      faceCache.set(key, Promise.resolve(art || 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(PT.svg(g, col, mode))));
+    }
+    return faceCache.get(key);
   }
   function face(g, mode, w, hgt, cls) {
     const img = h('img', { class: 'face ' + (cls || ''), alt: g ? g.name : '' });

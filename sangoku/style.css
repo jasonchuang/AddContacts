@@ -42,7 +42,7 @@ body { font-family: Body, "Noto Serif TC", "PMingLiU", "Songti TC", serif; color
 .green { color: var(--green); }
 .gold { color: var(--gold); }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
-.face { background: #e9eef4; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line), 0 2px 6px rgba(0, 0, 0, .15); border-radius: 4px; object-fit: cover; }
+.face { background: #e9eef4; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line), 0 2px 6px rgba(0, 0, 0, .15); border-radius: 4px; object-fit: cover; object-position: center top; }
 
 /* ---------- 遊戲畫面版面 ---------- */
 #status {
