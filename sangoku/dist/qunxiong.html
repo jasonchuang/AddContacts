@@ -4756,7 +4756,7 @@ function svg(g, color, mode, t) {
   function genSide(r) {
     const g = r.g;
     const apt = UK.map((k) => h('span', { class: `g-${E.aptitude(g, k)}` }, `${E.UNITS[k].short}${E.aptitude(g, k)} `));
-    return h('div', {}, face(g, 'head', 36, 36), h('div', { class: 'desc' }, g.name, h('br'), h('span', { class: 'dim' }, [roleOf(g), PT.classLabel(g, PT.traits(g))].filter(Boolean).join('・')), h('br'), apt));
+    return h('div', {}, face(g, 'head', 36, 36), h('div', { class: 'desc' }, g.name, h('br'), h('span', { class: 'dim' }, [...new Set([roleOf(g), PT.classLabel(g, PT.traits(g))])].filter(Boolean).join('・')), h('br'), apt));
   }
 
   function pickGeneral(c, statKey, title, cb, opts) {
