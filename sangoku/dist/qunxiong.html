@@ -430,6 +430,23 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
 #city-win .gov { margin-left: auto; }
 #city-win .mixrow { display: flex; gap: 12px; }
 
+/* ---------- 戰鬥指令列 ---------- */
+.battle .orders { position: absolute; left: 20px; right: 20px; bottom: 16px; z-index: 6; padding: 12px 14px; border-radius: 10px; background: rgba(248,241,223,.97); border: 2px solid var(--red); box-shadow: 0 8px 26px rgba(0,0,0,.3); animation: pop .25s ease-out both; }
+.battle .orders .otitle { font-family: Kai, Body; font-size: 22px; color: var(--red); margin-bottom: 8px; }
+.battle .orders .obtns { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.battle .orders .obtn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px; border: 1px solid var(--line); border-radius: 8px; background: #fbf6ea; cursor: pointer; font: inherit; color: var(--ink); }
+.battle .orders .obtn b { font-family: Kai, Body; font-size: 21px; font-weight: normal; }
+.battle .orders .obtn small { font-size: 12px; line-height: 16px; color: var(--dim); text-align: center; }
+.battle .orders .obtn:hover { border-color: var(--red); background: #fff1e0; }
+.battle .orders .o-assault b { color: #c0392b; } .battle .orders .o-hold b { color: #2f6db0; } .battle .orders .o-scheme b { color: #7b4fb0; }
+.battle .orders .o-duel b { color: #c97a10; } .battle .orders .o-retreat b { color: #5a5a5a; }
+.battle .orders .oauto { margin-top: 8px; width: 100%; height: 34px; border: 0; background: transparent; color: var(--dim); font: inherit; cursor: pointer; text-decoration: underline; }
+body.mobile .battle .orders { left: 6px; right: 6px; bottom: 6px; padding: 8px; position: fixed; }
+body.mobile .battle .orders .otitle { font-size: 16px; }
+body.mobile .battle .orders .obtns { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+body.mobile .battle .orders .obtn b { font-size: 18px; }
+body.mobile .battle .orders .obtn small { font-size: 10px; line-height: 13px; }
+
 </style>
 </head>
 <body>
@@ -1407,7 +1424,12 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
         takeUnits(city, units);
         for (const m of army) m.acted = true;
         if (TK.Diplomacy) TK.Diplomacy.onAttack(s, fid, target.owner);
-        const res = battle(s, { faction: fid, generals: army, troops, units, train: city.train, from: city.id }, target.id);
+        const atkInfo = { faction: fid, generals: army, troops, units, train: city.train, from: city.id };
+        if (cmd.interactive) {
+          const live = battleStart(s, atkInfo, target.id, { interactive: true });
+          return { ok: true, msg: `${army[0].name}率兵 ${troops} 進攻${target.name}`, live };
+        }
+        const res = battle(s, atkInfo, target.id);
         return ok(res.summary, res);
       }
       default:
@@ -1443,7 +1465,20 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
     };
   }
 
-  function battle(s, atk, targetId) {
+  // 戰鬥分成三步：battleStart（佈陣）→ battleRound（一回合，可下指令）→ battleEnd（結算）。
+  // 電腦的戰鬥一口氣跑完；玩家主動出征時由畫面逐段下指令（interactive）。
+  // 指令：normal 一般、assault 突擊、hold 穩守、scheme 計略、duel 單挑（只能在第一回合）、retreat 撤退
+  const ORDERS = {
+    normal: { label: '一般', desc: '照常交戰' },
+    assault: { label: '突擊', desc: '對敵傷害 ×1.35，我方損失 ×1.25' },
+    hold: { label: '穩守', desc: '我方損失 ×0.65，對敵傷害 ×0.75' },
+    scheme: { label: '計略', desc: '依智略施展計謀，成功時敵軍大亂；失敗會被反制' },
+    duel: { label: '單挑', desc: '派最強的武將挑戰敵將（只能在開戰時）' },
+    retreat: { label: '撤退', desc: '收兵回城，殿後部隊會有些損失' },
+  };
+
+  function battleStart(s, atk, targetId, opts) {
+    opts = opts || {};
     const city = s.cities[targetId];
     const defOwner = city.owner;
     const defGens = defOwner ? officers(s, city.id).sort((a, b) => b.lead - a.lead).slice(0, 3) : [];
@@ -1463,78 +1498,120 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
       aptA += fA[a] * APT_MULT[aptitude(A.commander, a)];
       aptD += fD[a] * (D.commander ? APT_MULT[aptitude(D.commander, a)] : 1);
     }
-    const bonusA = mA * aptA * (1 + 0.12 * fA.cav);
-    const bonusD = mD * aptD * (1 + 0.15 * fD.xbow);
-    const sturdyA = 1 - 0.1 * fA.spear, sturdyD = 1 - 0.1 * fD.spear;
-    const A0 = A.troops, D0 = D.troops;
-    const aName = factionName(s, atk.faction), dName = factionName(s, defOwner);
-    const parties = [atk.faction, defOwner].filter(Boolean);
-    const lines = [];
-    const aCmd = A.commander ? A.commander.name : '';
-    const dCmd = D.commander ? D.commander.name : FREE_STATS.name;
-    lines.push(`${aName}（${aCmd}，${A0}兵）自${atk.from}進攻${city.name}（${dName}，${dCmd}，${D0}兵）`);
+    const ctx = {
+      city, atk, defOwner, defGens, A, D, aUnits, dUnits, fA, fD,
+      bonusA: mA * aptA * (1 + 0.12 * fA.cav), bonusD: mD * aptD * (1 + 0.15 * fD.xbow),
+      sturdyA: 1 - 0.1 * fA.spear, sturdyD: 1 - 0.1 * fD.spear,
+      A0: A.troops, D0: D.troops,
+      aName: factionName(s, atk.faction), dName: factionName(s, defOwner),
+      parties: [atk.faction, defOwner].filter(Boolean),
+      lines: [], round: 0, result: null, schemes: 0, interactive: !!opts.interactive, dueled: false,
+    };
+    ctx.aCmd = A.commander ? A.commander.name : '';
+    ctx.dCmd = D.commander ? D.commander.name : FREE_STATS.name;
+    ctx.lines.push(`${ctx.aName}（${ctx.aCmd}，${ctx.A0}兵）自${atk.from}進攻${city.name}（${ctx.dName}，${ctx.dCmd}，${ctx.D0}兵）`);
     // frames：給戰鬥畫面逐格播放 {a, d, ev, kind}
-    const frames = [{ a: A0, d: D0, ev: null }];
+    ctx.frames = [{ a: ctx.A0, d: ctx.D0, ev: null }];
     const domA = UNIT_KEYS.reduce((b, k) => (fA[k] > fA[b] ? k : b), 'spear');
     const domD = UNIT_KEYS.reduce((b, k) => (fD[k] > fD[b] ? k : b), 'spear');
-    if (mA > 1.06) lines.push(`兵種相剋：${aName}的${UNITS[domA].name}佔上風`);
-    else if (mD > 1.06) lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
+    if (mA > 1.06) ctx.lines.push(`兵種相剋：${ctx.aName}的${UNITS[domA].name}佔上風`);
+    else if (mD > 1.06) ctx.lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
+    ctx.ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0] || null;
+    ctx.dhero = defGens.slice().sort((a, b) => b.war - a.war)[0] || null;
+    ctx.canDuel = !!(ctx.ahero && ctx.dhero);
+    // 電腦的戰鬥：雙方猛將夠強時約六成機率自動單挑；玩家指揮時改由玩家決定
+    if (!ctx.interactive && ctx.canDuel && Math.max(ctx.ahero.war, ctx.dhero.war) >= 70 && Math.min(ctx.ahero.war, ctx.dhero.war) >= 50 && rand(s) < 0.6) doDuel(s, ctx);
+    return ctx;
+  }
 
-    // 單挑：雙方最強武將武力夠高時常會出陣一騎討（約六成機率）
-    const ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0];
-    const dhero = defGens.slice().sort((a, b) => b.war - a.war)[0];
-    if (ahero && dhero && Math.max(ahero.war, dhero.war) >= 70 && Math.min(ahero.war, dhero.war) >= 50 && rand(s) < 0.6) {
-      const d = duel(s, ahero, dhero);
-      const winner = d.winner === 'a' ? ahero : dhero, loser = d.winner === 'a' ? dhero : ahero;
-      lines.push(`單挑！${ahero.name} 對 ${dhero.name}，${d.bouts.length}回合後${winner.name}擊退了${loser.name}`);
-      // 勝方士氣大振，敗方軍心動搖
-      if (d.winner === 'a') D.troops = Math.round(D.troops * 0.85);
-      else A.troops = Math.round(A.troops * 0.85);
-      frames.push({ a: A.troops, d: D.troops, ev: `${ahero.name} 對 ${dhero.name}，${winner.name}勝！`, kind: 'duel', duel: [ahero.name, dhero.name], winner: d.winner, bouts: d.bouts });
+  function doDuel(s, ctx) {
+    if (ctx.dueled || !ctx.canDuel) return;
+    ctx.dueled = true;
+    const { ahero, dhero, A, D } = ctx;
+    const d = duel(s, ahero, dhero);
+    const winner = d.winner === 'a' ? ahero : dhero, loser = d.winner === 'a' ? dhero : ahero;
+    ctx.lines.push(`單挑！${ahero.name} 對 ${dhero.name}，${d.bouts.length}回合後${winner.name}擊退了${loser.name}`);
+    // 勝方士氣大振，敗方軍心動搖
+    if (d.winner === 'a') D.troops = Math.round(D.troops * 0.85);
+    else A.troops = Math.round(A.troops * 0.85);
+    ctx.frames.push({ a: A.troops, d: D.troops, ev: `${ahero.name} 對 ${dhero.name}，${winner.name}勝！`, kind: 'duel', duel: [ahero.name, dhero.name], winner: d.winner, bouts: d.bouts });
+  }
+
+  // 進行一回合；回傳本回合新增的 frames
+  function battleRound(s, ctx, order) {
+    if (ctx.result) return [];
+    const start = ctx.frames.length;
+    order = ORDERS[order] ? order : 'normal';
+    const { A, D, city, fA, fD, aName, dName, lines } = ctx;
+    if (order === 'retreat') {
+      const lost = Math.round(A.troops * 0.08);
+      A.troops -= lost;
+      ctx.result = 'retreat';
+      lines.push(`${aName}下令撤退，殿後部隊折損 ${lost}`);
+      ctx.frames.push({ a: A.troops, d: D.troops, ev: `${aName}撤退！`, kind: 'retreat' });
+      return ctx.frames.slice(start);
     }
-
-    let result = null, schemes = 0;
-    for (let round = 1; round <= 20 && !result; round++) {
-      const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * bonusA;
-      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 2500) * bonusD;
-      let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * sturdyD);
-      let ev = null, kind = null;
-      let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * sturdyA);
-      if (round === 1) {
-        // 開戰：弩兵齊射、騎兵衝鋒
-        if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
-        if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
-        if (fA.cav >= 0.3) {
-          if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
-          else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
-        }
-        if (ev) lines.push(ev);
-      }
-      if (A.int >= 75 && rand(s) < (A.int - 60) / 200) {
-        lossD = Math.round(lossD * 1.5);
-        ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
-        if (schemes++ < 2) lines.push(`${aName}施展計略，${city.name}守軍陷入混亂`);
-      }
-      if (D.int >= 75 && rand(s) < (D.int - 60) / 200) {
-        lossA = Math.round(lossA * 1.5);
-        ev = `${dName}識破敵計並反擊`; kind = 'scheme-d';
-        if (schemes++ < 2) lines.push(`${dName}識破敵計並反擊`);
-      }
-      A.troops = Math.max(0, A.troops - lossA);
-      D.troops = Math.max(0, D.troops - lossD);
-      city.defense = Math.max(0, city.defense - rint(s, 3, 12));
-      frames.push({ a: A.troops, d: D.troops, ev, kind });
-
-      if (D.troops <= 0) result = 'win';
-      else if (A.troops <= 0) result = 'lose';
-      else if (D.troops < D0 * 0.2 && D.troops < A.troops * 0.5) { result = 'win'; D.troops = 0; }
-      else if (A.troops < A0 * 0.3 && A.troops < D.troops) result = 'lose';
+    if (order === 'duel') {
+      if (ctx.round === 0) doDuel(s, ctx);
+      order = 'normal';
     }
-    if (!result) { result = 'lose'; lines.push('久攻不下，撤兵'); }
-    const aLeft = scaleMix(aUnits, A.troops);
-    frames[frames.length - 1].a = A.troops;
-    frames[frames.length - 1].d = D.troops;
+    ctx.round++;
+    const round = ctx.round;
+    const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * ctx.bonusA;
+    const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 2500) * ctx.bonusD;
+    let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * ctx.sturdyD);
+    let ev = null, kind = null;
+    let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * ctx.sturdyA);
+    if (round === 1) {
+      // 開戰：弩兵齊射、騎兵衝鋒
+      if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
+      if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
+      if (fA.cav >= 0.3) {
+        if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
+        else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
+      }
+      if (ev) lines.push(ev);
+    }
+    // 玩家指令
+    if (order === 'assault') { lossD = Math.round(lossD * 1.35); lossA = Math.round(lossA * 1.25); ev = ev || `${aName}全軍突擊！`; kind = kind || 'charge'; }
+    else if (order === 'hold') { lossD = Math.round(lossD * 0.75); lossA = Math.round(lossA * 0.65); ev = ev || `${aName}穩住陣腳`; }
+    let schemeA = A.int >= 75 && rand(s) < (A.int - 60) / 200;
+    if (order === 'scheme') {
+      // 主動用計：成功率依智略（約 20%～80%），失敗會被敵方反制
+      const p = Math.max(0.15, Math.min(0.85, (A.int - 40) / 60 - (D.int - 60) / 200));
+      schemeA = rand(s) < p;
+      if (!schemeA) { lossA = Math.round(lossA * 1.2); ev = `${aName}的計謀被識破了！`; kind = 'scheme-d'; lines.push(`${aName}用計失敗`); }
+    }
+    if (schemeA) {
+      lossD = Math.round(lossD * (order === 'scheme' ? 1.9 : 1.5));
+      ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
+      if (ctx.schemes++ < 2) lines.push(`${aName}施展計略，${city.name}守軍陷入混亂`);
+    }
+    if (D.int >= 75 && rand(s) < (D.int - 60) / 200) {
+      lossA = Math.round(lossA * 1.5);
+      ev = `${dName}識破敵計並反擊`; kind = 'scheme-d';
+      if (ctx.schemes++ < 2) lines.push(`${dName}識破敵計並反擊`);
+    }
+    A.troops = Math.max(0, A.troops - lossA);
+    D.troops = Math.max(0, D.troops - lossD);
+    city.defense = Math.max(0, city.defense - rint(s, 3, 12));
+    ctx.frames.push({ a: A.troops, d: D.troops, ev, kind });
 
+    if (D.troops <= 0) ctx.result = 'win';
+    else if (A.troops <= 0) ctx.result = 'lose';
+    else if (D.troops < ctx.D0 * 0.2 && D.troops < A.troops * 0.5) { ctx.result = 'win'; D.troops = 0; }
+    else if (A.troops < ctx.A0 * 0.3 && A.troops < D.troops) ctx.result = 'lose';
+    else if (round >= 20) { ctx.result = 'lose'; lines.push('久攻不下，撤兵'); }
+    return ctx.frames.slice(start);
+  }
+
+  function battleEnd(s, ctx) {
+    const { city, atk, A, D, lines, aName } = ctx;
+    if (!ctx.result) { ctx.result = 'lose'; lines.push('久攻不下，撤兵'); }
+    const result = ctx.result === 'win' ? 'win' : 'lose';
+    const aLeft = scaleMix(ctx.aUnits, A.troops);
+    const last = ctx.frames[ctx.frames.length - 1];
+    last.a = A.troops; last.d = D.troops;
     city.troops = D.troops;
     let summary, gone = null;
     if (result === 'win') {
@@ -1543,19 +1620,27 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
     } else {
       const home = s.cities[atk.from];
       if (home.owner === atk.faction) addUnits(home, aLeft, atk.train);
-      summary = `${aName}進攻${city.name}失敗（我損 ${A0 - A.troops}，敵損 ${D0 - D.troops}）`;
+      summary = ctx.result === 'retreat'
+        ? `${aName}從${city.name}撤兵（我損 ${ctx.A0 - A.troops}，敵損 ${ctx.D0 - D.troops}）`
+        : `${aName}進攻${city.name}失敗（我損 ${ctx.A0 - A.troops}，敵損 ${ctx.D0 - D.troops}）`;
     }
     lines.push(summary);
-    for (const l of lines) addLog(s, l, 'battle', parties);
+    for (const l of lines) addLog(s, l, 'battle', ctx.parties);
     if (gone) destroyFaction(s, gone);
     const res = {
-      result, summary, lines, frames, atkLoss: A0 - A.troops, defLoss: D0 - D.troops,
+      result, retreated: ctx.result === 'retreat', summary, lines, frames: ctx.frames, atkLoss: ctx.A0 - A.troops, defLoss: ctx.D0 - D.troops,
       city: city.id, from: atk.from,
-      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0, units: aUnits },
-      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0, units: dUnits },
+      atk: { faction: atk.faction, name: aName, commander: ctx.aCmd, generals: atk.generals.map((g) => g.name), troops: ctx.A0, units: ctx.aUnits },
+      def: { faction: ctx.defOwner, name: ctx.dName, commander: ctx.dCmd, generals: ctx.defGens.map((g) => g.name), troops: ctx.D0, units: ctx.dUnits },
     };
     if (TK.Engine && typeof TK.Engine.onBattle === 'function') TK.Engine.onBattle(res);
     return res;
+  }
+
+  function battle(s, atk, targetId) {
+    const ctx = battleStart(s, atk, targetId);
+    while (!ctx.result) battleRound(s, ctx, 'normal');
+    return battleEnd(s, ctx);
   }
 
   function conquer(s, city, atk, A, lines, aLeft) {
@@ -1716,7 +1801,7 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
 
   TK.Engine = {
     duel,
-    destroyFaction, troopCap, goldIncome, upkeep, strategistOf, governorOf,
+    destroyFaction, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
@@ -4408,11 +4493,21 @@ function svg(g, color, mode, t) {
   function run(cmd, speaker, speech) {
     const r = E.exec(S, S.player, cmd);
     if (!r.ok) { SND.error(); say(null, r.msg); return null; }
-    if (!r.battle) E.addLog(S, r.msg, 'info', [S.player]);
+    if (!r.battle && !r.live) E.addLog(S, r.msg, 'info', [S.player]);
     closeAll();
     render();
     if (r.battle) {
       playBattle(r.battle).then(() => { render(); checkOver(); });
+      return r;
+    }
+    if (r.live) {
+      const ctx = r.live;
+      const view = {
+        city: ctx.city.id, frames: ctx.frames, lines: ctx.lines, result: null, summary: '',
+        atk: { faction: ctx.atk.faction, name: ctx.aName, commander: ctx.aCmd, generals: ctx.atk.generals.map((g) => g.name), troops: ctx.A0, units: ctx.aUnits },
+        def: { faction: ctx.defOwner, name: ctx.dName, commander: ctx.dCmd, generals: ctx.defGens.map((g) => g.name), troops: ctx.D0, units: ctx.dUnits },
+      };
+      playBattle(view, ctx).then(() => { render(); checkOver(); });
       return r;
     }
     const gain = (r.msg.match(/\+(\d+)/) || [])[1];
@@ -4545,7 +4640,7 @@ function svg(g, color, mode, t) {
             (u) => {
               const ids = gens.map((g) => g.id);
               SND.march();
-              run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: t.id, units: u });
+              run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: t.id, units: u, interactive: manualBattle });
             },
             {
               validate: (u) => u.spear + u.cav + u.xbow >= 1000 && c.food >= Math.ceil((u.spear + u.cav + u.xbow) / 10),
@@ -4659,8 +4754,11 @@ function svg(g, color, mode, t) {
     infoWin('記錄', list, { x: 120, y: 90, width: 1040 });
   }
 
+  // 設定：出征時是否手動下戰鬥指令
+  let manualBattle = store('qunxiong.manualBattle') !== '0';
   function systemMenu() {
     menuWin('系統', [
+      { label: `戰鬥指揮：${manualBattle ? '手動' : '自動'}`, hint: '出征時逐段下指令', act: () => { manualBattle = !manualBattle; store('qunxiong.manualBattle', manualBattle ? '1' : '0'); popWin(); systemMenu(); } },
       { label: '存檔', off: busy, act: () => slotMenu(true) },
       { label: '讀檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); popWin(); } },
@@ -4967,7 +5065,7 @@ function svg(g, color, mode, t) {
     return t + 1800;
   }
 
-  function playBattle(r) {
+  function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
       const aCol = color(r.atk.faction), dCol = color(r.def.faction);
@@ -5009,7 +5107,7 @@ function svg(g, color, mode, t) {
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
       const shade = h('div', { class: 'shade' });
       $('layer').append(shade, box);
-      box.addEventListener('click', () => { if (!done) finish(); });
+      box.addEventListener('click', () => { if (!done && !awaiting) finish(); });
 
       const apply = (f) => {
         const setSide = (U, cur, init, ui) => {
@@ -5032,7 +5130,35 @@ function svg(g, color, mode, t) {
       const flashEv = (t) => { evEl.textContent = t; evEl.classList.remove('flash'); void evEl.offsetWidth; evEl.classList.add('flash'); };
       let advance = 0;
 
-      let i = 1, done = false, timer = null;
+      let i = 1, done = false, timer = null, awaiting = false;
+      // 手動指揮：每一段（最多 4 回合）開始前下指令
+      const orderBar = h('div', { class: 'orders hidden' });
+      box.insertBefore(orderBar, resultEl);
+      const endLive = () => { if (live && !r.result) Object.assign(r, E.battleEnd(S, live)); };
+      const runPhase = (order) => {
+        awaiting = false;
+        orderBar.classList.add('hidden');
+        SND.ok();
+        for (let k = 0; k < 4 && !live.result; k++) {
+          const o = k === 0 ? order : (order === 'assault' || order === 'hold' ? order : 'normal');
+          E.battleRound(S, live, o);
+          if (o === 'retreat') break;
+        }
+        timer = setTimeout(step, 150);
+      };
+      const showOrders = () => {
+        awaiting = true;
+        const A0 = live.A0, cur = live.A.troops, foe = live.D.troops;
+        const opts = ['normal', 'assault', 'hold', 'scheme', ...(live.round === 0 && live.canDuel ? ['duel'] : []), 'retreat'];
+        orderBar.replaceChildren(
+          h('div', { class: 'otitle' }, live.round === 0 ? '開戰！請下令' : `第 ${live.round} 回合　我軍 ${fmt(cur)}（${Math.round(100 * cur / A0)}%）・敵軍 ${fmt(foe)}`),
+          h('div', { class: 'obtns' }, ...opts.map((k) => h('button', {
+            class: 'obtn o-' + k, title: E.ORDERS[k].desc,
+            onclick: (e) => { e.stopPropagation(); runPhase(k); },
+          }, h('b', {}, k === 'duel' ? `${E.ORDERS[k].label}（${live.ahero.name}）` : E.ORDERS[k].label), h('small', {}, E.ORDERS[k].desc)))),
+          h('button', { class: 'oauto', onclick: (e) => { e.stopPropagation(); finish(); } }, '交給部將（自動打完）'));
+        orderBar.classList.remove('hidden');
+      };
       const close = () => {
         clearTimeout(timer);
         battleKey = null;
@@ -5045,10 +5171,12 @@ function svg(g, color, mode, t) {
         clearTimeout(timer);
         duelTimers.forEach(clearTimeout);
         duelEl.classList.add('hidden');
+        orderBar.classList.add('hidden');
+        if (live) { while (!live.result) E.battleRound(S, live, 'normal'); endLive(); }
         apply(r.frames[r.frames.length - 1]);
         const me = S.player, atkWon = r.result === 'win';
         let text, good = true;
-        if (r.atk.faction === me) { text = atkWon ? '勝利' : '敗退'; good = atkWon; }
+        if (r.atk.faction === me) { text = atkWon ? '勝利' : r.retreated ? '撤退' : '敗退'; good = atkWon; }
         else if (r.def.faction === me) { text = atkWon ? '失守' : '守住'; good = !atkWon; }
         else text = atkWon ? '攻陷' : '擊退';
         resultEl.textContent = text;
@@ -5062,7 +5190,11 @@ function svg(g, color, mode, t) {
       };
       const step = () => {
         if (done) return;
-        if (i >= r.frames.length) { finish(); return; }
+        if (i >= r.frames.length) {
+          if (live && !live.result) { showOrders(); return; }
+          finish();
+          return;
+        }
         const prev = r.frames[i - 1], f = r.frames[i];
         apply(f);
         if (f.a < prev.a) hit(UA);
@@ -5084,10 +5216,19 @@ function svg(g, color, mode, t) {
         i++;
         timer = setTimeout(step, delay);
       };
-      battleKey = (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { finish(); return true; } return false; };
+      battleKey = (e) => {
+        if (awaiting) {
+          const keys = { 1: 'normal', 2: 'assault', 3: 'hold', 4: 'scheme', 5: 'duel', 6: 'retreat' };
+          if (keys[e.key] && (keys[e.key] !== 'duel' || (live.round === 0 && live.canDuel))) { runPhase(keys[e.key]); return true; }
+          if (e.key === 'Enter' || e.key === ' ') { runPhase('normal'); return true; }
+          return false;
+        }
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { finish(); return true; }
+        return false;
+      };
       apply(r.frames[0]);
       say(null, r.lines[0]);
-      timer = setTimeout(step, 900);
+      timer = setTimeout(step, live ? 300 : 900);
     });
   }
 

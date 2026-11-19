@@ -380,4 +380,50 @@ test('官職：電腦勢力自動任命軍師與太守', () => {
   assert(E.governorOf(s, s.cities['陳留']), '陳留應有太守');
 });
 
+test('戰鬥指揮：手動出征回傳進行中的戰鬥，可逐回合下令、撤退會把兵帶回', () => {
+  const D = globalThis.TK.Diplomacy;
+  const s = E.newGame('cao', 51);
+  D.setState(s, 'cao', 'liu', 'war');
+  s.cities['濮陽'].troops = 30000; s.cities['平原'].troops = 20000;
+  const r = E.exec(s, 'cao', { type: 'attack', city: '濮陽', general: '夏侯惇', generals: ['夏侯惇'], target: '平原', troops: 20000, interactive: true });
+  assert(r.ok && r.live && !r.battle);
+  const ctx = r.live;
+  assert.strictEqual(ctx.round, 0);
+  E.battleRound(s, ctx, 'hold');
+  assert.strictEqual(ctx.round, 1);
+  const left = ctx.A.troops;
+  E.battleRound(s, ctx, 'retreat');
+  assert.strictEqual(ctx.result, 'retreat');
+  const home = s.cities['濮陽'].troops;
+  const res = E.battleEnd(s, ctx);
+  assert.strictEqual(res.result, 'lose');
+  assert(res.retreated);
+  assert(s.cities['濮陽'].troops > home && s.cities['濮陽'].troops <= home + left, '撤退的兵回到出發城');
+  assert.strictEqual(s.cities['平原'].owner, 'liu');
+});
+
+test('戰鬥指揮：突擊打得比穩守兇、但自己損失也大；單挑只能在開戰時', () => {
+  const D = globalThis.TK.Diplomacy;
+  let dA = 0, dH = 0, lA = 0, lH = 0;
+  for (let i = 0; i < 30; i++) {
+    for (const order of ['assault', 'hold']) {
+      const s = E.newGame('cao', 60 + i);
+      D.setState(s, 'cao', 'liu', 'war');
+      s.cities['濮陽'].troops = 30000; s.cities['平原'].troops = 20000;
+      const ctx = E.exec(s, 'cao', { type: 'attack', city: '濮陽', general: '夏侯惇', generals: ['夏侯惇'], target: '平原', troops: 20000, interactive: true }).live;
+      E.battleRound(s, ctx, order);
+      if (order === 'assault') { dA += 20000 - ctx.D.troops; lA += 20000 - ctx.A.troops; } else { dH += 20000 - ctx.D.troops; lH += 20000 - ctx.A.troops; }
+    }
+  }
+  assert(dA > dH * 1.4 && lA > lH * 1.5, `突擊傷害${dA}／${dH}，損失${lA}／${lH}`);
+  const s = E.newGame('cao', 70);
+  D.setState(s, 'cao', 'liu', 'war');
+  const ctx = E.exec(s, 'cao', { type: 'attack', city: '濮陽', general: '夏侯惇', generals: ['夏侯惇', '夏侯淵'], target: '平原', troops: 10000, interactive: true }).live;
+  assert(ctx.canDuel);
+  const f = E.battleRound(s, ctx, 'duel');
+  assert(f.some((x) => x.kind === 'duel'));
+  const g = E.battleRound(s, ctx, 'duel');
+  assert(!g.some((x) => x.kind === 'duel'), '第二次不能再單挑');
+});
+
 console.log(`\n${passed} tests passed`);
