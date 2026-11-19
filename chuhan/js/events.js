@@ -224,6 +224,14 @@
       case 'ruler_dies': E().rulerDies(s, e.faction); break;
       case 'relation': if (alive(s, e.a) && alive(s, e.b)) D().setState(s, e.a, e.b, e.state, e.months); break;
       case 'harvest_mult': s.harvest_mult = e.mult; break;
+      case 'relocate': {
+        // 把武將移到本勢力指定的城（若該城已失，就移到任一座本勢力的城）
+        const g = s.generals[e.general];
+        if (!g || g.status !== 'active') break;
+        const dest = s.cities[e.city] && s.cities[e.city].owner === g.faction ? e.city : (E().citiesOf(s, g.faction)[0] || {}).id;
+        if (dest) g.city = dest;
+        break;
+      }
       case 'troops_scale': {
         const c = s.cities[e.city];
         c.troops = Math.round(c.troops * e.mult);
@@ -274,12 +282,32 @@
       if (last !== undefined && (!ev.repeat || now - last < (ev.cooldown || 12))) continue;
       if (!check(s, ev.cond)) continue;
       s.events_done[ev.id] = now;
-      for (const e of ev.effects) apply(s, e);
+      for (const e of ev.effects || []) apply(s, e);
+      // 抉擇事件：由玩家決定（存入 s.choices，畫面詢問後呼叫 choose）；電腦勢力依 aiChoice 自動選
+      if (ev.choices) {
+        if (ev.chooser === s.player) { s.choices = s.choices || []; s.choices.push(ev.id); }
+        else choose(s, ev.id, ev.aiChoice || 0, true);
+      }
       E().addLog(s, `【${ev.title}】${ev.lines[0][1]}`, 'major', []);
       fired.push(ev);
     }
     return fired;
   }
 
-  TK.Events = { EVENTS, run, check };
+  function findEvent(s, id) {
+    const own = TK.scenarioById ? TK.scenarioById(s.scenario).events || [] : [];
+    return EVENTS.concat(own).find((e) => e.id === id) || null;
+  }
+  // 套用抉擇；回傳所選的選項（含要演出的台詞）
+  function choose(s, id, idx, auto) {
+    const ev = findEvent(s, id);
+    if (!ev || !ev.choices || !ev.choices[idx]) return null;
+    if (!auto) s.choices = (s.choices || []).filter((x) => x !== id);
+    const c = ev.choices[idx];
+    for (const e of c.effects || []) apply(s, e);
+    E().addLog(s, `【${ev.title}】${c.label}：${c.lines[c.lines.length - 1][1]}`, 'major', []);
+    return c;
+  }
+
+  TK.Events = { EVENTS, run, check, choose, findEvent };
 })(globalThis.TK = globalThis.TK || {});

@@ -176,7 +176,7 @@
   const MENU_ICON = {
     內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
-    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city', 襲擾: 'order', 封王: 'appoint', 反間: 'search',
   };
   const UNIT_BY_NAME = { 槍兵: 'spear', 騎兵: 'cav', 弩兵: 'xbow' };
   function svgNode(str) {
@@ -620,6 +620,7 @@
   }
   function roleOf(g) {
     if (!g || g.status !== 'active' || !g.faction) return '';
+    if (g.king) return `${g.king}王`;
     if (E.strategistOf(S, g.faction) === g) return '軍師';
     const c = S.cities[g.city];
     if (c && E.governorOf(S, c) === g) return `${c.name}太守`;
@@ -629,7 +630,7 @@
     const g = r.g;
     const apt = UK.map((k) => h('span', { class: `g-${E.aptitude(g, k)}` }, `${E.UNITS[k].short}${E.aptitude(g, k)} `));
     const sk = g.skill && E.SKILLS[g.skill];
-    return h('div', {}, face(g, 'head', 36, 36), h('div', { class: 'desc' }, g.name, h('br'), h('span', { class: 'dim' }, [roleOf(g), PT.classLabel(g, PT.traits(g))].filter(Boolean).join('・')), h('br'), apt,
+    return h('div', {}, face(g, 'head', 36, 36), h('div', { class: 'desc' }, g.name, h('br'), h('span', { class: 'dim' }, [...new Set([roleOf(g), PT.classLabel(g, PT.traits(g))])].filter(Boolean).join('・')), h('br'), apt,
       sk ? h('div', { class: 'skill' }, h('b', {}, `特技・${g.skill}`), h('br'), h('small', {}, sk.desc)) : null));
   }
 
@@ -670,7 +671,8 @@
       return r;
     }
     const gain = (r.msg.match(/\+(\d+)/) || [])[1];
-    say(speaker || null, speech ? speech(gain, r) : r.msg);
+    const text = speech ? speech(gain, r) : null;
+    say(text ? speaker || null : null, text || r.msg);
     return r;
   }
 
@@ -693,7 +695,22 @@
       { label: '徵兵', act: () => draftFlow(c) },
       { label: '出征', off: !adj.some((id) => S.cities[id].owner !== S.player), why: '附近沒有可進攻的城。', act: () => attackFlow(c) },
       { label: '移動', off: !adj.some((id) => S.cities[id].owner === S.player), why: '沒有相鄰的我方城市。', act: () => moveFlow(c) },
+      { label: '襲擾', hint: `截斷糧道 金${E.RAID_COST}`, off: !adj.some((id) => S.cities[id].owner && S.cities[id].owner !== S.player) || c.gold < E.RAID_COST,
+        why: c.gold < E.RAID_COST ? '金不足。' : '附近沒有敵城。', act: () => raidFlow(c) },
     ], null, SUB);
+  }
+
+  // 截斷糧道：派武將燒毀相鄰敵城的軍糧
+  function raidFlow(c) {
+    const targets = E.neighbors(S, c.id).map((id) => S.cities[id]).filter((t) => t.owner && t.owner !== S.player);
+    tableWin('襲擾：選擇敵城', [{ label: '城' }, { label: '勢力' }, { label: '兵' }, { label: '糧' }],
+      targets.map((t) => ({ t, cells: [t.name, E.factionName(S, t.owner), fmtW(t.troops), fmtW(t.food)] })), (row) => {
+        const t = row.t;
+        pickGeneral(c, 'war', `襲擾${t.name}：選擇武將`, (g) => run({ type: 'raid', city: c.id, general: g.id, target: t.id }, g,
+          (n, res) => (res.msg.includes('被擒') ? null : `遵命！${res.msg}。`)), {
+          info: (r) => `被擒機率約 ${Math.round(E.raidRisk(r.g) * 100)}%（武力越高越安全${r.g.skill === '游擊' ? '；游擊特技：燒得更多、更安全' : ''}）\n糧食燒光的城，守軍會逃散。`,
+        });
+      }, { width: 640, x: 320 });
   }
 
   function searchSpeech(n, r) {
@@ -715,7 +732,33 @@
       { label: '賞賜', hint: '金100', off: c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) },
       { label: '俘虜', off: !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) },
       { label: '任命', hint: '軍師・太守', act: () => appointMenu(c) },
+      { label: '封王', hint: '忠誠全滿，但可能自立', act: () => enfeoffFlow(c) },
+      { label: '反間', hint: `金${E.DISCORD_COST}`, off: !idle || c.gold < E.DISCORD_COST, why: c.gold < E.DISCORD_COST ? '金不足。' : '本城的武將本月都已行動了。', act: () => discordFlow(c) },
     ], null, SUB);
+  }
+
+  // 封王
+  function enfeoffFlow(c) {
+    const list = E.officers(S, c.id).filter((g) => !g.ruler && !g.king).sort((a, b) => E.ambition(b) - E.ambition(a));
+    if (!list.length) { SND.error(); say(null, '本城沒有可以受封的武將。'); return; }
+    tableWin(`封王：封${c.name}給誰？`, genCols(null, ['野心']), genRows(list, { extra: (g) => [Math.round(E.ambition(g))] }), (r) => {
+      const g = r.g;
+      confirmWin(`封${g.name}為${c.name}王？\n忠誠會立刻全滿並兼任太守；但野心 80 以上的王忠誠每月 -1，太低時可能據城自立。`, () => {
+        run({ type: 'enfeoff', city: c.id, target: g.id }, g, () => `臣${g.name}，謝大王厚恩！必為大王鎮守${c.name}。`);
+      });
+    }, { side: genSide, width: 860, x: 200 });
+  }
+
+  // 反間計
+  function discordFlow(c) {
+    const foes = Object.values(S.generals).filter((g) => g.status === 'active' && g.faction && g.faction !== S.player && !g.ruler)
+      .sort((a, b) => (E.strategistOf(S, b.faction) === b) - (E.strategistOf(S, a.faction) === a) || b.int + b.lead - a.int - a.lead).slice(0, 40);
+    tableWin('反間：選擇要離間的敵將', genCols('int', ['勢力', '職位']), genRows(foes, { extra: (g) => [E.factionName(S, g.faction), roleOf(g) || '—'] }), (r) => {
+      const t = r.g;
+      pickGeneral(c, 'int', `反間${t.name}：派誰去？`, (g) => run({ type: 'discord', city: c.id, general: g.id, target: t.id }, g, (n, res) => res.msg), {
+        info: (row) => `成功率約 ${Math.round(E.discordChance(S, row.g, t) * 100)}%（智略高、對方忠誠低時容易成功${row.g.skill === '奇計' ? '；奇計特技大幅提高' : ''}）\n成功：對方忠誠 -35，軍師會被罷免，忠誠太低就離開。`,
+      });
+    }, { side: genSide, width: 900, x: 180 });
   }
 
   // 官職：軍師（全勢力一位）與太守（本城一位）
@@ -1047,9 +1090,27 @@
   async function playEvents(list) {
     for (const ev of list) {
       await playScene(ev);
-      say(null, `【${ev.title}】${ev.lines[ev.lines.length - 1][1]}`);
+      if (S.choices && S.choices.includes(ev.id)) await askChoice(ev);
+      else say(null, `【${ev.title}】${ev.lines[ev.lines.length - 1][1]}`);
     }
     if (list.length) render();
+  }
+  // 抉擇事件：讓玩家選，再演出選擇後的台詞
+  function askChoice(ev) {
+    return new Promise((resolve) => {
+      menuWin(ev.title, ev.choices.map((c, i) => ({
+        label: c.label, hint: c.desc,
+        act: async () => {
+          closeAll();
+          const picked = TK.Events.choose(S, ev.id, i);
+          if (picked) await playScene({ id: ev.id + '_' + i, title: `${ev.title}・${picked.label}`, scene: ev.scene, lines: picked.lines });
+          render();
+          checkOver();
+          resolve();
+        },
+      })), null, { center: true, width: 640, shade: true });
+      stack[stack.length - 1].onKey = ((orig) => (e) => (e.key === 'Escape' ? true : orig(e)))(stack[stack.length - 1].onKey);
+    });
   }
 
   function proposals() {
@@ -1441,7 +1502,7 @@
 
   bind();
   // 供自動測試直接播放戰鬥畫面
-  TK.UI = { playBattle };
+  TK.UI = { playBattle, state: () => S };
   const start = () => showTitle();
   if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('24px Kai'), document.fonts.load('16px Body')]).then(start, start);
   else start();

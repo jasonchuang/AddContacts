@@ -117,6 +117,15 @@
       const threat = threatTo(s, city);
       for (const g of idle(s, city.id, fid)) {
         if (g.acted) continue;
+        // 游擊將領（如彭越）會去截斷鄰近敵城的糧道
+        if (g.skill === '游擊' && Eng.RAID_COST && city.gold >= Eng.RAID_COST + 200 && Eng.rand(s) < 0.5) {
+          const foes = Eng.neighbors(s, city.id).map((id) => s.cities[id]).filter((c) => c.owner && c.owner !== fid && c.food > 3000);
+          if (foes.length) {
+            const t = foes.sort((a, b) => b.food - a.food)[0];
+            Eng.exec(s, fid, { type: 'raid', city: city.id, general: g.id, target: t.id });
+            continue;
+          }
+        }
         const free = Eng.generalsIn(s, city.id, (x) => x.status === 'free' && !x.hidden);
         if (free.length && g.cha >= 60) {
           Eng.exec(s, fid, { type: 'recruit', city: city.id, general: g.id, target: free[0].id });

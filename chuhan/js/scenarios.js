@@ -142,6 +142,61 @@
         },
       ],
     },
+    {
+      id: '-202', title: '垓下之戰', year: -202, month: 12, tag: '十面埋伏・四面楚歌',
+      desc: '鴻溝之約後，漢軍背約追擊。韓信、彭越、英布三路大軍會師垓下，把項羽層層包圍。楚軍兵少糧盡，夜裡四面響起了楚歌……',
+      factions: [['han', '漢', '劉邦'], ['chu', '西楚', '項羽'], ['linjiang', '臨江', '共敖']],
+      cities: { 南鄭: ['han', 10000], 江州: ['han', 8000], 成都: ['han', 15000], 隴西: ['han', 10000], 廢丘: ['han', 12000], 櫟陽: ['han', 25000],
+        高奴: ['han', 10000], 函谷: ['han', 10000], 安邑: ['han', 15000], 洛陽: ['han', 20000], 滎陽: ['han', 25000], 陽翟: ['han', 15000],
+        宛: ['han', 18000], 晉陽: ['han', 12000], 井陘: ['han', 8000], 邯鄲: ['han', 20000], 鉅鹿: ['han', 12000], 薊: ['han', 15000], 無終: ['han', 8000],
+        歷下: ['han', 20000], 臨淄: ['han', 40000], 即墨: ['han', 12000], 定陶: ['han', 50000], 彭城: ['han', 110000], 六: ['han', 45000],
+        垓下: ['chu', 70000], 烏江: ['chu', 4000], 吳: ['chu', 20000], 會稽: ['chu', 12000], 江陵: ['linjiang', 15000] },
+      people: {
+        han: { 彭城: '劉邦 韓信 張良 陳平 曹參 灌嬰 周勃 樊噲 夏侯嬰 靳歙 呂馬童', 定陶: '彭越', 六: '英布 周殷', 滎陽: '王陵 酈商',
+          櫟陽: '蕭何', 臨淄: '傅寬 蒯通', 洛陽: '盧綰', 邯鄲: '張耳', 薊: '臧荼', 歷下: '李左車', 陽翟: '隨何 陸賈' },
+        chu: { 垓下: '項羽 季布 鍾離昧 虞子期 項莊 項伯 項聲', 吳: '項纏 桓楚', 會稽: '丁公' }, linjiang: { 江陵: '共敖' },
+      },
+      free: {},
+      loyalty: { 韓信: 72, 彭越: 70, 英布: 74, 臧荼: 70, 項伯: 55, 丁公: 60 },
+      kings: { 韓信: '臨淄', 彭越: '定陶', 英布: '六' },
+      strategists: { han: '張良' },
+      relations: [['han', 'chu', 'war']],
+      events: [
+        {
+          id: 'simian', title: '四面楚歌', scene: 'night',
+          cond: { from: [-202, 12], alive: ['han', 'chu'], general_faction: { 項羽: 'chu' } },
+          effects: [{ do: 'loyalty', faction: 'chu', amount: -20 }, { do: 'troops_scale', city: '垓下', mult: 0.8 }],
+          lines: [['張良', '讓軍中會唱楚歌的人，今夜圍著楚營四面高唱。'], ['', '夜深了，四面八方傳來家鄉的歌聲。楚營中，士卒一個接一個悄悄逃走。'],
+            ['項羽', '漢軍已經全部攻佔楚地了嗎？為什麼楚人這麼多？'], ['項羽', '力拔山兮氣蓋世，時不利兮騅不逝。騅不逝兮可奈何，虞兮虞兮奈若何！'],
+            ['虞子期', '大王……（帳中，虞姬和歌而舞，左右皆泣，莫能仰視）']],
+        },
+        {
+          id: 'wujiang', title: '烏江', scene: 'river',
+          cond: { from: [-202, 12], alive: ['chu'], general_faction: { 項羽: 'chu' }, city_owner_not: { 垓下: 'chu' } },
+          effects: [],
+          chooser: 'chu', aiChoice: 1,
+          lines: [['', '項羽率八百騎突圍南逃，到了烏江邊，身邊只剩二十八騎。'],
+            ['烏江亭長', '江東雖小，地方千里，眾數十萬人，亦足王也。願大王急渡。今獨臣有船，漢軍至，無以渡。']],
+          choices: [
+            { label: '渡江・捲土重來', desc: '退回江東，保住性命再圖天下',
+              effects: [{ do: 'relocate', general: '項羽', city: '吳' }, { do: 'troops', city: '吳', unit: 'spear', amount: 8000 }, { do: 'loyalty', faction: 'chu', amount: 15 }],
+              lines: [['項羽', '……好。江東子弟，隨我捲土重來！'], ['', '一葉扁舟載著霸王渡過烏江。勝敗兵家事不期，包羞忍恥是男兒——楚漢之爭，還沒有結束。']] },
+            { label: '自刎烏江', desc: '依照史實，霸王不肯過江東',
+              effects: [{ do: 'die', general: '項羽' }, { do: 'absorb', faction: 'chu', into: 'han' }],
+              lines: [['項羽', '天之亡我，我何渡為！且籍與江東子弟八千人渡江而西，今無一人還，縱江東父兄憐而王我，我何面目見之？'],
+                ['項羽', '我知你是長者。這匹烏騅馬跟我五年，所向無敵，曾一日千里，不忍殺它，送給你吧。'], ['', '霸王拔劍自刎於烏江。楚地盡降，天下歸漢。']] },
+          ],
+        },
+        {
+          id: 'xin_doubt', title: '韓信的抉擇', scene: 'palace',
+          cond: { from: [-201, 3], alive: ['han'], general_faction: { 韓信: 'han' } },
+          effects: [{ do: 'loyalty_of', generals: ['韓信'], value: 62 }],
+          lines: [['蒯通', '將軍貴為齊王，功高震主。如今項羽已亡，狡兔死，走狗烹，漢王還容得下你嗎？'],
+            ['韓信', '漢王待我甚厚，載我以其車，衣我以其衣，食我以其食。我豈可見利而忘義？'], ['蒯通', '（唉……）'],
+            ['', '（齊王韓信的忠誠下降了。受封的王忠誠過低時可能自立——記得賞賜或安撫。）']],
+        },
+      ],
+    },
   ];
 
   function build(d) {
@@ -177,6 +232,11 @@
       }
     }
     for (const [city, names] of Object.entries(d.free || {})) for (const n of split(names)) add(n, null, city, 'free');
+    for (const [n, city] of Object.entries(d.kings || {})) {
+      const g = generals.find((x) => x.name === n);
+      if (!g || owner[city] !== g.faction) throw new Error(`劇本 ${d.title}：${n} 不能封於 ${city}`);
+      g.king = city;
+    }
     const factions = d.factions.map(([id, name, ruler, ...heirs]) => {
       const r = generals.find((g) => g.name === ruler);
       if (!r || r.faction !== id) throw new Error(`劇本 ${d.title}：${name} 的君主 ${ruler} 不在勢力中`);

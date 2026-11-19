@@ -199,6 +199,43 @@
     train: { label: '訓練', cost: 0, stat: 'lead', key: 'train' },
   };
 
+  // ---------- 楚漢特色：截斷糧道、反間、封王 ----------
+  const RAID_COST = 100, DISCORD_COST = 300;
+  function raidRisk(g) { return clamp(0.35 - g.war / 300 - (g.skill === '游擊' ? 0.2 : 0), 0.04, 0.4); }
+  function discordChance(s, spy, t) {
+    return clamp(0.2 + (spy.int - t.int) / 150 + (t.loyalty < 80 ? 0.15 : 0) + (spy.skill === '奇計' ? 0.25 : 0), 0.05, 0.85);
+  }
+  // 野心：統率、武力、智略的平均；野心 80 以上的王，忠誠每月 -1
+  function ambition(g) { return (g.lead + g.war + g.int) / 3; }
+  // 受封的王自立：忠誠低於 60 時每月有機會帶著封地獨立
+  function kingsTick(s) {
+    for (const g of Object.values(s.generals)) {
+      if (!g.king || g.status !== 'active' || !g.faction) continue;
+      const c = s.cities[g.king];
+      if (!c || c.owner !== g.faction) { g.king = null; continue; }
+      if (ambition(g) >= 80 && g.loyalty > 0) g.loyalty -= 1;
+      if (g.loyalty < 60 && rand(s) < (60 - g.loyalty) / 150) rebel(s, g, c);
+    }
+  }
+  function rebel(s, g, c) {
+    const old = g.faction, fid = `k_${g.id}`;
+    if (s.factions[fid]) return;
+    s.factions[fid] = { id: fid, name: `${c.name}王`, ruler: g.name, color: '#6a6a6a', heirs: [], alive: true };
+    c.owner = fid; c.governor = g.id;
+    g.faction = fid; g.ruler = true; g.loyalty = 100; g.king = null; g.city = c.id;
+    // 城中原勢力的武將：忠誠不高的跟著自立，其餘撤回原勢力的鄰城（沒有就回首都，再沒有就下野）
+    const back = neighbors(s, c.id).find((n) => s.cities[n].owner === old) || (citiesOf(s, old)[0] || {}).id;
+    for (const x of Object.values(s.generals)) {
+      if (x === g || x.faction !== old || x.city !== c.id || x.status !== 'active') continue;
+      if (x.loyalty < 75 && !x.ruler) x.faction = fid;
+      else if (back) x.city = back;
+      else Object.assign(x, { faction: null, status: 'free', hidden: false });
+    }
+    if (TK.Diplomacy) TK.Diplomacy.setState(s, fid, old, 'war');
+    addLog(s, `${g.name}據${c.name}自立，與${factionName(s, old)}反目！`, 'major', [old, fid]);
+    if (citiesOf(s, old).length === 0) destroyFaction(s, old);
+  }
+
   // 官職：軍師（勢力）與太守（城），人已離開或不在職位上就視為空缺
   function strategistOf(s, fid) {
     const f = fid && s.factions[fid];
@@ -248,7 +285,7 @@
     const city = s.cities[cmd.city];
     if (!city || city.owner !== fid) return fail('不是我方城市');
     let g = null;
-    const needsExec = !['reward', 'release', 'execute', 'appoint'].includes(cmd.type);
+    const needsExec = !['reward', 'release', 'execute', 'appoint', 'enfeoff'].includes(cmd.type);
     if (needsExec) {
       g = s.generals[cmd.general];
       if (!g || g.faction !== fid || g.status !== 'active' || g.city !== city.id) return fail('武將不在此城');
@@ -327,6 +364,65 @@
           return ok(t ? `任命${t.name}為${city.name}太守` : `解除了${city.name}太守`);
         }
         return fail('未知的官職');
+      }
+      case 'raid': {
+        // 截斷糧道：派武將潛入相鄰敵城燒糧；武力高、有「游擊」特技者效果好又不易被抓
+        const t = s.cities[cmd.target];
+        if (!t || !t.owner || t.owner === fid || !neighbors(s, city.id).includes(t.id)) return fail('只能襲擾相鄰的敵城');
+        if (city.gold < RAID_COST) return fail('金不足');
+        city.gold -= RAID_COST;
+        g.acted = true;
+        const guerrilla = g.skill === '游擊';
+        const caught = rand(s) < raidRisk(g);
+        if (caught) {
+          Object.assign(g, { status: 'prisoner', formerFaction: fid, faction: null, city: t.id });
+          return ok(`${g.name}襲擾${t.name}糧道時被擒！`, null);
+        }
+        const burn = Math.round(t.food * Math.min(0.6, 0.15 + g.war / 500 + (guerrilla ? 0.2 : 0)));
+        t.food -= burn;
+        t.order = Math.max(0, t.order - (guerrilla ? 8 : 4));
+        const scare = Math.round(t.troops * (guerrilla ? 0.04 : 0.02));
+        t.troops -= scare;
+        addLog(s, `${g.name}襲擾${t.name}的糧道，燒毀軍糧 ${burn}`, 'major', [fid, t.owner]);
+        return ok(`${g.name}襲擾${t.name}糧道，燒毀軍糧 ${burn}，守軍逃散 ${scare}`);
+      }
+      case 'enfeoff': {
+        // 封王：把本城封給有功的部下。忠誠立刻全滿、擔任太守，但野心大的王忠誠會慢慢下滑，太低可能自立
+        const t = s.generals[cmd.target];
+        if (!t || t.faction !== fid || t.status !== 'active' || t.city !== city.id) return fail('找不到武將');
+        if (t.ruler) return fail('君主不能受封');
+        if (t.king) return fail(`${t.name}已經是王了`);
+        if (Object.values(s.generals).some((x) => x.king === city.id && x.status === 'active' && x.faction === fid)) return fail(`${city.name}已有封王`);
+        if (citiesOf(s, fid).length < 3) return fail('至少要有三座城才能封王');
+        t.king = city.id;
+        t.loyalty = 100;
+        city.governor = t.id;
+        addLog(s, `${t.name}受封為${city.name}王`, 'major', [fid]);
+        return ok(`封${t.name}為${city.name}王`);
+      }
+      case 'discord': {
+        // 反間計：離間敵方武將與其君主
+        const t = s.generals[cmd.target];
+        if (!t || t.status !== 'active' || !t.faction || t.faction === fid || t.ruler) return fail('對象不正確');
+        if (city.gold < DISCORD_COST) return fail('金不足');
+        city.gold -= DISCORD_COST;
+        g.acted = true;
+        if (rand(s) >= discordChance(s, g, t)) return ok(`${g.name}的反間計被${t.name}識破了`);
+        const owner = t.faction, wasStrategist = strategistOf(s, owner) === t;
+        t.loyalty = Math.max(0, t.loyalty - 35);
+        let msg = `反間計成功！${s.factions[owner].ruler}開始猜忌${t.name}`;
+        if (wasStrategist) { s.factions[owner].strategist = null; msg += `，罷去了他的軍師之職`; }
+        if (t.loyalty <= 45) {
+          if (t.name === '范增') {
+            Object.assign(t, { status: 'dead', city: null });
+            msg += `。${t.name}憤而離去，途中背疽發作而死`;
+          } else {
+            Object.assign(t, { status: 'free', faction: null, hidden: false, loyalty: 0 });
+            msg += `。${t.name}離開了${factionName(s, owner)}`;
+          }
+        }
+        addLog(s, msg, 'major', [fid, owner]);
+        return ok(msg);
       }
       case 'reward': {
         const t = s.generals[cmd.target];
@@ -771,6 +867,7 @@
     }
     if (s.month === 7) s.harvest_mult = 1;
     if (TK.Diplomacy) TK.Diplomacy.monthTick(s);
+    kingsTick(s);
     for (const g of Object.values(s.generals)) g.acted = false;
     s.month += 1;
     if (s.month > 12) { s.month = 1; s.year += 1; }
@@ -806,7 +903,7 @@
 
   TK.Engine = {
     duel,
-    destroyFaction, SKILLS, yearText, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
+    destroyFaction, SKILLS, yearText, RAID_COST, DISCORD_COST, raidRisk, discordChance, ambition, rebel, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
