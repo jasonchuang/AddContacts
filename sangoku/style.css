@@ -435,3 +435,5 @@ body.mobile .battle .orders .otitle { font-size: 16px; }
 body.mobile .battle .orders .obtns { grid-template-columns: repeat(3, 1fr); gap: 6px; }
 body.mobile .battle .orders .obtn b { font-size: 18px; }
 body.mobile .battle .orders .obtn small { font-size: 10px; line-height: 13px; }
+
+#status .diff { padding: 0 8px; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; font-size: 14px; color: #f3e6c8; }

@@ -1,5 +1,6 @@
 // 自動試玩：讓「玩家機器人」（與電腦勢力相同的 AI）代替玩家，從開局打到結束，統計各劇本、各勢力的結果。
 // 執行：node sangoku/tools/playtest.js [劇本id] [每個勢力的局數，預設 3] [最多年數，預設 60]
+// 難易度：DIFF=easy|normal|hard node sangoku/tools/playtest.js …
 'use strict';
 const path = require('path');
 global.TK = {};
@@ -12,7 +13,7 @@ const MAXY = +(process.argv[4] || 60);
 
 function playOne(sc, fid, seed, mode) {
   TK.SCENARIO = sc;
-  const s = E.newGame(fid, seed, mode || 'historical');
+  const s = E.newGame(fid, seed, mode || 'historical', process.env.DIFF || 'normal');
   const issues = [];
   let months = 0, peak = 0, stuck = 0, lastCities = -1;
   TK.Events.run(s);

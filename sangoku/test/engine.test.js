@@ -426,4 +426,20 @@ test('戰鬥指揮：突擊打得比穩守兇、但自己損失也大；單挑�
   assert(!g.some((x) => x.kind === 'duel'), '第二次不能再單挑');
 });
 
+test('難易度：容易時玩家收入較多、電腦較少；困難時電腦收入與戰力較高；舊存檔視為中等', () => {
+  const inc = (d) => {
+    const s = E.newGame('liu', 80, 'free', d);
+    const p0 = s.cities['平原'].gold, a0 = s.cities['陳留'].gold;
+    E.monthEnd(s);
+    return { p: s.cities['平原'].gold - p0, a: s.cities['陳留'].gold - a0, s };
+  };
+  const e = inc('easy'), n = inc('normal'), h = inc('hard');
+  assert(e.p > n.p && n.p === h.p, `玩家 ${e.p}/${n.p}/${h.p}`);
+  assert(e.a < n.a && n.a < h.a, `電腦 ${e.a}/${n.a}/${h.a}`);
+  assert.strictEqual(e.s.difficulty, 'easy');
+  const old = E.newGame('liu', 81); delete old.difficulty; E.ensure(old);
+  assert.strictEqual(old.difficulty, 'normal');
+  assert.strictEqual(E.newGame('liu', 82, 'free', 'nonsense').difficulty, 'normal');
+});
+
 console.log(`\n${passed} tests passed`);
