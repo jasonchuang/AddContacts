@@ -1055,9 +1055,27 @@
   async function playEvents(list) {
     for (const ev of list) {
       await playScene(ev);
-      say(null, `【${ev.title}】${ev.lines[ev.lines.length - 1][1]}`);
+      if (S.choices && S.choices.includes(ev.id)) await askChoice(ev);
+      else say(null, `【${ev.title}】${ev.lines[ev.lines.length - 1][1]}`);
     }
     if (list.length) render();
+  }
+  // 抉擇事件：讓玩家選，再演出選擇後的台詞
+  function askChoice(ev) {
+    return new Promise((resolve) => {
+      menuWin(ev.title, ev.choices.map((c, i) => ({
+        label: c.label, hint: c.desc,
+        act: async () => {
+          closeAll();
+          const picked = TK.Events.choose(S, ev.id, i);
+          if (picked) await playScene({ id: ev.id + '_' + i, title: ev.title, scene: picked.scene || ev.scene, lines: picked.lines });
+          render();
+          checkOver();
+          resolve();
+        },
+      })), null, { center: true, width: 680, shade: true });
+      stack[stack.length - 1].onKey = ((orig) => (e) => (e.key === 'Escape' ? true : orig(e)))(stack[stack.length - 1].onKey);
+    });
   }
 
   function proposals() {
@@ -1449,7 +1467,7 @@
 
   bind();
   // 供自動測試直接播放戰鬥畫面
-  TK.UI = { playBattle };
+  TK.UI = { playBattle, state: () => S };
   const start = () => showTitle();
   if (document.fonts && document.fonts.load) Promise.all([document.fonts.load('24px Kai'), document.fonts.load('16px Body')]).then(start, start);
   else start();

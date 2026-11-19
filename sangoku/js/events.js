@@ -10,13 +10,13 @@
       id: 'coalition', title: '反董卓聯盟', historical: true,
       cond: { from: [190, 1], until: [190, 3], alive: ['dong'] },
       effects: [{ do: 'coalition_against', faction: 'dong' }],
-      lines: [['曹操', '董卓廢立天子、焚掠百姓，天下共憤。各路諸侯，願同舉義兵！'], ['袁紹', '我袁家四世三公，願為盟主，號令諸軍討賊。']],
+      lines: [['曹操', '董卓廢立天子、焚掠百姓，天下共憤。各路諸侯，願同舉義兵！'], ['袁紹', '我袁家四世三公，願為盟主，號令諸軍討賊。'], ['', '十八路諸侯會盟於酸棗。董卓派大將華雄出關迎戰，聯軍接連折損數員大將。'], ['關羽', '小將願往，斬華雄之頭，獻於帳下！'], ['袁術', '一個弓手也敢在這裡亂說？給我打出去！'], ['曹操', '公路息怒。此人既出大言，必有勇略。……來，先飲一杯熱酒再上馬。'], ['關羽', '酒且斟下，某去便來。'], ['', '帳外鼓聲大振，喊聲大舉，如天摧地塌。不一會兒，鸞鈴響處，關羽提著華雄的首級擲於地上——那杯酒還是溫的。']],
     },
     {
       id: 'oath', title: '桃園之誓', historical: true,
       cond: { from: [190, 1], until: [190, 3], alive: ['liu'], general_faction: { 關羽: 'liu', 張飛: 'liu' } },
       effects: [{ do: 'loyalty_of', generals: ['關羽', '張飛'], value: 100 }, { do: 'loyalty', faction: 'liu', amount: 5 }],
-      lines: [['劉備', '你我三人雖非同姓，願結為兄弟，同心協力，上報國家，下安黎民。'], ['關羽', '此生願隨兄長，絕無二心。'], ['張飛', '哈哈！從今以後，誰欺負大哥，就是跟我張飛過不去！']],
+      lines: [['', '涿郡的桃園裡，桃花盛開。三人備下烏牛白馬，焚香再拜。'], ['劉備', '念劉備、關羽、張飛，雖然異姓，既結為兄弟，則同心協力，救困扶危；上報國家，下安黎庶。'], ['關羽', '不求同年同月同日生——'], ['張飛', '只願同年同月同日死！皇天后土，實鑒此心，背義忘恩，天人共戮！'], ['劉備', '從今以後，我為兄，雲長次之，翼德為弟。']],
     },
     {
       id: 'capital_move', title: '遷都長安', historical: true,
@@ -34,7 +34,7 @@
       id: 'dong_falls', title: '董卓之死', historical: true,
       cond: { from: [192, 4], alive: ['dong'], general_faction: { 董卓: 'dong', 呂布: 'dong' } },
       effects: [{ do: 'ruler_dies', faction: 'dong' }, { do: 'leave', general: '呂布' }, { do: 'leave', general: '張遼' }],
-      lines: [['呂布', '義父？哼……我奉詔討賊，今日便是你的死期！'], ['董卓', '奉先，你竟敢——！']],
+      lines: [['', '董卓專橫殘暴，朝野敢怒不敢言。司徒王允暗中與呂布結交。'], ['', '呂布曾因小事觸怒董卓，董卓拔出手戟擲向他，呂布閃過才保住性命；又與董卓的侍婢私通，日夜擔心事情敗露。'], ['呂布', '我與董卓是父子之情啊……'], ['', '王允：「君自姓呂，本非骨肉。如今憂死不暇，還談什麼父子？擲戟之時，他可有父子之情？」'], ['', '四月，天子病癒，在未央殿大會群臣。董卓入宮時，被埋伏的兵士以戟刺之。'], ['董卓', '呂布何在？！'], ['呂布', '有詔討賊臣！'], ['', '呂布一矛刺死董卓。長安士民歡騰，賣掉珠玉衣裝買酒肉慶祝，塞滿了街道。']],
     },
     {
       id: 'qingzhou', title: '收編青州兵', historical: true,
@@ -64,7 +64,7 @@
       id: 'heroes', title: '煮酒論英雄', historical: true,
       cond: { from: [197, 1], until: [199, 12], alive: ['cao', 'liu'], adjacent_factions: ['cao', 'liu'], chance: 0.4 },
       effects: [{ do: 'relation', a: 'cao', b: 'liu', state: 'truce', months: 6 }, { do: 'gold', faction: 'liu', amount: 300 }],
-      lines: [['曹操', '當今天下，誰可稱英雄？依我看，只有你我二人。'], ['劉備', '（手中筷子掉落）……方才雷聲大作，嚇了一跳，讓您見笑了。']],
+      lines: [['曹操', '（指著青梅煮的酒）玄德，你遊歷四方，當世英雄是誰？'], ['劉備', '淮南袁術，兵糧足備，可為英雄？'], ['曹操', '冢中枯骨，我早晚擒之。'], ['劉備', '河北袁紹，四世三公？'], ['曹操', '色厲膽薄，好謀無斷，幹大事而惜身，見小利而忘命，不是英雄。'], ['曹操', '今天下英雄，唯使君與操耳。'], ['', '劉備大吃一驚，手中的筷子掉在地上。這時正好天上打雷。'], ['劉備', '（拾起筷子）聖人說「迅雷風烈必變」，一聲雷竟嚇成這樣……']],
     },
     {
       id: 'guandu', title: '官渡對峙', historical: true,
@@ -76,13 +76,13 @@
       id: 'return', title: '千里尋兄', historical: true,
       cond: { from: [190, 6], alive: ['liu'], general_elsewhere: { 關羽: 'liu' } },
       effects: [{ do: 'join', general: '關羽', faction: 'liu', force: true }],
-      lines: [['關羽', '受人之恩，已經報答。如今得知兄長下落，縱有千里，也要前去相會！']],
+      lines: [['張遼', '雲長，曹公待你如此之厚，你為何還念著要走？'], ['關羽', '我深知曹公待我厚。然而我受劉將軍厚恩，誓以共死，不可背之。我終究不會留下，但要立功報答曹公之後才去。'], ['', '關羽封存所有賞賜，掛印留書，護著兩位嫂嫂，一路過五關、斬六將，千里尋兄。'], ['曹操', '各為其主，勿追也。'], ['關羽', '大哥！關某總算找到你了。']],
     },
     {
       id: 'three_visits', title: '三顧茅廬', historical: true,
       cond: { from: [195, 1], alive: ['liu'], general_free: ['諸葛亮'], near: ['liu', '襄陽'] },
       effects: [{ do: 'join', general: '諸葛亮', faction: 'liu' }],
-      lines: [['劉備', '劉備三度登門，只盼先生出山，共扶漢室。'], ['諸葛亮', '將軍誠意至此，亮願效犬馬之勞。依我之見，天下大勢可三分……']],
+      lines: [['徐庶', '諸葛孔明，臥龍也。將軍可願見他？此人只可親自去見，不可召他前來。'], ['', '劉備冒著風雪，三次來到隆中草廬。前兩次都沒見到，第三次諸葛亮在午睡，劉備就站在階下等候。'], ['諸葛亮', '（醒來）……將軍久等了。'], ['劉備', '漢室傾頹，奸臣竊命。我不自量力，想伸張大義於天下，然而智術短淺，至今一事無成。請先生指教。'], ['諸葛亮', '曹操擁百萬之眾，挾天子以令諸侯，不可與爭鋒；孫權據有江東已歷三世，可以為援而不可圖。'], ['諸葛亮', '荊州用武之國，益州天府之土。將軍若跨有荊、益，保其巖阻，西和諸戎，南撫夷越，外結孫權，內修政理——則霸業可成，漢室可興。'], ['劉備', '善！……孤之有孔明，猶魚之有水也。']],
     },
     {
       id: 'zilong', title: '子龍來投', historical: true,
@@ -158,6 +158,9 @@
     for (const [f, n] of Object.entries(cond.cities_at_least || {})) if (E().citiesOf(s, f).length < n) return false;
     if (cond.adjacent_factions && !adjacent(s, cond.adjacent_factions[0], cond.adjacent_factions[1])) return false;
     for (const [c, n] of Object.entries(cond.troops_below || {})) if (s.cities[c].troops >= n) return false;
+    // 某些事件發生之後才會觸發；某些武將已經死亡
+    for (const id of cond.after || []) if (!(s.events_done || {})[id] && (s.events_done || {})[id] !== 0) return false;
+    for (const n of cond.general_dead || []) if (!s.generals[n] || s.generals[n].status !== 'dead') return false;
     if (cond.chance && E().rand(s) >= cond.chance) return false;
     return true;
   }
@@ -224,6 +227,13 @@
       case 'ruler_dies': E().rulerDies(s, e.faction); break;
       case 'relation': if (alive(s, e.a) && alive(s, e.b)) D().setState(s, e.a, e.b, e.state, e.months); break;
       case 'harvest_mult': s.harvest_mult = e.mult; break;
+      case 'relocate': {
+        const g = s.generals[e.general];
+        if (!g || g.status !== 'active') break;
+        const dest = s.cities[e.city] && s.cities[e.city].owner === g.faction ? e.city : (E().citiesOf(s, g.faction)[0] || {}).id;
+        if (dest) g.city = dest;
+        break;
+      }
       case 'troops_scale': {
         const c = s.cities[e.city];
         c.troops = Math.round(c.troops * e.mult);
@@ -274,12 +284,32 @@
       if (last !== undefined && (!ev.repeat || now - last < (ev.cooldown || 12))) continue;
       if (!check(s, ev.cond)) continue;
       s.events_done[ev.id] = now;
-      for (const e of ev.effects) apply(s, e);
+      for (const e of ev.effects || []) apply(s, e);
+      // 抉擇事件：由玩家決定（存入 s.choices，畫面詢問後呼叫 choose）；電腦勢力依 aiChoice 自動選
+      if (ev.choices) {
+        if (ev.chooser === s.player) { s.choices = s.choices || []; s.choices.push(ev.id); }
+        else choose(s, ev.id, ev.aiChoice || 0, true);
+      }
       E().addLog(s, `【${ev.title}】${ev.lines[0][1]}`, 'major', []);
       fired.push(ev);
     }
     return fired;
   }
 
-  TK.Events = { EVENTS, run, check };
+  function findEvent(s, id) {
+    const own = TK.scenarioById ? TK.scenarioById(s.scenario).events || [] : [];
+    return EVENTS.concat(own).find((e) => e.id === id) || null;
+  }
+  // 套用抉擇；回傳所選的選項（含要演出的台詞）
+  function choose(s, id, idx, auto) {
+    const ev = findEvent(s, id);
+    if (!ev || !ev.choices || !ev.choices[idx]) return null;
+    if (!auto) s.choices = (s.choices || []).filter((x) => x !== id);
+    const c = ev.choices[idx];
+    for (const e of c.effects || []) apply(s, e);
+    E().addLog(s, `【${ev.title}】${c.label}：${c.lines[c.lines.length - 1][1]}`, 'major', []);
+    return c;
+  }
+
+  TK.Events = { EVENTS, run, check, choose, findEvent };
 })(globalThis.TK = globalThis.TK || {});

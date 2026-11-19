@@ -235,7 +235,7 @@ const jump = (s, y, m) => { s.year = y; s.month = m; };
 
 test('劇本：六個劇本都能開局，每個勢力都有君主與城，AI 跑三年不出錯', () => {
   const T = globalThis.TK;
-  assert.deepStrictEqual(T.SCENARIOS.map((x) => x.id), ['190', '197', '200', '208', '219', '221']);
+  assert.deepStrictEqual(T.SCENARIOS.map((x) => x.id), ['190', '197', '200', '200b', '208', '211', '218', '219', '221']);
   for (const sc of T.SCENARIOS) {
     withScenario(sc.id, () => {
       const s = E.newGame(null, 7);
@@ -440,6 +440,76 @@ test('難易度：容易時玩家收入較多、電腦較少；困難時電腦�
   const old = E.newGame('liu', 81); delete old.difficulty; E.ensure(old);
   assert.strictEqual(old.difficulty, 'normal');
   assert.strictEqual(E.newGame('liu', 82, 'free', 'nonsense').difficulty, 'normal');
+});
+
+test('宛城之變：曹昂讓馬、與曹安民一同戰死，典韋死守營門', () => {
+  const EV = globalThis.TK.Events;
+  withScenario('197', () => {
+    const s = E.newGame('cao', 90);
+    jump(s, 197, 2);
+    const ev = EV.run(s).find((e) => e.id === 'wancheng');
+    const text = ev.lines.map((l) => l[1]).join('');
+    assert(text.includes('天下可以沒有曹昂') && text.includes('營門'));
+    for (const n of ['典韋', '曹昂', '曹安民']) assert.strictEqual(s.generals[n].status, 'dead', n);
+  });
+});
+
+test('烏巢之戰：袁紹（電腦）斥責許攸 → 曹操（玩家）抉擇夜襲 → 張郃高覽倒戈 → 田豐之死', () => {
+  const EV = globalThis.TK.Events;
+  withScenario('200b', () => {
+    const s = E.newGame('cao', 91);
+    EV.run(s);
+    assert.strictEqual(s.generals['許攸'].faction, 'cao', '電腦袁紹照史實斥責許攸');
+    assert.deepStrictEqual(s.choices, ['wuchao_raid'], '夜襲由玩家決定');
+    const food = s.cities['濮陽'].food;
+    assert.strictEqual(EV.choose(s, 'wuchao_raid', 0).label, '親率五千精兵夜襲烏巢（史實）');
+    assert(s.cities['濮陽'].food < food * 0.2);
+    assert.strictEqual(s.generals['淳于瓊'].status, 'dead');
+    EV.run(s);
+    assert.strictEqual(s.generals['張郃'].faction, 'cao');
+    jump(s, 200, 11);
+    EV.run(s);
+    assert.strictEqual(s.generals['田豐'].status, 'dead');
+  });
+  withScenario('200b', () => {
+    const s = E.newGame('yuans', 92);
+    EV.run(s);
+    assert.deepStrictEqual(s.choices, ['xuyou_defect'], '玩家扮演袁紹時可以留住許攸');
+    EV.choose(s, 'xuyou_defect', 0);
+    assert.strictEqual(s.generals['許攸'].faction, 'yuans');
+    EV.run(s);
+    assert(!(s.events_done || {}).wuchao_raid, '許攸沒走，就不會有烏巢之戰');
+  });
+});
+
+test('潼關之戰：割鬚棄袍 → 許褚鬥馬超 → 離間韓遂（同盟破裂）→ 渭南大捷', () => {
+  const D = globalThis.TK.Diplomacy, EV = globalThis.TK.Events;
+  withScenario('211', () => {
+    const s = E.newGame('cao', 93);
+    assert.strictEqual(D.stateOf(s, 'ma', 'hansui'), 'alliance');
+    jump(s, 211, 8); EV.run(s);
+    jump(s, 211, 9);
+    const ids = EV.run(s).map((e) => e.id);
+    assert(ids.includes('luoyi') && ids.includes('lijian'), ids.join(','));
+    assert.strictEqual(D.stateOf(s, 'ma', 'hansui'), 'war');
+    jump(s, 211, 10); EV.run(s);
+    assert.strictEqual(s.generals['成宜'].status, 'dead');
+  });
+});
+
+test('漢中之戰：定軍山斬夏侯淵 → 空營計 → 雞肋（楊修死、曹操退出漢中）→ 漢中王', () => {
+  const EV = globalThis.TK.Events;
+  withScenario('218', () => {
+    const s = E.newGame('liu', 94);
+    jump(s, 219, 1); EV.run(s);
+    assert.strictEqual(s.generals['夏侯淵'].status, 'dead');
+    jump(s, 219, 3); assert(EV.run(s).some((e) => e.id === 'kongying'));
+    jump(s, 219, 5); EV.run(s);
+    assert.strictEqual(s.generals['楊修'].status, 'dead');
+    assert.strictEqual(s.cities['漢中'].owner, 'liu');
+    assert(Object.values(s.generals).every((g) => g.status !== 'active' || s.cities[g.city].owner === g.faction), '撤出的曹將回到曹操的城');
+    jump(s, 219, 6); assert(EV.run(s).some((e) => e.id === 'hanzhongwang'));
+  });
 });
 
 console.log(`\n${passed} tests passed`);
