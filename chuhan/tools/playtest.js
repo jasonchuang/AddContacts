@@ -12,7 +12,7 @@ const MAXY = +(process.argv[4] || 60);
 
 function playOne(sc, fid, seed, mode) {
   TK.SCENARIO = sc;
-  const s = E.newGame(fid, seed, mode || 'historical');
+  const s = E.newGame(fid, seed, mode || 'historical', process.env.DIFF || 'normal');
   const issues = [];
   let months = 0, peak = 0, stuck = 0, lastCities = -1;
   TK.Events.run(s);

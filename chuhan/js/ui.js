@@ -454,14 +454,23 @@
     });
     tableWin(`選擇君主　${E.yearText(sc.year)}年「${sc.title}」`, [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '將' }, { label: '兵力' }, { label: '難度' }], rows, (r) => {
       menuWin('劇本模式', [
-        { label: '歷史劇本', hint: '依條件發生歷史事件', act: () => { closeAll(); newGame(r.f.id, 'historical'); } },
-        { label: '自由模式', hint: '各勢力自由發展', act: () => { closeAll(); newGame(r.f.id, 'free'); } },
+        { label: '歷史劇本', hint: '依條件發生歷史事件', act: () => chooseDifficulty(r.f.id, 'historical') },
+        { label: '自由模式', hint: '各勢力自由發展', act: () => chooseDifficulty(r.f.id, 'free') },
       ], null, { center: true, width: 620 });
     }, {
       center: true, width: 1000, shade: true,
       side: (r) => h('div', {}, face(Object.assign({ id: r.f.ruler }, sc.generals.find((g) => g.id === r.f.ruler)), 'full', 48, 60, 'big'),
         h('div', { class: 'desc' }, h('span', { style: `color:${r.f.color}` }, '■ '), r.f.name, h('br'), h('span', { class: 'dim' }, r.cities.map((c) => c.name).join('・')))),
     });
+  }
+
+  // 難易度
+  function chooseDifficulty(fid, mode) {
+    menuWin('難易度', Object.entries(E.DIFFICULTY).map(([k, d]) => ({
+      label: d.label, hint: d.desc, act: () => { closeAll(); newGame(fid, mode, k); },
+    })), null, { center: true, width: 760, shade: true });
+    stack[stack.length - 1].menu.index = 1;
+    stack[stack.length - 1].menu.render();
   }
 
   function slotMenu(saving) {
@@ -492,8 +501,8 @@
     } catch (e) { SND.error(); }
   }
 
-  function newGame(fid, mode) {
-    S = E.newGame(fid, undefined, mode);
+  function newGame(fid, mode, difficulty) {
+    S = E.newGame(fid, undefined, mode, difficulty);
     E.addLog(S, `你成為了${S.factions[fid].name}的君主。目標：統一天下！`, 'major', [fid]);
     enterGame();
     const ruler = S.generals[S.factions[fid].ruler];
@@ -540,6 +549,7 @@
       h('span', { class: 'hi' }, `${E.yearText(S.year)}年 ${MONTHS[S.month - 1]}（${SEASON(S.month)}）`),
       h('span', {}, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
       h('span', {}, `城${p.cities} 兵${fmtW(p.troops)} 金${fmtW(p.gold)} 糧${fmtW(p.food)} 將${p.generals}`),
+      h('span', { class: 'diff' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
       h('span', { class: 'strat' }, `軍師 ${E.strategistOf(S, S.player) ? E.strategistOf(S, S.player).name : '空缺'}`),
       h('span', { class: 'grow' }, hov ? `${hov.name}（${E.factionName(S, hov.owner)}）兵${fmtW(hov.troops)}` : 'Tab 切換城市'));
   }

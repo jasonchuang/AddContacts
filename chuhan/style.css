@@ -439,3 +439,5 @@ body.mobile .battle .orders .obtn small { font-size: 10px; line-height: 13px; }
 .side-card .skill { margin-top: 6px; padding: 6px 8px; border: 1px dashed var(--line); border-radius: 6px; background: #fff8e8; line-height: 20px; }
 .side-card .skill b { color: var(--red); }
 .side-card .skill small { font-size: 13px; color: var(--dim); }
+
+#status .diff { padding: 0 8px; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; font-size: 14px; color: #f3e6c8; }

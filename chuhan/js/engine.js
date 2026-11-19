@@ -38,7 +38,17 @@
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
   // ---------- 建立 / 查詢 ----------
-  function newGame(playerFaction, seed, mode) {
+  // 難易度：容易、中等、困難
+  const DIFFICULTY = {
+    easy: { label: '容易', desc: '玩家收入 ×1.2、戰力 ×1.1；電腦收入 ×0.8、出兵保守；登用較容易', playerIncome: 1.2, aiIncome: 0.8, playerPower: 1.1, aiPower: 1, aiAggro: 1.15, recruit: 0.1 },
+    normal: { label: '中等', desc: '標準規則', playerIncome: 1, aiIncome: 1, playerPower: 1, aiPower: 1, aiAggro: 1, recruit: 0 },
+    hard: { label: '困難', desc: '電腦收入 ×1.25、戰力 ×1.1、出兵積極', playerIncome: 1, aiIncome: 1.25, playerPower: 1, aiPower: 1.1, aiAggro: 0.92, recruit: 0 },
+  };
+  function diff(s) { return DIFFICULTY[(s && s.difficulty) || 'normal'] || DIFFICULTY.normal; }
+  function incomeMult(s, fid) { if (!fid) return 1; const d = diff(s); return fid === s.player ? d.playerIncome : d.aiIncome; }
+  function powerMult(s, fid) { if (!fid || !s.player) return 1; const d = diff(s); return fid === s.player ? d.playerPower : d.aiPower; }
+
+  function newGame(playerFaction, seed, mode, difficulty) {
     const sc = JSON.parse(JSON.stringify(TK.SCENARIO));
     const s = {
       version: 1,
@@ -53,6 +63,7 @@
       log: [],
       over: null,
       mode: mode || 'historical',
+      difficulty: DIFFICULTY[difficulty] ? difficulty : 'normal',
       relations: {},
       events_done: {},
       harvest_mult: 1,
@@ -262,7 +273,8 @@
 
   function recruitChance(s, g, target) {
     if (target.ruler) return 0;
-    if (target.status === 'free') return clamp(0.15 + (g.cha / 100) * 0.55, 0, 0.75);
+    const bonus = g.faction === s.player ? diff(s).recruit : 0;
+    if (target.status === 'free') return clamp(0.15 + (g.cha / 100) * 0.55 + bonus, 0, 0.85);
     if (target.status === 'prisoner') return clamp(0.05 + (g.cha / 100) * 0.45 - (target.loyalty - 50) / 200, 0.02, 0.6);
     return 0;
   }
@@ -273,6 +285,7 @@
     if (!s.events_done) s.events_done = {};
     if (!s.pending) s.pending = [];
     if (!s.mode) s.mode = 'historical';
+    if (!s.difficulty) s.difficulty = 'normal';
     if (!s.harvest_mult) s.harvest_mult = 1;
     if (!s.scenario) s.scenario = '190';
   }
@@ -592,6 +605,8 @@
     const fewSkill = skA.find((k) => k.few);
     const fewA = !!fewSkill && atk.troops < city.troops;
     if (fewA) bonusA *= fewSkill.few;
+    bonusA *= powerMult(s, atk.faction);
+    bonusD *= powerMult(s, defOwner);
     const ctx = {
       city, atk, defOwner, defGens, A, D, aUnits, dUnits, fA, fD,
       bonusA, bonusD, fewA,
@@ -838,11 +853,11 @@
         continue;
       }
       const ord = 0.5 + c.order / 200;
-      c.gold += goldIncome(c, s);
+      c.gold += Math.round(goldIncome(c, s) * incomeMult(s, c.owner));
       const gov = governorOf(s, c);
       if (gov && gov.cha >= 60 && c.order < 100) c.order = Math.min(100, c.order + 1);
       if (s.month === 7) {
-        const harvest = Math.round(c.farm * 30 * ord * (s.harvest_mult || 1));
+        const harvest = Math.round(c.farm * 30 * ord * (s.harvest_mult || 1) * incomeMult(s, c.owner));
         c.food += harvest;
         if (c.owner === s.player) addLog(s, `${c.name}秋收，得糧 ${harvest}`, 'info', [c.owner]);
       }
@@ -903,7 +918,7 @@
 
   TK.Engine = {
     duel,
-    destroyFaction, SKILLS, yearText, RAID_COST, DISCORD_COST, raidRisk, discordChance, ambition, rebel, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
+    destroyFaction, DIFFICULTY, diff, SKILLS, yearText, RAID_COST, DISCORD_COST, raidRisk, discordChance, ambition, rebel, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,

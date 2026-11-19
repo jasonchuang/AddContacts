@@ -54,7 +54,7 @@
 
   function concentrate(s, fid, p) {
     const Eng = E();
-    if (!p || p.score < 1.1) return;
+    if (!p || p.score < 1.1 * (s.player ? Eng.diff(s).aiAggro : 1)) return;
     const staging = s.cities[p.staging];
     for (const n of Eng.neighbors(s, staging.id)) {
       const c = s.cities[n];
@@ -258,7 +258,8 @@
     }
     // 留守兵力也要夠應付其他鄰敵
     const remain = city.troops - troops;
-    if (best && bestRatio > (focus && best.id === focus ? 1.12 : 1.25) && (remain >= threatTo(s, city) * 0.5 || Eng.rand(s) < 0.08) && city.food > troops / 10 + 1000) {
+    const aggro = s.player ? Eng.diff(s).aiAggro : 1;
+    if (best && bestRatio > (focus && best.id === focus ? 1.12 : 1.25) * aggro && (remain >= threatTo(s, city) * 0.5 || Eng.rand(s) < 0.08) && city.food > troops / 10 + 1000) {
       Eng.exec(s, fid, { type: 'attack', city: city.id, general: army[0].id, generals: army.map((g) => g.id), target: best.id, troops });
     }
   }

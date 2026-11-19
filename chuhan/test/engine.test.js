@@ -191,4 +191,17 @@ test('垓下之戰：玩家扮演楚時由玩家抉擇；選渡江則退到江�
   assert.deepStrictEqual(s.choices, []);
 });
 
+test('難易度：容易時玩家收入較多、電腦較少；困難時電腦收入較高', () => {
+  use('-205');
+  const inc = (d) => {
+    const s = E.newGame('han', 90, 'free', d);
+    const p0 = s.cities['櫟陽'].gold, a0 = s.cities['彭城'].gold;
+    E.monthEnd(s);
+    return { p: s.cities['櫟陽'].gold - p0, a: s.cities['彭城'].gold - a0 };
+  };
+  const e = inc('easy'), n = inc('normal'), h = inc('hard');
+  assert(e.p > n.p && n.p === h.p, `玩家 ${e.p}/${n.p}/${h.p}`);
+  assert(e.a < n.a && n.a < h.a, `電腦 ${e.a}/${n.a}/${h.a}`);
+});
+
 console.log(`\n${passed} tests passed`);
