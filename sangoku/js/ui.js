@@ -407,6 +407,7 @@
     closeAll();
     S = null;
     TK.SCENARIO = TK.SCENARIOS ? TK.SCENARIOS[0] : TK.SCENARIO;
+    if (TK.Music) TK.Music.play('title');
     $('game').classList.add('hidden');
     $('title').classList.remove('hidden');
     const preview = E.newGame(null, 1);
@@ -417,6 +418,7 @@
       { label: '繼續遊戲', hint: auto, off: !auto, act: () => loadKey(AUTO_KEY) },
       { label: '讀取存檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); showTitle(); } },
+      { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); showTitle(); } },
     ];
     const m = makeMenu(items, (it) => it.act());
     $('title-menu').replaceChildren(h('div', { class: 'win' }, m.ul));
@@ -510,6 +512,7 @@
 
   function enterGame() {
     closeAll();
+    if (TK.Music) TK.Music.play('domestic');
     $('title').classList.add('hidden');
     $('game').classList.remove('hidden');
     const mine = E.citiesOf(S, S.player);
@@ -916,6 +919,8 @@
       { label: '存檔', off: busy, act: () => slotMenu(true) },
       { label: '讀檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); popWin(); } },
+      { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); popWin(); systemMenu(); } },
+      ...(TK.Voice && TK.Voice.available() ? [{ label: `事件語音：${TK.Voice.isOn() ? '開' : '關'}`, act: () => { TK.Voice.toggle(); popWin(); systemMenu(); } }] : []),
       { label: '回到標題', act: () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle) },
     ], null, SUB);
   }
@@ -976,6 +981,8 @@
   function playScene(ev) {
     return new Promise((resolve) => {
       const kind = TK.Scenes ? TK.Scenes.forEvent(ev) : 'palace';
+      const prevTrack = TK.Music ? TK.Music.current() : null;
+      if (TK.Music) TK.Music.play(['fire', 'night', 'rain'].includes(kind) ? 'tense' : 'event');
       const bg = h('div', { class: 'scene-bg', style: TK.Scenes ? `background-image:url("${TK.Scenes.url(kind)}")` : '' });
       const actors = { left: h('div', { class: 'actor left' }), right: h('div', { class: 'actor right' }) };
       const nameEl = h('div', { class: 'sc-name' }), textEl = h('div', { class: 'sc-text' });
@@ -996,7 +1003,12 @@
         actors[side].classList.remove('enter'); void actors[side].offsetWidth; actors[side].classList.add('enter');
         return side;
       };
-      const close = () => { clearInterval(typingTimer); battleKey = null; root.remove(); resolve(); };
+      const close = () => {
+        clearInterval(typingTimer); battleKey = null; root.remove();
+        if (TK.Voice) TK.Voice.stop();
+        if (TK.Music) TK.Music.play(prevTrack === 'battle' || !prevTrack ? 'domestic' : prevTrack);
+        resolve();
+      };
       const next = () => {
         if (typingTimer) { clearInterval(typingTimer); typingTimer = null; textEl.textContent = full; return; }
         i++;
@@ -1009,6 +1021,7 @@
         nameEl.textContent = sp || '';
         nameEl.style.display = sp ? '' : 'none';
         full = text;
+        if (TK.Voice) TK.Voice.speak(text, sp ? S.generals[sp] : null);
         let n = 0;
         textEl.textContent = '';
         typingTimer = setInterval(() => {
@@ -1222,6 +1235,7 @@
   function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
+      if (TK.Music) TK.Music.play('battle');
       const aCol = color(r.atk.faction), dCol = color(r.def.faction);
       const side = (info, right) => {
         const g = S.generals[info.commander];
@@ -1316,6 +1330,7 @@
       const close = () => {
         clearTimeout(timer);
         battleKey = null;
+        if (TK.Music) TK.Music.play('domestic');
         box.remove(); shade.remove();
         resolve();
       };
@@ -1388,6 +1403,9 @@
 
   // ---------- 綁定 ----------
   function bind() {
+    const unlock = () => { if (TK.Music) TK.Music.unlock(); };
+    document.addEventListener('pointerdown', unlock);
+    document.addEventListener('keydown', unlock);
     fit();
     addEventListener('resize', fit);
     const map = $('map');
