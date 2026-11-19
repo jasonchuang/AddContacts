@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#231c15">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="楚漢相爭">
+  <title>楚漢相爭</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 固定 1280×800 的遊戲畫面，依視窗大小等比縮放 -->
+  <div id="stage">
+    <div id="app">
+      <section id="title" class="screen">
+        <canvas id="title-bg"></canvas>
+        <div class="title-wrap">
+          <div class="title-pre">楚漢</div>
+          <div class="title-logo">相爭</div>
+          <div class="title-sub">― 秦失其鹿，天下共逐之 ―</div>
+          <div id="title-menu"></div>
+        </div>
+        <div class="title-foot">方向鍵選擇　Enter 決定　Esc 返回</div>
+      </section>
+
+      <section id="game" class="hidden">
+        <header id="status" class="win"></header>
+        <div id="map-win" class="win"><canvas id="map"></canvas></div>
+        <aside id="city-win" class="win"></aside>
+        <nav id="cmd-win" class="win"></nav>
+        <footer id="msg-win" class="win">
+          <img id="msg-face" class="face hidden" alt="">
+          <div class="msg-main">
+            <div id="msg-name"></div>
+            <div id="msg-text"></div>
+          </div>
+          <div id="msg-more" class="hidden">▼</div>
+        </footer>
+      </section>
+
+      <div id="layer"></div>
+      <div id="banner" class="hidden"></div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/scenarios.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/diplomacy.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/anime.js"></script>
+  <script src="js/portraits.js"></script>
+  <script src="portraits/manifest.js"></script>
+  <script src="js/mapview.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
