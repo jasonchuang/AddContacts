@@ -407,6 +407,7 @@
     closeAll();
     S = null;
     TK.SCENARIO = TK.SCENARIOS ? TK.SCENARIOS[0] : TK.SCENARIO;
+    if (TK.Music) TK.Music.play('title');
     $('game').classList.add('hidden');
     $('title').classList.remove('hidden');
     const preview = E.newGame(null, 1);
@@ -417,6 +418,7 @@
       { label: '繼續遊戲', hint: auto, off: !auto, act: () => loadKey(AUTO_KEY) },
       { label: '讀取存檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); showTitle(); } },
+      { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); showTitle(); } },
     ];
     const m = makeMenu(items, (it) => it.act());
     $('title-menu').replaceChildren(h('div', { class: 'win' }, m.ul));
@@ -510,6 +512,7 @@
 
   function enterGame() {
     closeAll();
+    if (TK.Music) TK.Music.play('domestic');
     $('title').classList.add('hidden');
     $('game').classList.remove('hidden');
     const mine = E.citiesOf(S, S.player);
@@ -649,11 +652,21 @@
   function run(cmd, speaker, speech) {
     const r = E.exec(S, S.player, cmd);
     if (!r.ok) { SND.error(); say(null, r.msg); return null; }
-    if (!r.battle) E.addLog(S, r.msg, 'info', [S.player]);
+    if (!r.battle && !r.live) E.addLog(S, r.msg, 'info', [S.player]);
     closeAll();
     render();
     if (r.battle) {
       playBattle(r.battle).then(() => { render(); checkOver(); });
+      return r;
+    }
+    if (r.live) {
+      const ctx = r.live;
+      const view = {
+        city: ctx.city.id, frames: ctx.frames, lines: ctx.lines, result: null, summary: '',
+        atk: { faction: ctx.atk.faction, name: ctx.aName, commander: ctx.aCmd, generals: ctx.atk.generals.map((g) => g.name), troops: ctx.A0, units: ctx.aUnits },
+        def: { faction: ctx.defOwner, name: ctx.dName, commander: ctx.dCmd, generals: ctx.defGens.map((g) => g.name), troops: ctx.D0, units: ctx.dUnits },
+      };
+      playBattle(view, ctx).then(() => { render(); checkOver(); });
       return r;
     }
     const gain = (r.msg.match(/\+(\d+)/) || [])[1];
@@ -786,7 +799,7 @@
             (u) => {
               const ids = gens.map((g) => g.id);
               SND.march();
-              run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: t.id, units: u });
+              run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: t.id, units: u, interactive: manualBattle });
             },
             {
               validate: (u) => u.spear + u.cav + u.xbow >= 1000 && c.food >= Math.ceil((u.spear + u.cav + u.xbow) / 10),
@@ -900,11 +913,16 @@
     infoWin('記錄', list, { x: 120, y: 90, width: 1040 });
   }
 
+  // 設定：出征時是否手動下戰鬥指令
+  let manualBattle = store('chuhan.manualBattle') !== '0';
   function systemMenu() {
     menuWin('系統', [
+      { label: `戰鬥指揮：${manualBattle ? '手動' : '自動'}`, hint: '出征時逐段下指令', act: () => { manualBattle = !manualBattle; store('chuhan.manualBattle', manualBattle ? '1' : '0'); popWin(); systemMenu(); } },
       { label: '存檔', off: busy, act: () => slotMenu(true) },
       { label: '讀檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); popWin(); } },
+      { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); popWin(); systemMenu(); } },
+      ...(TK.Voice && TK.Voice.available() ? [{ label: `事件語音：${TK.Voice.isOn() ? '開' : '關'}`, act: () => { TK.Voice.toggle(); popWin(); systemMenu(); } }] : []),
       { label: '回到標題', act: () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle) },
     ], null, SUB);
   }
@@ -965,6 +983,8 @@
   function playScene(ev) {
     return new Promise((resolve) => {
       const kind = TK.Scenes ? TK.Scenes.forEvent(ev) : 'palace';
+      const prevTrack = TK.Music ? TK.Music.current() : null;
+      if (TK.Music) TK.Music.play(['fire', 'night', 'rain'].includes(kind) ? 'tense' : 'event');
       const bg = h('div', { class: 'scene-bg', style: TK.Scenes ? `background-image:url("${TK.Scenes.url(kind)}")` : '' });
       const actors = { left: h('div', { class: 'actor left' }), right: h('div', { class: 'actor right' }) };
       const nameEl = h('div', { class: 'sc-name' }), textEl = h('div', { class: 'sc-text' });
@@ -985,7 +1005,12 @@
         actors[side].classList.remove('enter'); void actors[side].offsetWidth; actors[side].classList.add('enter');
         return side;
       };
-      const close = () => { clearInterval(typingTimer); battleKey = null; root.remove(); resolve(); };
+      const close = () => {
+        clearInterval(typingTimer); battleKey = null; root.remove();
+        if (TK.Voice) TK.Voice.stop();
+        if (TK.Music) TK.Music.play(prevTrack === 'battle' || !prevTrack ? 'domestic' : prevTrack);
+        resolve();
+      };
       const next = () => {
         if (typingTimer) { clearInterval(typingTimer); typingTimer = null; textEl.textContent = full; return; }
         i++;
@@ -998,6 +1023,7 @@
         nameEl.textContent = sp || '';
         nameEl.style.display = sp ? '' : 'none';
         full = text;
+        if (TK.Voice) TK.Voice.speak(text, sp ? S.generals[sp] : null);
         let n = 0;
         textEl.textContent = '';
         typingTimer = setInterval(() => {
@@ -1208,9 +1234,10 @@
     return t + 1800;
   }
 
-  function playBattle(r) {
+  function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
+      if (TK.Music) TK.Music.play('battle');
       const aCol = color(r.atk.faction), dCol = color(r.def.faction);
       const side = (info, right) => {
         const g = S.generals[info.commander];
@@ -1250,7 +1277,7 @@
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
       const shade = h('div', { class: 'shade' });
       $('layer').append(shade, box);
-      box.addEventListener('click', () => { if (!done) finish(); });
+      box.addEventListener('click', () => { if (!done && !awaiting) finish(); });
 
       const apply = (f) => {
         const setSide = (U, cur, init, ui) => {
@@ -1273,10 +1300,39 @@
       const flashEv = (t) => { evEl.textContent = t; evEl.classList.remove('flash'); void evEl.offsetWidth; evEl.classList.add('flash'); };
       let advance = 0;
 
-      let i = 1, done = false, timer = null;
+      let i = 1, done = false, timer = null, awaiting = false;
+      // 手動指揮：每一段（最多 4 回合）開始前下指令
+      const orderBar = h('div', { class: 'orders hidden' });
+      box.insertBefore(orderBar, resultEl);
+      const endLive = () => { if (live && !r.result) Object.assign(r, E.battleEnd(S, live)); };
+      const runPhase = (order) => {
+        awaiting = false;
+        orderBar.classList.add('hidden');
+        SND.ok();
+        for (let k = 0; k < 4 && !live.result; k++) {
+          const o = k === 0 ? order : (order === 'assault' || order === 'hold' ? order : 'normal');
+          E.battleRound(S, live, o);
+          if (o === 'retreat') break;
+        }
+        timer = setTimeout(step, 150);
+      };
+      const showOrders = () => {
+        awaiting = true;
+        const A0 = live.A0, cur = live.A.troops, foe = live.D.troops;
+        const opts = ['normal', 'assault', 'hold', 'scheme', ...(live.round === 0 && live.canDuel ? ['duel'] : []), 'retreat'];
+        orderBar.replaceChildren(
+          h('div', { class: 'otitle' }, live.round === 0 ? '開戰！請下令' : `第 ${live.round} 回合　我軍 ${fmt(cur)}（${Math.round(100 * cur / A0)}%）・敵軍 ${fmt(foe)}`),
+          h('div', { class: 'obtns' }, ...opts.map((k) => h('button', {
+            class: 'obtn o-' + k, title: E.ORDERS[k].desc,
+            onclick: (e) => { e.stopPropagation(); runPhase(k); },
+          }, h('b', {}, k === 'duel' ? `${E.ORDERS[k].label}（${live.ahero.name}）` : E.ORDERS[k].label), h('small', {}, E.ORDERS[k].desc)))),
+          h('button', { class: 'oauto', onclick: (e) => { e.stopPropagation(); finish(); } }, '交給部將（自動打完）'));
+        orderBar.classList.remove('hidden');
+      };
       const close = () => {
         clearTimeout(timer);
         battleKey = null;
+        if (TK.Music) TK.Music.play('domestic');
         box.remove(); shade.remove();
         resolve();
       };
@@ -1286,10 +1342,12 @@
         clearTimeout(timer);
         duelTimers.forEach(clearTimeout);
         duelEl.classList.add('hidden');
+        orderBar.classList.add('hidden');
+        if (live) { while (!live.result) E.battleRound(S, live, 'normal'); endLive(); }
         apply(r.frames[r.frames.length - 1]);
         const me = S.player, atkWon = r.result === 'win';
         let text, good = true;
-        if (r.atk.faction === me) { text = atkWon ? '勝利' : '敗退'; good = atkWon; }
+        if (r.atk.faction === me) { text = atkWon ? '勝利' : r.retreated ? '撤退' : '敗退'; good = atkWon; }
         else if (r.def.faction === me) { text = atkWon ? '失守' : '守住'; good = !atkWon; }
         else text = atkWon ? '攻陷' : '擊退';
         resultEl.textContent = text;
@@ -1303,7 +1361,11 @@
       };
       const step = () => {
         if (done) return;
-        if (i >= r.frames.length) { finish(); return; }
+        if (i >= r.frames.length) {
+          if (live && !live.result) { showOrders(); return; }
+          finish();
+          return;
+        }
         const prev = r.frames[i - 1], f = r.frames[i];
         apply(f);
         if (f.a < prev.a) hit(UA);
@@ -1325,15 +1387,27 @@
         i++;
         timer = setTimeout(step, delay);
       };
-      battleKey = (e) => { if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { finish(); return true; } return false; };
+      battleKey = (e) => {
+        if (awaiting) {
+          const keys = { 1: 'normal', 2: 'assault', 3: 'hold', 4: 'scheme', 5: 'duel', 6: 'retreat' };
+          if (keys[e.key] && (keys[e.key] !== 'duel' || (live.round === 0 && live.canDuel))) { runPhase(keys[e.key]); return true; }
+          if (e.key === 'Enter' || e.key === ' ') { runPhase('normal'); return true; }
+          return false;
+        }
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') { finish(); return true; }
+        return false;
+      };
       apply(r.frames[0]);
       say(null, r.lines[0]);
-      timer = setTimeout(step, 900);
+      timer = setTimeout(step, live ? 300 : 900);
     });
   }
 
   // ---------- 綁定 ----------
   function bind() {
+    const unlock = () => { if (TK.Music) TK.Music.unlock(); };
+    document.addEventListener('pointerdown', unlock);
+    document.addEventListener('keydown', unlock);
     fit();
     addEventListener('resize', fit);
     const map = $('map');

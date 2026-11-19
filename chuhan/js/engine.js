@@ -395,7 +395,12 @@
         takeUnits(city, units);
         for (const m of army) m.acted = true;
         if (TK.Diplomacy) TK.Diplomacy.onAttack(s, fid, target.owner);
-        const res = battle(s, { faction: fid, generals: army, troops, units, train: city.train, from: city.id }, target.id);
+        const atkInfo = { faction: fid, generals: army, troops, units, train: city.train, from: city.id };
+        if (cmd.interactive) {
+          const live = battleStart(s, atkInfo, target.id, { interactive: true });
+          return { ok: true, msg: `${army[0].name}率兵 ${troops} 進攻${target.name}`, live };
+        }
+        const res = battle(s, atkInfo, target.id);
         return ok(res.summary, res);
       }
       default:
@@ -449,7 +454,20 @@
     };
   }
 
-  function battle(s, atk, targetId) {
+  // 戰鬥分成三步：battleStart（佈陣）→ battleRound（一回合，可下指令）→ battleEnd（結算）。
+  // 電腦的戰鬥一口氣跑完；玩家主動出征時由畫面逐段下指令（interactive）。
+  // 指令：normal 一般、assault 突擊、hold 穩守、scheme 計略、duel 單挑（只能在第一回合）、retreat 撤退
+  const ORDERS = {
+    normal: { label: '一般', desc: '照常交戰' },
+    assault: { label: '突擊', desc: '對敵傷害 ×1.35，我方損失 ×1.25' },
+    hold: { label: '穩守', desc: '我方損失 ×0.65，對敵傷害 ×0.75' },
+    scheme: { label: '計略', desc: '依智略施展計謀，成功時敵軍大亂；失敗會被反制' },
+    duel: { label: '單挑', desc: '派最強的武將挑戰敵將（只能在開戰時）' },
+    retreat: { label: '撤退', desc: '收兵回城，殿後部隊會有些損失' },
+  };
+
+  function battleStart(s, atk, targetId, opts) {
+    opts = opts || {};
     const city = s.cities[targetId];
     const defOwner = city.owner;
     const defGens = defOwner ? officers(s, city.id).sort((a, b) => b.lead - a.lead).slice(0, 3) : [];
@@ -469,91 +487,136 @@
       aptA += fA[a] * APT_MULT[aptitude(A.commander, a)];
       aptD += fD[a] * (D.commander ? APT_MULT[aptitude(D.commander, a)] : 1);
     }
+    // 特技：出陣武將的特技加成；軍師的特技只影響計略
     let bonusA = mA * aptA * (1 + 0.12 * fA.cav);
     let bonusD = mD * aptD * (1 + 0.15 * fD.xbow);
-    // 特技：出陣武將的特技加成；軍師的特技只影響計略
     const skA = skillsOf(atk.generals), skD = skillsOf(defGens);
     for (const k of skA) bonusA *= k.atk || 1;
     for (const k of skD) bonusD *= k.def || 1;
-    const fewA = skA.find((k) => k.few) && atk.troops < city.troops;
-    if (fewA) bonusA *= skA.find((k) => k.few).few;
-    const schemeA = [...skA, ...skillsOf([sa])].reduce((t, k) => t + (k.scheme || 0), 0);
-    const schemeD = [...skD, ...skillsOf([sd])].reduce((t, k) => t + (k.scheme || 0), 0);
-    const duelBonus = (g) => skillsOf([g]).reduce((t, k) => t + (k.duel || 0), 0);
-    const sturdyA = 1 - 0.1 * fA.spear, sturdyD = 1 - 0.1 * fD.spear;
-    const A0 = A.troops, D0 = D.troops;
-    const aName = factionName(s, atk.faction), dName = factionName(s, defOwner);
-    const parties = [atk.faction, defOwner].filter(Boolean);
-    const lines = [];
-    const aCmd = A.commander ? A.commander.name : '';
-    const dCmd = D.commander ? D.commander.name : FREE_STATS.name;
-    lines.push(`${aName}（${aCmd}，${A0}兵）自${atk.from}進攻${city.name}（${dName}，${dCmd}，${D0}兵）`);
+    const fewSkill = skA.find((k) => k.few);
+    const fewA = !!fewSkill && atk.troops < city.troops;
+    if (fewA) bonusA *= fewSkill.few;
+    const ctx = {
+      city, atk, defOwner, defGens, A, D, aUnits, dUnits, fA, fD,
+      bonusA, bonusD, fewA,
+      schemeA: [...skA, ...skillsOf([sa])].reduce((t, k) => t + (k.scheme || 0), 0),
+      schemeD: [...skD, ...skillsOf([sd])].reduce((t, k) => t + (k.scheme || 0), 0),
+      sturdyA: 1 - 0.1 * fA.spear, sturdyD: 1 - 0.1 * fD.spear,
+      A0: A.troops, D0: D.troops,
+      aName: factionName(s, atk.faction), dName: factionName(s, defOwner),
+      parties: [atk.faction, defOwner].filter(Boolean),
+      lines: [], round: 0, result: null, schemes: 0, interactive: !!opts.interactive, dueled: false,
+    };
+    ctx.aCmd = A.commander ? A.commander.name : '';
+    ctx.dCmd = D.commander ? D.commander.name : FREE_STATS.name;
+    ctx.lines.push(`${ctx.aName}（${ctx.aCmd}，${ctx.A0}兵）自${atk.from}進攻${city.name}（${ctx.dName}，${ctx.dCmd}，${ctx.D0}兵）`);
     // frames：給戰鬥畫面逐格播放 {a, d, ev, kind}
-    const frames = [{ a: A0, d: D0, ev: null }];
+    ctx.frames = [{ a: ctx.A0, d: ctx.D0, ev: null }];
     const domA = UNIT_KEYS.reduce((b, k) => (fA[k] > fA[b] ? k : b), 'spear');
     const domD = UNIT_KEYS.reduce((b, k) => (fD[k] > fD[b] ? k : b), 'spear');
-    if (mA > 1.06) lines.push(`兵種相剋：${aName}的${UNITS[domA].name}佔上風`);
-    else if (mD > 1.06) lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
+    if (mA > 1.06) ctx.lines.push(`兵種相剋：${ctx.aName}的${UNITS[domA].name}佔上風`);
+    else if (mD > 1.06) ctx.lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
     if (fewA) {
-      lines.push(`背水一戰！${aCmd}以寡擊眾，士卒人人死戰`);
-      frames.push({ a: A0, d: D0, ev: `背水一戰！${aName}士氣大振`, kind: 'charge' });
+      ctx.lines.push(`背水一戰！${ctx.aCmd}以寡擊眾，士卒人人死戰`);
+      ctx.frames.push({ a: ctx.A0, d: ctx.D0, ev: `背水一戰！${ctx.aName}士氣大振`, kind: 'charge' });
     }
+    ctx.ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0] || null;
+    ctx.dhero = defGens.slice().sort((a, b) => b.war - a.war)[0] || null;
+    ctx.canDuel = !!(ctx.ahero && ctx.dhero);
+    // 電腦的戰鬥：雙方猛將夠強時約六成機率自動單挑；玩家指揮時改由玩家決定
+    if (!ctx.interactive && ctx.canDuel && Math.max(ctx.ahero.war, ctx.dhero.war) >= 70 && Math.min(ctx.ahero.war, ctx.dhero.war) >= 50 && rand(s) < 0.6) doDuel(s, ctx);
+    return ctx;
+  }
 
-    // 單挑：雙方最強武將武力夠高時常會出陣一騎討（約六成機率）
-    const ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0];
-    const dhero = defGens.slice().sort((a, b) => b.war - a.war)[0];
-    if (ahero && dhero && Math.max(ahero.war, dhero.war) >= 70 && Math.min(ahero.war, dhero.war) >= 50 && rand(s) < 0.6) {
-      const d = duel(s, Object.assign({}, ahero, { war: ahero.war + duelBonus(ahero) }), Object.assign({}, dhero, { war: dhero.war + duelBonus(dhero) }));
-      const winner = d.winner === 'a' ? ahero : dhero, loser = d.winner === 'a' ? dhero : ahero;
-      lines.push(`單挑！${ahero.name} 對 ${dhero.name}，${d.bouts.length}回合後${winner.name}擊退了${loser.name}`);
-      // 勝方士氣大振，敗方軍心動搖
-      if (d.winner === 'a') D.troops = Math.round(D.troops * 0.85);
-      else A.troops = Math.round(A.troops * 0.85);
-      frames.push({ a: A.troops, d: D.troops, ev: `${ahero.name} 對 ${dhero.name}，${winner.name}勝！`, kind: 'duel', duel: [ahero.name, dhero.name], winner: d.winner, bouts: d.bouts });
+  function doDuel(s, ctx) {
+    if (ctx.dueled || !ctx.canDuel) return;
+    ctx.dueled = true;
+    const { ahero, dhero, A, D } = ctx;
+    const duelBonus = (g) => skillsOf([g]).reduce((t, k) => t + (k.duel || 0), 0);
+    const d = duel(s, Object.assign({}, ahero, { war: ahero.war + duelBonus(ahero) }), Object.assign({}, dhero, { war: dhero.war + duelBonus(dhero) }));
+    const winner = d.winner === 'a' ? ahero : dhero, loser = d.winner === 'a' ? dhero : ahero;
+    ctx.lines.push(`單挑！${ahero.name} 對 ${dhero.name}，${d.bouts.length}回合後${winner.name}擊退了${loser.name}`);
+    // 勝方士氣大振，敗方軍心動搖
+    if (d.winner === 'a') D.troops = Math.round(D.troops * 0.85);
+    else A.troops = Math.round(A.troops * 0.85);
+    ctx.frames.push({ a: A.troops, d: D.troops, ev: `${ahero.name} 對 ${dhero.name}，${winner.name}勝！`, kind: 'duel', duel: [ahero.name, dhero.name], winner: d.winner, bouts: d.bouts });
+  }
+
+  // 進行一回合；回傳本回合新增的 frames
+  function battleRound(s, ctx, order) {
+    if (ctx.result) return [];
+    const start = ctx.frames.length;
+    order = ORDERS[order] ? order : 'normal';
+    const { A, D, city, fA, fD, aName, dName, lines } = ctx;
+    if (order === 'retreat') {
+      const lost = Math.round(A.troops * 0.08);
+      A.troops -= lost;
+      ctx.result = 'retreat';
+      lines.push(`${aName}下令撤退，殿後部隊折損 ${lost}`);
+      ctx.frames.push({ a: A.troops, d: D.troops, ev: `${aName}撤退！`, kind: 'retreat' });
+      return ctx.frames.slice(start);
     }
-
-    let result = null, schemes = 0;
-    for (let round = 1; round <= 20 && !result; round++) {
-      const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * bonusA;
-      const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 2500) * bonusD;
-      let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * sturdyD);
-      let ev = null, kind = null;
-      let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * sturdyA);
-      if (round === 1) {
-        // 開戰：弩兵齊射、騎兵衝鋒
-        if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
-        if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
-        if (fA.cav >= 0.3) {
-          if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
-          else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
-        }
-        if (ev) lines.push(ev);
-      }
-      if (A.int >= 75 && rand(s) < (A.int - 60) / 200 + schemeA) {
-        lossD = Math.round(lossD * 1.5);
-        ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
-        if (schemes++ < 2) lines.push(`${aName}施展計略，${city.name}守軍陷入混亂`);
-      }
-      if (D.int >= 75 && rand(s) < (D.int - 60) / 200 + schemeD) {
-        lossA = Math.round(lossA * 1.5);
-        ev = `${dName}識破敵計並反擊`; kind = 'scheme-d';
-        if (schemes++ < 2) lines.push(`${dName}識破敵計並反擊`);
-      }
-      A.troops = Math.max(0, A.troops - lossA);
-      D.troops = Math.max(0, D.troops - lossD);
-      city.defense = Math.max(0, city.defense - rint(s, 3, 12));
-      frames.push({ a: A.troops, d: D.troops, ev, kind });
-
-      if (D.troops <= 0) result = 'win';
-      else if (A.troops <= 0) result = 'lose';
-      else if (D.troops < D0 * 0.2 && D.troops < A.troops * 0.5) { result = 'win'; D.troops = 0; }
-      else if (A.troops < A0 * 0.3 && A.troops < D.troops) result = 'lose';
+    if (order === 'duel') {
+      if (ctx.round === 0) doDuel(s, ctx);
+      order = 'normal';
     }
-    if (!result) { result = 'lose'; lines.push('久攻不下，撤兵'); }
-    const aLeft = scaleMix(aUnits, A.troops);
-    frames[frames.length - 1].a = A.troops;
-    frames[frames.length - 1].d = D.troops;
+    ctx.round++;
+    const round = ctx.round;
+    const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * ctx.bonusA;
+    const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 2500) * ctx.bonusD;
+    let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * ctx.sturdyD);
+    let ev = null, kind = null;
+    let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * ctx.sturdyA);
+    if (round === 1) {
+      // 開戰：弩兵齊射、騎兵衝鋒
+      if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
+      if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
+      if (fA.cav >= 0.3) {
+        if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
+        else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
+      }
+      if (ev) lines.push(ev);
+    }
+    // 玩家指令
+    if (order === 'assault') { lossD = Math.round(lossD * 1.35); lossA = Math.round(lossA * 1.25); ev = ev || `${aName}全軍突擊！`; kind = kind || 'charge'; }
+    else if (order === 'hold') { lossD = Math.round(lossD * 0.75); lossA = Math.round(lossA * 0.65); ev = ev || `${aName}穩住陣腳`; }
+    let schemeA = A.int >= 75 && rand(s) < (A.int - 60) / 200 + ctx.schemeA;
+    if (order === 'scheme') {
+      // 主動用計：成功率依智略（約 20%～80%），失敗會被敵方反制
+      const p = Math.max(0.15, Math.min(0.9, (A.int - 40) / 60 - (D.int - 60) / 200 + ctx.schemeA));
+      schemeA = rand(s) < p;
+      if (!schemeA) { lossA = Math.round(lossA * 1.2); ev = `${aName}的計謀被識破了！`; kind = 'scheme-d'; lines.push(`${aName}用計失敗`); }
+    }
+    if (schemeA) {
+      lossD = Math.round(lossD * (order === 'scheme' ? 1.9 : 1.5));
+      ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
+      if (ctx.schemes++ < 2) lines.push(`${aName}施展計略，${city.name}守軍陷入混亂`);
+    }
+    if (D.int >= 75 && rand(s) < (D.int - 60) / 200 + ctx.schemeD) {
+      lossA = Math.round(lossA * 1.5);
+      ev = `${dName}識破敵計並反擊`; kind = 'scheme-d';
+      if (ctx.schemes++ < 2) lines.push(`${dName}識破敵計並反擊`);
+    }
+    A.troops = Math.max(0, A.troops - lossA);
+    D.troops = Math.max(0, D.troops - lossD);
+    city.defense = Math.max(0, city.defense - rint(s, 3, 12));
+    ctx.frames.push({ a: A.troops, d: D.troops, ev, kind });
 
+    if (D.troops <= 0) ctx.result = 'win';
+    else if (A.troops <= 0) ctx.result = 'lose';
+    else if (D.troops < ctx.D0 * 0.2 && D.troops < A.troops * 0.5) { ctx.result = 'win'; D.troops = 0; }
+    else if (A.troops < ctx.A0 * 0.3 && A.troops < D.troops) ctx.result = 'lose';
+    else if (round >= 20) { ctx.result = 'lose'; lines.push('久攻不下，撤兵'); }
+    return ctx.frames.slice(start);
+  }
+
+  function battleEnd(s, ctx) {
+    const { city, atk, A, D, lines, aName } = ctx;
+    if (!ctx.result) { ctx.result = 'lose'; lines.push('久攻不下，撤兵'); }
+    const result = ctx.result === 'win' ? 'win' : 'lose';
+    const aLeft = scaleMix(ctx.aUnits, A.troops);
+    const last = ctx.frames[ctx.frames.length - 1];
+    last.a = A.troops; last.d = D.troops;
     city.troops = D.troops;
     let summary, gone = null;
     if (result === 'win') {
@@ -562,19 +625,27 @@
     } else {
       const home = s.cities[atk.from];
       if (home.owner === atk.faction) addUnits(home, aLeft, atk.train);
-      summary = `${aName}進攻${city.name}失敗（我損 ${A0 - A.troops}，敵損 ${D0 - D.troops}）`;
+      summary = ctx.result === 'retreat'
+        ? `${aName}從${city.name}撤兵（我損 ${ctx.A0 - A.troops}，敵損 ${ctx.D0 - D.troops}）`
+        : `${aName}進攻${city.name}失敗（我損 ${ctx.A0 - A.troops}，敵損 ${ctx.D0 - D.troops}）`;
     }
     lines.push(summary);
-    for (const l of lines) addLog(s, l, 'battle', parties);
+    for (const l of lines) addLog(s, l, 'battle', ctx.parties);
     if (gone) destroyFaction(s, gone);
     const res = {
-      result, summary, lines, frames, atkLoss: A0 - A.troops, defLoss: D0 - D.troops,
+      result, retreated: ctx.result === 'retreat', summary, lines, frames: ctx.frames, atkLoss: ctx.A0 - A.troops, defLoss: ctx.D0 - D.troops,
       city: city.id, from: atk.from,
-      atk: { faction: atk.faction, name: aName, commander: aCmd, generals: atk.generals.map((g) => g.name), troops: A0, units: aUnits },
-      def: { faction: defOwner, name: dName, commander: dCmd, generals: defGens.map((g) => g.name), troops: D0, units: dUnits },
+      atk: { faction: atk.faction, name: aName, commander: ctx.aCmd, generals: atk.generals.map((g) => g.name), troops: ctx.A0, units: ctx.aUnits },
+      def: { faction: ctx.defOwner, name: ctx.dName, commander: ctx.dCmd, generals: ctx.defGens.map((g) => g.name), troops: ctx.D0, units: ctx.dUnits },
     };
     if (TK.Engine && typeof TK.Engine.onBattle === 'function') TK.Engine.onBattle(res);
     return res;
+  }
+
+  function battle(s, atk, targetId) {
+    const ctx = battleStart(s, atk, targetId);
+    while (!ctx.result) battleRound(s, ctx, 'normal');
+    return battleEnd(s, ctx);
   }
 
   function conquer(s, city, atk, A, lines, aLeft) {
@@ -735,7 +806,7 @@
 
   TK.Engine = {
     duel,
-    destroyFaction, SKILLS, yearText, troopCap, goldIncome, upkeep, strategistOf, governorOf,
+    destroyFaction, SKILLS, yearText, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,

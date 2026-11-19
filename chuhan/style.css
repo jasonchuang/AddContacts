@@ -419,6 +419,23 @@ body.mobile .win-foot .act { font-size: 17px; white-space: nowrap; padding: 0 8p
 #city-win .gov { margin-left: auto; }
 #city-win .mixrow { display: flex; gap: 12px; }
 
+/* ---------- 戰鬥指令列 ---------- */
+.battle .orders { position: absolute; left: 20px; right: 20px; bottom: 16px; z-index: 6; padding: 12px 14px; border-radius: 10px; background: rgba(248,241,223,.97); border: 2px solid var(--red); box-shadow: 0 8px 26px rgba(0,0,0,.3); animation: pop .25s ease-out both; }
+.battle .orders .otitle { font-family: Kai, Body; font-size: 22px; color: var(--red); margin-bottom: 8px; }
+.battle .orders .obtns { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.battle .orders .obtn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px; border: 1px solid var(--line); border-radius: 8px; background: #fbf6ea; cursor: pointer; font: inherit; color: var(--ink); }
+.battle .orders .obtn b { font-family: Kai, Body; font-size: 21px; font-weight: normal; }
+.battle .orders .obtn small { font-size: 12px; line-height: 16px; color: var(--dim); text-align: center; }
+.battle .orders .obtn:hover { border-color: var(--red); background: #fff1e0; }
+.battle .orders .o-assault b { color: #c0392b; } .battle .orders .o-hold b { color: #2f6db0; } .battle .orders .o-scheme b { color: #7b4fb0; }
+.battle .orders .o-duel b { color: #c97a10; } .battle .orders .o-retreat b { color: #5a5a5a; }
+.battle .orders .oauto { margin-top: 8px; width: 100%; height: 34px; border: 0; background: transparent; color: var(--dim); font: inherit; cursor: pointer; text-decoration: underline; }
+body.mobile .battle .orders { left: 6px; right: 6px; bottom: 6px; padding: 8px; position: fixed; }
+body.mobile .battle .orders .otitle { font-size: 16px; }
+body.mobile .battle .orders .obtns { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+body.mobile .battle .orders .obtn b { font-size: 18px; }
+body.mobile .battle .orders .obtn small { font-size: 10px; line-height: 13px; }
+
 .side-card .skill { margin-top: 6px; padding: 6px 8px; border: 1px dashed var(--line); border-radius: 6px; background: #fff8e8; line-height: 20px; }
 .side-card .skill b { color: var(--red); }
 .side-card .skill small { font-size: 13px; color: var(--dim); }
