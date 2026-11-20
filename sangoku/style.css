@@ -437,3 +437,26 @@ body.mobile .battle .orders .obtn b { font-size: 18px; }
 body.mobile .battle .orders .obtn small { font-size: 10px; line-height: 13px; }
 
 #status .diff { padding: 0 8px; border: 1px solid rgba(255,255,255,.35); border-radius: 4px; font-size: 14px; color: #f3e6c8; }
+
+/* ---------- sprite sheet 士兵（sprites/sprites.json） ---------- */
+.battlefield .u.spr, body.mobile .battlefield .u.spr { --z: calc(var(--z0) * var(--ms, 1)); position: relative; width: calc(var(--fw) * var(--z) * 1px); height: calc(var(--fh) * var(--z) * 1px); animation: none; }
+body.mobile .battlefield { --ms: .55; }
+.battlefield .u.spr::after { content: ''; position: absolute; left: 18%; right: 18%; bottom: -1px; height: 5px; border-radius: 50%; background: var(--c); opacity: .6; }
+.battlefield .u.spr .sp { position: relative; z-index: 1; width: 100%; height: 100%; image-rendering: pixelated; background-repeat: no-repeat;
+  background-size: calc(var(--W) * var(--z) * 1px) calc(var(--H) * var(--z) * 1px);
+  background-position: calc(var(--c0) * var(--fw) * var(--z) * -1px) calc(var(--row) * var(--fh) * var(--z) * -1px);
+  animation: sprite-run var(--dur) steps(var(--n)) infinite; }
+.battlefield .u.spr .sp.once { animation: sprite-once var(--dur) steps(var(--n), jump-none) 1 forwards; }
+.battlefield .u.spr .sp.flip { transform: scaleX(-1); }
+.battlefield .u.spr.fallen { transform: none; opacity: 0; transition: opacity .5s 1.1s; }
+.battlefield .u.spr.fallen.nodie { transition: opacity .4s; }
+.battlefield .u.spr .sp.smooth { image-rendering: auto; }
+@keyframes sprite-run {
+  from { background-position-x: calc(var(--c0) * var(--fw) * var(--z) * -1px); }
+  to { background-position-x: calc((var(--c0) + var(--n)) * var(--fw) * var(--z) * -1px); }
+}
+/* 只播一次（攻擊、倒下）：停在最後一格 */
+@keyframes sprite-once {
+  from { background-position-x: calc(var(--c0) * var(--fw) * var(--z) * -1px); }
+  to { background-position-x: calc((var(--c0) + var(--n) - 1) * var(--fw) * var(--z) * -1px); }
+}

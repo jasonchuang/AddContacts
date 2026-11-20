@@ -1288,6 +1288,9 @@
         const list = [];
         for (const k of ['cav', 'spear', 'xbow']) for (let i = 0; i < cnt[k]; i++) list.push(k);
         const units = list.map((k, i) => {
+          // 有 sprite sheet（sprites/sprites.json）就用動畫圖，否則用程式畫的士兵
+          const sp = TK.Sprite && TK.Sprite.make(k, col, right);
+          if (sp) return sp;
           const u = svgNode(TK.Icons.unit(k, col, { flip: right, cls: `u u-${k} march` }));
           u.style.animationDelay = `${(i % 5) * 0.12}s`;
           return u;
@@ -1308,7 +1311,11 @@
       const apply = (f) => {
         const setSide = (U, cur, init, ui) => {
           const alive = init > 0 ? Math.ceil(U.n * cur / init) : 0;
-          U.units.forEach((u, i) => u.classList.toggle('fallen', i >= alive));
+          U.units.forEach((u, i) => {
+            const fall = i >= alive;
+            if (fall && !u.classList.contains('fallen') && u.dataset.k && TK.Sprite) TK.Sprite.die(u);
+            u.classList.toggle('fallen', fall);
+          });
           ui.num.textContent = fmt(cur);
           ui.bar.style.width = `${init ? Math.max(0, 100 * cur / init) : 0}%`;
         };
@@ -1396,6 +1403,11 @@
         apply(f);
         if (f.a < prev.a) hit(UA);
         if (f.d < prev.d) hit(UD);
+        // sprite 士兵：造成傷害的一方揮兵器
+        if (TK.Sprite) {
+          if (f.d < prev.d) UA.units.forEach((u) => TK.Sprite.attack(u, Math.random() * 220));
+          if (f.a < prev.a) UD.units.forEach((u) => TK.Sprite.attack(u, Math.random() * 220));
+        }
         const fw = field.clientWidth || 1160;
         advance = Math.min(advance + fw * 0.012, fw * 0.13);
         UA.wrap.style.transform = `translateX(${advance}px)`;
