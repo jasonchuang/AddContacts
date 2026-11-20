@@ -884,7 +884,19 @@
       h('div', {},
         h('div', {}, `${where}・${PT.classLabel(g, t)}・${g.city || ''}`),
         h('div', { class: 'stats' }, stat('統率', g.lead), stat('武力', g.war), stat('智略', g.int), stat('政務', g.pol), stat('魅力', g.cha), g.status === 'active' && !g.ruler ? stat('忠誠', g.loyalty) : null),
-        h('div', { class: 'apt' }, UK.map((k) => h('span', {}, `${E.UNITS[k].name}`, h('b', { class: `g-${E.aptitude(g, k)}` }, E.aptitude(g, k))))))), { x: 220, y: 140, width: 760 });
+        h('div', { class: 'apt' }, UK.map((k) => h('span', {}, `${E.UNITS[k].name}`, h('b', { class: `g-${E.aptitude(g, k)}` }, E.aptitude(g, k))))),
+        bioBlock(g))), { x: 220, y: 140, width: 760 });
+  }
+
+  // 列傳（js/bios.js）
+  function bioBlock(g) {
+    const b = TK.BIOS && TK.BIOS[g.name];
+    if (!b) return null;
+    const head = [b.zi ? `字${b.zi}` : '', b.home ? `${b.home}人` : '', b.life].filter(Boolean).join('・');
+    return h('div', { class: 'bio' },
+      h('div', { class: 'bio-head' }, h('b', {}, '列傳'), h('span', { class: 'dim' }, head)),
+      h('p', {}, b.bio),
+      b.tale ? h('p', { class: 'tale' }, h('b', {}, '演義'), b.tale) : null);
   }
 
   function cityGenerals(c) {

@@ -2,7 +2,7 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js', 'bios.js']) require(path.join(__dirname, '..', 'js', f));
 const { Engine: E } = globalThis.TK;
 
 let passed = 0;
@@ -510,6 +510,15 @@ test('漢中之戰：定軍山斬夏侯淵 → 空營計 → 雞肋（楊修死�
     assert(Object.values(s.generals).every((g) => g.status !== 'active' || s.cities[g.city].owner === g.faction), '撤出的曹將回到曹操的城');
     jump(s, 219, 6); assert(EV.run(s).some((e) => e.id === 'hanzhongwang'));
   });
+});
+
+test('列傳：每一篇都對應到劇本中的武將，且欄位完整', () => {
+  const names = new Set();
+  for (const sc of TK.SCENARIOS) for (const g of sc.generals || []) names.add(g.name);
+  for (const [n, b] of Object.entries(TK.BIOS)) {
+    assert(names.has(n), `列傳 ${n} 不在任何劇本`);
+    assert(b.bio && b.bio.length > 20 && b.life !== undefined && b.home, `列傳 ${n} 欄位不完整`);
+  }
 });
 
 console.log(`\n${passed} tests passed`);

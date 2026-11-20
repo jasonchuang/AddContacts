@@ -460,3 +460,19 @@ body.mobile .battlefield { --ms: .55; }
   from { background-position-x: calc(var(--c0) * var(--fw) * var(--z) * -1px); }
   to { background-position-x: calc((var(--c0) + var(--n) - 1) * var(--fw) * var(--z) * -1px); }
 }
+
+/* ---------- 武將列傳 ---------- */
+.detail .bio { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); max-width: 480px; max-height: 260px; overflow-y: auto; line-height: 1.7; }
+.detail .bio-head { display: flex; gap: 12px; align-items: baseline; margin-bottom: 4px; }
+.detail .bio-head b { font-family: Kai, Body; font-size: 1.15em; color: var(--accent, #a8322a); }
+.detail .bio p { margin: 4px 0; text-align: justify; }
+.detail .bio .tale { color: var(--dim); }
+.detail .bio .tale b { display: inline-block; margin-right: 6px; padding: 0 5px; border: 1px solid currentColor; border-radius: 3px; font-size: .85em; font-weight: normal; }
+body.mobile .detail .bio { max-width: none; max-height: none; }
+body.mobile .detail { gap: 12px; }
+body.mobile .detail .face { width: 96px; height: 120px; flex: none; }
+body.mobile .detail > div { flex: 1; min-width: 0; }
+body.mobile .detail .stats { grid-template-columns: 38px 32px 1fr; }
+body.mobile .detail .stats .bar { max-width: 100%; }
+body.mobile .detail .apt { display: flex; flex-wrap: wrap; gap: 0 10px; }
+body.mobile .detail .bio-head { flex-wrap: wrap; gap: 0 10px; }
