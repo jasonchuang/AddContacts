@@ -67,7 +67,7 @@
   // 裁切交給 CSS 的 object-fit: cover。
   function faceURL(g, mode) {
     const col = color(g.faction || g.formerFaction);
-    const key = `${g.id}|${col}|${mode}`;
+    const key = `${g.id}|${col}|${mode}|${g.ruler ? 1 : 0}`; // 繼位成為君主時換成君主頭像
     if (!faceCache.has(key)) {
       const art = PT.art && PT.art(g, mode);
       faceCache.set(key, Promise.resolve(art || 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(PT.svg(g, col, mode))));

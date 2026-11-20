@@ -1,5 +1,13 @@
 /* 由 build.js 自動產生：列出 portraits/ 資料夾中可用的武將插畫。請勿手動編輯。 */
 (function (TK) { TK.PORTRAIT_FILES = {
+  "_通用君主": "portraits/_通用君主.jpg",
+  "_通用君主_head": "portraits/_通用君主_head.jpg",
+  "_通用文官": "portraits/_通用文官.jpg",
+  "_通用文官_head": "portraits/_通用文官_head.jpg",
+  "_通用武將": "portraits/_通用武將.jpg",
+  "_通用武將_head": "portraits/_通用武將_head.jpg",
+  "于禁": "portraits/于禁.jpg",
+  "于禁_head": "portraits/于禁_head.jpg",
   "典韋": "portraits/典韋.jpg",
   "典韋_head": "portraits/典韋_head.jpg",
   "劉備": "portraits/劉備.jpg",
@@ -18,6 +26,8 @@
   "夏侯淵_head": "portraits/夏侯淵_head.jpg",
   "太史慈": "portraits/太史慈.jpg",
   "太史慈_head": "portraits/太史慈_head.jpg",
+  "孫乾": "portraits/孫乾.jpg",
+  "孫乾_head": "portraits/孫乾_head.jpg",
   "孫堅": "portraits/孫堅.jpg",
   "孫堅_head": "portraits/孫堅_head.jpg",
   "孫權": "portraits/孫權.jpg",
@@ -46,6 +56,8 @@
   "田豐_head": "portraits/田豐_head.jpg",
   "程昱": "portraits/程昱.jpg",
   "程昱_head": "portraits/程昱_head.jpg",
+  "程普": "portraits/程普.jpg",
+  "程普_head": "portraits/程普_head.jpg",
   "荀彧": "portraits/荀彧.jpg",
   "荀彧_head": "portraits/荀彧_head.jpg",
   "華雄": "portraits/華雄.jpg",
@@ -72,6 +84,8 @@
   "魯肅_head": "portraits/魯肅_head.jpg",
   "黃忠": "portraits/黃忠.jpg",
   "黃忠_head": "portraits/黃忠_head.jpg",
+  "黃蓋": "portraits/黃蓋.jpg",
+  "黃蓋_head": "portraits/黃蓋_head.jpg",
   "龐統": "portraits/龐統.jpg",
   "龐統_head": "portraits/龐統_head.jpg"
 }; })(globalThis.TK = globalThis.TK || {});
