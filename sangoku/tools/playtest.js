@@ -4,7 +4,7 @@
 'use strict';
 const path = require('path');
 global.TK = {};
-for (const f of ['data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
 const E = TK.Engine, D = TK.Diplomacy;
 
 const only = process.argv[2] && process.argv[2] !== 'all' ? process.argv[2] : null;

@@ -1149,7 +1149,7 @@
     const mine = E.citiesOf(S, S.player);
     if (S.month === 8) out.push('秋收已過，各城的糧倉都充實了。');
     for (const c of mine) {
-      if (c.troops > 0 && c.food < c.troops / 40 * 3) { out.push(`${c.name}的糧食只夠撐三個月，請盡快運糧或開墾。`); break; }
+      if (c.troops > 0 && c.food < c.troops / TK.TUNING.economy.foodPer * 3) { out.push(`${c.name}的糧食只夠撐三個月，請盡快運糧或開墾。`); break; }
     }
     for (const c of mine) {
       if (E.goldIncome(c, S) < E.upkeep(c) && c.gold < E.upkeep(c) * 6) { out.push(`${c.name}的軍餉比收入還多，金庫快見底了。發展商業，或把兵移到別城吧。`); break; }
@@ -1335,7 +1335,7 @@
         awaiting = false;
         orderBar.classList.add('hidden');
         SND.ok();
-        for (let k = 0; k < 4 && !live.result; k++) {
+        for (let k = 0; k < TK.TUNING.battle.phaseRounds && !live.result; k++) {
           const o = k === 0 ? order : (order === 'assault' || order === 'hold' ? order : 'normal');
           E.battleRound(S, live, o);
           if (o === 'retreat') break;

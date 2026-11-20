@@ -77,6 +77,7 @@ sangoku/
   style.css       樣式（紙卷風介面，與 Godot 版一致）
   js/data.js      190 年劇本與地圖（勢力、城市、道路、武將）
   js/scenarios.js 其他五個名戰劇本（勢力配置、武將、初始外交、專屬事件）
+  js/tuning.js    手感數值表（戰鬥、單挑、經濟、登用、難易度；意義見 SPEC.md）
   js/engine.js    遊戲核心：狀態、指令、戰鬥、結算（不碰 DOM）
   js/ai.js        電腦勢力（透過與玩家相同的指令介面行動）
   js/diplomacy.js 外交（同盟、停戰、宣戰、勸降、電腦提議）

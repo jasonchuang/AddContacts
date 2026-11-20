@@ -128,7 +128,7 @@
         const want = Math.min(Eng.troopCap(city), Math.max(8000, income * 250 * (frontline ? 0.9 : 0.5)));
         const unit = draftUnit(s, city, g);
         const max = Eng.maxDraft(s, city, g, unit);
-        if (city.troops < want && max >= 1000 && city.gold > 300 + city.troops / 50 && city.food > city.troops / 40 * 6) {
+        if (city.troops < want && max >= 1000 && city.gold > 300 + city.troops / 50 && city.food > city.troops / TK.TUNING.economy.foodPer * 6) {
           Eng.exec(s, fid, { type: 'draft', city: city.id, general: g.id, unit, amount: Math.min(max, Math.round(want - city.troops) + 1000, 5000) });
           continue;
         }

@@ -2,7 +2,7 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-for (const f of ['data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
 const { Engine: E } = globalThis.TK;
 
 let passed = 0;
