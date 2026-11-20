@@ -1,7 +1,15 @@
 /* 由 build.js 自動產生：列出 portraits/ 資料夾中可用的武將插畫。請勿手動編輯。 */
 (function (TK) { TK.PORTRAIT_FILES = {
+  "典韋": "portraits/典韋.jpg",
+  "典韋_head": "portraits/典韋_head.jpg",
   "劉備": "portraits/劉備.jpg",
   "劉備_head": "portraits/劉備_head.jpg",
+  "呂布": "portraits/呂布.jpg",
+  "呂布_head": "portraits/呂布_head.jpg",
+  "周瑜": "portraits/周瑜.jpg",
+  "周瑜_head": "portraits/周瑜_head.jpg",
+  "夏侯惇": "portraits/夏侯惇.jpg",
+  "夏侯惇_head": "portraits/夏侯惇_head.jpg",
   "孫權": "portraits/孫權.jpg",
   "孫權_head": "portraits/孫權_head.jpg",
   "張飛": "portraits/張飛.jpg",
@@ -13,5 +21,7 @@
   "趙雲": "portraits/趙雲.jpg",
   "趙雲_head": "portraits/趙雲_head.jpg",
   "關羽": "portraits/關羽.jpg",
-  "關羽_head": "portraits/關羽_head.jpg"
+  "關羽_head": "portraits/關羽_head.jpg",
+  "黃忠": "portraits/黃忠.jpg",
+  "黃忠_head": "portraits/黃忠_head.jpg"
 }; })(globalThis.TK = globalThis.TK || {});
