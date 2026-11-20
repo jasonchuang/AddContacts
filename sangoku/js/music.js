@@ -9,12 +9,13 @@
   function ac() {
     try {
       if (!ctx) {
-        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        ctx = TK.Audio.get();
+        if (!ctx) return null;
         master = ctx.createGain();
         master.gain.value = 0.55;
         master.connect(ctx.destination);
       }
-      if (ctx.state === 'suspended') ctx.resume();
+      if (ctx.state !== 'running') ctx.resume().catch(() => {});
       return ctx;
     } catch (e) { return null; }
   }

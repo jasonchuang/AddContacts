@@ -78,6 +78,7 @@ sangoku/
   js/data.js      190 年劇本與地圖（勢力、城市、道路、武將）
   js/scenarios.js 其他五個名戰劇本（勢力配置、武將、初始外交、專屬事件）
   js/tuning.js    手感數值表（戰鬥、單挑、經濟、登用、難易度；意義見 SPEC.md）
+  js/audio.js     音效與音樂共用的 AudioContext（處理 iPhone 解鎖、靜音開關、朗讀後中斷）
   js/sprite.js    戰場士兵的 sprite sheet 動畫（素材放 sprites/，見 sprites/README.md；沒有素材時用 SVG）
   js/engine.js    遊戲核心：狀態、指令、戰鬥、結算（不碰 DOM）
   js/ai.js        電腦勢力（透過與玩家相同的指令介面行動）

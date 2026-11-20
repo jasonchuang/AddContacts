@@ -6,12 +6,8 @@
   try { muted = localStorage.getItem('qunxiong.mute') === '1'; } catch (e) { /* 無法存取時用預設值 */ }
 
   function ac() {
-    if (muted) return null;
-    try {
-      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state === 'suspended') ctx.resume();
-      return ctx;
-    } catch (e) { return null; }
+    if (muted || !TK.Audio) return null;
+    return (ctx = TK.Audio.get());
   }
 
   function tone(freq, dur, type, vol, delay, slideTo) {
