@@ -6,3 +6,4 @@ gen/
 out
 sangoku/test/e2e-shots/
 sangoku/art/review/
+node_modules/

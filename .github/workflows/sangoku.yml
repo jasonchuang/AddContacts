@@ -1,0 +1,43 @@
+# 三國 逐鹿中原：每次推上 GitHub 自動跑測試（單元測試、SPEC 數值檢查、電腦代打、畫面測試）
+name: sangoku
+on:
+  push:
+    paths: ['sangoku/**', 'docs/**', '.github/workflows/sangoku.yml']
+  pull_request:
+    paths: ['sangoku/**', 'docs/**', '.github/workflows/sangoku.yml']
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 單元測試（含 SPEC 數值表與 tuning.js 一致）
+        run: node sangoku/test/engine.test.js
+
+      - name: 電腦代打（每個劇本每個勢力 1 局，最多 40 年；有數值或歸屬異常就失敗）
+        run: node sangoku/tools/playtest.js all 1 40
+
+      - name: 打包
+        run: node sangoku/build.js
+
+      - name: 安裝 Playwright（Chromium）
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+
+      - name: 畫面測試（預覽版）
+        run: node sangoku/test/e2e.test.js
+
+      - name: 上傳截圖
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-shots
+          path: sangoku/test/e2e-shots/
+          if-no-files-found: ignore

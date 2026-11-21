@@ -65,6 +65,7 @@ function main() {
   }
   console.table(rows);
   if (allIssues.size) { console.log('問題：'); for (const i of [...allIssues].slice(0, 40)) console.log('  ' + i); } else console.log('沒有發現數值或歸屬異常。');
+  process.exitCode = allIssues.size ? 1 : 0; // CI 用：有異常就算失敗
 }
 
 if (require.main === module) main();
