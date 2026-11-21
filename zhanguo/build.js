@@ -1,6 +1,6 @@
 // 1) 掃描 portraits/ 中的武將插畫，產生 portraits/manifest.js
 // 2) 把 index.html、style.css、所有 js（以及插畫，轉成 data URI）合併成單一 HTML 檔
-// 執行：node chuhan/build.js  → 產生 chuhan/dist/chuhan.html
+// 執行：node zhanguo/build.js  → 產生 zhanguo/dist/zhanguo.html
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -118,7 +118,7 @@ function bundle(portraits) {
 }
 const size = (str) => { const kb = Buffer.byteLength(str) / 1024; return kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb.toFixed(0) + ' KB'; };
 
-const out = path.join(root, 'dist', 'chuhan.html');
+const out = path.join(root, 'dist', 'zhanguo.html');
 fs.mkdirSync(path.dirname(out), { recursive: true });
 const single = bundle('inline');
 fs.writeFileSync(out, single);
@@ -126,10 +126,10 @@ console.log(`已輸出 ${path.relative(process.cwd(), out)}（${size(single)}，
 
 // GitHub Pages：repo 根目錄的 docs/ 就是網站。
 //   平常打包只更新「預覽版」docs/preview/（網址最後加 /preview/），給使用者先試玩；
-//   使用者確認後執行 node chuhan/build.js --release，才更新正式版 docs/index.html。
+//   使用者確認後執行 node zhanguo/build.js --release，才更新正式版 docs/index.html。
 // 插畫放在各自的 portraits/ 資料夾，畫面用到才下載。
 const release = process.argv.includes('--release');
-const docs = path.join(root, '..', 'docs', 'chuhan'); // 楚漢放在網站的 /chuhan/ 底下
+const docs = path.join(root, '..', 'docs', 'zhanguo'); // 戰國放在網站的 /zhanguo/ 底下
 const site = release ? docs : path.join(docs, 'preview');
 const sitePortraits = path.join(site, 'portraits');
 fs.mkdirSync(site, { recursive: true });
@@ -150,5 +150,5 @@ if (!release) {
 fs.writeFileSync(path.join(site, 'index.html'), web);
 fs.writeFileSync(path.join(docs, '.nojekyll'), '');
 console.log(release
-  ? `已發布正式版：docs/chuhan/index.html（${size(web)}）＋ docs/chuhan/portraits/`
-  : `已更新預覽版：docs/chuhan/preview/index.html（${size(web)}）＋ docs/chuhan/preview/portraits/。確認沒問題後執行 node chuhan/build.js --release 發布正式版`);
+  ? `已發布正式版：docs/zhanguo/index.html（${size(web)}）＋ docs/zhanguo/portraits/`
+  : `已更新預覽版：docs/zhanguo/preview/index.html（${size(web)}）＋ docs/zhanguo/preview/portraits/。確認沒問題後執行 node zhanguo/build.js --release 發布正式版`);

@@ -2,8 +2,8 @@
 (function (TK) {
   'use strict';
   const E = TK.Engine, SND = TK.Sound, MV = TK.MapView, PT = TK.Portrait;
-  const AUTO_KEY = 'chuhan.auto.v1';
-  const SLOT_KEY = (n) => `chuhan.slot${n}.v1`;
+  const AUTO_KEY = 'zhanguo.auto.v1';
+  const SLOT_KEY = (n) => `zhanguo.slot${n}.v1`;
   const $ = (id) => document.getElementById(id);
   const MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
   const SEASON = (m) => ['春', '夏', '秋', '冬'][Math.floor((m - 1) / 3)];
@@ -178,7 +178,7 @@
   const MENU_ICON = {
     內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
-    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city', 襲擾: 'order', 封王: 'appoint', 反間: 'search',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city', 襲擾: 'order', 封君: 'appoint', 反間: 'search',
   };
   const UNIT_BY_NAME = { 槍兵: 'spear', 騎兵: 'cav', 弩兵: 'xbow' };
   function svgNode(str) {
@@ -477,7 +477,7 @@
   // 選擇劇本
   function chooseScenario() {
     const list = TK.SCENARIOS || [TK.SCENARIO];
-    cardsWin('選擇劇本', '從漢王之國到垓下之戰，選一個時代登場', list.map((sc) => ({
+    cardsWin('選擇劇本', '從長平之戰到秦滅六國，選一個時代登場', list.map((sc) => ({
       el: h('div', { class: 'scard' },
         h('div', { class: 'sc-year' }, h('b', {}, E.yearText(sc.year)), '年'),
         h('div', { class: 'sc-name' }, sc.title),
@@ -502,7 +502,7 @@
         el: h('div', { class: 'fcard', style: `--c:${f.color}` },
           face(ruler, 'head', 0, 0, 'fc-face'),
           h('div', { class: 'fc-main' },
-            h('div', { class: 'fc-name' }, f.name, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler))),
+            h('div', { class: 'fc-name' }, f.name, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.name))),
             h('div', { class: 'dim' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、') || '—'}`),
             h('div', { class: 'dim' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
             h('div', { class: 'fc-diff' }, '難度 ', h('span', {}, '★'.repeat(diff) + '☆'.repeat(5 - diff)))),
@@ -649,9 +649,9 @@
     const strat = E.strategistOf(S, S.player);
     const btn = (label, title, act, cls) => h('button', { class: 'tb ' + (cls || ''), title, onclick: (e) => { e.stopPropagation(); if (busy && cls !== 'snd') return; SND.ok(); act(); } }, label);
     $('status').replaceChildren(
-      h('div', { class: 'brand' }, '楚漢相爭'),
+      h('div', { class: 'brand' }, '戰國七雄'),
       h('div', { class: 'date' }, h('small', {}, `${E.yearText(S.year)}年`), h('b', {}, MONTHS[S.month - 1]), h('span', { class: 'season' }, SEASON(S.month))),
-      h('div', { class: 'fac' }, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
+      h('div', { class: 'fac' }, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.name)), f.name),
       h('div', { class: 'resources' },
         res('city', p.cities, '城數'), res('troops', fmtW(p.troops), '兵力'), res('gold', fmtW(p.gold), '金'), res('food', fmtW(p.food), '糧'), res('general', p.generals, '武將')),
       h('div', { class: 'chips' },
@@ -760,7 +760,7 @@
       items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
       items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
       items.push({ label: '任命', hint: '軍師・太守', off: busy, act: () => appointMenu(c) });
-      items.push({ label: '封王', off: busy, act: () => enfeoffFlow(c) });
+      items.push({ label: '封君', off: busy, act: () => enfeoffFlow(c) });
       items.push({ label: '反間', hint: `金${E.DISCORD_COST}`, off: busy || !idle || c.gold < E.DISCORD_COST, why: c.gold < E.DISCORD_COST ? '金不足。' : why, act: () => discordFlow(c) });
       items.push({ label: '俘虜', off: busy || !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) });
     }
@@ -880,13 +880,13 @@
     return '四處搜尋了一番，什麼也沒找到……';
   }
 
-  // 封王
+  // 封君
   function enfeoffFlow(c) {
     const list = E.officers(S, c.id).filter((g) => !g.ruler && !g.king).sort((a, b) => E.ambition(b) - E.ambition(a));
     if (!list.length) { SND.error(); say(null, '本城沒有可以受封的武將。'); return; }
-    tableWin(`封王：封${c.name}給誰？`, genCols(null, ['野心']), genRows(list, { extra: (g) => [Math.round(E.ambition(g))] }), (r) => {
+    tableWin(`封君：封${c.name}給誰？`, genCols(null, ['野心']), genRows(list, { extra: (g) => [Math.round(E.ambition(g))] }), (r) => {
       const g = r.g;
-      confirmWin(`封${g.name}為${c.name}王？\n忠誠會立刻全滿並兼任太守；但野心 80 以上的王忠誠每月 -1，太低時可能據城自立。`, () => {
+      confirmWin(`封${g.name}為${c.name}君？\n忠誠會立刻全滿並兼任太守；但野心 80 以上的封君忠誠每月 -1，太低時可能據城自立。`, () => {
         run({ type: 'enfeoff', city: c.id, target: g.id }, g, () => `臣${g.name}，謝大王厚恩！必為大王鎮守${c.name}。`);
       });
     }, { side: genSide, width: 860, x: 200 });
@@ -1112,10 +1112,10 @@
   }
 
   // 設定：出征時是否手動下戰鬥指令
-  let manualBattle = store('chuhan.manualBattle') !== '0';
+  let manualBattle = store('zhanguo.manualBattle') !== '0';
   function systemMenu() {
     menuWin('系統', [
-      { label: `戰鬥指揮：${manualBattle ? '手動' : '自動'}`, hint: '出征時逐段下指令', act: () => { manualBattle = !manualBattle; store('chuhan.manualBattle', manualBattle ? '1' : '0'); popWin(); systemMenu(); } },
+      { label: `戰鬥指揮：${manualBattle ? '手動' : '自動'}`, hint: '出征時逐段下指令', act: () => { manualBattle = !manualBattle; store('zhanguo.manualBattle', manualBattle ? '1' : '0'); popWin(); systemMenu(); } },
       { label: '存檔', off: busy, act: () => slotMenu(true) },
       { label: '讀檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); popWin(); } },
@@ -1515,7 +1515,7 @@
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       const fx = h('div', { class: 'bfx' });
-      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
+      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].name.slice(-1) : '守'));
       const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));

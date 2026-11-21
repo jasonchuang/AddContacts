@@ -1,0 +1,151 @@
+{
+  "說明": "把每一項的 prompt 貼給 ChatGPT 產生背景圖（橫式 3:2，1536x1024）。用 file 欄位的檔名存檔，整批打包成 zip 傳回來。沒有圖的事件會沿用遊戲內建的背景。",
+  "style": "Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024.",
+  "size": "1536x1024",
+  "events": [
+    {
+      "id": "shangdang",
+      "title": "上黨之爭",
+      "scenario": "-260 長平之戰",
+      "file": "shangdang.png",
+      "scene_zh": "邯鄲宮殿，桌上放著上黨十七城的地圖",
+      "prompt": "The throne hall of the Zhao palace in Handan with golden-yellow banners, a large map of seventeen mountain towns spread on a table, afternoon light, tense debate atmosphere. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "huanjiang",
+      "title": "臨陣換將",
+      "scenario": "-260 長平之戰",
+      "file": "huanjiang.png",
+      "scene_zh": "長平山谷中對峙三年的兩座營壘",
+      "prompt": "Two enormous fortified camps facing each other across the mountain valleys of Changping, earthen walls and watchtowers on the ridges, autumn haze, a long stalemate. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "qiehu",
+      "title": "竊符救趙",
+      "scenario": "-260 長平之戰",
+      "file": "qiehu.png",
+      "scene_zh": "夜裡的軍營大帳，案上一枚虎符",
+      "prompt": "A great army camp at night outside Ye, a commander tent with a single lamp, a bronze tiger-shaped military tally on the table, tension and resolve. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "duyou",
+      "title": "杜郵賜劍",
+      "scenario": "-260 長平之戰",
+      "file": "duyou.png",
+      "scene_zh": "杜郵驛站，案上一把賜劍，黃昏",
+      "prompt": "A lonely roadside post station at Duyou at dusk, a sword lying on a low table in an empty room, long shadows, a sense of fate. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "zhouwang",
+      "title": "周室滅亡",
+      "scenario": "-260 長平之戰",
+      "file": "zhouwang.png",
+      "scene_zh": "洛陽王宮，九鼎被搬走的空殿",
+      "prompt": "The old royal palace of Zhou in Luoyang, an empty hall where the nine bronze cauldrons once stood, dust and fallen banners, solemn end of an era. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "qihuo",
+      "title": "奇貨可居",
+      "scenario": "-260 長平之戰",
+      "file": "qihuo.png",
+      "scene_zh": "邯鄲熱鬧的市集與商人的宅邸",
+      "prompt": "A busy market street in Handan with merchant stalls, jade and silk goods, a wealthy merchant mansion with an open gate, warm daylight. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "hezong",
+      "title": "五國合縱",
+      "scenario": "-247 信陵君合縱",
+      "file": "hezong.png",
+      "scene_zh": "五國旗幟並列的聯軍大營，遠方函谷關",
+      "prompt": "A vast coalition army camp with banners of five colors (gold, purple, teal, red, pink) side by side, the narrow Hangu pass far away between cliffs, dramatic sky. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "fanjian_xinling",
+      "title": "萬金離間",
+      "scenario": "-247 信陵君合縱",
+      "file": "fanjian_xinling.png",
+      "scene_zh": "魏宮中，案上堆著秦國送來的金子",
+      "prompt": "A palace chamber of Wei with purple curtains, a chest overflowing with gold coins on the floor, shadowy corners, an atmosphere of whispers and suspicion. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "lianpo_ben",
+      "title": "廉頗奔魏",
+      "scenario": "-247 信陵君合縱",
+      "file": "lianpo_ben.png",
+      "scene_zh": "黃塵滾滾的大道，一騎遠去",
+      "prompt": "A long dusty road leading away from Handan, a single horseman far in the distance, autumn wind and falling leaves, melancholy. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "qinzheng",
+      "title": "秦王親政",
+      "scenario": "-247 信陵君合縱",
+      "file": "qinzheng.png",
+      "scene_zh": "咸陽宮大殿，黑色旗幟與高台王座",
+      "prompt": "The grand hall of the Xianyang palace, black and dark gold banners, a high throne platform at the end, morning light through tall doors, majestic and cold. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "feizhi",
+      "title": "肥之戰",
+      "scenario": "-233 李牧守趙",
+      "file": "feizhi.png",
+      "scene_zh": "北方平原上被襲取的秦營，煙塵四起",
+      "prompt": "A northern plain with a Qin army camp being overrun, smoke rising from burning tents, golden-yellow cavalry banners charging in from the hills, wide dramatic sky. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "hanfei_si",
+      "title": "韓非之死",
+      "scenario": "-233 李牧守趙",
+      "file": "hanfei_si.png",
+      "scene_zh": "昏暗的牢房，案上竹簡與一杯毒酒",
+      "prompt": "A dim prison cell in Qin, bamboo books neatly stacked on a low table beside a single cup, a narrow window with a beam of light, sorrowful stillness. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "fanwu",
+      "title": "番吾之戰",
+      "scenario": "-233 李牧守趙",
+      "file": "fanwu.png",
+      "scene_zh": "山地戰場，秦軍旗幟倒下",
+      "prompt": "A rugged mountain battlefield at Fanwu, fallen black banners on the slopes, golden-yellow banners on the ridge, dust and sunset. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "guokai",
+      "title": "郭開讒言",
+      "scenario": "-233 李牧守趙",
+      "file": "guokai.png",
+      "scene_zh": "邯鄲宮中幽暗的走廊，帷幕後的密談",
+      "prompt": "A dark corridor of the Handan palace at night, heavy golden curtains, a lamp behind a screen casting two shadows, an atmosphere of betrayal. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "jingke",
+      "title": "荊軻刺秦",
+      "scenario": "-233 李牧守趙",
+      "file": "jingke.png",
+      "scene_zh": "易水岸邊，冬日寒風",
+      "prompt": "The bank of the Yi river in winter, bare trees, cold mist over the water, a small farewell pavilion, grey sky and drifting snow, tragic farewell. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "lixin",
+      "title": "李信伐楚",
+      "scenario": "-224 王翦滅楚",
+      "file": "lixin.png",
+      "scene_zh": "楚地丘陵中被擊破的秦營",
+      "prompt": "Rolling green hills of Chu with a broken Qin army camp, toppled black banners, red Chu banners pursuing on the horizon, rain clouds. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "wangjian_qing",
+      "title": "王翦出山",
+      "scenario": "-224 王翦滅楚",
+      "file": "wangjian_qing.png",
+      "scene_zh": "頻陽鄉間的宅院與田地",
+      "prompt": "A quiet country estate at Pinyang with fields and a modest house, a royal carriage arriving at the gate, early spring, calm before war. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    },
+    {
+      "id": "xiangyan",
+      "title": "項燕之死",
+      "scenario": "-224 王翦滅楚",
+      "file": "xiangyan.png",
+      "scene_zh": "楚地河畔的最後戰場，夕陽",
+      "prompt": "The last battlefield of Chu by a river at sunset, scattered red banners on the ground, a single standing banner on a hill, deep sorrow and pride. Anime background art for a historical strategy game, cel-shaded with painterly detail, Warring States period China (around 250 BC), cinematic wide landscape composition, rich atmosphere and lighting. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark, no UI. Keep the lower third calm and slightly darker (a dialogue box will cover it) and leave the left and right edges uncluttered (character portraits will stand there). Original design, do not imitate any existing manga or anime. Landscape 3:2, 1536x1024."
+    }
+  ]
+}

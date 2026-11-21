@@ -5,7 +5,7 @@
   'use strict';
   const synth = typeof window !== 'undefined' && window.speechSynthesis ? window.speechSynthesis : null;
   let on = true, voice = null;
-  try { on = localStorage.getItem('chuhan.voice') !== '0'; } catch (e) { /* 用預設值 */ }
+  try { on = localStorage.getItem('zhanguo.voice') !== '0'; } catch (e) { /* 用預設值 */ }
 
   // 優先使用台灣中文語音，其次香港、中國
   function pickVoice() {
@@ -37,7 +37,7 @@
     isOn: () => on && !!synth,
     toggle() {
       on = !on;
-      try { localStorage.setItem('chuhan.voice', on ? '1' : '0'); } catch (e) { /* 忽略 */ }
+      try { localStorage.setItem('zhanguo.voice', on ? '1' : '0'); } catch (e) { /* 忽略 */ }
       if (!on) V.stop();
       return on;
     },

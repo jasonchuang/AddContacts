@@ -4,6 +4,6 @@ gen/
 .idea
 *.iml
 out
-chuhan/test/e2e-shots/
-chuhan/art/review/
+zhanguo/test/e2e-shots/
+zhanguo/art/review/
 node_modules/

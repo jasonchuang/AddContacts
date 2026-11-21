@@ -3,7 +3,7 @@
   'use strict';
   let ctx = null;
   let muted = false;
-  try { muted = localStorage.getItem('chuhan.mute') === '1'; } catch (e) { /* 無法存取時用預設值 */ }
+  try { muted = localStorage.getItem('zhanguo.mute') === '1'; } catch (e) { /* 無法存取時用預設值 */ }
 
   function ac() {
     if (muted || !TK.Audio) return null;
@@ -66,7 +66,7 @@
     isMuted() { return muted; },
     toggle() {
       muted = !muted;
-      try { localStorage.setItem('chuhan.mute', muted ? '1' : '0'); } catch (e) { /* 忽略 */ }
+      try { localStorage.setItem('zhanguo.mute', muted ? '1' : '0'); } catch (e) { /* 忽略 */ }
       if (!muted) S.ok();
       return muted;
     },

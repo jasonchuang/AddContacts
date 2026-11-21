@@ -77,7 +77,7 @@
     t.hair = 'black';
     t.age = 'mid';
     t.band = null;
-    Object.assign(t, (TK.CHUHAN && TK.CHUHAN.looks[g.name]) || OVERRIDE[g.name] || {});
+    Object.assign(t, (TK.WORLD && TK.WORLD.looks[g.name]) || OVERRIDE[g.name] || {});
     if (t.age === 'old' && t.hair === 'black') t.hair = 'grey';
     return t;
   }
@@ -408,10 +408,10 @@
 
   // 畫風：'ink'（水墨）或 'chibi'（Q 版），記在瀏覽器
   let STYLE = 'ink';
-  try { STYLE = (globalThis.localStorage && localStorage.getItem('chuhan.pstyle')) || 'ink'; } catch (e) { /* 忽略 */ }
+  try { STYLE = (globalThis.localStorage && localStorage.getItem('zhanguo.pstyle')) || 'ink'; } catch (e) { /* 忽略 */ }
   function setStyle(v) {
     STYLE = v === 'chibi' ? 'chibi' : 'ink';
-    try { localStorage.setItem('chuhan.pstyle', STYLE); } catch (e) { /* 忽略 */ }
+    try { localStorage.setItem('zhanguo.pstyle', STYLE); } catch (e) { /* 忽略 */ }
   }
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考

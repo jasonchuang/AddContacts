@@ -219,13 +219,13 @@
     train: { label: '訓練', cost: 0, stat: 'lead', key: 'train' },
   };
 
-  // ---------- 楚漢特色：截斷糧道、反間、封王 ----------
+  // ---------- 楚漢特色：截斷糧道、反間、封君 ----------
   const RAID_COST = 100, DISCORD_COST = 300;
   function raidRisk(g) { return clamp(0.35 - g.war / 300 - (g.skill === '游擊' ? 0.2 : 0), 0.04, 0.4); }
   function discordChance(s, spy, t) {
     return clamp(0.2 + (spy.int - t.int) / 150 + (t.loyalty < 80 ? 0.15 : 0) + (spy.skill === '奇計' ? 0.25 : 0), 0.05, 0.85);
   }
-  // 野心：統率、武力、智略的平均；野心 80 以上的王，忠誠每月 -1
+  // 野心：統率、武力、智略的平均；野心 80 以上的封君，忠誠每月 -1
   function ambition(g) { return (g.lead + g.war + g.int) / 3; }
   // 受封的王自立：忠誠低於 60 時每月有機會帶著封地獨立
   function kingsTick(s) {
@@ -409,18 +409,18 @@
         return ok(`${g.name}襲擾${t.name}糧道，燒毀軍糧 ${burn}，守軍逃散 ${scare}`);
       }
       case 'enfeoff': {
-        // 封王：把本城封給有功的部下。忠誠立刻全滿、擔任太守，但野心大的王忠誠會慢慢下滑，太低可能自立
+        // 封君：把本城封給有功的部下。忠誠立刻全滿、擔任太守，但野心大的王忠誠會慢慢下滑，太低可能自立
         const t = s.generals[cmd.target];
         if (!t || t.faction !== fid || t.status !== 'active' || t.city !== city.id) return fail('找不到武將');
         if (t.ruler) return fail('君主不能受封');
         if (t.king) return fail(`${t.name}已經是王了`);
-        if (Object.values(s.generals).some((x) => x.king === city.id && x.status === 'active' && x.faction === fid)) return fail(`${city.name}已有封王`);
-        if (citiesOf(s, fid).length < 3) return fail('至少要有三座城才能封王');
+        if (Object.values(s.generals).some((x) => x.king === city.id && x.status === 'active' && x.faction === fid)) return fail(`${city.name}已有封君`);
+        if (citiesOf(s, fid).length < 3) return fail('至少要有三座城才能封君');
         t.king = city.id;
         t.loyalty = 100;
         city.governor = t.id;
-        addLog(s, `${t.name}受封為${city.name}王`, 'major', [fid]);
-        return ok(`封${t.name}為${city.name}王`);
+        addLog(s, `${t.name}受封為${city.name}君`, 'major', [fid]);
+        return ok(`封${t.name}為${city.name}君`);
       }
       case 'discord': {
         // 反間計：離間敵方武將與其君主
@@ -557,6 +557,21 @@
     鴻門: { desc: '鴻門護主：守城戰力 ×1.1，單挑武力 +4', def: 1.1, duel: 4 },
     名將: { desc: '秦之名將：守城戰力 ×1.15', def: 1.15, atk: 1.05 },
     義士: { desc: '五百義士：守城戰力 ×1.15', def: 1.15 },
+    // 戰國
+    人屠: { desc: '戰無不勝：進攻戰力 ×1.35、守城 ×1.1，計略率提高', atk: 1.35, def: 1.1, scheme: 0.08 },
+    北境之盾: { desc: '以守為攻：守城戰力 ×1.3、進攻 ×1.15，兵力劣勢時再 ×1.15', atk: 1.15, def: 1.3, few: 1.15, scheme: 0.08 },
+    堅壁: { desc: '堅壁清野：守城戰力 ×1.25', def: 1.25, atk: 1.05 },
+    滅國: { desc: '持重必勝：進攻戰力 ×1.25、守城 ×1.2，計略率提高', atk: 1.25, def: 1.2, scheme: 0.08 },
+    竊符: { desc: '合縱之主：進攻戰力 ×1.2、守城 ×1.1', atk: 1.2, def: 1.1 },
+    火牛: { desc: '火牛陣：守城戰力 ×1.25，計略率大幅提高', def: 1.25, scheme: 0.15 },
+    楚魂: { desc: '楚之柱石：進攻戰力 ×1.2、守城 ×1.15', atk: 1.2, def: 1.15 },
+    紙上談兵: { desc: '熟讀兵書卻不知變通：進攻戰力 ×0.9', atk: 0.9 },
+    遠交: { desc: '遠交近攻：計略率提高', scheme: 0.12 },
+    刺客: { desc: '易水寒：單挑武力 +10', duel: 10 },
+    力士: { desc: '袖藏鐵椎：單挑武力 +8', duel: 8 },
+    長城: { desc: '北築長城：守城戰力 ×1.2', def: 1.2 },
+    少壯: { desc: '年少壯勇：進攻戰力 ×1.15', atk: 1.15 },
+    縱橫: { desc: '縱橫家：進攻戰力 ×1.1，計略率提高', atk: 1.1, scheme: 0.12 },
   };
   function skillsOf(gens) { return gens.map((g) => g && g.skill && SKILLS[g.skill]).filter(Boolean); }
 

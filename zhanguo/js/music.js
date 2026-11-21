@@ -4,7 +4,7 @@
 (function (TK) {
   'use strict';
   let ctx = null, master = null, on = true, current = null, timer = null;
-  try { on = localStorage.getItem('chuhan.music') !== '0'; } catch (e) { /* 用預設值 */ }
+  try { on = localStorage.getItem('zhanguo.music') !== '0'; } catch (e) { /* 用預設值 */ }
 
   // 取得共用的 AudioContext（js/audio.js）；換了新的 context 就重接輸出節點
   function ac() {
@@ -201,7 +201,7 @@
     isOn: () => on,
     toggle() {
       on = !on;
-      try { localStorage.setItem('chuhan.music', on ? '1' : '0'); } catch (e) { /* 忽略 */ }
+      try { localStorage.setItem('zhanguo.music', on ? '1' : '0'); } catch (e) { /* 忽略 */ }
       if (on && current) { const c = current; current = null; M.play(c); } else stop();
       return on;
     },

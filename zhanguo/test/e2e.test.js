@@ -1,6 +1,6 @@
 // 畫面（E2E）測試：用 Playwright 的 Chromium 實際打開打包好的網頁，模擬玩家操作。
-// 執行：node chuhan/test/e2e.test.js [網址路徑，預設 /docs/chuhan/preview/]
-// 需要先 node chuhan/build.js。截圖存在 chuhan/test/e2e-shots/（不進版控），方便人工看畫面。
+// 執行：node zhanguo/test/e2e.test.js [網址路徑，預設 /docs/zhanguo/preview/]
+// 需要先 node zhanguo/build.js。截圖存在 zhanguo/test/e2e-shots/（不進版控），方便人工看畫面。
 'use strict';
 const http = require('http');
 const fs = require('fs');
@@ -8,7 +8,7 @@ const path = require('path');
 const { chromium, devices } = require('playwright');
 
 const repo = path.join(__dirname, '..', '..');
-const PAGE = process.argv[2] || '/docs/chuhan/preview/';
+const PAGE = process.argv[2] || '/docs/zhanguo/preview/';
 const SHOTS = path.join(__dirname, 'e2e-shots');
 fs.mkdirSync(SHOTS, { recursive: true });
 
@@ -106,18 +106,18 @@ const test = (name, fn) => tests.push({ name, fn });
 test('開新局：標題畫面不下載頭像，開局後可以下指令，沒有 JS 錯誤', async (b, base) => {
   const { ctx, p } = await open(b, base);
   assert(p.portraitRequests.length === 0, `標題畫面就下載了 ${p.portraitRequests.length} 張頭像`);
-  await newGame(p, '漢');
+  await newGame(p, '秦');
   await shot(p, '01-開局');
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
 });
 
-test('武將列傳：韓信的詳細畫面有列傳與頭像', async (b, base) => {
+test('武將列傳：白起的詳細畫面有列傳與頭像', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await newGame(p, '漢');
-  await openGeneral(p, '韓信');
+  await newGame(p, '秦');
+  await openGeneral(p, '白起');
   const text = await p.textContent('.detail .bio');
-  assert(text && text.includes('淮陰') && text.includes('典故'), '列傳內容不對：' + text);
+  assert(text && text.includes('郿縣') && text.includes('典故'), '列傳內容不對：' + text);
   await p.waitForTimeout(500);
   const imgs = await imagesOk(p, '.detail img.face');
   assert(imgs.length && imgs.every((x) => x.ok), '立繪沒有載入');
@@ -126,16 +126,16 @@ test('武將列傳：韓信的詳細畫面有列傳與頭像', async (b, base) =
   await ctx.close();
 });
 
-test('通用頭像：漢的劉邦用通用君主、蕭何用通用文官、樊噲用通用武將，頭像都載入成功', async (b, base) => {
+test('通用頭像：秦的嬴稷用通用君主、范雎用通用文官、白起用通用武將，頭像都載入成功', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await newGame(p, '漢');
+  await newGame(p, '秦');
   await p.click('#cmd-win li:has-text("情報")');
   await p.click('#layer li:has-text("我方武將")');
   await p.waitForTimeout(800);
   const imgs = await imagesOk(p, '#layer img.face');
   const src = (n) => decodeURIComponent((imgs.find((x) => x.alt === n) || {}).src || '');
   assert(imgs.length >= 3 && imgs.every((x) => x.ok), '有頭像沒有載入：' + imgs.filter((x) => !x.ok).map((x) => x.alt).join('、'));
-  for (const [n, kind] of [['劉邦', '通用君主'], ['蕭何', '通用文官'], ['樊噲', '通用武將']]) assert(src(n).includes(kind), `${n}沒有用${kind}頭像：${src(n).slice(0, 60)}`);
+  for (const [n, kind] of [['嬴稷', '通用君主'], ['范雎', '通用文官'], ['白起', '通用武將']]) assert(src(n).includes(kind), `${n}沒有用${kind}頭像：${src(n).slice(0, 60)}`);
   assert(p.portraitRequests.every((s) => s === 200 || s === 304), '頭像下載失敗');
   await shot(p, '03-通用頭像');
   await ctx.close();
@@ -143,7 +143,7 @@ test('通用頭像：漢的劉邦用通用君主、蕭何用通用文官、樊�
 
 test('手動戰鬥：出征鄰近敵城，下令突擊，交給部將打完，出現勝敗印章', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await newGame(p, '漢');
+  await newGame(p, '趙');
   await ui.cmd(p, '出征');
   await p.click('#layer table tr:has(td) >> nth=0');
   await p.click('.win-foot .act.primary');
@@ -161,14 +161,14 @@ test('手動戰鬥：出征鄰近敵城，下令突擊，交給部將打完，�
 
 test('手機版：主畫面與武將詳細畫面沒有超出螢幕寬度', async (b, base) => {
   const { ctx, p } = await open(b, base, true);
-  await newGame(p, '漢');
+  await newGame(p, '秦');
   const over = () => p.evaluate(() => {
     const w = innerWidth;
     return [...document.querySelectorAll('.win, #cmd-win, #layer > *')].filter((e) => e.offsetParent && e.getBoundingClientRect().right > w + 2).map((e) => e.className || e.id);
   });
   let o = await over();
   assert(!o.length, '主畫面超出寬度：' + o.join(', '));
-  await openGeneral(p, '韓信');
+  await openGeneral(p, '白起');
   await shot(p, '06-手機列傳');
   o = await p.evaluate(() => [...document.querySelectorAll('.detail *')].filter((e) => e.getBoundingClientRect().right > innerWidth + 2).length);
   assert(!o, `武將畫面有 ${o} 個元素超出寬度`);
@@ -203,7 +203,7 @@ test('聲音：點擊前不啟動、點擊後音訊運作並播放標題音樂�
   await p.evaluate(() => TK.Audio.testTone());
   assert(await ui.sounds(p) > n, '測試音沒有發聲');
   // 進入遊戲後換成內政音樂
-  await newGame(p, '漢');
+  await newGame(p, '秦');
   assert((await st()).music === 'domestic', '進入遊戲後沒有換成內政音樂：' + (await st()).music);
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
@@ -211,7 +211,7 @@ test('聲音：點擊前不啟動、點擊後音訊運作並播放標題音樂�
 
 test('內政：開墾後農業上升、金減少、該武將本月已行動', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await newGame(p, '漢');
+  await newGame(p, '秦');
   const s0 = await ui.state(p);
   const cityId = Object.values(s0.cities).find((c) => c.owner === s0.player).id;
   await ui.cmd(p, '開墾');
@@ -227,12 +227,12 @@ test('內政：開墾後農業上升、金減少、該武將本月已行動', as
 
 test('結束本月：月份前進、自動存檔、武將行動次數重置', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await newGame(p, '西楚');
+  await newGame(p, '趙');
   const s0 = await ui.state(p);
   await ui.endMonth(p);
   const s1 = await ui.state(p);
   assert(s1.month === s0.month + 1 || (s0.month === 12 && s1.month === 1), `月份沒有前進：${s0.month} → ${s1.month}`);
-  assert(await p.evaluate(() => !!localStorage.getItem('chuhan.auto.v1')), '沒有自動存檔');
+  assert(await p.evaluate(() => !!localStorage.getItem('zhanguo.auto.v1')), '沒有自動存檔');
   assert(Object.values(s1.generals).every((g) => !g.acted), '新的月份武將行動沒有重置');
   await shot(p, '07-結束本月');
   assert(!p.errors.length, p.errors.join('\n'));
@@ -261,7 +261,7 @@ test('存檔與讀檔：存到存檔 1，回到標題後讀回同一個進度', 
 
 test('歷史劇本：開局事件以場景演出，可以一路按完並開始下指令', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await ui.setup(p, '西楚', '歷史劇本');
+  await ui.setup(p, '趙', '歷史劇本');
   let sawScene = false;
   for (let i = 0; i < 200; i++) {
     if (await p.$('.scene')) { if (!sawScene) await shot(p, '08-歷史事件'); sawScene = true; }
@@ -279,7 +279,7 @@ test('歷史劇本：開局事件以場景演出，可以一路按完並開始�
   const srv = await serve();
   const base = `http://localhost:${srv.address().port}`;
   if (!fs.existsSync(path.join(repo, PAGE.replace(/^\//, ''), PAGE.endsWith('/') ? 'index.html' : ''))) {
-    console.error(`找不到 ${PAGE}，請先執行 node chuhan/build.js`);
+    console.error(`找不到 ${PAGE}，請先執行 node zhanguo/build.js`);
     process.exit(1);
   }
   const browser = await chromium.launch();
@@ -291,6 +291,6 @@ test('歷史劇本：開局事件以場景演出，可以一路按完並開始�
   }
   await browser.close();
   srv.close();
-  console.log(`\n${tests.length - failed}/${tests.length} E2E tests passed（截圖：chuhan/test/e2e-shots/）`);
+  console.log(`\n${tests.length - failed}/${tests.length} E2E tests passed（截圖：zhanguo/test/e2e-shots/）`);
   process.exit(failed ? 1 : 0);
 })();
