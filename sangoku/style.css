@@ -669,3 +669,14 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 #cmd-win h3 { margin-bottom: 4px; line-height: 24px; }
 .menu.tiles { gap: 5px; }
 .menu.tiles li { height: 48px; }
+
+/* ---------- 姿勢圖士兵（sprites.json 的 poses） ---------- */
+.battlefield .u.pose, body.mobile .battlefield .u.pose { --h: calc(var(--ph) * var(--ms, 1) * 1px); position: relative; height: var(--h); width: calc(var(--h) * var(--pr)); margin: 0 calc(var(--h) * -0.3) -4px 0; transform: none; }
+.battlefield .u.pose img { width: 100%; height: 100%; display: block; object-fit: contain; pointer-events: none; }
+.battlefield .u.pose img.flip { transform: scaleX(-1); }
+.battlefield .u.pose.march { animation: bob .7s ease-in-out infinite; }
+.battlefield .u.pose.lunge { animation: lunge .5s ease-out; }
+.battlefield .units.right .u.pose.lunge { animation-name: lunge-l; }
+.battlefield .u.pose.fallen { transform: none; opacity: 0; animation: none; transition: opacity .6s 1s; }
+@keyframes lunge { 40% { translate: 14px -2px; } 100% { translate: 0 0; } }
+@keyframes lunge-l { 40% { translate: -14px -2px; } 100% { translate: 0 0; } }

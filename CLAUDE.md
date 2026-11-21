@@ -44,5 +44,5 @@ node sangoku/test/e2e.test.js             # 畫面測試（Playwright），測�
 - 匯入後的原圖在 `sangoku/art/raw/`，用 `crops.json` 裁切，`tools/import_portraits.py` 產生 `sangoku/portraits/`。
 - 沒有專屬頭像的武將依身分用通用頭像：`_通用君主`、`_通用文官`、`_通用武將`（分類見 `js/portraits.js` 的 genericKind）。
 - 事件背景：提示詞在 `sangoku/art/scene_prompts.json`（每個事件一段，給 ChatGPT 生圖）。生成的圖用 `python3 sangoku/tools/import_scenes.py <zip>` 驗收（加 `--apply` 匯入到 `sangoku/scenes/<事件id>.jpg`）。新增事件時要在 JSON 補上該事件的提示詞。
-- 士兵動畫：sprite sheet 放在 `sangoku/sprites/`，格式見 `sangoku/sprites/README.md`；沒有素材時退回程式畫的 SVG。
+- 士兵動畫：每個兵種 3 張姿勢圖（idle／attack／fall）＋換色遮罩，用 `python3 sangoku/tools/import_units.py <資料夾或zip>` 匯入（去背、對齊、縮小、產生 `sangoku/sprites/sprites.json`）；遊戲執行時依遮罩塗上勢力色。提示詞在 `sangoku/art/unit_prompts.md`。
 - 素材由使用者挑選（itch.io 等），要確認授權允許使用；不要自己用 AI 生圖。

@@ -1,0 +1,45 @@
+{
+  "spear": {
+    "height": 50,
+    "facing": "right",
+    "poses": {
+      "idle": "spear_idle.png",
+      "attack": "spear_attack.png",
+      "fall": "spear_fall.png"
+    },
+    "masks": {
+      "idle": "spear_idle_mask.png",
+      "attack": "spear_attack_mask.png",
+      "fall": "spear_fall_mask.png"
+    }
+  },
+  "cav": {
+    "height": 64,
+    "facing": "right",
+    "poses": {
+      "idle": "cav_idle.png",
+      "attack": "cav_attack.png",
+      "fall": "cav_fall.png"
+    },
+    "masks": {
+      "idle": "cav_idle_mask.png",
+      "attack": "cav_attack_mask.png",
+      "fall": "cav_fall_mask.png"
+    }
+  },
+  "xbow": {
+    "height": 50,
+    "facing": "right",
+    "poses": {
+      "idle": "xbow_idle.png",
+      "attack": "xbow_attack.png",
+      "fall": "xbow_fall.png"
+    },
+    "masks": {
+      "idle": "xbow_idle_mask.png",
+      "attack": "xbow_attack_mask.png",
+      "fall": "xbow_fall_mask.png"
+    }
+  },
+  "_comment": "由 tools/import_units.py 產生：每個兵種 3 個姿勢（行軍、攻擊、倒下）與換色遮罩。"
+}

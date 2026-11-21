@@ -53,6 +53,7 @@ function spriteFiles(cfg) {
   for (const u of Object.values(cfg)) {
     if (u.file) set.add(u.file);
     for (const a of Object.values(u.anims || {})) if (a.file) set.add(a.file);
+    for (const f of [...Object.values(u.poses || {}), ...Object.values(u.masks || {})]) set.add(f);
   }
   return [...set];
 }
@@ -68,6 +69,9 @@ const spriteManifest = (resolve) => {
   for (const u of Object.values(cfg)) {
     if (u.file) { u.size = pngSize(u.file); u.file = resolve(u.file); }
     for (const a of Object.values(u.anims || {})) if (a.file) { a.size = pngSize(a.file); a.file = resolve(a.file); }
+    // 姿勢圖模式：poses（行軍、攻擊、倒下）與換色遮罩 masks
+    if (u.poses) { u.size = pngSize(Object.values(u.poses)[0]); for (const k of Object.keys(u.poses)) u.poses[k] = resolve(u.poses[k]); }
+    for (const k of Object.keys(u.masks || {})) u.masks[k] = resolve(u.masks[k]);
   }
   return `(function (TK) { TK.SPRITES = ${JSON.stringify(cfg)}; })(globalThis.TK = globalThis.TK || {});`;
 };
