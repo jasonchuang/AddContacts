@@ -7,6 +7,12 @@
 - 手感數值表：`sangoku/js/tuning.js`（戰鬥、單挑、經濟、登用、難易度的數字只寫在這裡，不要在其他檔案寫死數字）
 - 其他分支：`claude/chuhan`（楚漢相爭）、`claude/sanguo-duel`（單挑小遊戲）、`claude/sanguo-godot`（Godot 版，已暫停）
 
+## 待辦事項
+
+- 待辦一律放在 GitHub Issues（jasonchuang/AddContacts），每張要有 EARS 驗收條件（範本在 `.github/ISSUE_TEMPLATE/`）。
+- 對話中出現新需求或發現新問題，就開 Issue；做完的 commit 訊息寫上 `#編號`，使用者確認後關閉。
+- 每次推上 GitHub，Actions（`.github/workflows/sangoku.yml`）會自動跑單元測試、電腦代打、打包與畫面測試。
+
 ## 開發規則
 
 1. **先規劃再動手**：較大的需求先列出分階段計畫，等使用者同意再開始。
