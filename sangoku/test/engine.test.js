@@ -521,4 +521,10 @@ test('列傳：每一篇都對應到劇本中的武將，且欄位完整', () =>
   }
 });
 
+test('SPEC.md 的數值表與 tuning.js 一致，且每個數值都有說明', () => {
+  const r = require('../tools/spec_tables.js').run(true);
+  assert(!r.missing.length, `沒有說明的數值：${r.missing.join('、')}`);
+  assert(!r.changed, 'SPEC.md 數值表過期，請執行 node sangoku/tools/spec_tables.js');
+});
+
 console.log(`\n${passed} tests passed`);

@@ -9,6 +9,13 @@ const root = __dirname;
 const portraitDir = path.join(root, 'portraits');
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
 
+// ---------- SPEC.md 數值表（依 js/tuning.js 重新產生） ----------
+{
+  const r = require('./tools/spec_tables.js').run(false);
+  if (r.missing.length) console.log('注意：以下數值在 tools/spec_tables.js 沒有說明：' + r.missing.join('、'));
+  if (r.changed) console.log('已依 tuning.js 更新 SPEC.md 的數值表');
+}
+
 // ---------- 插畫清單 ----------
 const files = {};
 if (fs.existsSync(portraitDir)) {
