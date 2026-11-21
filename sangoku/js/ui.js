@@ -419,6 +419,7 @@
       { label: '讀取存檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); showTitle(); } },
       { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); showTitle(); } },
+      { label: '聲音診斷', act: soundCheck },
     ];
     const m = makeMenu(items, (it) => it.act());
     $('title-menu').replaceChildren(h('div', { class: 'win' }, m.ul));
@@ -943,8 +944,33 @@
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); popWin(); } },
       { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); popWin(); systemMenu(); } },
       ...(TK.Voice && TK.Voice.available() ? [{ label: `事件語音：${TK.Voice.isOn() ? '開' : '關'}`, act: () => { TK.Voice.toggle(); popWin(); systemMenu(); } }] : []),
+      { label: '聲音診斷', hint: '沒有聲音時用', act: soundCheck },
       { label: '回到標題', act: () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle) },
     ], null, SUB);
+  }
+
+  // 聲音診斷：顯示音訊狀態，可播放測試音、重設音訊
+  function soundCheck() {
+    const body = h('div', { class: 'soundcheck' });
+    const render = () => {
+      const a = TK.Audio ? TK.Audio.info() : { supported: false, log: [] };
+      const row = (k, v, bad) => h('div', {}, h('span', { class: 'dim' }, k + '：'), h('b', { style: bad ? 'color:#b23a2c' : '' }, v));
+      body.replaceChildren(
+        row('瀏覽器支援', a.supported ? '是' : '否', !a.supported),
+        row('音訊狀態', a.state === 'running' ? '運作中' : a.state, a.state !== 'running'),
+        row('音訊類型', a.session),
+        row('音效', SND.isMuted() ? '關（到系統選單打開）' : '開', SND.isMuted()),
+        row('音樂', TK.Music && TK.Music.isOn() ? `開（${TK.Music.current() || '—'}）` : '關', !(TK.Music && TK.Music.isOn())),
+        h('div', { class: 'dim', style: 'margin-top:8px;font-size:.85em;line-height:1.5' }, ...(a.log.length ? a.log : ['（沒有紀錄）']).map((l) => h('div', {}, l))),
+        h('div', { style: 'margin-top:10px;display:flex;gap:10px;flex-wrap:wrap' },
+          h('button', { class: 'act primary', onclick: (e) => { e.stopPropagation(); TK.Audio.testTone(); setTimeout(render, 300); } }, '播放測試音'),
+          h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); TK.Audio.unlock(true); SND.ok(); setTimeout(render, 300); } }, '重設音訊'),
+          SND.isMuted() ? h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); SND.toggle(); render(); } }, '打開音效') : null),
+        h('div', { class: 'dim', style: 'margin-top:10px;font-size:.85em;line-height:1.6' },
+          '聽不到測試音時：電腦請確認瀏覽器分頁沒有被靜音（分頁標籤上的喇叭圖示）、系統音量與輸出裝置（喇叭／耳機）；手機請確認側邊靜音開關與音量鍵。然後按「重設音訊」再試一次。'));
+    };
+    render();
+    infoWin('聲音診斷', body, { x: 300, y: 120, width: 640 });
   }
 
   // ---------- 城市選擇 ----------
@@ -1455,9 +1481,9 @@
 
   // ---------- 綁定 ----------
   function bind() {
+    // 音訊的建立與喚醒在 js/audio.js；這裡只確保音樂在使用者操作後開始
     const unlock = () => { if (TK.Music) TK.Music.unlock(); };
-    document.addEventListener('pointerdown', unlock);
-    document.addEventListener('keydown', unlock);
+    for (const ev of ['click', 'touchend', 'keydown']) document.addEventListener(ev, unlock);
     fit();
     addEventListener('resize', fit);
     const map = $('map');

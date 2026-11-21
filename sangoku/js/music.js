@@ -6,18 +6,17 @@
   let ctx = null, master = null, on = true, current = null, timer = null;
   try { on = localStorage.getItem('qunxiong.music') !== '0'; } catch (e) { /* 用預設值 */ }
 
+  // 取得共用的 AudioContext（js/audio.js）；換了新的 context 就重接輸出節點
   function ac() {
-    try {
-      if (!ctx) {
-        ctx = TK.Audio.get();
-        if (!ctx) return null;
-        master = ctx.createGain();
-        master.gain.value = 0.55;
-        master.connect(ctx.destination);
-      }
-      if (ctx.state !== 'running') ctx.resume().catch(() => {});
-      return ctx;
-    } catch (e) { return null; }
+    const c = TK.Audio && TK.Audio.get();
+    if (!c) return null; // 使用者還沒點過畫面
+    if (c !== ctx) {
+      ctx = c;
+      master = ctx.createGain();
+      master.gain.value = 0.55;
+      master.connect(ctx.destination);
+    }
+    return ctx;
   }
 
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
@@ -137,6 +136,7 @@
   function start(name) {
     const tr = TRACKS[name];
     if (!tr || !ac()) return;
+    clearInterval(timer);
     const phrase = compose(tr);
     const barLen = tr.beat * 4;
     let nextBar = ctx.currentTime + 0.15, barIdx = 0, noteIdx = 0, noteTime = nextBar;
@@ -173,15 +173,17 @@
 
   function stop() {
     clearInterval(timer); timer = null;
-    if (master && ctx) {
-      // 淡出後換新的輸出節點，避免已排程的音符繼續響
-      const old = master, t = ctx.currentTime;
-      old.gain.setValueAtTime(old.gain.value, t);
-      old.gain.linearRampToValueAtTime(0.0001, t + 0.4);
-      setTimeout(() => old.disconnect(), 500);
-      master = ctx.createGain();
-      master.gain.value = 0.55;
-      master.connect(ctx.destination);
+    if (master && ctx && ctx.state !== 'closed') {
+      try {
+        // 淡出後換新的輸出節點，避免已排程的音符繼續響
+        const old = master, t = ctx.currentTime;
+        old.gain.setValueAtTime(old.gain.value, t);
+        old.gain.linearRampToValueAtTime(0.0001, t + 0.4);
+        setTimeout(() => old.disconnect(), 500);
+        master = ctx.createGain();
+        master.gain.value = 0.55;
+        master.connect(ctx.destination);
+      } catch (e) { /* 舊的 context 已失效，下次 ac() 會重接 */ }
     }
   }
 
@@ -206,5 +208,7 @@
     // 手機瀏覽器要在使用者點擊後才能發聲
     unlock() { if (on && current && !timer) { const c = current; current = null; M.play(c); } else ac(); },
   };
+  // 使用者第一次點畫面（或音訊被中斷後重建）時，開始播放目前該播的曲子
+  if (TK.Audio) TK.Audio.onReady(() => { if (on && current) { clearInterval(timer); timer = null; const c = current; current = null; M.play(c); } });
   TK.Music = M;
 })(globalThis.TK = globalThis.TK || {});
