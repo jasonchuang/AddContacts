@@ -115,7 +115,7 @@ body { font-family: Body, "Noto Serif TC", "PMingLiU", "Songti TC", serif; color
 /* 疊加視窗層 */
 #layer { position: absolute; inset: 0; pointer-events: none; }
 #layer .win { pointer-events: auto; z-index: 5; border: 1px solid rgba(59, 51, 42, .5); box-shadow: 0 0 0 4px rgba(248, 241, 223, .9), 0 0 0 5px rgba(59, 51, 42, .35), 0 16px 40px rgba(31, 26, 20, .4); }
-#layer .shade { position: absolute; inset: 0; background: rgba(31, 26, 20, .45); pointer-events: auto; }
+#layer .shade { position: absolute; inset: 0; background: rgba(31, 26, 20, .45); pointer-events: auto; z-index: 5; }
 .pop { min-width: 260px; max-height: 640px; overflow: auto; }
 
 /* 表格選擇 */
@@ -168,17 +168,79 @@ table.grid tr.sel td.hl { color: var(--hi); }
 
 /* ---------- 標題 ---------- */
 .screen { position: absolute; inset: 0; }
-#title-bg { position: absolute; inset: 0; width: 1280px; height: 800px; filter: brightness(.75) saturate(.85); }
-.title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.title-pre { font-family: Kai, Body; font-size: 40px; letter-spacing: .8em; padding-left: .8em; color: var(--red); text-shadow: 0 0 6px var(--paper); }
-.title-logo {
-  font-family: Kai, Body, sans-serif; font-size: 120px; line-height: 132px; color: var(--ink); letter-spacing: 12px;
-  text-shadow: 0 0 2px var(--paper), 4px 4px 0 rgba(239, 229, 207, .9), -2px -2px 0 rgba(239, 229, 207, .9);
-}
-.title-sub { font-size: 28px; color: var(--ink-2); margin: 6px 0 30px; text-shadow: 0 0 6px var(--paper), 0 0 2px var(--paper); }
-#title-menu .win { position: relative; min-width: 380px; }
-#title-menu .menu li { font-family: Kai, Body, sans-serif; font-size: 24px; height: 44px; line-height: 44px; }
-.title-foot { position: absolute; bottom: 18px; width: 100%; text-align: center; font-size: 18px; color: var(--ink-2); text-shadow: 0 0 4px var(--paper); }
+#title { overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #f7efdd 0%, #efe5cf 55%, #e2d4b6 100%); }
+#title::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background: repeating-linear-gradient(0deg, rgba(120, 95, 60, .05) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(120, 95, 60, .04) 0 1px, transparent 1px 4px); }
+.t-sun { position: absolute; right: 190px; top: 120px; width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle at 45% 40%, #c8604c, #b23a2c 60%, #9e3326); opacity: .82; filter: blur(.5px); }
+.t-birds { position: absolute; left: 230px; top: 150px; width: 260px; fill: none; stroke: #3b332a; stroke-width: 2.4; stroke-linecap: round; opacity: .7; }
+.t-hills { position: absolute; left: 0; bottom: 0; width: 100%; height: 260px; }
+.t-hills .far { fill: #b9ae98; opacity: .55; }
+.t-hills .near { fill: #8f8470; opacity: .45; }
+.title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+.title-head { display: flex; align-items: flex-start; gap: 22px; }
+.title-seal { margin-top: 18px; padding: 8px 10px; font-family: Kai, Body; font-size: 34px; line-height: 38px; color: #fff5ea; background: var(--red);
+  border-radius: 6px; box-shadow: inset 0 0 0 3px rgba(255, 245, 234, .55); transform: rotate(-4deg); }
+.title-logo { font-family: Kai, Body, sans-serif; font-size: 150px; line-height: 170px; color: var(--ink); letter-spacing: 10px;
+  text-shadow: 3px 4px 0 rgba(31, 26, 20, .12); }
+.title-sub { font-size: 24px; letter-spacing: .5em; padding-left: .5em; color: var(--ink-2); margin: 4px 0 34px; }
+.title-menu { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; width: 360px; }
+.title-menu li { display: flex; align-items: center; justify-content: center; gap: 10px; height: 52px; border-radius: 26px; cursor: pointer;
+  font-family: Kai, Body, sans-serif; font-size: 24px; color: var(--ink); background: rgba(255, 251, 240, .78); border: 1px solid rgba(59, 51, 42, .2);
+  box-shadow: 0 2px 6px rgba(59, 51, 42, .08); transition: transform .12s, background .12s, box-shadow .12s; }
+.title-menu li .hint { font-size: 15px; color: var(--dim); font-family: Body; }
+.title-menu li.sel { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 6px 16px rgba(178, 58, 44, .3); transform: translateY(-1px); }
+.title-menu li.sel .hint { color: rgba(255, 255, 255, .8); }
+.title-menu li.off { opacity: .45; }
+.title-menu li .mi { display: none; }
+.title-foot { position: absolute; bottom: 16px; width: 100%; text-align: center; font-size: 16px; color: var(--dim); z-index: 1; }
+
+/* ---------- 卡片選擇畫面（劇本、君主） ---------- */
+#layer .win.picker { position: absolute; padding: 26px 34px 20px; border-radius: 0; border: 0; box-shadow: none; display: flex; flex-direction: column;
+  background: radial-gradient(ellipse at 50% 20%, #f7efdd, #efe5cf 60%, #e4d7bb); }
+.picker > .win-x { display: none; }
+.pk-head { text-align: center; margin-bottom: 18px; }
+.pk-title { font-family: Kai, Body; font-size: 38px; letter-spacing: .12em; color: var(--ink); }
+.pk-sub { margin-top: 4px; color: var(--dim); font-size: 17px; }
+.cards { display: grid; gap: 16px; overflow-y: auto; padding: 4px 6px 10px; flex: 1; min-height: 0; align-content: start; grid-auto-rows: max-content; }
+.card { position: relative; background: #fbf6ea; border-radius: 12px; border: 1px solid rgba(59, 51, 42, .14); cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 51, 42, .1); transition: transform .14s, box-shadow .14s, border-color .14s; }
+.card.sel { transform: translateY(-3px); border-color: var(--red); box-shadow: 0 10px 24px rgba(59, 51, 42, .2), 0 0 0 2px rgba(178, 58, 44, .35); }
+.card.off { opacity: .5; }
+.pk-foot { text-align: center; margin-top: 12px; }
+/* 劇本卡 */
+.scard { padding: 16px 18px 14px; min-height: 170px; }
+.scard .sc-year { color: var(--red); font-size: 16px; } .scard .sc-year b { font-size: 30px; font-family: Kai, Body; margin-right: 2px; }
+.scard .sc-name { font-family: Kai, Body; font-size: 28px; line-height: 36px; color: var(--ink); }
+.scard .sc-tag { color: var(--ink-2); font-size: 16px; }
+.scard .sc-desc { color: var(--dim); font-size: 14px; line-height: 21px; margin: 6px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 13px; line-height: 20px; color: #fff; background: var(--c, #888); }
+/* 勢力卡 */
+.fcard { display: flex; align-items: center; gap: 16px; padding: 16px 18px 16px 24px; overflow: hidden; }
+.fcard::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--c); }
+.fcard .fc-face { width: 92px; height: 92px; border-radius: 50%; flex: none; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--c), 0 4px 10px rgba(0, 0, 0, .15); }
+.fc-main { flex: 1; min-width: 0; font-size: 16px; line-height: 25px; }
+.fc-name { font-family: Kai, Body; font-size: 28px; line-height: 36px; display: flex; align-items: center; gap: 8px; }
+.fc-name .seal { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 5px; color: #fff; font-size: 18px; }
+.fc-diff { color: var(--red); } .fc-diff span { letter-spacing: 1px; }
+.fc-army { display: flex; align-self: flex-start; margin-top: 6px; }
+.fc-army svg { width: 18px; height: 26px; margin-left: -4px; }
+/* 開局設定 */
+.setup-win { padding: 18px 24px !important; }
+.su-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.su-face { width: 84px; height: 105px; border-radius: 10px; }
+.su-name { font-family: Kai, Body; font-size: 32px; line-height: 40px; }
+.su-row { display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: 4px 12px; padding: 10px 12px; border-radius: 10px; }
+.su-row.focus { background: rgba(178, 58, 44, .07); }
+.su-label { color: var(--ink-2); font-family: Kai, Body; font-size: 20px; }
+.su-hint { grid-column: 2; font-size: 15px; line-height: 22px; }
+.seg { display: inline-flex; background: rgba(59, 51, 42, .08); border-radius: 22px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; padding: 6px 18px; border-radius: 19px; font: inherit; font-size: 18px; color: var(--ink-2); cursor: pointer; }
+.seg button.on { background: #fff; color: var(--red); box-shadow: 0 1px 4px rgba(0, 0, 0, .15); }
+.su-foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 14px; }
+.su-foot .start { padding-left: 34px; padding-right: 34px; }
 
 /* ---------- 換月橫幅 ---------- */
 #banner { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 20; background: radial-gradient(ellipse, rgba(239, 229, 207, .7), transparent 65%); }
@@ -315,13 +377,28 @@ body.mobile .win h3 { font-size: 18px; line-height: 24px; margin-bottom: 4px; }
 
 /* 標題 */
 body.mobile #title { position: relative; min-height: 100dvh; overflow: hidden; }
-body.mobile #title-bg { width: 100%; height: 100%; object-fit: cover; }
-body.mobile .title-pre { font-size: 26px; }
-body.mobile .title-logo { font-size: 64px !important; line-height: 1.2 !important; }
-body.mobile .title-sub { font-size: 16px; margin-bottom: 18px; }
-body.mobile #title-menu .win { min-width: 0; width: 80vw; }
-body.mobile #title-menu .menu li { font-size: 20px; height: 46px; line-height: 46px; }
+body.mobile .title-logo { font-size: 64px !important; line-height: 1.2 !important; letter-spacing: 4px; }
+body.mobile .title-seal { font-size: 18px; line-height: 21px; padding: 5px 6px; margin-top: 10px; }
+body.mobile .title-head { gap: 10px; }
+body.mobile .title-sub { font-size: 14px; letter-spacing: .2em; margin-bottom: 18px; }
+body.mobile .title-menu { width: 78vw; }
+body.mobile .title-menu li { font-size: 20px; height: 46px; }
+body.mobile .t-sun { width: 150px; height: 150px; right: 20px; top: 60px; }
+body.mobile .t-birds { left: 20px; top: 70px; width: 140px; }
 body.mobile .title-foot { display: none; }
+body.mobile #layer .win.picker { position: fixed; padding: 16px 12px; }
+body.mobile .pk-title { font-size: 19px; letter-spacing: .05em; }
+body.mobile .pk-sub { font-size: 14px; }
+body.mobile .cards { grid-template-columns: 1fr !important; gap: 10px; }
+body.mobile .scard { min-height: 0; padding: 12px 14px; }
+body.mobile .fcard { padding: 12px 12px 12px 18px; gap: 12px; }
+body.mobile .fcard .fc-face { width: 64px; height: 64px; }
+body.mobile .fc-name { font-size: 22px; line-height: 28px; }
+body.mobile .fc-main { font-size: 14px; line-height: 21px; }
+body.mobile .setup-win { width: 94vw !important; }
+body.mobile .su-row { grid-template-columns: 1fr; }
+body.mobile .su-hint { grid-column: 1; }
+body.mobile .seg button { padding: 6px 12px; font-size: 16px; }
 
 /* 遊戲畫面：直式排列 */
 body.mobile #game { display: flex; flex-direction: column; gap: 6px; padding: 0 0 calc(96px + env(safe-area-inset-bottom)); }
@@ -408,11 +485,11 @@ body.mobile .scene .sc-noface { font-size: 80px; }
 
 /* ---------- 視窗底部按鈕列、關閉鈕 ---------- */
 .win-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); background: var(--panel); }
-.win-foot .act { min-width: 110px; height: 42px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2, #fbf6ea); color: var(--ink); font-family: Kai, Body; font-size: 20px; cursor: pointer; }
-.win-foot .act.primary { background: var(--red); border-color: #7e2219; color: #fff; box-shadow: 0 3px 0 #7e2219; }
-.win-foot .act.primary:disabled { background: #c9b8a8; border-color: #a89888; box-shadow: none; cursor: default; }
-.win-foot .act.sel { outline: 3px solid #f0b040; outline-offset: 1px; }
-.win-foot .act:active { transform: translateY(2px); box-shadow: none; }
+.act { min-width: 110px; height: 42px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2, #fbf6ea); color: var(--ink); font-family: Kai, Body; font-size: 20px; cursor: pointer; }
+.act.primary { background: var(--red); border-color: #7e2219; color: #fff; box-shadow: 0 3px 0 #7e2219; }
+.act.primary:disabled { background: #c9b8a8; border-color: #a89888; box-shadow: none; cursor: default; }
+.act.sel { outline: 3px solid #f0b040; outline-offset: 1px; }
+.act:active { transform: translateY(2px); box-shadow: none; }
 .win.pop > .win-x { position: absolute; right: 8px; top: 8px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 18px; cursor: pointer; z-index: 2; }
 .win.pop > .win-x:hover { background: var(--hi-bg); color: var(--red); }
 .win.pop > h3 { padding-right: 36px; }
@@ -488,6 +565,122 @@ body.mobile .detail .stats .bar { max-width: 100%; }
 body.mobile .detail .apt { display: flex; flex-wrap: wrap; gap: 0 10px; }
 body.mobile .detail .bio-head { flex-wrap: wrap; gap: 0 10px; }
 
+/* =====================================================================
+   主畫面（現代化）：頂部資源列、右側城市與武將卡片、指令按鈕
+   ===================================================================== */
+#status { height: 60px; gap: 14px; padding: 0 14px; background: linear-gradient(180deg, #2b231b, #1f1913); }
+#status .brand { font-family: Kai, Body; font-size: 26px; color: #f3e3c0; letter-spacing: 2px; }
+#status .date { display: flex; align-items: baseline; gap: 6px; color: #f6eedb; }
+#status .date small { font-size: 15px; color: #c9bda4; }
+#status .date b { font-family: Kai, Body; font-size: 26px; font-weight: normal; }
+#status .date .season { font-size: 13px; padding: 0 6px; border-radius: 4px; background: #3d7a4c; color: #fff; }
+#status .fac { display: flex; align-items: center; font-family: Kai, Body; font-size: 22px; color: #fff; }
+#status .seal { border-radius: 5px; border: 0; width: 30px; height: 30px; font-size: 18px; }
+#status .resources { display: flex; gap: 14px; }
+#status .res { display: flex; align-items: center; gap: 5px; font-size: 18px; color: #f6eedb; }
+#status .res svg { width: 22px; height: 22px; }
+#status .res b { font-weight: normal; font-variant-numeric: tabular-nums; }
+#status .chips { display: flex; gap: 6px; }
+#status .chip-s { font-size: 13px; padding: 1px 8px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .25); color: #e9dcc0; white-space: nowrap; }
+#status .chip-s.hov { border-color: #f0b040; color: #ffe3a8; }
+#status .grow { flex: 1; }
+#status .tb { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .06);
+  color: #f6eedb; font-family: Kai, Body; font-size: 17px; cursor: pointer; }
+#status .tb:hover { background: rgba(255, 255, 255, .16); }
+#status .tb.endturn { height: 42px; padding: 0 20px; font-size: 21px; letter-spacing: 3px; background: var(--red); border-color: #e07a68; box-shadow: 0 0 0 2px rgba(178, 58, 44, .35); }
+#status .tb.endturn:hover { background: #c4473a; }
+#status .tb.endturn:disabled { background: #5a4d42; border-color: #6a5d52; color: #a89a88; box-shadow: none; cursor: default; }
+
+#map-win { top: 70px; border-radius: 10px; }
+#city-win { top: 70px; height: 446px; padding: 12px 14px; overflow-y: auto; border-radius: 10px; }
+#cmd-win { top: 524px; height: 268px; padding: 8px 10px; border-radius: 10px; }
+#msg-win { top: 694px; width: 856px; height: 98px; border-radius: 10px; }
+#msg-win .face { width: 70px; height: 70px; border-radius: 50%; }
+
+.city-head { align-items: center; margin-bottom: 8px; }
+.city-head .name { font-size: 34px; }
+.city-head .owner { margin-bottom: 0; border-radius: 10px; padding: 1px 10px; }
+.city-head .gov { margin-left: auto; font-size: 15px; }
+.cres-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 8px; }
+.cres { display: flex; align-items: center; gap: 6px; font-size: 16px; }
+.cres svg { width: 20px; height: 20px; flex: none; }
+.cres b { margin-left: auto; font-weight: normal; font-variant-numeric: tabular-nums; }
+#city-win .mixrow { gap: 8px; margin-bottom: 8px; }
+.mixchip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px 1px 4px; border-radius: 12px; background: rgba(59, 51, 42, .07); font-size: 14px; }
+.mixchip svg { width: 14px; height: 20px; }
+.mixchip b { font-weight: normal; margin-left: 2px; }
+.cbars { display: flex; flex-direction: column; gap: 5px; }
+.cbar { display: grid; grid-template-columns: 20px 40px 1fr 38px 38px; align-items: center; gap: 6px; font-size: 15px; }
+.cbar svg { width: 18px; height: 18px; }
+.cbar .track, .gs .track { height: 8px; border-radius: 4px; background: rgba(59, 51, 42, .1); overflow: hidden; }
+.cbar .track i, .gs .track i { display: block; height: 100%; border-radius: 4px; }
+.cbar .val { text-align: right; font-variant-numeric: tabular-nums; }
+.cbar .rate { font-size: 13px; color: var(--dim); text-align: right; }
+.sec { margin: 12px 0 6px; font-family: Kai, Body; font-size: 19px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.sec::before { content: ''; width: 6px; height: 6px; transform: rotate(45deg); background: var(--red); }
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.gcards { display: flex; flex-direction: column; gap: 8px; }
+.gcard { display: flex; gap: 10px; padding: 8px 10px; border-radius: 10px; background: #fffaf0; border: 1px solid rgba(59, 51, 42, .12); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(59, 51, 42, .06); transition: box-shadow .12s, transform .12s; }
+.gcard:hover { box-shadow: 0 4px 12px rgba(59, 51, 42, .15); transform: translateY(-1px); }
+.gcard.acted { opacity: .6; }
+.gc-face { width: 56px; height: 56px; border-radius: 50%; flex: none; }
+.gc-main { flex: 1; min-width: 0; }
+.gc-name { display: flex; align-items: center; gap: 6px; font-family: Kai, Body; font-size: 20px; line-height: 26px; }
+.gc-name .badge { font-family: Body; font-size: 12px; line-height: 18px; padding: 0 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--dim); }
+.gc-name .badge.ruler { background: var(--red); border-color: var(--red); color: #fff; }
+.gc-name .done { margin-left: auto; font-family: Body; font-size: 12px; color: var(--dim); }
+.gstats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; margin: 3px 0; }
+.gs { display: grid; grid-template-columns: 16px 1fr 26px; align-items: center; gap: 4px; font-size: 13px; line-height: 17px; }
+.gs .k { color: var(--dim); }
+.gs .v { text-align: right; font-variant-numeric: tabular-nums; }
+.gcard .apt { font-size: 13px; color: var(--dim); display: flex; gap: 10px; }
+.others { display: flex; flex-wrap: wrap; gap: 6px; }
+.ochip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 2px; border-radius: 14px; background: rgba(59, 51, 42, .07); font-size: 14px; cursor: pointer; }
+.ochip .face.mini { width: 22px; height: 22px; border-radius: 50%; border-width: 1px; }
+.ochip small { color: var(--dim); }
+.ochip.pris small { color: var(--red); }
+
+#cmd-win h3 { font-size: 18px; margin-bottom: 6px; }
+.menu.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.menu.tiles li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; padding: 2px; line-height: 18px;
+  border-radius: 10px; background: #fffaf0; border: 1px solid rgba(59, 51, 42, .14); border-top: 3px solid var(--tc, #b8892c); font-family: Kai, Body; font-size: 16px; }
+.menu.tiles li::before { display: none; }
+.menu.tiles li .mi { width: 24px; height: 24px; margin: 0; }
+.menu.tiles li .hint { display: none; }
+.menu.tiles li.sel { background: #fbecd9; box-shadow: 0 0 0 2px var(--red); color: var(--ink); }
+.menu.tiles li.off { opacity: .45; }
+.menu.tiles li:nth-child(-n+5) { --tc: #5b9a5b; }
+.menu.tiles li:nth-child(n+6):nth-child(-n+8) { --tc: #b8503a; }
+.menu.tiles li:nth-child(n+9):nth-child(-n+13) { --tc: #5a6b8a; }
+
+/* 手機 */
+body.mobile #status { gap: 4px 10px; }
+body.mobile #status .brand, body.mobile #status .chips, body.mobile #status .grow { display: none; }
+body.mobile #status .date b { font-size: 18px; }
+body.mobile #status .fac { font-size: 16px; }
+body.mobile #status .seal { width: 22px; height: 22px; font-size: 13px; }
+body.mobile #status .resources { gap: 8px; width: 100%; order: 5; }
+body.mobile #status .res { font-size: 13px; gap: 2px; }
+body.mobile #status .res svg { width: 16px; height: 16px; }
+body.mobile #status .tb { height: 30px; padding: 0 8px; font-size: 14px; }
+body.mobile #status .tb.endturn { height: 32px; padding: 0 10px; font-size: 15px; letter-spacing: 1px; margin-left: auto; }
+body.mobile #city-win { height: auto; overflow: visible; }
+body.mobile #cmd-win { height: auto; }
+body.mobile #cmd-win > h3 { display: none; }
+body.mobile .menu.tiles li { height: 56px; font-size: 14px; }
+body.mobile #msg-win { width: auto !important; }
+body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 14px; }
+#status { gap: 12px; }
+#status .brand { display: none; }
+#status .resources { gap: 12px; }
+#status .res { font-size: 17px; }
+#status .tb { padding: 0 10px; font-size: 16px; }
+#status .tb.endturn { padding: 0 16px; font-size: 19px; letter-spacing: 2px; }
+#cmd-win h3 { margin-bottom: 4px; line-height: 24px; }
+.menu.tiles { gap: 5px; }
+.menu.tiles li { height: 48px; }
+
 </style>
 </head>
 <body>
@@ -495,14 +688,22 @@ body.mobile .detail .bio-head { flex-wrap: wrap; gap: 0 10px; }
   <div id="stage">
     <div id="app">
       <section id="title" class="screen">
-        <canvas id="title-bg"></canvas>
+        <!-- 宣紙、紅日、遠山與飛鳥（全部用 CSS／SVG 畫，沒有外部圖檔） -->
+        <div class="t-sun"></div>
+        <svg class="t-birds" viewBox="0 0 200 60" aria-hidden="true"><path d="M10 30q8-8 16 0q8-8 16 0M70 14q6-6 12 0q6-6 12 0M140 40q7-7 14 0q7-7 14 0M120 8q5-5 10 0q5-5 10 0"/></svg>
+        <svg class="t-hills" viewBox="0 0 1280 260" preserveAspectRatio="none" aria-hidden="true">
+          <path class="far" d="M0 170 Q120 90 230 150 T470 120 T720 160 T960 100 T1280 150 V260 H0Z"/>
+          <path class="near" d="M0 220 Q160 150 320 205 T640 190 T940 215 T1280 185 V260 H0Z"/>
+        </svg>
         <div class="title-wrap">
-          <div class="title-pre">三國</div>
-          <div class="title-logo">逐鹿中原</div>
-          <div class="title-sub">― 天下大亂・群雄割據 ―</div>
+          <div class="title-head">
+            <div class="title-seal">三<br>國</div>
+            <div class="title-logo">逐鹿中原</div>
+          </div>
+          <div class="title-sub">烽煙四起・英雄並立・誰能一統天下</div>
           <div id="title-menu"></div>
         </div>
-        <div class="title-foot">方向鍵選擇　Enter 決定　Esc 返回</div>
+        <div class="title-foot">滑鼠點選，或用方向鍵與 Enter</div>
       </section>
 
       <section id="game" class="hidden">
@@ -4117,20 +4318,32 @@ function svg(g, color, mode, t) {
       ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
     }
 
-    // 勢力領土
-    for (const c of cities) {
-      if (!c.owner) continue;
-      const [x, y] = P([c.x, c.y]);
-      ctx.fillStyle = rgba(color(c.owner), 0.2); ctx.beginPath(); ctx.arc(x, y, 66 * s, 0, 7); ctx.fill();
-      ctx.fillStyle = rgba(color(c.owner), 0.16); ctx.beginPath(); ctx.arc(x, y, 42 * s, 0, 7); ctx.fill();
-    }
-    ctx.lineCap = 'round';
-    for (const [a, b] of state.roads) {
-      const A = byId[a], B = byId[b];
-      if (A.owner && A.owner === B.owner) {
-        ctx.strokeStyle = rgba(color(A.owner), 0.22); ctx.lineWidth = 14 * s;
-        ctx.beginPath(); ctx.moveTo(...P([A.x, A.y])); ctx.lineTo(...P([B.x, B.y])); ctx.stroke();
+    // 勢力領土：同一勢力相鄰（有道路相連）的城，領土連成一整片。
+    // 先在離屏畫布上用不透明色畫出聯集，再一次以半透明疊上去，重疊處才不會變深。
+    const owners = [...new Set(cities.map((c) => c.owner).filter(Boolean))];
+    const off = render.off || (render.off = document.createElement('canvas'));
+    off.width = canvas.width; off.height = canvas.height;
+    const o = off.getContext('2d');
+    for (const fid of owners) {
+      const col = color(fid);
+      o.clearRect(0, 0, off.width, off.height);
+      o.fillStyle = col; o.strokeStyle = col; o.lineCap = 'round'; o.lineJoin = 'round';
+      const mine = cities.filter((c) => c.owner === fid);
+      for (const c of mine) { const [x, y] = P([c.x, c.y]); o.beginPath(); o.arc(x, y, 60 * s, 0, 7); o.fill(); }
+      o.lineWidth = 96 * s;
+      for (const [a, b] of state.roads) {
+        const A = byId[a], B = byId[b];
+        if (A.owner === fid && B.owner === fid) { o.beginPath(); o.moveTo(...P([A.x, A.y])); o.lineTo(...P([B.x, B.y])); o.stroke(); }
       }
+      // 領土：柔邊的淡色塊＋外圍再淡一圈
+      ctx.save();
+      ctx.globalAlpha = 0.13;
+      if ('filter' in ctx) ctx.filter = 'blur(10px)';
+      ctx.drawImage(off, 0, 0);
+      ctx.filter = 'none';
+      ctx.globalAlpha = 0.2;
+      ctx.drawImage(off, 0, 0);
+      ctx.restore();
     }
 
     // 河流
@@ -4446,49 +4659,87 @@ function svg(g, color, mode, t) {
 </script>
   <script>
 /* js/audio.js */
-/* 共用的 AudioContext：音效（sound.js）與音樂（music.js）共用同一個，避免手機上兩個互相搶音訊。
- * iPhone 的幾個坑：
- *  1. AudioContext 必須在使用者點擊時 resume，否則一直是 suspended。
- *  2. 朗讀（speechSynthesis）或來電後會變成 interrupted，要再 resume。
- *  3. 側邊靜音開關打開時 WebAudio 會被靜音；把音訊類型設成 playback（媒體播放）就不受靜音開關影響。 */
+/* 共用的 AudioContext：音效（sound.js）與音樂（music.js）共用同一個。
+ * 手機瀏覽器（尤其 iPhone Safari）的規則：
+ *  1. 只有在「使用者操作」的事件裡（click、touchend、keydown，滑鼠的 pointerdown）建立或喚醒的 AudioContext 才會出聲；
+ *     touchstart、手指的 pointerdown 不算。頁面一載入就建立的會一直卡在 suspended。
+ *     所以這裡「只在使用者操作時建立」，在那之前音效與音樂都先不播。
+ *  2. 朗讀（speechSynthesis）、來電、切到別的 App 之後，會變成 interrupted；下一次操作時喚醒，喚醒不了就重建一個。
+ *  3. 側邊靜音開關會把網頁音效關掉；iOS 16.4 起把音訊類型設成 playback（媒體播放）就不受影響。 */
 (function (TK) {
   'use strict';
+  const AC = typeof window !== 'undefined' ? (window.AudioContext || window.webkitAudioContext) : null;
   let ctx = null;
+  const listeners = [];
+  const log = []; // 給「聲音診斷」看的最近事件
 
+  function note(s) { log.push(`${new Date().toLocaleTimeString('zh-TW', { hour12: false })} ${s}`); if (log.length > 8) log.shift(); }
+
+  // 取得可用的 AudioContext；尚未經過使用者操作時回傳 null（不建立）
   function get() {
-    try {
-      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state !== 'running') ctx.resume().catch(() => {});
-      return ctx;
-    } catch (e) { return null; }
+    if (!ctx || ctx.state === 'closed') return null;
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    return ctx;
   }
 
-  // iOS 16.4+：音訊類型設為 playback，靜音開關不會把遊戲聲音關掉
+  function create() {
+    try { if (ctx && ctx.state !== 'closed') ctx.close().catch(() => {}); } catch (e) { /* 忽略 */ }
+    ctx = new AC();
+    note(`建立 AudioContext（${ctx.state}）`);
+    ctx.onstatechange = () => note(`狀態 → ${ctx.state}`);
+  }
+
   function playbackSession() {
-    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* 舊版不支援 */ }
+    try { if (navigator.audioSession && navigator.audioSession.type !== 'playback') navigator.audioSession.type = 'playback'; } catch (e) { /* 舊版不支援 */ }
   }
 
-  // 每次點擊或按鍵都檢查一次（處理第一次啟用、朗讀後、切回 App 後被中斷的情況）
-  function unlock() {
+  // 在使用者操作的事件裡呼叫：建立或喚醒，並播一段極短的無聲音訊（舊版 iOS 需要這樣才算真正解鎖）
+  function unlock(force) {
+    if (!AC) return;
     playbackSession();
-    const c = get();
-    if (!c) return;
-    // iOS 舊版：播一段極短的無聲音訊才算真正解鎖
-    if (!unlock.done) {
-      try {
-        const b = c.createBuffer(1, 1, 22050), s = c.createBufferSource();
-        s.buffer = b; s.connect(c.destination); s.start(0);
-        unlock.done = true;
-      } catch (e) { /* 忽略 */ }
-    }
+    const fresh = force || !ctx || ctx.state === 'closed' || ctx.state === 'interrupted';
+    if (fresh) create();
+    if (ctx.state !== 'running') ctx.resume().catch((e) => note('喚醒失敗：' + e.message));
+    try {
+      const b = ctx.createBuffer(1, 1, 22050), s = ctx.createBufferSource();
+      s.buffer = b; s.connect(ctx.destination); s.start(0);
+    } catch (e) { /* 忽略 */ }
+    if (fresh) listeners.forEach((fn) => { try { fn(ctx); } catch (e) { /* 忽略 */ } });
+  }
+
+  function onGesture(e) {
+    if (e.type === 'pointerdown' && e.pointerType !== 'mouse') return; // 手指的 pointerdown 在 iPhone 不算使用者操作
+    if (!ctx || ctx.state !== 'running') unlock();
   }
 
   if (typeof document !== 'undefined') {
-    for (const ev of ['pointerdown', 'touchend', 'keydown']) document.addEventListener(ev, unlock, true);
+    for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) document.addEventListener(ev, onGesture, true);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && ctx) ctx.resume().catch(() => {}); });
   }
 
-  TK.Audio = { get, unlock, state: () => (ctx ? ctx.state : 'none') };
+  // 診斷用：直接播一聲 440Hz（需在點擊事件中呼叫）
+  function testTone() {
+    unlock();
+    const c = ctx; if (!c) return;
+    const o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+    o.frequency.value = 440; g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.65);
+    note('播放測試音');
+  }
+
+  TK.Audio = {
+    get, unlock, testTone,
+    // 新的 AudioContext 建好時通知（音樂用來重接輸出並開始播放）
+    onReady(fn) { listeners.push(fn); },
+    state: () => (ctx ? ctx.state : '尚未啟用（還沒點過畫面）'),
+    info: () => ({
+      supported: !!AC,
+      state: ctx ? ctx.state : 'none',
+      sampleRate: ctx ? ctx.sampleRate : 0,
+      session: typeof navigator !== 'undefined' && navigator.audioSession ? navigator.audioSession.type : '不支援',
+      log: log.slice(),
+    }),
+  };
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
@@ -4581,18 +4832,17 @@ function svg(g, color, mode, t) {
   let ctx = null, master = null, on = true, current = null, timer = null;
   try { on = localStorage.getItem('qunxiong.music') !== '0'; } catch (e) { /* 用預設值 */ }
 
+  // 取得共用的 AudioContext（js/audio.js）；換了新的 context 就重接輸出節點
   function ac() {
-    try {
-      if (!ctx) {
-        ctx = TK.Audio.get();
-        if (!ctx) return null;
-        master = ctx.createGain();
-        master.gain.value = 0.55;
-        master.connect(ctx.destination);
-      }
-      if (ctx.state !== 'running') ctx.resume().catch(() => {});
-      return ctx;
-    } catch (e) { return null; }
+    const c = TK.Audio && TK.Audio.get();
+    if (!c) return null; // 使用者還沒點過畫面
+    if (c !== ctx) {
+      ctx = c;
+      master = ctx.createGain();
+      master.gain.value = 0.55;
+      master.connect(ctx.destination);
+    }
+    return ctx;
   }
 
   const midi = (n) => 440 * Math.pow(2, (n - 69) / 12);
@@ -4712,6 +4962,7 @@ function svg(g, color, mode, t) {
   function start(name) {
     const tr = TRACKS[name];
     if (!tr || !ac()) return;
+    clearInterval(timer);
     const phrase = compose(tr);
     const barLen = tr.beat * 4;
     let nextBar = ctx.currentTime + 0.15, barIdx = 0, noteIdx = 0, noteTime = nextBar;
@@ -4748,15 +4999,17 @@ function svg(g, color, mode, t) {
 
   function stop() {
     clearInterval(timer); timer = null;
-    if (master && ctx) {
-      // 淡出後換新的輸出節點，避免已排程的音符繼續響
-      const old = master, t = ctx.currentTime;
-      old.gain.setValueAtTime(old.gain.value, t);
-      old.gain.linearRampToValueAtTime(0.0001, t + 0.4);
-      setTimeout(() => old.disconnect(), 500);
-      master = ctx.createGain();
-      master.gain.value = 0.55;
-      master.connect(ctx.destination);
+    if (master && ctx && ctx.state !== 'closed') {
+      try {
+        // 淡出後換新的輸出節點，避免已排程的音符繼續響
+        const old = master, t = ctx.currentTime;
+        old.gain.setValueAtTime(old.gain.value, t);
+        old.gain.linearRampToValueAtTime(0.0001, t + 0.4);
+        setTimeout(() => old.disconnect(), 500);
+        master = ctx.createGain();
+        master.gain.value = 0.55;
+        master.connect(ctx.destination);
+      } catch (e) { /* 舊的 context 已失效，下次 ac() 會重接 */ }
     }
   }
 
@@ -4781,6 +5034,8 @@ function svg(g, color, mode, t) {
     // 手機瀏覽器要在使用者點擊後才能發聲
     unlock() { if (on && current && !timer) { const c = current; current = null; M.play(c); } else ac(); },
   };
+  // 使用者第一次點畫面（或音訊被中斷後重建）時，開始播放目前該播的曲子
+  if (TK.Audio) TK.Audio.onReady(() => { if (on && current) { clearInterval(timer); timer = null; const c = current; current = null; M.play(c); } });
   TK.Music = M;
 })(globalThis.TK = globalThis.TK || {});
 
@@ -5012,7 +5267,9 @@ function svg(g, color, mode, t) {
     if (!el.querySelector(':scope > .win-x')) {
       el.prepend(h('button', { class: 'win-x', title: '關閉（Esc）', onclick: (e) => { e.stopPropagation(); if (win.onKey) win.onKey({ key: 'Escape' }); else { SND.cancel(); popWin(); } } }, '✕'));
     }
-    if (opts.center) {
+    if (opts.full) {
+      el.style.inset = '0';
+    } else if (opts.center) {
       el.style.left = '50%'; el.style.top = '50%'; el.style.transform = 'translate(-50%, -50%)';
     } else {
       el.style.left = `${(opts.x != null ? opts.x : 420) + depth * 24}px`;
@@ -5069,7 +5326,7 @@ function svg(g, color, mode, t) {
       onChoose(it, m.index);
     };
     m.onKey = (e) => {
-      const step = opts.cols ? 2 : 1;
+      const step = opts.cols === true ? 2 : opts.cols || 1;
       if (e.key === 'ArrowDown') { m.index = (m.index + step) % items.length; SND.cursor(); m.render(); }
       else if (e.key === 'ArrowUp') { m.index = (m.index - step + items.length) % items.length; SND.cursor(); m.render(); }
       else if (opts.cols && e.key === 'ArrowRight') { m.index = Math.min(items.length - 1, m.index + 1); SND.cursor(); m.render(); }
@@ -5269,8 +5526,6 @@ function svg(g, color, mode, t) {
     if (TK.Music) TK.Music.play('title');
     $('game').classList.add('hidden');
     $('title').classList.remove('hidden');
-    const preview = E.newGame(null, 1);
-    MV.render($('title-bg'), preview, { selected: null, hovered: null, targets: [], blink: false, color: (f) => preview.factions[f].color, legend: false });
     const auto = meta(AUTO_KEY);
     const items = [
       { label: '新遊戲', act: chooseScenario },
@@ -5278,9 +5533,11 @@ function svg(g, color, mode, t) {
       { label: '讀取存檔', act: () => slotMenu(false) },
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); showTitle(); } },
       { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); showTitle(); } },
+      { label: '聲音診斷', act: soundCheck },
     ];
     const m = makeMenu(items, (it) => it.act());
-    $('title-menu').replaceChildren(h('div', { class: 'win' }, m.ul));
+    m.ul.classList.add('title-menu');
+    $('title-menu').replaceChildren(m.ul);
     rootKey = (e) => m.onKey(e);
   }
 
@@ -5293,43 +5550,130 @@ function svg(g, color, mode, t) {
     } catch (e) { return ''; }
   }
 
+  // 卡片選擇畫面（全畫面）：cards 為 [{ el, off, act }]，方向鍵移動、Enter 決定、Esc 返回
+  function cardsWin(title, sub, cards, opts) {
+    opts = opts || {};
+    const cols = opts.cols || 3;
+    const grid = h('div', { class: 'cards', style: `grid-template-columns:repeat(${cols},1fr)` });
+    const el = h('div', { class: 'win picker' },
+      h('div', { class: 'pk-head' }, h('div', { class: 'pk-title' }, title), sub ? h('div', { class: 'pk-sub' }, sub) : null),
+      grid,
+      h('div', { class: 'pk-foot' }, h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); back(); } }, '返回')));
+    const win = { el, index: Math.max(0, cards.findIndex((c) => !c.off)) };
+    const render = () => cards.forEach((c, i) => c.el.classList.toggle('sel', i === win.index));
+    const choose = () => { const c = cards[win.index]; if (!c || c.off) { SND.error(); return; } SND.ok(); c.act(); };
+    const back = () => { SND.cancel(); popWin(); if (opts.onBack) opts.onBack(); };
+    cards.forEach((c, i) => {
+      c.el.classList.add('card');
+      if (c.off) c.el.classList.add('off');
+      c.el.addEventListener('mouseenter', () => { if (win.index !== i) { win.index = i; render(); } });
+      c.el.addEventListener('click', () => { win.index = i; choose(); });
+      grid.append(c.el);
+    });
+    win.onKey = (e) => {
+      const n = cards.length;
+      if (e.key === 'ArrowRight') win.index = Math.min(n - 1, win.index + 1);
+      else if (e.key === 'ArrowLeft') win.index = Math.max(0, win.index - 1);
+      else if (e.key === 'ArrowDown') win.index = Math.min(n - 1, win.index + cols);
+      else if (e.key === 'ArrowUp') win.index = Math.max(0, win.index - cols);
+      else if (e.key === 'Enter' || e.key === ' ') { choose(); return true; }
+      else if (e.key === 'Escape') { back(); return true; }
+      else return false;
+      SND.cursor(); render();
+      const sel = cards[win.index].el;
+      if (sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+      return true;
+    };
+    render();
+    return pushWin(win, { full: true });
+  }
+
   // 選擇劇本
   function chooseScenario() {
     const list = TK.SCENARIOS || [TK.SCENARIO];
-    menuWin('選擇劇本', list.map((sc) => ({
-      label: `${sc.year}年　${sc.title}`, hint: sc.tag,
-      act: () => { closeAll(); TK.SCENARIO = sc; chooseFaction(); say(null, sc.desc); },
-    })), null, { center: true, width: 900, shade: true });
+    cardsWin('選擇劇本', '從群雄割據到三國鼎立，選一個時代登場', list.map((sc) => ({
+      el: h('div', { class: 'scard' },
+        h('div', { class: 'sc-year' }, h('b', {}, String(sc.year)), '年'),
+        h('div', { class: 'sc-name' }, sc.title),
+        h('div', { class: 'sc-tag' }, sc.tag || ''),
+        h('div', { class: 'sc-desc' }, sc.desc || ''),
+        h('div', { class: 'sc-chips' }, sc.factions.slice(0, 6).map((f) => h('span', { class: 'chip', style: `--c:${f.color}` }, f.name.replace(/軍$/, ''))))),
+      act: () => { TK.SCENARIO = sc; chooseFaction(); },
+    })));
   }
 
+  // 選擇君主：勢力卡片
   function chooseFaction() {
     const sc = TK.SCENARIO;
-    const rows = sc.factions.map((f) => {
+    const cards = sc.factions.map((f) => {
       const cities = sc.cities.filter((c) => c.owner === f.id);
       const gens = sc.generals.filter((g) => g.faction === f.id).length;
       const troops = cities.reduce((a, c) => a + c.troops, 0);
       const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
-      return { f, cities, cells: [f.name, f.ruler, cities.length, gens, fmtW(troops), '★'.repeat(diff)] };
+      const ruler = Object.assign({ id: f.ruler }, sc.generals.find((g) => g.id === f.ruler));
+      const army = Math.max(1, Math.min(4, Math.round(troops / 15000)));
+      return {
+        el: h('div', { class: 'fcard', style: `--c:${f.color}` },
+          face(ruler, 'head', 0, 0, 'fc-face'),
+          h('div', { class: 'fc-main' },
+            h('div', { class: 'fc-name' }, f.name, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler))),
+            h('div', { class: 'dim' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、') || '—'}`),
+            h('div', { class: 'dim' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
+            h('div', { class: 'fc-diff' }, '難度 ', h('span', {}, '★'.repeat(diff) + '☆'.repeat(5 - diff)))),
+          h('div', { class: 'fc-army' }, Array.from({ length: army }, () => svgNode(TK.Icons.unit('spear', f.color))))),
+        act: () => setupGame(f, ruler),
+      };
     });
-    tableWin(`選擇君主　${sc.year}年「${sc.title}」`, [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '將' }, { label: '兵力' }, { label: '難度' }], rows, (r) => {
-      menuWin('劇本模式', [
-        { label: '歷史劇本', hint: '依條件發生歷史事件', act: () => chooseDifficulty(r.f.id, 'historical') },
-        { label: '自由模式', hint: '各勢力自由發展', act: () => chooseDifficulty(r.f.id, 'free') },
-      ], null, { center: true, width: 620 });
-    }, {
-      center: true, width: 1000, shade: true,
-      side: (r) => h('div', {}, face(Object.assign({ id: r.f.ruler }, sc.generals.find((g) => g.id === r.f.ruler)), 'full', 48, 60, 'big'),
-        h('div', { class: 'desc' }, h('span', { style: `color:${r.f.color}` }, '■ '), r.f.name, h('br'), h('span', { class: 'dim' }, r.cities.map((c) => c.name).join('・')))),
-    });
+    cardsWin(`${sc.year}年「${sc.title}」・選擇君主`, sc.desc, cards);
   }
 
-  // 難易度
-  function chooseDifficulty(fid, mode) {
-    menuWin('難易度', Object.entries(E.DIFFICULTY).map(([k, d]) => ({
-      label: d.label, hint: d.desc, act: () => { closeAll(); newGame(fid, mode, k); },
-    })), null, { center: true, width: 760, shade: true });
-    stack[stack.length - 1].menu.index = 1;
-    stack[stack.length - 1].menu.render();
+  // 開局設定：模式與難易度
+  function setupGame(f, ruler) {
+    let mode = 'historical', diffKey = 'normal';
+    const rows = [
+      { key: 'mode', label: '模式', opts: [['historical', '歷史劇本', '依條件發生歷史事件與抉擇'], ['free', '自由模式', '不發生歷史事件，各勢力自由發展']] },
+      { key: 'diff', label: '難易度', opts: Object.entries(E.DIFFICULTY).map(([k, d]) => [k, d.label, d.desc]) },
+    ];
+    let row = 0;
+    const body = h('div', { class: 'setup' });
+    const start = () => { SND.ok(); closeAll(); newGame(f.id, mode, diffKey); };
+    const render = () => {
+      body.replaceChildren(
+        h('div', { class: 'su-top' }, face(ruler, 'full', 0, 0, 'su-face'),
+          h('div', {}, h('div', { class: 'su-name', style: `color:${f.color}` }, f.name), h('div', { class: 'dim' }, `君主 ${f.ruler}`))),
+        ...rows.map((r, ri) => {
+          const val = r.key === 'mode' ? mode : diffKey;
+          const cur = r.opts.find((o) => o[0] === val);
+          return h('div', { class: 'su-row' + (ri === row ? ' focus' : '') },
+            h('div', { class: 'su-label' }, r.label),
+            h('div', { class: 'seg' }, r.opts.map(([k, label]) => h('button', {
+              class: k === val ? 'on' : '',
+              onclick: (e) => { e.stopPropagation(); row = ri; if (r.key === 'mode') mode = k; else diffKey = k; SND.cursor(); render(); },
+            }, label))),
+            h('div', { class: 'su-hint dim' }, cur ? cur[2] : ''));
+        }),
+        h('div', { class: 'su-foot' },
+          h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); SND.cancel(); popWin(); } }, '返回'),
+          h('button', { class: 'act primary start', onclick: (e) => { e.stopPropagation(); start(); } }, '出陣')));
+    };
+    const el = h('div', { class: 'win pop setup-win' }, h('h3', {}, '開局設定'), body);
+    const win = { el };
+    win.onKey = (e) => {
+      const r = rows[row];
+      const keys = r.opts.map((o) => o[0]);
+      const cur = keys.indexOf(r.key === 'mode' ? mode : diffKey);
+      const set = (i) => { if (r.key === 'mode') mode = keys[i]; else diffKey = keys[i]; };
+      if (e.key === 'ArrowUp') row = Math.max(0, row - 1);
+      else if (e.key === 'ArrowDown') row = Math.min(rows.length - 1, row + 1);
+      else if (e.key === 'ArrowLeft') set(Math.max(0, cur - 1));
+      else if (e.key === 'ArrowRight') set(Math.min(keys.length - 1, cur + 1));
+      else if (e.key === 'Enter' || e.key === ' ') { start(); return true; }
+      else if (e.key === 'Escape') { SND.cancel(); popWin(); return true; }
+      else return false;
+      SND.cursor(); render(); return true;
+    };
+    render();
+    return pushWin(win, { center: true, width: 760, shade: true });
   }
 
   function slotMenu(saving) {
@@ -5371,7 +5715,7 @@ function svg(g, color, mode, t) {
     banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
       const adv = advisor();
-      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再從右下的選單下達指令。', { wait: true });
+      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
       await playEvents(opening);
       busy = false;
       render();
@@ -5388,7 +5732,7 @@ function svg(g, color, mode, t) {
     selected = cap ? cap.id : Object.keys(S.cities)[0];
     rootMenu = null;
     render();
-    rootKey = (e) => rootMenu && rootMenu.onKey(e);
+    rootKey = (e) => { if (e.key === 'e' || e.key === 'E') { endMonth(); return true; } return rootMenu && rootMenu.onKey(e); };
   }
 
   // ---------- 主畫面繪製 ----------
@@ -5400,17 +5744,31 @@ function svg(g, color, mode, t) {
     renderCmd();
   }
 
+  // 頂部列：日期、勢力、資源（圖示＋數字）、常用按鈕
   function renderStatus() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
     const hov = hovered && S.cities[hovered];
+    const icon = (n) => svgNode(TK.Icons.icon(n));
+    const res = (n, v, title) => h('span', { class: 'res', title }, icon(n), h('b', {}, v));
+    const strat = E.strategistOf(S, S.player);
+    const btn = (label, title, act, cls) => h('button', { class: 'tb ' + (cls || ''), title, onclick: (e) => { e.stopPropagation(); if (busy && cls !== 'snd') return; SND.ok(); act(); } }, label);
     $('status').replaceChildren(
-      h('span', { class: 'hi' }, `${S.year}年 ${MONTHS[S.month - 1]}（${SEASON(S.month)}）`),
-      h('span', {}, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
-      h('span', {}, `城${p.cities} 兵${fmtW(p.troops)} 金${fmtW(p.gold)} 糧${fmtW(p.food)} 將${p.generals}`),
-      h('span', { class: 'diff' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
-      h('span', { class: 'strat' }, `軍師 ${E.strategistOf(S, S.player) ? E.strategistOf(S, S.player).name : '空缺'}`),
-      h('span', { class: 'grow' }, hov ? `${hov.name}（${E.factionName(S, hov.owner)}）兵${fmtW(hov.troops)}` : 'Tab 切換城市'));
+      h('div', { class: 'brand' }, '逐鹿中原'),
+      h('div', { class: 'date' }, h('small', {}, `${S.year}年`), h('b', {}, MONTHS[S.month - 1]), h('span', { class: 'season' }, SEASON(S.month))),
+      h('div', { class: 'fac' }, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
+      h('div', { class: 'resources' },
+        res('city', p.cities, '城數'), res('troops', fmtW(p.troops), '兵力'), res('gold', fmtW(p.gold), '金'), res('food', fmtW(p.food), '糧'), res('general', p.generals, '武將')),
+      h('div', { class: 'chips' },
+        h('span', { class: 'chip-s' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
+        h('span', { class: 'chip-s', title: '軍師：在「任命」指定' }, `軍師 ${strat ? strat.name : '空缺'}`),
+        hov ? h('span', { class: 'chip-s hov' }, `${hov.name}・${E.factionName(S, hov.owner)}・兵${fmtW(hov.troops)}`) : null),
+      h('div', { class: 'grow' }),
+      btn('存檔', '存檔', () => slotMenu(true)),
+      btn('讀檔', '讀檔', () => slotMenu(false), 'snd'),
+      btn('標題', '回到標題畫面', () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle), 'snd'),
+      btn(TK.Music && TK.Music.isOn() ? '♪' : '♪̸', '音樂開關', () => { if (TK.Music) TK.Music.toggle(); renderStatus(); }, 'snd'),
+      h('button', { class: 'tb endturn', disabled: busy || !!S.over, title: '結束本月（E）', onclick: (e) => { e.stopPropagation(); endMonth(); } }, '結束本月'));
   }
 
   function attackTargets() {
@@ -5428,26 +5786,61 @@ function svg(g, color, mode, t) {
     const net = E.goldIncome(c, S) - E.upkeep(c);
     return h('small', { class: net >= 0 ? 'up' : 'down', title: `收入 ${E.goldIncome(c, S)}，軍餉 ${E.upkeep(c)}` }, ` ${net >= 0 ? '+' : ''}${net}/月`);
   }
+  // 數值長條的評語
+  function rating(v, max) {
+    const r = v / max;
+    return r < 0.3 ? '薄弱' : r < 0.55 ? '尚可' : r < 0.8 ? '興盛' : '繁榮';
+  }
+  const CITY_BARS = [['farm', '農業', 999, '#5b9a5b'], ['commerce', '商業', 999, '#c98a3a'], ['defense', '城防', 999, '#5a6b8a'], ['order', '民心', 100, '#c9a23a'], ['train', '訓練', 100, '#b8503a']];
+  const STAT_COLORS = { lead: '#3d6fb0', war: '#b8403a', int: '#7a4fb0', pol: '#3d8a5a', cha: '#c08a2a', loyalty: '#7d7062' };
+
+  // 右側面板：城市概況（長條）＋麾下武將卡片
   function renderCity() {
     const c = S.cities[selected];
     const box = $('city-win');
     if (!c) { box.replaceChildren(); return; }
+    const mine = c.owner === S.player;
     const mix = E.mixOf(c);
-    const gens = c.owner ? E.officers(S, c.id) : [];
+    const gens = c.owner ? E.officers(S, c.id).slice().sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int) - (a.lead + a.war + a.int)) : [];
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const kv = (k, v) => [h('span', { class: 'k' }, k), h('span', { class: 'v' }, v)];
+    const gov = c.owner ? E.governorOf(S, c) : null;
+    const bar = ([k, label, max, col]) => h('div', { class: 'cbar' },
+      svgNode(TK.Icons.icon(k)), h('span', { class: 'lbl' }, label),
+      h('span', { class: 'track' }, h('i', { style: `width:${Math.min(100, 100 * c[k] / max)}%;background:${col}` })),
+      h('span', { class: 'val' }, c[k]), h('span', { class: 'rate' }, rating(c[k], max)));
+    const res = (icon, label, v) => h('div', { class: 'cres' }, svgNode(TK.Icons.icon(icon)), h('span', { class: 'dim' }, label), h('b', {}, v));
     box.replaceChildren(
-      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name), h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner))),
-      h('div', { class: 'kv' }, kv('金', c.owner === S.player ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)),
-        kv('兵', c.owner === S.player ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
-        kv('農業', c.farm), kv('商業', c.commerce), kv('民心', c.order), kv('城防', c.defense), kv('訓練', c.train), kv('武將', gens.length)),
-      h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k]))),
-        c.owner ? h('span', { class: 'gov' }, h('span', { class: 'dim' }, '太守 '), E.governorOf(S, c) ? E.governorOf(S, c).name : '空缺') : null),
-      h('div', { class: 'gens-line' }, gens.length ? gens.map((g, i) => h('span', { class: g.acted && c.owner === S.player ? 'acted' : '' }, (i ? ' ' : '') + g.name)) : h('span', { class: 'dim' }, '無人駐守')),
-      ...(free.length || pris.length ? [h('div', { class: 'gens-line dim' }, free.length ? `在野 ${free.map((g) => g.name).join(' ')} ` : '', pris.length ? `俘虜 ${pris.map((g) => g.name).join(' ')}` : '')] : []));
+      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name),
+        h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner)),
+        c.owner ? h('span', { class: 'gov dim' }, `太守 ${gov ? gov.name : '空缺'}`) : null),
+      h('div', { class: 'cres-row' },
+        res('gold', '金', mine ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), res('food', '糧', fmtW(c.food)),
+        res('troops', '兵', mine ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
+        res('pop', '人口', fmtW(c.pop))),
+      h('div', { class: 'mixrow' }, UK.map((k) => h('span', { class: 'mixchip' }, svgNode(TK.Icons.unit(k, color(c.owner))), E.UNITS[k].short, h('b', {}, fmtW(mix[k]))))),
+      h('div', { class: 'cbars' }, CITY_BARS.map(bar)),
+      h('div', { class: 'sec' }, `麾下武將（${gens.length}）`),
+      gens.length ? h('div', { class: 'gcards' }, gens.map((g) => genCard(g, mine))) : h('div', { class: 'dim', style: 'padding:4px 2px' }, '無人駐守'),
+      ...(free.length || pris.length ? [h('div', { class: 'sec' }, '城中人物'),
+        h('div', { class: 'others' }, ...free.map((g) => h('span', { class: 'ochip', onclick: () => generalDetail(g) }, face(g, 'head', 0, 0, 'mini'), g.name, h('small', {}, '在野'))),
+          ...pris.map((g) => h('span', { class: 'ochip pris', onclick: () => generalDetail(g) }, face(g, 'head', 0, 0, 'mini'), g.name, h('small', {}, '俘虜'))))] : []));
   }
 
+  // 武將卡片：頭像、身分、能力長條（1～100）、兵種適性；點一下看詳細
+  function genCard(g, mine) {
+    const role = roleOf(g) || PT.classLabel(g, PT.traits(g));
+    const stat = (k, label) => h('div', { class: 'gs' }, h('span', { class: 'k' }, label),
+      h('span', { class: 'track' }, h('i', { style: `width:${g[k]}%;background:${STAT_COLORS[k]}` })), h('span', { class: 'v' }, g[k]));
+    return h('div', { class: 'gcard' + (mine && g.acted ? ' acted' : ''), onclick: () => { SND.ok(); generalDetail(g); } },
+      face(g, 'head', 0, 0, 'gc-face'),
+      h('div', { class: 'gc-main' },
+        h('div', { class: 'gc-name' }, g.name, h('span', { class: 'badge' + (g.ruler ? ' ruler' : '') }, role), mine && g.acted ? h('span', { class: 'done' }, '已行動') : null),
+        h('div', { class: 'gstats' }, stat('lead', '統'), stat('war', '武'), stat('int', '智'), stat('pol', '政'), stat('cha', '魅'), !g.ruler && g.status === 'active' ? stat('loyalty', '忠') : h('div')),
+        h('div', { class: 'apt' }, UK.map((k) => h('span', {}, E.UNITS[k].short, h('b', { class: `g-${E.aptitude(g, k)}` }, E.aptitude(g, k)))))));
+  }
+
+  // 指令按鈕：直接點，需要選武將或數量時才跳出視窗
   function renderCmd() {
     const c = S.cities[selected];
     const mine = c && c.owner === S.player && !S.over;
@@ -5455,19 +5848,34 @@ function svg(g, color, mode, t) {
     if (mine) {
       const idle = E.officers(S, c.id).some((g) => !g.acted);
       const why = '本城的武將本月都已行動了。';
-      items.push({ label: '內政', off: !idle || busy, why, act: () => domesticMenu(c) });
-      items.push({ label: '軍事', off: !idle || busy, why, act: () => militaryMenu(c) });
-      items.push({ label: '人事', off: busy, act: () => personnelMenu(c) });
+      const adj = E.neighbors(S, c.id);
+      const cand = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
+      const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
+      const hasNonRuler = E.officers(S, c.id).some((g) => !g.ruler);
+      for (const type of ['farm', 'commerce', 'order', 'defense', 'train']) {
+        const d = E.DEV[type];
+        items.push({ label: d.label, hint: d.cost ? `金${d.cost}` : '', off: busy || !idle || c.gold < d.cost, why: !idle ? why : '金不足。', act: () => devAct(c, type) });
+      }
+      items.push({ label: '徵兵', off: busy || !idle, why, act: () => draftFlow(c) });
+      items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
+      items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
+      items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
+      items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
+      items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
+      items.push({ label: '任命', hint: '軍師・太守', off: busy, act: () => appointMenu(c) });
+      items.push({ label: '俘虜', off: busy || !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) });
     }
     items.push({ label: '外交', off: busy || !!S.over, act: diplomacyFlow });
     items.push({ label: '情報', act: () => infoMenu(c) });
     items.push({ label: '系統', act: systemMenu });
-    items.push({ label: '結束本月', off: busy || !!S.over, act: endMonth });
     const keep = rootMenu ? rootMenu.index : 0;
-    rootMenu = makeMenu(items, (it) => it.act(), { cols: true });
+    rootMenu = makeMenu(items, (it) => it.act(), { cols: 4 });
     rootMenu.index = Math.min(keep, items.length - 1);
+    rootMenu.ul.classList.add('tiles');
     rootMenu.render();
-    $('cmd-win').replaceChildren(h('h3', { style: 'padding-left:10px' }, mine ? `${c.name}・指令` : `${c ? c.name : ''}・情報`), rootMenu.ul);
+    $('cmd-win').replaceChildren(h('h3', {}, mine ? `${c.name}・指令` : `${c ? c.name : ''}・他國城市`), rootMenu.ul);
+    const et = document.querySelector('#status .endturn');
+    if (et) et.disabled = busy || !!S.over;
   }
 
   // ---------- 武將表 ----------
@@ -5543,24 +5951,9 @@ function svg(g, color, mode, t) {
 
   const SUB = { x: 600, y: 360, width: 320 };
 
-  function domesticMenu(c) {
-    const item = (type) => {
-      const d = E.DEV[type];
-      return {
-        label: d.label, hint: d.cost ? `金${d.cost}` : '', off: c.gold < d.cost, why: '金不足。',
-        act: () => pickGeneral(c, d.stat, `${d.label}：選擇武將`, (g) => run({ type, city: c.id, general: g.id }, g, (n) => DEV_SPEECH[type](n))),
-      };
-    };
-    menuWin('內政', ['farm', 'commerce', 'order', 'defense', 'train'].map(item), null, SUB);
-  }
-
-  function militaryMenu(c) {
-    const adj = E.neighbors(S, c.id);
-    menuWin('軍事', [
-      { label: '徵兵', act: () => draftFlow(c) },
-      { label: '出征', off: !adj.some((id) => S.cities[id].owner !== S.player), why: '附近沒有可進攻的城。', act: () => attackFlow(c) },
-      { label: '移動', off: !adj.some((id) => S.cities[id].owner === S.player), why: '沒有相鄰的我方城市。', act: () => moveFlow(c) },
-    ], null, SUB);
+  function devAct(c, type) {
+    const d = E.DEV[type];
+    pickGeneral(c, d.stat, `${d.label}：選擇武將`, (g) => run({ type, city: c.id, general: g.id }, g, (n) => DEV_SPEECH[type](n)));
   }
 
   function searchSpeech(n, r) {
@@ -5569,20 +5962,6 @@ function svg(g, color, mode, t) {
     const gold = r.msg.match(/金 (\d+)/);
     if (gold) return `四處搜尋了一番，找到金 ${gold[1]}。`;
     return '四處搜尋了一番，什麼也沒找到……';
-  }
-
-  function personnelMenu(c) {
-    const idle = E.officers(S, c.id).some((g) => !g.acted);
-    const cand = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
-    const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const hasNonRuler = E.officers(S, c.id).some((g) => !g.ruler);
-    menuWin('人事', [
-      { label: '搜索', off: !idle, why: '本城的武將本月都已行動了。', act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) },
-      { label: '登用', off: !idle || !cand.length, why: cand.length ? '本城的武將本月都已行動了。' : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) },
-      { label: '賞賜', hint: '金100', off: c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) },
-      { label: '俘虜', off: !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) },
-      { label: '任命', hint: '軍師・太守', act: () => appointMenu(c) },
-    ], null, SUB);
   }
 
   // 官職：軍師（全勢力一位）與太守（本城一位）
@@ -5802,8 +6181,33 @@ function svg(g, color, mode, t) {
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); popWin(); } },
       { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); popWin(); systemMenu(); } },
       ...(TK.Voice && TK.Voice.available() ? [{ label: `事件語音：${TK.Voice.isOn() ? '開' : '關'}`, act: () => { TK.Voice.toggle(); popWin(); systemMenu(); } }] : []),
+      { label: '聲音診斷', hint: '沒有聲音時用', act: soundCheck },
       { label: '回到標題', act: () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle) },
     ], null, SUB);
+  }
+
+  // 聲音診斷：顯示音訊狀態，可播放測試音、重設音訊
+  function soundCheck() {
+    const body = h('div', { class: 'soundcheck' });
+    const render = () => {
+      const a = TK.Audio ? TK.Audio.info() : { supported: false, log: [] };
+      const row = (k, v, bad) => h('div', {}, h('span', { class: 'dim' }, k + '：'), h('b', { style: bad ? 'color:#b23a2c' : '' }, v));
+      body.replaceChildren(
+        row('瀏覽器支援', a.supported ? '是' : '否', !a.supported),
+        row('音訊狀態', a.state === 'running' ? '運作中' : a.state, a.state !== 'running'),
+        row('音訊類型', a.session),
+        row('音效', SND.isMuted() ? '關（到系統選單打開）' : '開', SND.isMuted()),
+        row('音樂', TK.Music && TK.Music.isOn() ? `開（${TK.Music.current() || '—'}）` : '關', !(TK.Music && TK.Music.isOn())),
+        h('div', { class: 'dim', style: 'margin-top:8px;font-size:.85em;line-height:1.5' }, ...(a.log.length ? a.log : ['（沒有紀錄）']).map((l) => h('div', {}, l))),
+        h('div', { style: 'margin-top:10px;display:flex;gap:10px;flex-wrap:wrap' },
+          h('button', { class: 'act primary', onclick: (e) => { e.stopPropagation(); TK.Audio.testTone(); setTimeout(render, 300); } }, '播放測試音'),
+          h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); TK.Audio.unlock(true); SND.ok(); setTimeout(render, 300); } }, '重設音訊'),
+          SND.isMuted() ? h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); SND.toggle(); render(); } }, '打開音效') : null),
+        h('div', { class: 'dim', style: 'margin-top:10px;font-size:.85em;line-height:1.6' },
+          '聽不到測試音時：電腦請確認瀏覽器分頁沒有被靜音（分頁標籤上的喇叭圖示）、系統音量與輸出裝置（喇叭／耳機）；手機請確認側邊靜音開關與音量鍵。然後按「重設音訊」再試一次。'));
+    };
+    render();
+    infoWin('聲音診斷', body, { x: 300, y: 120, width: 640 });
   }
 
   // ---------- 城市選擇 ----------
@@ -6314,9 +6718,9 @@ function svg(g, color, mode, t) {
 
   // ---------- 綁定 ----------
   function bind() {
+    // 音訊的建立與喚醒在 js/audio.js；這裡只確保音樂在使用者操作後開始
     const unlock = () => { if (TK.Music) TK.Music.unlock(); };
-    document.addEventListener('pointerdown', unlock);
-    document.addEventListener('keydown', unlock);
+    for (const ev of ['click', 'touchend', 'keydown']) document.addEventListener(ev, unlock);
     fit();
     addEventListener('resize', fit);
     const map = $('map');
