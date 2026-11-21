@@ -8,6 +8,7 @@
   所有程式與樣式都在這個檔案裡；連上網路時會載入書法字型，離線時改用系統字型。
 - **開發用**：打開 `sangoku/index.html`（會讀取 `js/` 與 `style.css`）。
 - 修改程式後重新打包單一檔案：`node sangoku/build.js`
+- GitHub Pages 版（`docs/`）的武將插畫放在 `docs/portraits/`，畫面用到哪張才下載哪張，開啟較快；下載的單檔版 `dist/qunxiong.html` 則把插畫全部內嵌，可離線遊玩。
 
 ## 怎麼玩
 

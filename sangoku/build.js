@@ -59,41 +59,55 @@ fs.writeFileSync(path.join(spriteDir, 'manifest.js'),
 console.log(`士兵圖：${Object.keys(spriteCfg).length ? Object.keys(spriteCfg).join('、') : '無（使用內建 SVG）'}`);
 
 // ---------- 單一檔案 ----------
-let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-// 樣式：字型檔轉成 data URI 內嵌
-let css = fs.readFileSync(path.join(root, 'style.css'), 'utf8');
-css = css.replace(/url\("(fonts\/[\w.-]+\.woff2)"\)/g, (_, f) =>
-  `url("data:font/woff2;base64,${fs.readFileSync(path.join(root, f)).toString('base64')}")`);
-html = html.replace(/<link rel="stylesheet" href="style\.css">/, () => `<style>\n${css}\n</style>`);
+// portraits：'inline' 把插畫轉成 data URI 內嵌（下載的單檔版，離線可看）；
+//            'url' 只放網址，圖檔另外放在網站上，瀏覽器顯示到哪張才下載哪張（GitHub Pages 版，開啟快）
+const crypto = require('crypto');
+function bundle(portraits) {
+  let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  // 樣式：字型檔轉成 data URI 內嵌
+  let css = fs.readFileSync(path.join(root, 'style.css'), 'utf8');
+  css = css.replace(/url\("(fonts\/[\w.-]+\.woff2)"\)/g, (_, f) =>
+    `url("data:font/woff2;base64,${fs.readFileSync(path.join(root, f)).toString('base64')}")`);
+  html = html.replace(/<link rel="stylesheet" href="style\.css">/, () => `<style>\n${css}\n</style>`);
 
-html = html.replace(/<script src="((?:js|portraits|sprites)\/[\w.]+)"><\/script>/g, (_, src) => {
-  let code;
-  if (src === 'sprites/manifest.js') {
-    code = spriteManifest((f) => `data:${MIME[path.extname(f).toLowerCase()]};base64,${fs.readFileSync(path.join(spriteDir, f)).toString('base64')}`);
-  } else if (src === 'portraits/manifest.js') {
-    const inline = {};
-    for (const [name, rel] of Object.entries(files)) {
-      const buf = fs.readFileSync(path.join(root, rel));
-      inline[name] = `data:${MIME[path.extname(rel).toLowerCase()]};base64,${buf.toString('base64')}`;
+  html = html.replace(/<script src="((?:js|portraits|sprites)\/[\w.]+)"><\/script>/g, (_, src) => {
+    let code;
+    if (src === 'sprites/manifest.js') {
+      code = spriteManifest((f) => `data:${MIME[path.extname(f).toLowerCase()]};base64,${fs.readFileSync(path.join(spriteDir, f)).toString('base64')}`);
+    } else if (src === 'portraits/manifest.js') {
+      const map = {};
+      for (const [name, rel] of Object.entries(files)) {
+        const buf = fs.readFileSync(path.join(root, rel));
+        if (portraits === 'inline') map[name] = `data:${MIME[path.extname(rel).toLowerCase()]};base64,${buf.toString('base64')}`;
+        // 網址後面加內容雜湊：換圖後瀏覽器不會拿到舊的快取
+        else map[name] = `${encodeURI(rel)}?v=${crypto.createHash('md5').update(buf).digest('hex').slice(0, 8)}`;
+      }
+      code = `(function (TK) { TK.PORTRAIT_FILES = ${JSON.stringify(map)}; })(globalThis.TK = globalThis.TK || {});`;
+    } else {
+      code = fs.readFileSync(path.join(root, src), 'utf8');
     }
-    code = `(function (TK) { TK.PORTRAIT_FILES = ${JSON.stringify(inline)}; })(globalThis.TK = globalThis.TK || {});`;
-  } else {
-    code = fs.readFileSync(path.join(root, src), 'utf8');
-  }
-  return `<script>\n/* ${src} */\n${code.replace(/<\/script/gi, '<\\/script')}\n</script>`;
-});
+    return `<script>\n/* ${src} */\n${code.replace(/<\/script/gi, '<\\/script')}\n</script>`;
+  });
 
-if (/src="(js|portraits|sprites)\//.test(html) || /href="style\.css"/.test(html) || /url\("fonts\//.test(html)) throw new Error('仍有未內嵌的檔案');
+  if (/src="(js|portraits|sprites)\//.test(html) || /href="style\.css"/.test(html) || /url\("fonts\//.test(html)) throw new Error('仍有未內嵌的檔案');
+  return html;
+}
+const size = (str) => { const kb = Buffer.byteLength(str) / 1024; return kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb.toFixed(0) + ' KB'; };
 
 const out = path.join(root, 'dist', 'qunxiong.html');
 fs.mkdirSync(path.dirname(out), { recursive: true });
-fs.writeFileSync(out, html);
-const kb = html.length / 1024;
-console.log(`已輸出 ${path.relative(process.cwd(), out)}（${kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb.toFixed(0) + ' KB'}）`);
+const single = bundle('inline');
+fs.writeFileSync(out, single);
+console.log(`已輸出 ${path.relative(process.cwd(), out)}（${size(single)}，插畫內嵌，可離線）`);
 
-// GitHub Pages：repo 根目錄的 docs/ 就是網站（docs/index.html）
+// GitHub Pages：repo 根目錄的 docs/ 就是網站（docs/index.html），插畫放在 docs/portraits/ 用到才下載
 const site = path.join(root, '..', 'docs');
+const sitePortraits = path.join(site, 'portraits');
 fs.mkdirSync(site, { recursive: true });
-fs.writeFileSync(path.join(site, 'index.html'), html);
+fs.rmSync(sitePortraits, { recursive: true, force: true });
+fs.mkdirSync(sitePortraits, { recursive: true });
+for (const rel of Object.values(files)) fs.copyFileSync(path.join(root, rel), path.join(site, rel));
+const web = bundle('url');
+fs.writeFileSync(path.join(site, 'index.html'), web);
 fs.writeFileSync(path.join(site, '.nojekyll'), '');
-console.log('已更新 GitHub Pages：docs/index.html');
+console.log(`已更新 GitHub Pages：docs/index.html（${size(web)}）＋ docs/portraits/（${Object.keys(files).length} 張，用到才下載）`);
