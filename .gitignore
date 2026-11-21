@@ -4,3 +4,4 @@ gen/
 .idea
 *.iml
 out
+sangoku/test/e2e-shots/

@@ -27,7 +27,7 @@ if (fs.existsSync(portraitDir)) {
 fs.writeFileSync(path.join(portraitDir, 'manifest.js'),
   '/* 由 build.js 自動產生：列出 portraits/ 資料夾中可用的武將插畫。請勿手動編輯。 */\n'
   + `(function (TK) { TK.PORTRAIT_FILES = ${JSON.stringify(files, null, 2)}; })(globalThis.TK = globalThis.TK || {});\n`);
-console.log(`插畫：${Object.keys(files).length} 張${Object.keys(files).length ? `（${Object.keys(files).join('、')}）` : ''}`);
+console.log(`插畫：${Object.keys(files).filter((n) => !n.endsWith('_head')).length} 位`);
 
 // ---------- 士兵 sprite sheet ----------
 // sprites/sprites.json 描述每個兵種的圖檔與動畫格（格式見 sprites/README.md）；產生 sprites/manifest.js
