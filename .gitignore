@@ -5,3 +5,4 @@ gen/
 *.iml
 out
 sangoku/test/e2e-shots/
+sangoku/art/review/

@@ -30,7 +30,8 @@ node sangoku/build.js                     # 打包成 sangoku/dist/qunxiong.html
 
 ## 素材
 
-- 頭像：使用者提供的圖放在 `sangoku/art/raw/`，用 `crops.json` 裁切，`tools/import_portraits.py` 匯入 `sangoku/portraits/`。
+- 頭像素材包（zip）一律用 `python3 sangoku/tools/import_bundle.py <zip...>` 驗收：先不加 `--apply` 產生對照圖 `art/review/review.jpg` 給使用者確認，確認後再 `--apply`。腳本會擋下不在名單、標示待重畫、圖上有名字標籤、重複的圖。
+- 匯入後的原圖在 `sangoku/art/raw/`，用 `crops.json` 裁切，`tools/import_portraits.py` 產生 `sangoku/portraits/`。
 - 沒有專屬頭像的武將依身分用通用頭像：`_通用君主`、`_通用文官`、`_通用武將`（分類見 `js/portraits.js` 的 genericKind）。
 - 士兵動畫：sprite sheet 放在 `sangoku/sprites/`，格式見 `sangoku/sprites/README.md`；沒有素材時退回程式畫的 SVG。
 - 素材由使用者挑選（itch.io 等），要確認授權允許使用；不要自己用 AI 生圖。
