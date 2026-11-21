@@ -1,0 +1,349 @@
+{
+  "說明": "還沒有插畫的事件（依優先順序排列）。一次只上傳／生成一張：把 prompt 貼給 ChatGPT 生圖，用 file 欄位的檔名存檔。生成後整批打包成 zip 傳回來。",
+  "style": "Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+  "size": "1536x960",
+  "events": [
+    {
+      "id": "chibi_fire",
+      "title": "火燒赤壁",
+      "scenario": "208 赤壁之戰",
+      "file": "chibi_fire.png",
+      "scene_zh": "赤壁夜裡燃燒的連環戰船，東南風",
+      "prompt": "A massive fleet of warships chained together burning on the Yangtze at night beneath red cliffs, strong southeast wind blowing the flames, fire reflected on the water. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "kurou",
+      "title": "苦肉計",
+      "scenario": "208 赤壁之戰",
+      "file": "kurou.png",
+      "scene_zh": "長江上的吳軍水寨，行刑台與紅旗",
+      "prompt": "A Wu naval camp on the Yangtze river, a wooden punishment platform on the shore, red banners, grey overcast sky, solemn mood. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "wuchao",
+      "title": "火燒烏巢",
+      "scenario": "200 官渡之戰",
+      "file": "wuchao.png",
+      "scene_zh": "夜裡糧倉起火，糧袋堆燒成一片",
+      "prompt": "A huge grain depot at night engulfed in fire, stacks of grain sacks burning, towering flames and smoke, red sky. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "wancheng",
+      "title": "宛城之變",
+      "scenario": "197 宛城之戰",
+      "file": "wancheng.png",
+      "scene_zh": "夜裡起火的軍營，營門燃燒",
+      "prompt": "A military camp at night set ablaze, a burning camp gate, smoke and sparks, red-orange glow against the dark sky, chaos. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "three_visits",
+      "title": "三顧茅廬",
+      "scenario": "190",
+      "file": "three_visits.png",
+      "scene_zh": "隆中雪中竹林與草廬",
+      "prompt": "A thatched cottage in a snowy bamboo grove at Longzhong, snow gently falling, a wooden gate and stone steps, quiet and serene. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "flood",
+      "title": "水淹七軍",
+      "scenario": "219 水淹七軍",
+      "file": "flood.png",
+      "scene_zh": "暴雨中漢水氾濫，淹沒軍營，大船",
+      "prompt": "Torrential rain, the Han river flooding the plain, a submerged army camp with only tent tops visible, large war boats sailing over the water. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "lianying",
+      "title": "火燒連營",
+      "scenario": "221 夷陵之戰",
+      "file": "lianying.png",
+      "scene_zh": "河谷中綿延七百里的樹林營寨陷入火海，夏夜",
+      "prompt": "An endless chain of army camps built among the forests along a river gorge, all on fire on a summer night, flames stretching into the distance. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "baidi",
+      "title": "白帝託孤",
+      "scenario": "221 夷陵之戰",
+      "file": "baidi.png",
+      "scene_zh": "白帝城永安宮，立於三峽懸崖上，江霧黃昏",
+      "prompt": "Baidi city and the Yong'an palace on top of a cliff above the Three Gorges of the Yangtze, river mist at dusk, somber and solemn. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "dingjun",
+      "title": "定軍山",
+      "scenario": "218 漢中之戰",
+      "file": "dingjun.png",
+      "scene_zh": "定軍山山坡，山頂旗幟與戰鼓",
+      "prompt": "The slopes of Dingjun mountain, war banners on the peak, large war drums, dramatic clouds and sunlight breaking through. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "kongying",
+      "title": "空營計",
+      "scenario": "218 漢中之戰",
+      "file": "kongying.png",
+      "scene_zh": "營門大開、旗幟收起的寂靜軍營，黃昏",
+      "prompt": "A military camp with its gate wide open, flags lowered, an empty silent courtyard at dusk, eerie tension, dust settling. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "baima",
+      "title": "白馬解圍",
+      "scenario": "200 官渡之戰",
+      "file": "baima.png",
+      "scene_zh": "白馬渡口的河岸與對岸龐大的敵營",
+      "prompt": "A riverbank near the Baima ford, a vast enemy encampment on the far side, clouds of cavalry dust, harsh midday light. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "gexu",
+      "title": "割鬚棄袍",
+      "scenario": "211 潼關之戰",
+      "file": "gexu.png",
+      "scene_zh": "黃河岸邊箭如雨下，地上丟著胡床與紅袍",
+      "prompt": "A Yellow River bank in a dust storm with arrows raining down, an abandoned folding camp chair and a discarded red robe on the ground, chaotic and urgent. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "maicheng",
+      "title": "敗走麥城",
+      "scenario": "219 水淹七軍",
+      "file": "maicheng.png",
+      "scene_zh": "冬雪中孤立的小城麥城，殘破的旗幟",
+      "prompt": "A small isolated walled town (Maicheng) in winter snow, desolate fields, torn banners on the wall, cold grey light, tragic mood. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "baiyi",
+      "title": "白衣渡江",
+      "scenario": "219 水淹七軍",
+      "file": "baiyi.png",
+      "scene_zh": "長江濃霧中駛近烽火台的白帆商船",
+      "prompt": "Thick fog on the Yangtze river, merchant boats with white sails quietly approaching riverside beacon towers, mysterious morning. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "高"
+    },
+    {
+      "id": "zilong",
+      "title": "子龍來投",
+      "scenario": "190",
+      "file": "zilong.png",
+      "scene_zh": "青山大道與軍營，白馬在旁吃草",
+      "prompt": "Green rolling hills and an open road leading to a military camp, a white horse grazing near the gate, bright clear day. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "taishi",
+      "title": "太史慈歸吳",
+      "scenario": "190",
+      "file": "taishi.png",
+      "scene_zh": "山中神亭與柏樹，晨霧",
+      "prompt": "A small hilltop shrine (Shenting) surrounded by cypress trees in morning mist in southern China, stone steps, quiet and tense. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "liubiao_dies",
+      "title": "劉表病逝",
+      "scenario": "190",
+      "file": "liubiao_dies.png",
+      "scene_zh": "襄陽宮中的寢室，燭光昏暗，藥碗",
+      "prompt": "A dim bedchamber in the Xiangyang palace, drawn curtains, flickering candles, medicine bowls on a low table, somber atmosphere. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "alliance",
+      "title": "孫劉同盟",
+      "scenario": "190",
+      "file": "alliance.png",
+      "scene_zh": "柴桑吳宮大殿，窗外長江，案上地圖",
+      "prompt": "The court hall of Wu at Chaisang with red pillars, a large map spread on a table, windows overlooking the Yangtze river, bright daylight. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "locusts",
+      "title": "蝗災",
+      "scenario": "190",
+      "file": "locusts.png",
+      "scene_zh": "蝗蟲遮天、莊稼枯萎的農田",
+      "prompt": "Farmland under a dark swarm of locusts blotting out the sun, withered crops, dry cracked earth, ominous yellow light. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "bumper",
+      "title": "豐年",
+      "scenario": "190",
+      "file": "bumper.png",
+      "scene_zh": "秋收時金黃的梯田與稻穗",
+      "prompt": "Golden terraced rice fields at harvest time, sheaves of grain, a small village in the distance, bright autumn sky. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "yuanshu_emperor",
+      "title": "袁術稱帝",
+      "scenario": "197 宛城之戰",
+      "file": "yuanshu_emperor.png",
+      "scene_zh": "壽春奢華的金色宮殿與龍屏寶座",
+      "prompt": "An opulent golden palace hall in Shouchun with a dragon screen and throne, silk curtains and gold ornaments, oppressive excessive luxury, a barren land visible through the doorway. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "zhangxiu_surrender",
+      "title": "張繡再降",
+      "scenario": "197 宛城之戰",
+      "file": "zhangxiu_surrender.png",
+      "scene_zh": "宛城城門大開，旗幟低垂",
+      "prompt": "The gate of Wancheng city opened wide, banners lowered in surrender, calm daylight, a road leading into the city. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "guandu_return",
+      "title": "千里尋兄",
+      "scenario": "200 官渡之戰",
+      "file": "guandu_return.png",
+      "scene_zh": "穿越五道關隘的漫長道路，夕陽",
+      "prompt": "A long road winding through several mountain pass gates into the distance, a lone carriage track, golden sunset, nostalgic mood. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "sunce_dies",
+      "title": "孫策遇刺",
+      "scenario": "200 官渡之戰",
+      "file": "sunce_dies.png",
+      "scene_zh": "丹徒山中的狩獵林，樹幹上插著箭",
+      "prompt": "A deep forest hunting ground in the Dantu mountains, dappled light through the trees, arrows stuck in a tree trunk, an ominous quiet. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "yuanshao_dies",
+      "title": "袁紹病逝",
+      "scenario": "200 官渡之戰",
+      "file": "yuanshao_dies.png",
+      "scene_zh": "冬日雪中的鄴城宮殿，孤燈",
+      "prompt": "A northern palace at Ye in winter, snow on the roofs, dark heavy curtains inside, a single lonely candle, cold and gloomy. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "xuyou_defect",
+      "title": "許攸之計",
+      "scenario": "200b 烏巢之戰",
+      "file": "xuyou_defect.png",
+      "scene_zh": "夜裡袁紹的大帳，地圖散落一地",
+      "prompt": "The interior of a grand command tent at night, maps and documents scattered on the floor, a toppled cup, tense angry atmosphere, lantern light. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "wuchao_raid",
+      "title": "夜襲烏巢",
+      "scenario": "200b 烏巢之戰",
+      "file": "wuchao_raid.png",
+      "scene_zh": "星夜下穿越田野的小路，偽裝的旗號",
+      "prompt": "A dark night road through open fields under a starry sky, a column of soldiers carrying disguised banners as tiny silhouettes, no torches, stealthy mood. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "zhanghe_defect",
+      "title": "張郃、高覽倒戈",
+      "scenario": "200b 烏巢之戰",
+      "file": "zhanghe_defect.png",
+      "scene_zh": "黎明殘破的營柵，遠方火光，白旗",
+      "prompt": "A battered camp palisade at dawn, smoke rising from a distant fire on the horizon, white flags raised on the wall. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "yuan_retreat",
+      "title": "袁紹北歸",
+      "scenario": "200b 烏巢之戰",
+      "file": "yuan_retreat.png",
+      "scene_zh": "寒冷黃昏的黃河渡口，旗幟漂在水中",
+      "prompt": "A Yellow River ford at a cold dusk, abandoned banners floating in the water, retreating boats in the distance, grey sky. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "jingnan",
+      "title": "平定荊南",
+      "scenario": "208 赤壁之戰",
+      "file": "jingnan.png",
+      "scene_zh": "荊南的城牆與青山綠水",
+      "prompt": "Walls of a southern city surrounded by lush green mountains and a river, surrender flags on the wall, bright humid air. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "pangtong_joins",
+      "title": "鳳雛來投",
+      "scenario": "208 赤壁之戰",
+      "file": "pangtong_joins.png",
+      "scene_zh": "小縣衙裡堆積如山的公文",
+      "prompt": "A small rustic county magistrate's office, piles of unfinished documents and bamboo scrolls stacked high, a wine jar in the corner, afternoon light. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "luoyi",
+      "title": "許褚裸衣鬥馬超",
+      "scenario": "211 潼關之戰",
+      "file": "luoyi.png",
+      "scene_zh": "潼關戰場，地上有折斷的長槍，兩軍觀戰",
+      "prompt": "An open battlefield near Tong Pass in dramatic dusty light, a broken spear shaft lying on the ground, two armies watching from both sides as distant silhouettes. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "lijian",
+      "title": "抹書間韓遂",
+      "scenario": "211 潼關之戰",
+      "file": "lijian.png",
+      "scene_zh": "帳中桌上一封塗改過的信，外頭兩軍對峙",
+      "prompt": "Inside a tent, a letter with smeared and crossed-out characters lies on a table in the foreground (no readable text); outside the open flap two armies face each other on a plain under cloudy sky. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "weinan",
+      "title": "渭南大捷",
+      "scenario": "211 潼關之戰",
+      "file": "weinan.png",
+      "scene_zh": "勝戰後夕陽下的渭水平原，散落的西涼旗幟",
+      "prompt": "The Wei river plain at sunset after a great victory, scattered banners of the western cavalry on the ground, calm after the battle. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "jile",
+      "title": "雞肋",
+      "scenario": "218 漢中之戰",
+      "file": "jile.png",
+      "scene_zh": "夜裡帳中，桌上一碗雞湯和雞肋，燭光",
+      "prompt": "A dim command tent at night, a bowl of chicken soup with a single chicken rib on the table, a flickering candle, maps rolled up, weary mood. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "hanzhongwang",
+      "title": "漢中王",
+      "scenario": "218 漢中之戰",
+      "file": "hanzhongwang.png",
+      "scene_zh": "沔陽的祭壇高台與禮儀旗幟，日出",
+      "prompt": "A ceremonial altar terrace at Mianyang, ritual banners and incense, sunrise over the mountains of Hanzhong, grand and hopeful. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "caocao_dies",
+      "title": "曹操病逝",
+      "scenario": "219 水淹七軍",
+      "file": "caocao_dies.png",
+      "scene_zh": "洛陽宮中掛著白幔的寢殿，寂靜黎明",
+      "prompt": "A palace chamber in Luoyang hung with white mourning curtains, quiet dawn light through lattice windows, an empty throne-like seat. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    },
+    {
+      "id": "eastern",
+      "title": "劉備東征",
+      "scenario": "221 夷陵之戰",
+      "file": "eastern.png",
+      "scene_zh": "夜裡蜀軍營帳中的一盞孤燈",
+      "prompt": "A Shu army camp at night, a single lantern glowing inside a tent, dark surroundings, ominous stillness. Soft hand-painted watercolor animation style background art for a historical strategy game, warm natural palette, thin delicate linework, painterly brush-stroke skies and visible paper texture, gentle lighting, lush detailed scenery, ancient Han dynasty China (around 200 AD), cinematic wide composition. NO people in the foreground (at most tiny distant silhouettes), no text, no letters, no watermark. Keep the lower third calm (a dialogue box covers it) and the left and right edges uncluttered. Landscape 16:10, 1536x960.",
+      "priority": "一般"
+    }
+  ]
+}
