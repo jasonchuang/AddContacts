@@ -107,14 +107,27 @@ const single = bundle('inline');
 fs.writeFileSync(out, single);
 console.log(`已輸出 ${path.relative(process.cwd(), out)}（${size(single)}，插畫內嵌，可離線）`);
 
-// GitHub Pages：repo 根目錄的 docs/ 就是網站（docs/index.html），插畫放在 docs/portraits/ 用到才下載
-const site = path.join(root, '..', 'docs');
+// GitHub Pages：repo 根目錄的 docs/ 就是網站。
+//   平常打包只更新「預覽版」docs/preview/（網址最後加 /preview/），給使用者先試玩；
+//   使用者確認後執行 node sangoku/build.js --release，才更新正式版 docs/index.html。
+// 插畫放在各自的 portraits/ 資料夾，畫面用到才下載。
+const release = process.argv.includes('--release');
+const docs = path.join(root, '..', 'docs');
+const site = release ? docs : path.join(docs, 'preview');
 const sitePortraits = path.join(site, 'portraits');
 fs.mkdirSync(site, { recursive: true });
 fs.rmSync(sitePortraits, { recursive: true, force: true });
 fs.mkdirSync(sitePortraits, { recursive: true });
 for (const rel of Object.values(files)) fs.copyFileSync(path.join(root, rel), path.join(site, rel));
-const web = bundle('url');
+let web = bundle('url');
+if (!release) {
+  // 預覽版：左下角標示，避免跟正式版搞混
+  const stamp = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false }).replace(/:\d\d$/, '');
+  web = web.replace('<title>', '<title>【預覽】')
+    .replace('</body>', `<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 ${stamp}</div>\n</body>`);
+}
 fs.writeFileSync(path.join(site, 'index.html'), web);
-fs.writeFileSync(path.join(site, '.nojekyll'), '');
-console.log(`已更新 GitHub Pages：docs/index.html（${size(web)}）＋ docs/portraits/（${Object.keys(files).length} 張，用到才下載）`);
+fs.writeFileSync(path.join(docs, '.nojekyll'), '');
+console.log(release
+  ? `已發布正式版：docs/index.html（${size(web)}）＋ docs/portraits/`
+  : `已更新預覽版：docs/preview/index.html（${size(web)}）＋ docs/preview/portraits/。確認沒問題後執行 node sangoku/build.js --release 發布正式版`);

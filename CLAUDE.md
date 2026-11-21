@@ -21,8 +21,12 @@
 ```bash
 node sangoku/test/engine.test.js          # 單元測試，全部要過
 node sangoku/tools/playtest.js all 2      # 電腦代打，檢查有無數值異常、勝率與統一年數是否合理
-node sangoku/build.js                     # 打包成 sangoku/dist/qunxiong.html 與 docs/index.html（GitHub Pages）
+node sangoku/build.js                     # 打包：單檔版 dist/qunxiong.html ＋ 預覽版 docs/preview/
+node sangoku/test/e2e.test.js             # 畫面測試（Playwright），測的是預覽版；截圖在 sangoku/test/e2e-shots/
 ```
+
+- **發布**：平常只更新預覽版（GitHub Pages 網址加 `/preview/`），請使用者試玩。
+  使用者說「發布」或「上線」後，才執行 `node sangoku/build.js --release` 更新正式版 `docs/index.html`，然後 commit、push。
 
 - 改畫面時用 Playwright（已安裝 Chromium）截圖確認，桌機與手機寬度（`body.mobile`）都要看。
 - 新增 js 檔要同時加到 `sangoku/index.html`、`test/engine.test.js`、`tools/playtest.js`（若不碰 DOM）。
