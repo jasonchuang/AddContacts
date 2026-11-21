@@ -3,15 +3,11 @@
   'use strict';
   let ctx = null;
   let muted = false;
-  try { muted = localStorage.getItem('qunxiong.mute') === '1'; } catch (e) { /* 無法存取時用預設值 */ }
+  try { muted = localStorage.getItem('chuhan.mute') === '1'; } catch (e) { /* 無法存取時用預設值 */ }
 
   function ac() {
-    if (muted) return null;
-    try {
-      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-      if (ctx.state === 'suspended') ctx.resume();
-      return ctx;
-    } catch (e) { return null; }
+    if (muted || !TK.Audio) return null;
+    return (ctx = TK.Audio.get());
   }
 
   function tone(freq, dur, type, vol, delay, slideTo) {
@@ -70,7 +66,7 @@
     isMuted() { return muted; },
     toggle() {
       muted = !muted;
-      try { localStorage.setItem('qunxiong.mute', muted ? '1' : '0'); } catch (e) { /* 忽略 */ }
+      try { localStorage.setItem('chuhan.mute', muted ? '1' : '0'); } catch (e) { /* 忽略 */ }
       if (!muted) S.ok();
       return muted;
     },

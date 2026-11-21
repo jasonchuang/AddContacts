@@ -6,7 +6,7 @@
   const COAST = [[930, -10], [950, 70], [985, 150], [952, 228], [990, 296], [958, 352], [978, 420], [938, 472], [962, 525], [992, 596], [958, 655], [985, 730]];
   const RIVERS = [
     { name: '黃河', label: [455, 302], pts: [[-10, 252], [60, 238], [120, 232], [180, 244], [230, 262], [290, 276], [330, 284], [380, 298], [430, 310], [470, 312], [520, 295], [560, 270], [610, 252], [660, 242], [700, 238], [750, 250], [790, 258], [840, 252], [900, 242], [940, 230], [960, 222]] },
-    { name: '長江', label: [300, 612], pts: [[40, 515], [100, 530], [150, 548], [210, 568], [270, 590], [330, 594], [380, 592], [430, 598], [480, 606], [520, 612], [570, 606], [610, 598], [660, 584], [720, 560], [760, 554], [800, 552], [860, 548], [920, 550], [975, 552]] },
+    { name: '長江', label: [262, 622], pts: [[40, 515], [100, 530], [150, 548], [210, 568], [270, 590], [330, 594], [380, 592], [430, 598], [480, 606], [520, 612], [570, 606], [610, 598], [660, 584], [720, 560], [760, 554], [800, 552], [860, 548], [920, 550], [975, 552]] },
     { name: '', pts: [[330, 450], [390, 480], [450, 520], [520, 545], [600, 568]] },
     { name: '', pts: [[535, 330], [575, 365], [640, 410]] },
   ];
@@ -70,20 +70,32 @@
       ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
     }
 
-    // 勢力領土
-    for (const c of cities) {
-      if (!c.owner) continue;
-      const [x, y] = P([c.x, c.y]);
-      ctx.fillStyle = rgba(color(c.owner), 0.2); ctx.beginPath(); ctx.arc(x, y, 66 * s, 0, 7); ctx.fill();
-      ctx.fillStyle = rgba(color(c.owner), 0.16); ctx.beginPath(); ctx.arc(x, y, 42 * s, 0, 7); ctx.fill();
-    }
-    ctx.lineCap = 'round';
-    for (const [a, b] of state.roads) {
-      const A = byId[a], B = byId[b];
-      if (A.owner && A.owner === B.owner) {
-        ctx.strokeStyle = rgba(color(A.owner), 0.22); ctx.lineWidth = 14 * s;
-        ctx.beginPath(); ctx.moveTo(...P([A.x, A.y])); ctx.lineTo(...P([B.x, B.y])); ctx.stroke();
+    // 勢力領土：同一勢力相鄰（有道路相連）的城，領土連成一整片。
+    // 先在離屏畫布上用不透明色畫出聯集，再一次以半透明疊上去，重疊處才不會變深。
+    const owners = [...new Set(cities.map((c) => c.owner).filter(Boolean))];
+    const off = render.off || (render.off = document.createElement('canvas'));
+    off.width = canvas.width; off.height = canvas.height;
+    const o = off.getContext('2d');
+    for (const fid of owners) {
+      const col = color(fid);
+      o.clearRect(0, 0, off.width, off.height);
+      o.fillStyle = col; o.strokeStyle = col; o.lineCap = 'round'; o.lineJoin = 'round';
+      const mine = cities.filter((c) => c.owner === fid);
+      for (const c of mine) { const [x, y] = P([c.x, c.y]); o.beginPath(); o.arc(x, y, 60 * s, 0, 7); o.fill(); }
+      o.lineWidth = 96 * s;
+      for (const [a, b] of state.roads) {
+        const A = byId[a], B = byId[b];
+        if (A.owner === fid && B.owner === fid) { o.beginPath(); o.moveTo(...P([A.x, A.y])); o.lineTo(...P([B.x, B.y])); o.stroke(); }
       }
+      // 領土：柔邊的淡色塊＋外圍再淡一圈
+      ctx.save();
+      ctx.globalAlpha = 0.13;
+      if ('filter' in ctx) ctx.filter = 'blur(10px)';
+      ctx.drawImage(off, 0, 0);
+      ctx.filter = 'none';
+      ctx.globalAlpha = 0.2;
+      ctx.drawImage(off, 0, 0);
+      ctx.restore();
     }
 
     // 河流

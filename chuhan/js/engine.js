@@ -5,6 +5,7 @@
   const MAX = { farm: 999, commerce: 999, defense: 999, order: 100, train: 100 };
   const NEUTRAL = { lead: 45, war: 45, int: 40 };
   const FREE_STATS = { name: '守軍' };
+  const T = TK.TUNING; // 手感數值表（js/tuning.js）
 
   // ---------- 亂數（可存檔、可重現） ----------
   function rand(s) {
@@ -22,11 +23,11 @@
     for (let n = 0; n < 12 && hpA > 0 && hpD > 0; n++) {
       const who = n % 2 === 0 ? 'a' : 'd';
       const me = who === 'a' ? a : d, foe = who === 'a' ? d : a;
-      const hitP = Math.min(0.9, Math.max(0.35, 0.6 + (me.war - foe.war) / 60));
+      const hitP = Math.min(T.duel.hitMax, Math.max(T.duel.hitMin, T.duel.hitBase + (me.war - foe.war) / 60));
       let dmg = 0, crit = false;
       if (rand(s) < hitP) {
         dmg = Math.max(6, Math.round(14 + (me.war - 60) * 0.45 + rint(s, 0, 10)));
-        if (rand(s) < 0.12 + Math.max(0, me.war - 85) / 50) { dmg = Math.round(dmg * 1.8); crit = true; }
+        if (rand(s) < T.duel.critBase + Math.max(0, me.war - 85) / 50) { dmg = Math.round(dmg * T.duel.critMult); crit = true; }
       }
       if (who === 'a') hpD = Math.max(0, hpD - dmg); else hpA = Math.max(0, hpA - dmg);
       bouts.push({ who, dmg, crit, hpA, hpD });
@@ -39,11 +40,19 @@
 
   // ---------- 建立 / 查詢 ----------
   // 難易度：容易、中等、困難
-  const DIFFICULTY = {
-    easy: { label: '容易', desc: '玩家收入 ×1.2、戰力 ×1.1；電腦收入 ×0.8、出兵保守；登用較容易', playerIncome: 1.2, aiIncome: 0.8, playerPower: 1.1, aiPower: 1, aiAggro: 1.15, recruit: 0.1 },
-    normal: { label: '中等', desc: '標準規則', playerIncome: 1, aiIncome: 1, playerPower: 1, aiPower: 1, aiAggro: 1, recruit: 0 },
-    hard: { label: '困難', desc: '電腦收入 ×1.25、戰力 ×1.1、出兵積極', playerIncome: 1, aiIncome: 1.25, playerPower: 1, aiPower: 1.1, aiAggro: 0.92, recruit: 0 },
-  };
+  // 說明文字依數值自動產生，改 tuning.js 時不用另外改說明
+  function diffDesc(d) {
+    const p = [];
+    if (d.playerIncome !== 1) p.push(`玩家收入 ×${d.playerIncome}`);
+    if (d.playerPower !== 1) p.push(`玩家戰力 ×${d.playerPower}`);
+    if (d.aiIncome !== 1) p.push(`電腦收入 ×${d.aiIncome}`);
+    if (d.aiPower !== 1) p.push(`電腦戰力 ×${d.aiPower}`);
+    if (d.aiAggro > 1) p.push('電腦出兵保守'); else if (d.aiAggro < 1) p.push('電腦出兵積極');
+    if (d.recruit > 0) p.push('登用較容易');
+    return p.join('、') || '標準規則';
+  }
+  const DIFFICULTY = {};
+  for (const [k, d] of Object.entries(T.difficulty)) DIFFICULTY[k] = Object.assign({ desc: diffDesc(d) }, d);
   function diff(s) { return DIFFICULTY[(s && s.difficulty) || 'normal'] || DIFFICULTY.normal; }
   function incomeMult(s, fid) { if (!fid) return 1; const d = diff(s); return fid === s.player ? d.playerIncome : d.aiIncome; }
   function powerMult(s, fid) { if (!fid || !s.player) return 1; const d = diff(s); return fid === s.player ? d.playerPower : d.aiPower; }
@@ -119,9 +128,9 @@
   };
   const UNIT_KEYS = ['spear', 'cav', 'xbow'];
   const BEATS = { spear: 'cav', cav: 'xbow', xbow: 'spear' };
-  const APT_MULT = { S: 1.18, A: 1.07, B: 1, C: 0.9 };
+  const APT_MULT = T.units.apt;
 
-  function matchup(a, d) { return a === d ? 1 : BEATS[a] === d ? 1.3 : 0.8; }
+  function matchup(a, d) { return a === d ? 1 : BEATS[a] === d ? T.units.counter : T.units.countered; }
 
   // 武將兵種適性：劇本可指定，否則依能力推得
   function aptitude(g, type) {
@@ -259,13 +268,13 @@
   }
   // 每月金收入（商業與人口，受民心影響；太守依政務加成）與軍餉（每 250 兵 1 金）
   function goldIncome(c, s) {
-    const base = c.commerce * 0.35 * (0.5 + c.order / 200) + c.pop / 10000;
+    const base = c.commerce * T.economy.commerceGold * (0.5 + c.order / 200) + c.pop / 10000;
     const gov = s ? governorOf(s, c) : null;
     return Math.round(base * (gov ? (1 + gov.pol / 500) * (gov.skill === '鎮國' ? 1.6 : 1) : 1));
   }
-  function upkeep(c) { return Math.floor(c.troops / 250); }
+  function upkeep(c) { return Math.floor(c.troops / T.economy.upkeepPer); }
   // 一城可養的兵力上限：人口的 12%（至少 15000）
-  function troopCap(city) { return Math.max(15000, Math.floor(city.pop * 0.12)); }
+  function troopCap(city) { return Math.max(T.economy.troopCapMin, Math.floor(city.pop * T.economy.troopCapPop)); }
   function maxDraft(s, city, g, type) {
     const cost = UNITS[type || 'spear'].cost;
     return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), troopCap(city) - city.troops));
@@ -274,8 +283,8 @@
   function recruitChance(s, g, target) {
     if (target.ruler) return 0;
     const bonus = g.faction === s.player ? diff(s).recruit : 0;
-    if (target.status === 'free') return clamp(0.15 + (g.cha / 100) * 0.55 + bonus, 0, 0.85);
-    if (target.status === 'prisoner') return clamp(0.05 + (g.cha / 100) * 0.45 - (target.loyalty - 50) / 200, 0.02, 0.6);
+    if (target.status === 'free') return clamp(T.recruit.freeBase + (g.cha / 100) * T.recruit.freeCha + bonus, 0, T.recruit.freeMax);
+    if (target.status === 'prisoner') return clamp(T.recruit.prisonerBase + (g.cha / 100) * T.recruit.prisonerCha - (target.loyalty - 50) / 200, 0.02, T.recruit.prisonerMax);
     return 0;
   }
 
@@ -568,8 +577,8 @@
   // 指令：normal 一般、assault 突擊、hold 穩守、scheme 計略、duel 單挑（只能在第一回合）、retreat 撤退
   const ORDERS = {
     normal: { label: '一般', desc: '照常交戰' },
-    assault: { label: '突擊', desc: '對敵傷害 ×1.35，我方損失 ×1.25' },
-    hold: { label: '穩守', desc: '我方損失 ×0.65，對敵傷害 ×0.75' },
+    assault: { label: '突擊', desc: `對敵傷害 ×${T.orders.assault.dealt}，我方損失 ×${T.orders.assault.taken}` },
+    hold: { label: '穩守', desc: `我方損失 ×${T.orders.hold.taken}，對敵傷害 ×${T.orders.hold.dealt}` },
     scheme: { label: '計略', desc: '依智略施展計謀，成功時敵軍大亂；失敗會被反制' },
     duel: { label: '單挑', desc: '派最強的武將挑戰敵將（只能在開戰時）' },
     retreat: { label: '撤退', desc: '收兵回城，殿後部隊會有些損失' },
@@ -597,8 +606,8 @@
       aptD += fD[a] * (D.commander ? APT_MULT[aptitude(D.commander, a)] : 1);
     }
     // 特技：出陣武將的特技加成；軍師的特技只影響計略
-    let bonusA = mA * aptA * (1 + 0.12 * fA.cav);
-    let bonusD = mD * aptD * (1 + 0.15 * fD.xbow);
+    let bonusA = mA * aptA * (1 + T.units.cavCharge * fA.cav);
+    let bonusD = mD * aptD * (1 + T.units.xbowWall * fD.xbow);
     const skA = skillsOf(atk.generals), skD = skillsOf(defGens);
     for (const k of skA) bonusA *= k.atk || 1;
     for (const k of skD) bonusD *= k.def || 1;
@@ -612,7 +621,7 @@
       bonusA, bonusD, fewA,
       schemeA: [...skA, ...skillsOf([sa])].reduce((t, k) => t + (k.scheme || 0), 0),
       schemeD: [...skD, ...skillsOf([sd])].reduce((t, k) => t + (k.scheme || 0), 0),
-      sturdyA: 1 - 0.1 * fA.spear, sturdyD: 1 - 0.1 * fD.spear,
+      sturdyA: 1 - T.units.spearSturdy * fA.spear, sturdyD: 1 - T.units.spearSturdy * fD.spear,
       A0: A.troops, D0: D.troops,
       aName: factionName(s, atk.faction), dName: factionName(s, defOwner),
       parties: [atk.faction, defOwner].filter(Boolean),
@@ -635,7 +644,7 @@
     ctx.dhero = defGens.slice().sort((a, b) => b.war - a.war)[0] || null;
     ctx.canDuel = !!(ctx.ahero && ctx.dhero);
     // 電腦的戰鬥：雙方猛將夠強時約六成機率自動單挑；玩家指揮時改由玩家決定
-    if (!ctx.interactive && ctx.canDuel && Math.max(ctx.ahero.war, ctx.dhero.war) >= 70 && Math.min(ctx.ahero.war, ctx.dhero.war) >= 50 && rand(s) < 0.6) doDuel(s, ctx);
+    if (!ctx.interactive && ctx.canDuel && Math.max(ctx.ahero.war, ctx.dhero.war) >= 70 && Math.min(ctx.ahero.war, ctx.dhero.war) >= 50 && rand(s) < T.duel.autoChance) doDuel(s, ctx);
     return ctx;
   }
 
@@ -648,8 +657,8 @@
     const winner = d.winner === 'a' ? ahero : dhero, loser = d.winner === 'a' ? dhero : ahero;
     ctx.lines.push(`單挑！${ahero.name} 對 ${dhero.name}，${d.bouts.length}回合後${winner.name}擊退了${loser.name}`);
     // 勝方士氣大振，敗方軍心動搖
-    if (d.winner === 'a') D.troops = Math.round(D.troops * 0.85);
-    else A.troops = Math.round(A.troops * 0.85);
+    if (d.winner === 'a') D.troops = Math.round(D.troops * (1 - T.duel.moraleLoss));
+    else A.troops = Math.round(A.troops * (1 - T.duel.moraleLoss));
     ctx.frames.push({ a: A.troops, d: D.troops, ev: `${ahero.name} 對 ${dhero.name}，${winner.name}勝！`, kind: 'duel', duel: [ahero.name, dhero.name], winner: d.winner, bouts: d.bouts });
   }
 
@@ -660,7 +669,7 @@
     order = ORDERS[order] ? order : 'normal';
     const { A, D, city, fA, fD, aName, dName, lines } = ctx;
     if (order === 'retreat') {
-      const lost = Math.round(A.troops * 0.08);
+      const lost = Math.round(A.troops * T.battle.retreatLoss);
       A.troops -= lost;
       ctx.result = 'retreat';
       lines.push(`${aName}下令撤退，殿後部隊折損 ${lost}`);
@@ -674,50 +683,50 @@
     ctx.round++;
     const round = ctx.round;
     const powA = A.troops * (0.6 * A.lead + 0.4 * A.war) / 100 * (0.7 + A.train / 100 * 0.6) * ctx.bonusA;
-    const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / 2500) * ctx.bonusD;
-    let lossD = Math.round(powA * 0.08 * (0.85 + rand(s) * 0.3) * ctx.sturdyD);
+    const powD = D.troops * (0.6 * D.lead + 0.4 * D.war) / 100 * (0.7 + D.train / 100 * 0.6) * (1 + city.defense / T.battle.wallPerDefense) * ctx.bonusD;
+    let lossD = Math.round(powA * T.battle.lossRate * (0.85 + rand(s) * 0.3) * ctx.sturdyD);
     let ev = null, kind = null;
-    let lossA = Math.round(powD * 0.08 * (0.85 + rand(s) * 0.3) * ctx.sturdyA);
+    let lossA = Math.round(powD * T.battle.lossRate * (0.85 + rand(s) * 0.3) * ctx.sturdyA);
     if (round === 1) {
       // 開戰：弩兵齊射、騎兵衝鋒
       if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}弩兵齊射！`; kind = 'volley-a'; }
       if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城上弩箭如雨！`; kind = 'volley-d'; }
       if (fA.cav >= 0.3) {
-        if (fD.spear >= 0.4) { lossA = Math.round(lossA * 1.25); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
+        if (fD.spear >= 0.4) { lossA = Math.round(lossA * T.units.chargeIntoSpear); ev = '騎兵衝鋒，撞上槍陣！'; kind = 'charge-fail'; }
         else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
       }
       if (ev) lines.push(ev);
     }
     // 玩家指令
-    if (order === 'assault') { lossD = Math.round(lossD * 1.35); lossA = Math.round(lossA * 1.25); ev = ev || `${aName}全軍突擊！`; kind = kind || 'charge'; }
-    else if (order === 'hold') { lossD = Math.round(lossD * 0.75); lossA = Math.round(lossA * 0.65); ev = ev || `${aName}穩住陣腳`; }
+    if (order === 'assault') { lossD = Math.round(lossD * T.orders.assault.dealt); lossA = Math.round(lossA * T.orders.assault.taken); ev = ev || `${aName}全軍突擊！`; kind = kind || 'charge'; }
+    else if (order === 'hold') { lossD = Math.round(lossD * T.orders.hold.dealt); lossA = Math.round(lossA * T.orders.hold.taken); ev = ev || `${aName}穩住陣腳`; }
     let schemeA = A.int >= 75 && rand(s) < (A.int - 60) / 200 + ctx.schemeA;
     if (order === 'scheme') {
       // 主動用計：成功率依智略（約 20%～80%），失敗會被敵方反制
-      const p = Math.max(0.15, Math.min(0.9, (A.int - 40) / 60 - (D.int - 60) / 200 + ctx.schemeA));
+      const p = Math.max(T.orders.schemeMin, Math.min(T.orders.schemeMax, (A.int - 40) / 60 - (D.int - 60) / 200 + ctx.schemeA));
       schemeA = rand(s) < p;
-      if (!schemeA) { lossA = Math.round(lossA * 1.2); ev = `${aName}的計謀被識破了！`; kind = 'scheme-d'; lines.push(`${aName}用計失敗`); }
+      if (!schemeA) { lossA = Math.round(lossA * T.orders.schemeFail); ev = `${aName}的計謀被識破了！`; kind = 'scheme-d'; lines.push(`${aName}用計失敗`); }
     }
     if (schemeA) {
-      lossD = Math.round(lossD * (order === 'scheme' ? 1.9 : 1.5));
+      lossD = Math.round(lossD * (order === 'scheme' ? T.orders.schemeSuccess : T.orders.passiveScheme));
       ev = `${aName}施展計略，守軍陷入混亂`; kind = 'scheme-a';
       if (ctx.schemes++ < 2) lines.push(`${aName}施展計略，${city.name}守軍陷入混亂`);
     }
     if (D.int >= 75 && rand(s) < (D.int - 60) / 200 + ctx.schemeD) {
-      lossA = Math.round(lossA * 1.5);
+      lossA = Math.round(lossA * T.orders.passiveScheme);
       ev = `${dName}識破敵計並反擊`; kind = 'scheme-d';
       if (ctx.schemes++ < 2) lines.push(`${dName}識破敵計並反擊`);
     }
     A.troops = Math.max(0, A.troops - lossA);
     D.troops = Math.max(0, D.troops - lossD);
-    city.defense = Math.max(0, city.defense - rint(s, 3, 12));
+    city.defense = Math.max(0, city.defense - rint(s, T.battle.wallWearMin, T.battle.wallWearMax));
     ctx.frames.push({ a: A.troops, d: D.troops, ev, kind });
 
     if (D.troops <= 0) ctx.result = 'win';
     else if (A.troops <= 0) ctx.result = 'lose';
-    else if (D.troops < ctx.D0 * 0.2 && D.troops < A.troops * 0.5) { ctx.result = 'win'; D.troops = 0; }
-    else if (A.troops < ctx.A0 * 0.3 && A.troops < D.troops) ctx.result = 'lose';
-    else if (round >= 20) { ctx.result = 'lose'; lines.push('久攻不下，撤兵'); }
+    else if (D.troops < ctx.D0 * T.battle.routDefender && D.troops < A.troops * 0.5) { ctx.result = 'win'; D.troops = 0; }
+    else if (A.troops < ctx.A0 * T.battle.routAttacker && A.troops < D.troops) ctx.result = 'lose';
+    else if (round >= T.battle.maxRounds) { ctx.result = 'lose'; lines.push('久攻不下，撤兵'); }
     return ctx.frames.slice(start);
   }
 
@@ -857,7 +866,7 @@
       const gov = governorOf(s, c);
       if (gov && gov.cha >= 60 && c.order < 100) c.order = Math.min(100, c.order + 1);
       if (s.month === 7) {
-        const harvest = Math.round(c.farm * 30 * ord * (s.harvest_mult || 1) * incomeMult(s, c.owner));
+        const harvest = Math.round(c.farm * T.economy.harvestPerFarm * ord * (s.harvest_mult || 1) * incomeMult(s, c.owner));
         c.food += harvest;
         if (c.owner === s.player) addLog(s, `${c.name}秋收，得糧 ${harvest}`, 'info', [c.owner]);
       }
@@ -865,14 +874,14 @@
       const pay = upkeep(c);
       if (c.gold >= pay) c.gold -= pay;
       else {
-        const left = Math.round(c.troops * 0.05);
+        const left = Math.round(c.troops * T.economy.desertUnpaid);
         c.gold = 0; c.troops -= left;
         addLog(s, `${c.name}欠餉，${left} 兵逃散`, 'warn', [c.owner]);
       }
-      c.food -= Math.ceil(c.troops / 40);
+      c.food -= Math.ceil(c.troops / T.economy.foodPer);
       if (c.food < 0) {
         c.food = 0;
-        const lost = Math.round(c.troops * 0.1);
+        const lost = Math.round(c.troops * T.economy.desertStarve);
         c.troops -= lost;
         c.order = Math.max(0, c.order - 5);
         addLog(s, `${c.name}缺糧，${lost} 兵逃散`, 'warn', [c.owner]);

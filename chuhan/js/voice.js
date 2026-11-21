@@ -54,7 +54,8 @@
         const t = tone(g);
         u.pitch = t.pitch; u.rate = t.rate; u.volume = 1;
         if (TK.Music) TK.Music.duck(true);
-        const done = () => { if (TK.Music) TK.Music.duck(false); resolve(); };
+        // 朗讀完 iPhone 會把 WebAudio 中斷，要叫回來，不然音效、音樂都會沒聲音
+        const done = () => { if (TK.Audio) TK.Audio.get(); if (TK.Music) TK.Music.duck(false); resolve(); };
         u.onend = done; u.onerror = done;
         synth.speak(u);
       });

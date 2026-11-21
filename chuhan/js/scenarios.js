@@ -206,6 +206,7 @@
       const o = d.cities[c.id];
       c.owner = o ? o[0] : null;
       c.troops = o ? o[1] : 6000;
+      if (o && o[2]) Object.assign(c, o[2]);
       c.train = c.owner ? 55 : 40;
       c.gold = c.owner ? Math.max(800, Math.round(c.troops / 250 * 12)) : 400;
       c.food = Math.max(6000, Math.round(c.troops * 0.5));

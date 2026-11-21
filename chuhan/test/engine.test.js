@@ -2,8 +2,7 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-global.TK = {};
-for (const f of ['data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js', 'bios.js']) require(path.join(__dirname, '..', 'js', f));
 const E = TK.Engine, D = TK.Diplomacy, EV = TK.Events;
 let passed = 0;
 function test(name, fn) { try { fn(); passed++; console.log('ok  -', name); } catch (e) { console.error('FAIL-', name); throw e; } }
@@ -202,6 +201,21 @@ test('難易度：容易時玩家收入較多、電腦較少；困難時電腦�
   const e = inc('easy'), n = inc('normal'), h = inc('hard');
   assert(e.p > n.p && n.p === h.p, `玩家 ${e.p}/${n.p}/${h.p}`);
   assert(e.a < n.a && n.a < h.a, `電腦 ${e.a}/${n.a}/${h.a}`);
+});
+
+test('列傳：每一篇都對應到劇本中的武將，且欄位完整', () => {
+  const names = new Set();
+  for (const sc of TK.SCENARIOS) for (const g of sc.generals || []) names.add(g.name);
+  for (const [n, b] of Object.entries(TK.BIOS)) {
+    assert(names.has(n), `列傳 ${n} 不在任何劇本`);
+    assert(b.bio && b.bio.length > 20 && b.life !== undefined && b.home, `列傳 ${n} 欄位不完整`);
+  }
+});
+
+test('SPEC.md 的數值表與 tuning.js 一致，且每個數值都有說明', () => {
+  const r = require('../tools/spec_tables.js').run(true);
+  assert(!r.missing.length, `沒有說明的數值：${r.missing.join('、')}`);
+  assert(!r.changed, 'SPEC.md 數值表過期，請執行 node sangoku/tools/spec_tables.js');
 });
 
 console.log(`\n${passed} tests passed`);

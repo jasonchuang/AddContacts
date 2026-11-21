@@ -15,14 +15,22 @@
   <div id="stage">
     <div id="app">
       <section id="title" class="screen">
-        <canvas id="title-bg"></canvas>
+        <!-- 宣紙、紅日、遠山與飛鳥（全部用 CSS／SVG 畫，沒有外部圖檔） -->
+        <div class="t-sun"></div>
+        <svg class="t-birds" viewBox="0 0 200 60" aria-hidden="true"><path d="M10 30q8-8 16 0q8-8 16 0M70 14q6-6 12 0q6-6 12 0M140 40q7-7 14 0q7-7 14 0M120 8q5-5 10 0q5-5 10 0"/></svg>
+        <svg class="t-hills" viewBox="0 0 1280 260" preserveAspectRatio="none" aria-hidden="true">
+          <path class="far" d="M0 170 Q120 90 230 150 T470 120 T720 160 T960 100 T1280 150 V260 H0Z"/>
+          <path class="near" d="M0 220 Q160 150 320 205 T640 190 T940 215 T1280 185 V260 H0Z"/>
+        </svg>
         <div class="title-wrap">
-          <div class="title-pre">楚漢</div>
-          <div class="title-logo">相爭</div>
-          <div class="title-sub">― 秦失其鹿，天下共逐之 ―</div>
+          <div class="title-head">
+            <div class="title-seal">楚<br>漢</div>
+            <div class="title-logo">楚漢相爭</div>
+          </div>
+          <div class="title-sub">秦失其鹿・天下共逐之</div>
           <div id="title-menu"></div>
         </div>
-        <div class="title-foot">方向鍵選擇　Enter 決定　Esc 返回</div>
+        <div class="title-foot">滑鼠點選，或用方向鍵與 Enter</div>
       </section>
 
       <section id="game" class="hidden">
@@ -45,18 +53,24 @@
     </div>
   </div>
 
+  <script src="js/tuning.js"></script>
   <script src="js/data.js"></script>
   <script src="js/scenarios.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
   <script src="js/diplomacy.js"></script>
   <script src="js/events.js"></script>
+  <script src="js/bios.js"></script>
   <script src="js/icons.js"></script>
   <script src="js/anime.js"></script>
+  <script src="js/sprite.js"></script>
   <script src="js/portraits.js"></script>
   <script src="portraits/manifest.js"></script>
+  <script src="sprites/manifest.js"></script>
+  <script src="scenes/manifest.js"></script>
   <script src="js/mapview.js"></script>
   <script src="js/scenes.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/music.js"></script>
   <script src="js/voice.js"></script>

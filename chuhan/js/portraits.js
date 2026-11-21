@@ -408,10 +408,10 @@
 
   // 畫風：'ink'（水墨）或 'chibi'（Q 版），記在瀏覽器
   let STYLE = 'ink';
-  try { STYLE = (globalThis.localStorage && localStorage.getItem('qunxiong.pstyle')) || 'ink'; } catch (e) { /* 忽略 */ }
+  try { STYLE = (globalThis.localStorage && localStorage.getItem('chuhan.pstyle')) || 'ink'; } catch (e) { /* 忽略 */ }
   function setStyle(v) {
     STYLE = v === 'chibi' ? 'chibi' : 'ink';
-    try { localStorage.setItem('qunxiong.pstyle', STYLE); } catch (e) { /* 忽略 */ }
+    try { localStorage.setItem('chuhan.pstyle', STYLE); } catch (e) { /* 忽略 */ }
   }
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考
@@ -419,11 +419,18 @@
   function svg(g, color, mode) { return TK.Anime ? TK.Anime.svg(g, color, mode, traits(g)) : svgChibi(g, color, mode); }
 
   // 若 portraits/ 中有該武將的插畫，回傳其網址。頭像優先用 <名>_head，否則用半身像
+  // 沒有專屬插畫時，依身分改用通用頭像（portraits/_通用君主、_通用文官、_通用武將）
+  function genericKind(g) {
+    if (g.ruler) return '君主';
+    const c = classLabel(g, traits(g));
+    if (c === '軍師' || c === '文官' || (g.war < 60 && g.int + g.pol > g.lead + g.war)) return '文官';
+    return '武將';
+  }
   function art(g, mode) {
     const files = TK.PORTRAIT_FILES || {};
-    if (mode === 'head' && files[g.name + '_head']) return files[g.name + '_head'];
-    return files[g.name] || null;
+    const pick = (name) => (mode === 'head' && files[name + '_head']) || files[name] || null;
+    return pick(g.name) || pick('_通用' + genericKind(g));
   }
 
-  TK.Portrait = { svg, svgInk, svgChibi, setStyle, getStyle, traits, classLabel, art, mute, WEAPON_NAME };
+  TK.Portrait = { svg, svgInk, svgChibi, setStyle, getStyle, traits, classLabel, genericKind, art, mute, WEAPON_NAME };
 })(globalThis.TK = globalThis.TK || {});

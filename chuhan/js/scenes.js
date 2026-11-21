@@ -176,6 +176,8 @@
     return cache[kind];
   }
   function forEvent(ev) { return ev.scene || BY_EVENT[ev.id] || 'palace'; }
+  // 事件背景：有專屬插圖（scenes/<事件id>.jpg）就用，否則用該種類的內建背景
+  function urlFor(ev) { return (TK.SCENE_FILES || {})[ev.id] || url(forEvent(ev)); }
 
-  TK.Scenes = { url, forEvent, KINDS: Object.keys(SCENES) };
+  TK.Scenes = { url, urlFor, forEvent, KINDS: Object.keys(SCENES) };
 })(globalThis.TK = globalThis.TK || {});

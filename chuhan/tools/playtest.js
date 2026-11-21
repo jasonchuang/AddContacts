@@ -1,9 +1,10 @@
 // 自動試玩：讓「玩家機器人」（與電腦勢力相同的 AI）代替玩家，從開局打到結束，統計各劇本、各勢力的結果。
 // 執行：node sangoku/tools/playtest.js [劇本id] [每個勢力的局數，預設 3] [最多年數，預設 60]
+// 難易度：DIFF=easy|normal|hard node sangoku/tools/playtest.js …
 'use strict';
 const path = require('path');
 global.TK = {};
-for (const f of ['data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js']) require(path.join(__dirname, '..', 'js', f));
 const E = TK.Engine, D = TK.Diplomacy;
 
 const only = process.argv[2] && process.argv[2] !== 'all' ? process.argv[2] : null;
@@ -64,6 +65,7 @@ function main() {
   }
   console.table(rows);
   if (allIssues.size) { console.log('問題：'); for (const i of [...allIssues].slice(0, 40)) console.log('  ' + i); } else console.log('沒有發現數值或歸屬異常。');
+  process.exitCode = allIssues.size ? 1 : 0; // CI 用：有異常就算失敗
 }
 
 if (require.main === module) main();
