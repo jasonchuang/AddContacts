@@ -565,6 +565,122 @@ body.mobile .detail .stats .bar { max-width: 100%; }
 body.mobile .detail .apt { display: flex; flex-wrap: wrap; gap: 0 10px; }
 body.mobile .detail .bio-head { flex-wrap: wrap; gap: 0 10px; }
 
+/* =====================================================================
+   主畫面（現代化）：頂部資源列、右側城市與武將卡片、指令按鈕
+   ===================================================================== */
+#status { height: 60px; gap: 14px; padding: 0 14px; background: linear-gradient(180deg, #2b231b, #1f1913); }
+#status .brand { font-family: Kai, Body; font-size: 26px; color: #f3e3c0; letter-spacing: 2px; }
+#status .date { display: flex; align-items: baseline; gap: 6px; color: #f6eedb; }
+#status .date small { font-size: 15px; color: #c9bda4; }
+#status .date b { font-family: Kai, Body; font-size: 26px; font-weight: normal; }
+#status .date .season { font-size: 13px; padding: 0 6px; border-radius: 4px; background: #3d7a4c; color: #fff; }
+#status .fac { display: flex; align-items: center; font-family: Kai, Body; font-size: 22px; color: #fff; }
+#status .seal { border-radius: 5px; border: 0; width: 30px; height: 30px; font-size: 18px; }
+#status .resources { display: flex; gap: 14px; }
+#status .res { display: flex; align-items: center; gap: 5px; font-size: 18px; color: #f6eedb; }
+#status .res svg { width: 22px; height: 22px; }
+#status .res b { font-weight: normal; font-variant-numeric: tabular-nums; }
+#status .chips { display: flex; gap: 6px; }
+#status .chip-s { font-size: 13px; padding: 1px 8px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .25); color: #e9dcc0; white-space: nowrap; }
+#status .chip-s.hov { border-color: #f0b040; color: #ffe3a8; }
+#status .grow { flex: 1; }
+#status .tb { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .06);
+  color: #f6eedb; font-family: Kai, Body; font-size: 17px; cursor: pointer; }
+#status .tb:hover { background: rgba(255, 255, 255, .16); }
+#status .tb.endturn { height: 42px; padding: 0 20px; font-size: 21px; letter-spacing: 3px; background: var(--red); border-color: #e07a68; box-shadow: 0 0 0 2px rgba(178, 58, 44, .35); }
+#status .tb.endturn:hover { background: #c4473a; }
+#status .tb.endturn:disabled { background: #5a4d42; border-color: #6a5d52; color: #a89a88; box-shadow: none; cursor: default; }
+
+#map-win { top: 70px; border-radius: 10px; }
+#city-win { top: 70px; height: 446px; padding: 12px 14px; overflow-y: auto; border-radius: 10px; }
+#cmd-win { top: 524px; height: 268px; padding: 8px 10px; border-radius: 10px; }
+#msg-win { top: 694px; width: 856px; height: 98px; border-radius: 10px; }
+#msg-win .face { width: 70px; height: 70px; border-radius: 50%; }
+
+.city-head { align-items: center; margin-bottom: 8px; }
+.city-head .name { font-size: 34px; }
+.city-head .owner { margin-bottom: 0; border-radius: 10px; padding: 1px 10px; }
+.city-head .gov { margin-left: auto; font-size: 15px; }
+.cres-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 8px; }
+.cres { display: flex; align-items: center; gap: 6px; font-size: 16px; }
+.cres svg { width: 20px; height: 20px; flex: none; }
+.cres b { margin-left: auto; font-weight: normal; font-variant-numeric: tabular-nums; }
+#city-win .mixrow { gap: 8px; margin-bottom: 8px; }
+.mixchip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px 1px 4px; border-radius: 12px; background: rgba(59, 51, 42, .07); font-size: 14px; }
+.mixchip svg { width: 14px; height: 20px; }
+.mixchip b { font-weight: normal; margin-left: 2px; }
+.cbars { display: flex; flex-direction: column; gap: 5px; }
+.cbar { display: grid; grid-template-columns: 20px 40px 1fr 38px 38px; align-items: center; gap: 6px; font-size: 15px; }
+.cbar svg { width: 18px; height: 18px; }
+.cbar .track, .gs .track { height: 8px; border-radius: 4px; background: rgba(59, 51, 42, .1); overflow: hidden; }
+.cbar .track i, .gs .track i { display: block; height: 100%; border-radius: 4px; }
+.cbar .val { text-align: right; font-variant-numeric: tabular-nums; }
+.cbar .rate { font-size: 13px; color: var(--dim); text-align: right; }
+.sec { margin: 12px 0 6px; font-family: Kai, Body; font-size: 19px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.sec::before { content: ''; width: 6px; height: 6px; transform: rotate(45deg); background: var(--red); }
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.gcards { display: flex; flex-direction: column; gap: 8px; }
+.gcard { display: flex; gap: 10px; padding: 8px 10px; border-radius: 10px; background: #fffaf0; border: 1px solid rgba(59, 51, 42, .12); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(59, 51, 42, .06); transition: box-shadow .12s, transform .12s; }
+.gcard:hover { box-shadow: 0 4px 12px rgba(59, 51, 42, .15); transform: translateY(-1px); }
+.gcard.acted { opacity: .6; }
+.gc-face { width: 56px; height: 56px; border-radius: 50%; flex: none; }
+.gc-main { flex: 1; min-width: 0; }
+.gc-name { display: flex; align-items: center; gap: 6px; font-family: Kai, Body; font-size: 20px; line-height: 26px; }
+.gc-name .badge { font-family: Body; font-size: 12px; line-height: 18px; padding: 0 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--dim); }
+.gc-name .badge.ruler { background: var(--red); border-color: var(--red); color: #fff; }
+.gc-name .done { margin-left: auto; font-family: Body; font-size: 12px; color: var(--dim); }
+.gstats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; margin: 3px 0; }
+.gs { display: grid; grid-template-columns: 16px 1fr 26px; align-items: center; gap: 4px; font-size: 13px; line-height: 17px; }
+.gs .k { color: var(--dim); }
+.gs .v { text-align: right; font-variant-numeric: tabular-nums; }
+.gcard .apt { font-size: 13px; color: var(--dim); display: flex; gap: 10px; }
+.others { display: flex; flex-wrap: wrap; gap: 6px; }
+.ochip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 2px; border-radius: 14px; background: rgba(59, 51, 42, .07); font-size: 14px; cursor: pointer; }
+.ochip .face.mini { width: 22px; height: 22px; border-radius: 50%; border-width: 1px; }
+.ochip small { color: var(--dim); }
+.ochip.pris small { color: var(--red); }
+
+#cmd-win h3 { font-size: 18px; margin-bottom: 6px; }
+.menu.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.menu.tiles li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; padding: 2px; line-height: 18px;
+  border-radius: 10px; background: #fffaf0; border: 1px solid rgba(59, 51, 42, .14); border-top: 3px solid var(--tc, #b8892c); font-family: Kai, Body; font-size: 16px; }
+.menu.tiles li::before { display: none; }
+.menu.tiles li .mi { width: 24px; height: 24px; margin: 0; }
+.menu.tiles li .hint { display: none; }
+.menu.tiles li.sel { background: #fbecd9; box-shadow: 0 0 0 2px var(--red); color: var(--ink); }
+.menu.tiles li.off { opacity: .45; }
+.menu.tiles li:nth-child(-n+5) { --tc: #5b9a5b; }
+.menu.tiles li:nth-child(n+6):nth-child(-n+8) { --tc: #b8503a; }
+.menu.tiles li:nth-child(n+9):nth-child(-n+13) { --tc: #5a6b8a; }
+
+/* 手機 */
+body.mobile #status { gap: 4px 10px; }
+body.mobile #status .brand, body.mobile #status .chips, body.mobile #status .grow { display: none; }
+body.mobile #status .date b { font-size: 18px; }
+body.mobile #status .fac { font-size: 16px; }
+body.mobile #status .seal { width: 22px; height: 22px; font-size: 13px; }
+body.mobile #status .resources { gap: 8px; width: 100%; order: 5; }
+body.mobile #status .res { font-size: 13px; gap: 2px; }
+body.mobile #status .res svg { width: 16px; height: 16px; }
+body.mobile #status .tb { height: 30px; padding: 0 8px; font-size: 14px; }
+body.mobile #status .tb.endturn { height: 32px; padding: 0 10px; font-size: 15px; letter-spacing: 1px; margin-left: auto; }
+body.mobile #city-win { height: auto; overflow: visible; }
+body.mobile #cmd-win { height: auto; }
+body.mobile #cmd-win > h3 { display: none; }
+body.mobile .menu.tiles li { height: 56px; font-size: 14px; }
+body.mobile #msg-win { width: auto !important; }
+body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 14px; }
+#status { gap: 12px; }
+#status .brand { display: none; }
+#status .resources { gap: 12px; }
+#status .res { font-size: 17px; }
+#status .tb { padding: 0 10px; font-size: 16px; }
+#status .tb.endturn { padding: 0 16px; font-size: 19px; letter-spacing: 2px; }
+#cmd-win h3 { margin-bottom: 4px; line-height: 24px; }
+.menu.tiles { gap: 5px; }
+.menu.tiles li { height: 48px; }
+
 </style>
 </head>
 <body>
@@ -4202,20 +4318,32 @@ function svg(g, color, mode, t) {
       ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
     }
 
-    // 勢力領土
-    for (const c of cities) {
-      if (!c.owner) continue;
-      const [x, y] = P([c.x, c.y]);
-      ctx.fillStyle = rgba(color(c.owner), 0.2); ctx.beginPath(); ctx.arc(x, y, 66 * s, 0, 7); ctx.fill();
-      ctx.fillStyle = rgba(color(c.owner), 0.16); ctx.beginPath(); ctx.arc(x, y, 42 * s, 0, 7); ctx.fill();
-    }
-    ctx.lineCap = 'round';
-    for (const [a, b] of state.roads) {
-      const A = byId[a], B = byId[b];
-      if (A.owner && A.owner === B.owner) {
-        ctx.strokeStyle = rgba(color(A.owner), 0.22); ctx.lineWidth = 14 * s;
-        ctx.beginPath(); ctx.moveTo(...P([A.x, A.y])); ctx.lineTo(...P([B.x, B.y])); ctx.stroke();
+    // 勢力領土：同一勢力相鄰（有道路相連）的城，領土連成一整片。
+    // 先在離屏畫布上用不透明色畫出聯集，再一次以半透明疊上去，重疊處才不會變深。
+    const owners = [...new Set(cities.map((c) => c.owner).filter(Boolean))];
+    const off = render.off || (render.off = document.createElement('canvas'));
+    off.width = canvas.width; off.height = canvas.height;
+    const o = off.getContext('2d');
+    for (const fid of owners) {
+      const col = color(fid);
+      o.clearRect(0, 0, off.width, off.height);
+      o.fillStyle = col; o.strokeStyle = col; o.lineCap = 'round'; o.lineJoin = 'round';
+      const mine = cities.filter((c) => c.owner === fid);
+      for (const c of mine) { const [x, y] = P([c.x, c.y]); o.beginPath(); o.arc(x, y, 60 * s, 0, 7); o.fill(); }
+      o.lineWidth = 96 * s;
+      for (const [a, b] of state.roads) {
+        const A = byId[a], B = byId[b];
+        if (A.owner === fid && B.owner === fid) { o.beginPath(); o.moveTo(...P([A.x, A.y])); o.lineTo(...P([B.x, B.y])); o.stroke(); }
       }
+      // 領土：柔邊的淡色塊＋外圍再淡一圈
+      ctx.save();
+      ctx.globalAlpha = 0.13;
+      if ('filter' in ctx) ctx.filter = 'blur(10px)';
+      ctx.drawImage(off, 0, 0);
+      ctx.filter = 'none';
+      ctx.globalAlpha = 0.2;
+      ctx.drawImage(off, 0, 0);
+      ctx.restore();
     }
 
     // 河流
@@ -5198,7 +5326,7 @@ function svg(g, color, mode, t) {
       onChoose(it, m.index);
     };
     m.onKey = (e) => {
-      const step = opts.cols ? 2 : 1;
+      const step = opts.cols === true ? 2 : opts.cols || 1;
       if (e.key === 'ArrowDown') { m.index = (m.index + step) % items.length; SND.cursor(); m.render(); }
       else if (e.key === 'ArrowUp') { m.index = (m.index - step + items.length) % items.length; SND.cursor(); m.render(); }
       else if (opts.cols && e.key === 'ArrowRight') { m.index = Math.min(items.length - 1, m.index + 1); SND.cursor(); m.render(); }
@@ -5587,7 +5715,7 @@ function svg(g, color, mode, t) {
     banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
       const adv = advisor();
-      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再從右下的選單下達指令。', { wait: true });
+      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
       await playEvents(opening);
       busy = false;
       render();
@@ -5604,7 +5732,7 @@ function svg(g, color, mode, t) {
     selected = cap ? cap.id : Object.keys(S.cities)[0];
     rootMenu = null;
     render();
-    rootKey = (e) => rootMenu && rootMenu.onKey(e);
+    rootKey = (e) => { if (e.key === 'e' || e.key === 'E') { endMonth(); return true; } return rootMenu && rootMenu.onKey(e); };
   }
 
   // ---------- 主畫面繪製 ----------
@@ -5616,17 +5744,31 @@ function svg(g, color, mode, t) {
     renderCmd();
   }
 
+  // 頂部列：日期、勢力、資源（圖示＋數字）、常用按鈕
   function renderStatus() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
     const hov = hovered && S.cities[hovered];
+    const icon = (n) => svgNode(TK.Icons.icon(n));
+    const res = (n, v, title) => h('span', { class: 'res', title }, icon(n), h('b', {}, v));
+    const strat = E.strategistOf(S, S.player);
+    const btn = (label, title, act, cls) => h('button', { class: 'tb ' + (cls || ''), title, onclick: (e) => { e.stopPropagation(); if (busy && cls !== 'snd') return; SND.ok(); act(); } }, label);
     $('status').replaceChildren(
-      h('span', { class: 'hi' }, `${S.year}年 ${MONTHS[S.month - 1]}（${SEASON(S.month)}）`),
-      h('span', {}, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
-      h('span', {}, `城${p.cities} 兵${fmtW(p.troops)} 金${fmtW(p.gold)} 糧${fmtW(p.food)} 將${p.generals}`),
-      h('span', { class: 'diff' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
-      h('span', { class: 'strat' }, `軍師 ${E.strategistOf(S, S.player) ? E.strategistOf(S, S.player).name : '空缺'}`),
-      h('span', { class: 'grow' }, hov ? `${hov.name}（${E.factionName(S, hov.owner)}）兵${fmtW(hov.troops)}` : 'Tab 切換城市'));
+      h('div', { class: 'brand' }, '逐鹿中原'),
+      h('div', { class: 'date' }, h('small', {}, `${S.year}年`), h('b', {}, MONTHS[S.month - 1]), h('span', { class: 'season' }, SEASON(S.month))),
+      h('div', { class: 'fac' }, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
+      h('div', { class: 'resources' },
+        res('city', p.cities, '城數'), res('troops', fmtW(p.troops), '兵力'), res('gold', fmtW(p.gold), '金'), res('food', fmtW(p.food), '糧'), res('general', p.generals, '武將')),
+      h('div', { class: 'chips' },
+        h('span', { class: 'chip-s' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
+        h('span', { class: 'chip-s', title: '軍師：在「任命」指定' }, `軍師 ${strat ? strat.name : '空缺'}`),
+        hov ? h('span', { class: 'chip-s hov' }, `${hov.name}・${E.factionName(S, hov.owner)}・兵${fmtW(hov.troops)}`) : null),
+      h('div', { class: 'grow' }),
+      btn('存檔', '存檔', () => slotMenu(true)),
+      btn('讀檔', '讀檔', () => slotMenu(false), 'snd'),
+      btn('標題', '回到標題畫面', () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle), 'snd'),
+      btn(TK.Music && TK.Music.isOn() ? '♪' : '♪̸', '音樂開關', () => { if (TK.Music) TK.Music.toggle(); renderStatus(); }, 'snd'),
+      h('button', { class: 'tb endturn', disabled: busy || !!S.over, title: '結束本月（E）', onclick: (e) => { e.stopPropagation(); endMonth(); } }, '結束本月'));
   }
 
   function attackTargets() {
@@ -5644,26 +5786,61 @@ function svg(g, color, mode, t) {
     const net = E.goldIncome(c, S) - E.upkeep(c);
     return h('small', { class: net >= 0 ? 'up' : 'down', title: `收入 ${E.goldIncome(c, S)}，軍餉 ${E.upkeep(c)}` }, ` ${net >= 0 ? '+' : ''}${net}/月`);
   }
+  // 數值長條的評語
+  function rating(v, max) {
+    const r = v / max;
+    return r < 0.3 ? '薄弱' : r < 0.55 ? '尚可' : r < 0.8 ? '興盛' : '繁榮';
+  }
+  const CITY_BARS = [['farm', '農業', 999, '#5b9a5b'], ['commerce', '商業', 999, '#c98a3a'], ['defense', '城防', 999, '#5a6b8a'], ['order', '民心', 100, '#c9a23a'], ['train', '訓練', 100, '#b8503a']];
+  const STAT_COLORS = { lead: '#3d6fb0', war: '#b8403a', int: '#7a4fb0', pol: '#3d8a5a', cha: '#c08a2a', loyalty: '#7d7062' };
+
+  // 右側面板：城市概況（長條）＋麾下武將卡片
   function renderCity() {
     const c = S.cities[selected];
     const box = $('city-win');
     if (!c) { box.replaceChildren(); return; }
+    const mine = c.owner === S.player;
     const mix = E.mixOf(c);
-    const gens = c.owner ? E.officers(S, c.id) : [];
+    const gens = c.owner ? E.officers(S, c.id).slice().sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int) - (a.lead + a.war + a.int)) : [];
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const kv = (k, v) => [h('span', { class: 'k' }, k), h('span', { class: 'v' }, v)];
+    const gov = c.owner ? E.governorOf(S, c) : null;
+    const bar = ([k, label, max, col]) => h('div', { class: 'cbar' },
+      svgNode(TK.Icons.icon(k)), h('span', { class: 'lbl' }, label),
+      h('span', { class: 'track' }, h('i', { style: `width:${Math.min(100, 100 * c[k] / max)}%;background:${col}` })),
+      h('span', { class: 'val' }, c[k]), h('span', { class: 'rate' }, rating(c[k], max)));
+    const res = (icon, label, v) => h('div', { class: 'cres' }, svgNode(TK.Icons.icon(icon)), h('span', { class: 'dim' }, label), h('b', {}, v));
     box.replaceChildren(
-      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name), h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner))),
-      h('div', { class: 'kv' }, kv('金', c.owner === S.player ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)),
-        kv('兵', c.owner === S.player ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
-        kv('農業', c.farm), kv('商業', c.commerce), kv('民心', c.order), kv('城防', c.defense), kv('訓練', c.train), kv('武將', gens.length)),
-      h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k]))),
-        c.owner ? h('span', { class: 'gov' }, h('span', { class: 'dim' }, '太守 '), E.governorOf(S, c) ? E.governorOf(S, c).name : '空缺') : null),
-      h('div', { class: 'gens-line' }, gens.length ? gens.map((g, i) => h('span', { class: g.acted && c.owner === S.player ? 'acted' : '' }, (i ? ' ' : '') + g.name)) : h('span', { class: 'dim' }, '無人駐守')),
-      ...(free.length || pris.length ? [h('div', { class: 'gens-line dim' }, free.length ? `在野 ${free.map((g) => g.name).join(' ')} ` : '', pris.length ? `俘虜 ${pris.map((g) => g.name).join(' ')}` : '')] : []));
+      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name),
+        h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner)),
+        c.owner ? h('span', { class: 'gov dim' }, `太守 ${gov ? gov.name : '空缺'}`) : null),
+      h('div', { class: 'cres-row' },
+        res('gold', '金', mine ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), res('food', '糧', fmtW(c.food)),
+        res('troops', '兵', mine ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
+        res('pop', '人口', fmtW(c.pop))),
+      h('div', { class: 'mixrow' }, UK.map((k) => h('span', { class: 'mixchip' }, svgNode(TK.Icons.unit(k, color(c.owner))), E.UNITS[k].short, h('b', {}, fmtW(mix[k]))))),
+      h('div', { class: 'cbars' }, CITY_BARS.map(bar)),
+      h('div', { class: 'sec' }, `麾下武將（${gens.length}）`),
+      gens.length ? h('div', { class: 'gcards' }, gens.map((g) => genCard(g, mine))) : h('div', { class: 'dim', style: 'padding:4px 2px' }, '無人駐守'),
+      ...(free.length || pris.length ? [h('div', { class: 'sec' }, '城中人物'),
+        h('div', { class: 'others' }, ...free.map((g) => h('span', { class: 'ochip', onclick: () => generalDetail(g) }, face(g, 'head', 0, 0, 'mini'), g.name, h('small', {}, '在野'))),
+          ...pris.map((g) => h('span', { class: 'ochip pris', onclick: () => generalDetail(g) }, face(g, 'head', 0, 0, 'mini'), g.name, h('small', {}, '俘虜'))))] : []));
   }
 
+  // 武將卡片：頭像、身分、能力長條（1～100）、兵種適性；點一下看詳細
+  function genCard(g, mine) {
+    const role = roleOf(g) || PT.classLabel(g, PT.traits(g));
+    const stat = (k, label) => h('div', { class: 'gs' }, h('span', { class: 'k' }, label),
+      h('span', { class: 'track' }, h('i', { style: `width:${g[k]}%;background:${STAT_COLORS[k]}` })), h('span', { class: 'v' }, g[k]));
+    return h('div', { class: 'gcard' + (mine && g.acted ? ' acted' : ''), onclick: () => { SND.ok(); generalDetail(g); } },
+      face(g, 'head', 0, 0, 'gc-face'),
+      h('div', { class: 'gc-main' },
+        h('div', { class: 'gc-name' }, g.name, h('span', { class: 'badge' + (g.ruler ? ' ruler' : '') }, role), mine && g.acted ? h('span', { class: 'done' }, '已行動') : null),
+        h('div', { class: 'gstats' }, stat('lead', '統'), stat('war', '武'), stat('int', '智'), stat('pol', '政'), stat('cha', '魅'), !g.ruler && g.status === 'active' ? stat('loyalty', '忠') : h('div')),
+        h('div', { class: 'apt' }, UK.map((k) => h('span', {}, E.UNITS[k].short, h('b', { class: `g-${E.aptitude(g, k)}` }, E.aptitude(g, k)))))));
+  }
+
+  // 指令按鈕：直接點，需要選武將或數量時才跳出視窗
   function renderCmd() {
     const c = S.cities[selected];
     const mine = c && c.owner === S.player && !S.over;
@@ -5671,19 +5848,34 @@ function svg(g, color, mode, t) {
     if (mine) {
       const idle = E.officers(S, c.id).some((g) => !g.acted);
       const why = '本城的武將本月都已行動了。';
-      items.push({ label: '內政', off: !idle || busy, why, act: () => domesticMenu(c) });
-      items.push({ label: '軍事', off: !idle || busy, why, act: () => militaryMenu(c) });
-      items.push({ label: '人事', off: busy, act: () => personnelMenu(c) });
+      const adj = E.neighbors(S, c.id);
+      const cand = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
+      const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
+      const hasNonRuler = E.officers(S, c.id).some((g) => !g.ruler);
+      for (const type of ['farm', 'commerce', 'order', 'defense', 'train']) {
+        const d = E.DEV[type];
+        items.push({ label: d.label, hint: d.cost ? `金${d.cost}` : '', off: busy || !idle || c.gold < d.cost, why: !idle ? why : '金不足。', act: () => devAct(c, type) });
+      }
+      items.push({ label: '徵兵', off: busy || !idle, why, act: () => draftFlow(c) });
+      items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
+      items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
+      items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
+      items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
+      items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
+      items.push({ label: '任命', hint: '軍師・太守', off: busy, act: () => appointMenu(c) });
+      items.push({ label: '俘虜', off: busy || !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) });
     }
     items.push({ label: '外交', off: busy || !!S.over, act: diplomacyFlow });
     items.push({ label: '情報', act: () => infoMenu(c) });
     items.push({ label: '系統', act: systemMenu });
-    items.push({ label: '結束本月', off: busy || !!S.over, act: endMonth });
     const keep = rootMenu ? rootMenu.index : 0;
-    rootMenu = makeMenu(items, (it) => it.act(), { cols: true });
+    rootMenu = makeMenu(items, (it) => it.act(), { cols: 4 });
     rootMenu.index = Math.min(keep, items.length - 1);
+    rootMenu.ul.classList.add('tiles');
     rootMenu.render();
-    $('cmd-win').replaceChildren(h('h3', { style: 'padding-left:10px' }, mine ? `${c.name}・指令` : `${c ? c.name : ''}・情報`), rootMenu.ul);
+    $('cmd-win').replaceChildren(h('h3', {}, mine ? `${c.name}・指令` : `${c ? c.name : ''}・他國城市`), rootMenu.ul);
+    const et = document.querySelector('#status .endturn');
+    if (et) et.disabled = busy || !!S.over;
   }
 
   // ---------- 武將表 ----------
@@ -5759,24 +5951,9 @@ function svg(g, color, mode, t) {
 
   const SUB = { x: 600, y: 360, width: 320 };
 
-  function domesticMenu(c) {
-    const item = (type) => {
-      const d = E.DEV[type];
-      return {
-        label: d.label, hint: d.cost ? `金${d.cost}` : '', off: c.gold < d.cost, why: '金不足。',
-        act: () => pickGeneral(c, d.stat, `${d.label}：選擇武將`, (g) => run({ type, city: c.id, general: g.id }, g, (n) => DEV_SPEECH[type](n))),
-      };
-    };
-    menuWin('內政', ['farm', 'commerce', 'order', 'defense', 'train'].map(item), null, SUB);
-  }
-
-  function militaryMenu(c) {
-    const adj = E.neighbors(S, c.id);
-    menuWin('軍事', [
-      { label: '徵兵', act: () => draftFlow(c) },
-      { label: '出征', off: !adj.some((id) => S.cities[id].owner !== S.player), why: '附近沒有可進攻的城。', act: () => attackFlow(c) },
-      { label: '移動', off: !adj.some((id) => S.cities[id].owner === S.player), why: '沒有相鄰的我方城市。', act: () => moveFlow(c) },
-    ], null, SUB);
+  function devAct(c, type) {
+    const d = E.DEV[type];
+    pickGeneral(c, d.stat, `${d.label}：選擇武將`, (g) => run({ type, city: c.id, general: g.id }, g, (n) => DEV_SPEECH[type](n)));
   }
 
   function searchSpeech(n, r) {
@@ -5785,20 +5962,6 @@ function svg(g, color, mode, t) {
     const gold = r.msg.match(/金 (\d+)/);
     if (gold) return `四處搜尋了一番，找到金 ${gold[1]}。`;
     return '四處搜尋了一番，什麼也沒找到……';
-  }
-
-  function personnelMenu(c) {
-    const idle = E.officers(S, c.id).some((g) => !g.acted);
-    const cand = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
-    const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const hasNonRuler = E.officers(S, c.id).some((g) => !g.ruler);
-    menuWin('人事', [
-      { label: '搜索', off: !idle, why: '本城的武將本月都已行動了。', act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) },
-      { label: '登用', off: !idle || !cand.length, why: cand.length ? '本城的武將本月都已行動了。' : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) },
-      { label: '賞賜', hint: '金100', off: c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) },
-      { label: '俘虜', off: !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) },
-      { label: '任命', hint: '軍師・太守', act: () => appointMenu(c) },
-    ], null, SUB);
   }
 
   // 官職：軍師（全勢力一位）與太守（本城一位）
@@ -6598,6 +6761,6 @@ function svg(g, color, mode, t) {
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
-<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/21 13:34</div>
+<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/21 13:43</div>
 </body>
 </html>

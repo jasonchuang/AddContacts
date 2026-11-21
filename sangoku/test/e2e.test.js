@@ -50,7 +50,7 @@ async function open(browser, base, mobile) {
 async function newGame(p, faction) {
   await ui.setup(p, faction, '自由模式');
   for (let i = 0; i < 60; i++) {
-    if (await p.$('#cmd-win li:has-text("內政"):not(.off)') && !(await p.$('.scene'))) return;
+    if (await p.$('#cmd-win li:has-text("開墾"):not(.off)') && !(await p.$('.scene'))) return;
     await p.keyboard.press('Enter');
     await p.waitForTimeout(200);
   }
@@ -81,11 +81,11 @@ const ui = {
   async pickFirstRow(p) { await p.click('#layer table tr:has(td) >> nth=0'); },
   async endMonth(p) {
     const before = await p.evaluate(() => TK.UI.state().month);
-    await p.click('#cmd-win li:has-text("結束本月")');
+    await p.click('#status .endturn');
     // 按到可以下指令為止（略過戰報、事件、提議）
     for (let i = 0; i < 120; i++) {
       const ok = await p.evaluate((m) => TK.UI.state().month !== m, before);
-      if (ok && await p.$('#cmd-win li:has-text("內政"):not(.off)') && !(await p.$('.scene'))) return;
+      if (ok && await p.$('#cmd-win li:has-text("開墾"):not(.off)') && !(await p.$('.scene'))) return;
       await p.keyboard.press(i % 3 === 2 ? 'Escape' : 'Enter');
       await p.waitForTimeout(150);
     }
@@ -144,8 +144,7 @@ test('通用頭像：袁術軍的袁術用通用君主、閻象用通用文官�
 test('手動戰鬥：出征北海，下令突擊，交給部將打完，出現勝敗印章', async (b, base) => {
   const { ctx, p } = await open(b, base);
   await newGame(p, '劉備軍');
-  await p.click('#cmd-win li:has-text("軍事")');
-  await p.click('#layer li:has-text("出征")');
+  await ui.cmd(p, '出征');
   await p.click('#layer tr:has-text("北海")');
   await p.click('.win-foot .act.primary');
   await p.click('.win-foot .act.primary >> nth=-1');
@@ -215,7 +214,7 @@ test('內政：開墾後農業上升、金減少、該武將本月已行動', as
   await newGame(p, '劉備軍');
   const s0 = await ui.state(p);
   const cityId = Object.values(s0.cities).find((c) => c.owner === s0.player).id;
-  await ui.cmd(p, '內政', '開墾');
+  await ui.cmd(p, '開墾');
   await ui.pickFirstRow(p);
   await p.waitForTimeout(400);
   const s1 = await ui.state(p);
@@ -245,7 +244,8 @@ test('存檔與讀檔：存到存檔 1，回到標題後讀回同一個進度', 
   await newGame(p, '孫堅軍');
   await ui.endMonth(p);
   const s0 = await ui.state(p);
-  await ui.cmd(p, '系統', '存檔', '存檔 1');
+  await p.click('#status .tb:has-text("存檔")');
+  await p.click('#layer li:has-text("存檔 1")');
   await p.waitForTimeout(300);
   await p.evaluate(() => location.reload());
   await p.waitForSelector('.title-menu li');
@@ -265,11 +265,11 @@ test('歷史劇本：開局事件以場景演出，可以一路按完並開始�
   let sawScene = false;
   for (let i = 0; i < 200; i++) {
     if (await p.$('.scene')) { if (!sawScene) await shot(p, '08-歷史事件'); sawScene = true; }
-    if (await p.$('#cmd-win li:has-text("內政"):not(.off)') && !(await p.$('.scene'))) break;
+    if (await p.$('#cmd-win li:has-text("開墾"):not(.off)') && !(await p.$('.scene'))) break;
     await p.keyboard.press('Enter');
     await p.waitForTimeout(120);
   }
-  assert(await p.$('#cmd-win li:has-text("內政"):not(.off)'), '事件演完後無法下指令');
+  assert(await p.$('#cmd-win li:has-text("開墾"):not(.off)'), '事件演完後無法下指令');
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
   return sawScene;

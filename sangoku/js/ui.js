@@ -212,7 +212,7 @@
       onChoose(it, m.index);
     };
     m.onKey = (e) => {
-      const step = opts.cols ? 2 : 1;
+      const step = opts.cols === true ? 2 : opts.cols || 1;
       if (e.key === 'ArrowDown') { m.index = (m.index + step) % items.length; SND.cursor(); m.render(); }
       else if (e.key === 'ArrowUp') { m.index = (m.index - step + items.length) % items.length; SND.cursor(); m.render(); }
       else if (opts.cols && e.key === 'ArrowRight') { m.index = Math.min(items.length - 1, m.index + 1); SND.cursor(); m.render(); }
@@ -601,7 +601,7 @@
     banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
       const adv = advisor();
-      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再從右下的選單下達指令。', { wait: true });
+      if (adv && adv !== ruler) await say(adv, '主公，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
       await playEvents(opening);
       busy = false;
       render();
@@ -618,7 +618,7 @@
     selected = cap ? cap.id : Object.keys(S.cities)[0];
     rootMenu = null;
     render();
-    rootKey = (e) => rootMenu && rootMenu.onKey(e);
+    rootKey = (e) => { if (e.key === 'e' || e.key === 'E') { endMonth(); return true; } return rootMenu && rootMenu.onKey(e); };
   }
 
   // ---------- 主畫面繪製 ----------
@@ -630,17 +630,31 @@
     renderCmd();
   }
 
+  // 頂部列：日期、勢力、資源（圖示＋數字）、常用按鈕
   function renderStatus() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
     const hov = hovered && S.cities[hovered];
+    const icon = (n) => svgNode(TK.Icons.icon(n));
+    const res = (n, v, title) => h('span', { class: 'res', title }, icon(n), h('b', {}, v));
+    const strat = E.strategistOf(S, S.player);
+    const btn = (label, title, act, cls) => h('button', { class: 'tb ' + (cls || ''), title, onclick: (e) => { e.stopPropagation(); if (busy && cls !== 'snd') return; SND.ok(); act(); } }, label);
     $('status').replaceChildren(
-      h('span', { class: 'hi' }, `${S.year}年 ${MONTHS[S.month - 1]}（${SEASON(S.month)}）`),
-      h('span', {}, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
-      h('span', {}, `城${p.cities} 兵${fmtW(p.troops)} 金${fmtW(p.gold)} 糧${fmtW(p.food)} 將${p.generals}`),
-      h('span', { class: 'diff' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
-      h('span', { class: 'strat' }, `軍師 ${E.strategistOf(S, S.player) ? E.strategistOf(S, S.player).name : '空缺'}`),
-      h('span', { class: 'grow' }, hov ? `${hov.name}（${E.factionName(S, hov.owner)}）兵${fmtW(hov.troops)}` : 'Tab 切換城市'));
+      h('div', { class: 'brand' }, '逐鹿中原'),
+      h('div', { class: 'date' }, h('small', {}, `${S.year}年`), h('b', {}, MONTHS[S.month - 1]), h('span', { class: 'season' }, SEASON(S.month))),
+      h('div', { class: 'fac' }, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
+      h('div', { class: 'resources' },
+        res('city', p.cities, '城數'), res('troops', fmtW(p.troops), '兵力'), res('gold', fmtW(p.gold), '金'), res('food', fmtW(p.food), '糧'), res('general', p.generals, '武將')),
+      h('div', { class: 'chips' },
+        h('span', { class: 'chip-s' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
+        h('span', { class: 'chip-s', title: '軍師：在「任命」指定' }, `軍師 ${strat ? strat.name : '空缺'}`),
+        hov ? h('span', { class: 'chip-s hov' }, `${hov.name}・${E.factionName(S, hov.owner)}・兵${fmtW(hov.troops)}`) : null),
+      h('div', { class: 'grow' }),
+      btn('存檔', '存檔', () => slotMenu(true)),
+      btn('讀檔', '讀檔', () => slotMenu(false), 'snd'),
+      btn('標題', '回到標題畫面', () => confirmWin('回到標題畫面？（每月會自動存檔）', showTitle), 'snd'),
+      btn(TK.Music && TK.Music.isOn() ? '♪' : '♪̸', '音樂開關', () => { if (TK.Music) TK.Music.toggle(); renderStatus(); }, 'snd'),
+      h('button', { class: 'tb endturn', disabled: busy || !!S.over, title: '結束本月（E）', onclick: (e) => { e.stopPropagation(); endMonth(); } }, '結束本月'));
   }
 
   function attackTargets() {
@@ -658,26 +672,61 @@
     const net = E.goldIncome(c, S) - E.upkeep(c);
     return h('small', { class: net >= 0 ? 'up' : 'down', title: `收入 ${E.goldIncome(c, S)}，軍餉 ${E.upkeep(c)}` }, ` ${net >= 0 ? '+' : ''}${net}/月`);
   }
+  // 數值長條的評語
+  function rating(v, max) {
+    const r = v / max;
+    return r < 0.3 ? '薄弱' : r < 0.55 ? '尚可' : r < 0.8 ? '興盛' : '繁榮';
+  }
+  const CITY_BARS = [['farm', '農業', 999, '#5b9a5b'], ['commerce', '商業', 999, '#c98a3a'], ['defense', '城防', 999, '#5a6b8a'], ['order', '民心', 100, '#c9a23a'], ['train', '訓練', 100, '#b8503a']];
+  const STAT_COLORS = { lead: '#3d6fb0', war: '#b8403a', int: '#7a4fb0', pol: '#3d8a5a', cha: '#c08a2a', loyalty: '#7d7062' };
+
+  // 右側面板：城市概況（長條）＋麾下武將卡片
   function renderCity() {
     const c = S.cities[selected];
     const box = $('city-win');
     if (!c) { box.replaceChildren(); return; }
+    const mine = c.owner === S.player;
     const mix = E.mixOf(c);
-    const gens = c.owner ? E.officers(S, c.id) : [];
+    const gens = c.owner ? E.officers(S, c.id).slice().sort((a, b) => (b.ruler - a.ruler) || (b.lead + b.war + b.int) - (a.lead + a.war + a.int)) : [];
     const free = E.generalsIn(S, c.id, (g) => g.status === 'free' && !g.hidden);
     const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const kv = (k, v) => [h('span', { class: 'k' }, k), h('span', { class: 'v' }, v)];
+    const gov = c.owner ? E.governorOf(S, c) : null;
+    const bar = ([k, label, max, col]) => h('div', { class: 'cbar' },
+      svgNode(TK.Icons.icon(k)), h('span', { class: 'lbl' }, label),
+      h('span', { class: 'track' }, h('i', { style: `width:${Math.min(100, 100 * c[k] / max)}%;background:${col}` })),
+      h('span', { class: 'val' }, c[k]), h('span', { class: 'rate' }, rating(c[k], max)));
+    const res = (icon, label, v) => h('div', { class: 'cres' }, svgNode(TK.Icons.icon(icon)), h('span', { class: 'dim' }, label), h('b', {}, v));
     box.replaceChildren(
-      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name), h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner))),
-      h('div', { class: 'kv' }, kv('金', c.owner === S.player ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), kv('糧', fmtW(c.food)), kv('人口', fmtW(c.pop)),
-        kv('兵', c.owner === S.player ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
-        kv('農業', c.farm), kv('商業', c.commerce), kv('民心', c.order), kv('城防', c.defense), kv('訓練', c.train), kv('武將', gens.length)),
-      h('div', { class: 'mixrow' }, UK.map((k) => h('span', {}, h('span', { class: 'dim' }, E.UNITS[k].short), fmtW(mix[k]))),
-        c.owner ? h('span', { class: 'gov' }, h('span', { class: 'dim' }, '太守 '), E.governorOf(S, c) ? E.governorOf(S, c).name : '空缺') : null),
-      h('div', { class: 'gens-line' }, gens.length ? gens.map((g, i) => h('span', { class: g.acted && c.owner === S.player ? 'acted' : '' }, (i ? ' ' : '') + g.name)) : h('span', { class: 'dim' }, '無人駐守')),
-      ...(free.length || pris.length ? [h('div', { class: 'gens-line dim' }, free.length ? `在野 ${free.map((g) => g.name).join(' ')} ` : '', pris.length ? `俘虜 ${pris.map((g) => g.name).join(' ')}` : '')] : []));
+      h('div', { class: 'city-head' }, h('span', { class: 'name' }, c.name),
+        h('span', { class: 'owner', style: `background:${color(c.owner)}` }, E.factionName(S, c.owner)),
+        c.owner ? h('span', { class: 'gov dim' }, `太守 ${gov ? gov.name : '空缺'}`) : null),
+      h('div', { class: 'cres-row' },
+        res('gold', '金', mine ? h('span', {}, fmt(c.gold), netGold(c)) : fmt(c.gold)), res('food', '糧', fmtW(c.food)),
+        res('troops', '兵', mine ? h('span', { title: '可養兵力上限（人口的 12%）' }, fmtW(c.troops), h('small', { class: 'dim' }, `／${fmtW(E.troopCap(c))}`)) : fmtW(c.troops)),
+        res('pop', '人口', fmtW(c.pop))),
+      h('div', { class: 'mixrow' }, UK.map((k) => h('span', { class: 'mixchip' }, svgNode(TK.Icons.unit(k, color(c.owner))), E.UNITS[k].short, h('b', {}, fmtW(mix[k]))))),
+      h('div', { class: 'cbars' }, CITY_BARS.map(bar)),
+      h('div', { class: 'sec' }, `麾下武將（${gens.length}）`),
+      gens.length ? h('div', { class: 'gcards' }, gens.map((g) => genCard(g, mine))) : h('div', { class: 'dim', style: 'padding:4px 2px' }, '無人駐守'),
+      ...(free.length || pris.length ? [h('div', { class: 'sec' }, '城中人物'),
+        h('div', { class: 'others' }, ...free.map((g) => h('span', { class: 'ochip', onclick: () => generalDetail(g) }, face(g, 'head', 0, 0, 'mini'), g.name, h('small', {}, '在野'))),
+          ...pris.map((g) => h('span', { class: 'ochip pris', onclick: () => generalDetail(g) }, face(g, 'head', 0, 0, 'mini'), g.name, h('small', {}, '俘虜'))))] : []));
   }
 
+  // 武將卡片：頭像、身分、能力長條（1～100）、兵種適性；點一下看詳細
+  function genCard(g, mine) {
+    const role = roleOf(g) || PT.classLabel(g, PT.traits(g));
+    const stat = (k, label) => h('div', { class: 'gs' }, h('span', { class: 'k' }, label),
+      h('span', { class: 'track' }, h('i', { style: `width:${g[k]}%;background:${STAT_COLORS[k]}` })), h('span', { class: 'v' }, g[k]));
+    return h('div', { class: 'gcard' + (mine && g.acted ? ' acted' : ''), onclick: () => { SND.ok(); generalDetail(g); } },
+      face(g, 'head', 0, 0, 'gc-face'),
+      h('div', { class: 'gc-main' },
+        h('div', { class: 'gc-name' }, g.name, h('span', { class: 'badge' + (g.ruler ? ' ruler' : '') }, role), mine && g.acted ? h('span', { class: 'done' }, '已行動') : null),
+        h('div', { class: 'gstats' }, stat('lead', '統'), stat('war', '武'), stat('int', '智'), stat('pol', '政'), stat('cha', '魅'), !g.ruler && g.status === 'active' ? stat('loyalty', '忠') : h('div')),
+        h('div', { class: 'apt' }, UK.map((k) => h('span', {}, E.UNITS[k].short, h('b', { class: `g-${E.aptitude(g, k)}` }, E.aptitude(g, k)))))));
+  }
+
+  // 指令按鈕：直接點，需要選武將或數量時才跳出視窗
   function renderCmd() {
     const c = S.cities[selected];
     const mine = c && c.owner === S.player && !S.over;
@@ -685,19 +734,34 @@
     if (mine) {
       const idle = E.officers(S, c.id).some((g) => !g.acted);
       const why = '本城的武將本月都已行動了。';
-      items.push({ label: '內政', off: !idle || busy, why, act: () => domesticMenu(c) });
-      items.push({ label: '軍事', off: !idle || busy, why, act: () => militaryMenu(c) });
-      items.push({ label: '人事', off: busy, act: () => personnelMenu(c) });
+      const adj = E.neighbors(S, c.id);
+      const cand = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
+      const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
+      const hasNonRuler = E.officers(S, c.id).some((g) => !g.ruler);
+      for (const type of ['farm', 'commerce', 'order', 'defense', 'train']) {
+        const d = E.DEV[type];
+        items.push({ label: d.label, hint: d.cost ? `金${d.cost}` : '', off: busy || !idle || c.gold < d.cost, why: !idle ? why : '金不足。', act: () => devAct(c, type) });
+      }
+      items.push({ label: '徵兵', off: busy || !idle, why, act: () => draftFlow(c) });
+      items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
+      items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
+      items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
+      items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
+      items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
+      items.push({ label: '任命', hint: '軍師・太守', off: busy, act: () => appointMenu(c) });
+      items.push({ label: '俘虜', off: busy || !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) });
     }
     items.push({ label: '外交', off: busy || !!S.over, act: diplomacyFlow });
     items.push({ label: '情報', act: () => infoMenu(c) });
     items.push({ label: '系統', act: systemMenu });
-    items.push({ label: '結束本月', off: busy || !!S.over, act: endMonth });
     const keep = rootMenu ? rootMenu.index : 0;
-    rootMenu = makeMenu(items, (it) => it.act(), { cols: true });
+    rootMenu = makeMenu(items, (it) => it.act(), { cols: 4 });
     rootMenu.index = Math.min(keep, items.length - 1);
+    rootMenu.ul.classList.add('tiles');
     rootMenu.render();
-    $('cmd-win').replaceChildren(h('h3', { style: 'padding-left:10px' }, mine ? `${c.name}・指令` : `${c ? c.name : ''}・情報`), rootMenu.ul);
+    $('cmd-win').replaceChildren(h('h3', {}, mine ? `${c.name}・指令` : `${c ? c.name : ''}・他國城市`), rootMenu.ul);
+    const et = document.querySelector('#status .endturn');
+    if (et) et.disabled = busy || !!S.over;
   }
 
   // ---------- 武將表 ----------
@@ -773,24 +837,9 @@
 
   const SUB = { x: 600, y: 360, width: 320 };
 
-  function domesticMenu(c) {
-    const item = (type) => {
-      const d = E.DEV[type];
-      return {
-        label: d.label, hint: d.cost ? `金${d.cost}` : '', off: c.gold < d.cost, why: '金不足。',
-        act: () => pickGeneral(c, d.stat, `${d.label}：選擇武將`, (g) => run({ type, city: c.id, general: g.id }, g, (n) => DEV_SPEECH[type](n))),
-      };
-    };
-    menuWin('內政', ['farm', 'commerce', 'order', 'defense', 'train'].map(item), null, SUB);
-  }
-
-  function militaryMenu(c) {
-    const adj = E.neighbors(S, c.id);
-    menuWin('軍事', [
-      { label: '徵兵', act: () => draftFlow(c) },
-      { label: '出征', off: !adj.some((id) => S.cities[id].owner !== S.player), why: '附近沒有可進攻的城。', act: () => attackFlow(c) },
-      { label: '移動', off: !adj.some((id) => S.cities[id].owner === S.player), why: '沒有相鄰的我方城市。', act: () => moveFlow(c) },
-    ], null, SUB);
+  function devAct(c, type) {
+    const d = E.DEV[type];
+    pickGeneral(c, d.stat, `${d.label}：選擇武將`, (g) => run({ type, city: c.id, general: g.id }, g, (n) => DEV_SPEECH[type](n)));
   }
 
   function searchSpeech(n, r) {
@@ -799,20 +848,6 @@
     const gold = r.msg.match(/金 (\d+)/);
     if (gold) return `四處搜尋了一番，找到金 ${gold[1]}。`;
     return '四處搜尋了一番，什麼也沒找到……';
-  }
-
-  function personnelMenu(c) {
-    const idle = E.officers(S, c.id).some((g) => !g.acted);
-    const cand = E.generalsIn(S, c.id, (g) => (g.status === 'free' && !g.hidden) || g.status === 'prisoner');
-    const pris = E.generalsIn(S, c.id, (g) => g.status === 'prisoner');
-    const hasNonRuler = E.officers(S, c.id).some((g) => !g.ruler);
-    menuWin('人事', [
-      { label: '搜索', off: !idle, why: '本城的武將本月都已行動了。', act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) },
-      { label: '登用', off: !idle || !cand.length, why: cand.length ? '本城的武將本月都已行動了。' : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) },
-      { label: '賞賜', hint: '金100', off: c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) },
-      { label: '俘虜', off: !pris.length, why: '沒有俘虜。', act: () => prisonerFlow(c, pris) },
-      { label: '任命', hint: '軍師・太守', act: () => appointMenu(c) },
-    ], null, SUB);
   }
 
   // 官職：軍師（全勢力一位）與太守（本城一位）

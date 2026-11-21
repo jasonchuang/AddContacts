@@ -70,20 +70,32 @@
       ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
     }
 
-    // 勢力領土
-    for (const c of cities) {
-      if (!c.owner) continue;
-      const [x, y] = P([c.x, c.y]);
-      ctx.fillStyle = rgba(color(c.owner), 0.2); ctx.beginPath(); ctx.arc(x, y, 66 * s, 0, 7); ctx.fill();
-      ctx.fillStyle = rgba(color(c.owner), 0.16); ctx.beginPath(); ctx.arc(x, y, 42 * s, 0, 7); ctx.fill();
-    }
-    ctx.lineCap = 'round';
-    for (const [a, b] of state.roads) {
-      const A = byId[a], B = byId[b];
-      if (A.owner && A.owner === B.owner) {
-        ctx.strokeStyle = rgba(color(A.owner), 0.22); ctx.lineWidth = 14 * s;
-        ctx.beginPath(); ctx.moveTo(...P([A.x, A.y])); ctx.lineTo(...P([B.x, B.y])); ctx.stroke();
+    // 勢力領土：同一勢力相鄰（有道路相連）的城，領土連成一整片。
+    // 先在離屏畫布上用不透明色畫出聯集，再一次以半透明疊上去，重疊處才不會變深。
+    const owners = [...new Set(cities.map((c) => c.owner).filter(Boolean))];
+    const off = render.off || (render.off = document.createElement('canvas'));
+    off.width = canvas.width; off.height = canvas.height;
+    const o = off.getContext('2d');
+    for (const fid of owners) {
+      const col = color(fid);
+      o.clearRect(0, 0, off.width, off.height);
+      o.fillStyle = col; o.strokeStyle = col; o.lineCap = 'round'; o.lineJoin = 'round';
+      const mine = cities.filter((c) => c.owner === fid);
+      for (const c of mine) { const [x, y] = P([c.x, c.y]); o.beginPath(); o.arc(x, y, 60 * s, 0, 7); o.fill(); }
+      o.lineWidth = 96 * s;
+      for (const [a, b] of state.roads) {
+        const A = byId[a], B = byId[b];
+        if (A.owner === fid && B.owner === fid) { o.beginPath(); o.moveTo(...P([A.x, A.y])); o.lineTo(...P([B.x, B.y])); o.stroke(); }
       }
+      // 領土：柔邊的淡色塊＋外圍再淡一圈
+      ctx.save();
+      ctx.globalAlpha = 0.13;
+      if ('filter' in ctx) ctx.filter = 'blur(10px)';
+      ctx.drawImage(off, 0, 0);
+      ctx.filter = 'none';
+      ctx.globalAlpha = 0.2;
+      ctx.drawImage(off, 0, 0);
+      ctx.restore();
     }
 
     // 河流

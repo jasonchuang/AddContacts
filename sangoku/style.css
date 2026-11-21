@@ -553,3 +553,119 @@ body.mobile .detail .stats { grid-template-columns: 38px 32px 1fr; }
 body.mobile .detail .stats .bar { max-width: 100%; }
 body.mobile .detail .apt { display: flex; flex-wrap: wrap; gap: 0 10px; }
 body.mobile .detail .bio-head { flex-wrap: wrap; gap: 0 10px; }
+
+/* =====================================================================
+   主畫面（現代化）：頂部資源列、右側城市與武將卡片、指令按鈕
+   ===================================================================== */
+#status { height: 60px; gap: 14px; padding: 0 14px; background: linear-gradient(180deg, #2b231b, #1f1913); }
+#status .brand { font-family: Kai, Body; font-size: 26px; color: #f3e3c0; letter-spacing: 2px; }
+#status .date { display: flex; align-items: baseline; gap: 6px; color: #f6eedb; }
+#status .date small { font-size: 15px; color: #c9bda4; }
+#status .date b { font-family: Kai, Body; font-size: 26px; font-weight: normal; }
+#status .date .season { font-size: 13px; padding: 0 6px; border-radius: 4px; background: #3d7a4c; color: #fff; }
+#status .fac { display: flex; align-items: center; font-family: Kai, Body; font-size: 22px; color: #fff; }
+#status .seal { border-radius: 5px; border: 0; width: 30px; height: 30px; font-size: 18px; }
+#status .resources { display: flex; gap: 14px; }
+#status .res { display: flex; align-items: center; gap: 5px; font-size: 18px; color: #f6eedb; }
+#status .res svg { width: 22px; height: 22px; }
+#status .res b { font-weight: normal; font-variant-numeric: tabular-nums; }
+#status .chips { display: flex; gap: 6px; }
+#status .chip-s { font-size: 13px; padding: 1px 8px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, .25); color: #e9dcc0; white-space: nowrap; }
+#status .chip-s.hov { border-color: #f0b040; color: #ffe3a8; }
+#status .grow { flex: 1; }
+#status .tb { height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .06);
+  color: #f6eedb; font-family: Kai, Body; font-size: 17px; cursor: pointer; }
+#status .tb:hover { background: rgba(255, 255, 255, .16); }
+#status .tb.endturn { height: 42px; padding: 0 20px; font-size: 21px; letter-spacing: 3px; background: var(--red); border-color: #e07a68; box-shadow: 0 0 0 2px rgba(178, 58, 44, .35); }
+#status .tb.endturn:hover { background: #c4473a; }
+#status .tb.endturn:disabled { background: #5a4d42; border-color: #6a5d52; color: #a89a88; box-shadow: none; cursor: default; }
+
+#map-win { top: 70px; border-radius: 10px; }
+#city-win { top: 70px; height: 446px; padding: 12px 14px; overflow-y: auto; border-radius: 10px; }
+#cmd-win { top: 524px; height: 268px; padding: 8px 10px; border-radius: 10px; }
+#msg-win { top: 694px; width: 856px; height: 98px; border-radius: 10px; }
+#msg-win .face { width: 70px; height: 70px; border-radius: 50%; }
+
+.city-head { align-items: center; margin-bottom: 8px; }
+.city-head .name { font-size: 34px; }
+.city-head .owner { margin-bottom: 0; border-radius: 10px; padding: 1px 10px; }
+.city-head .gov { margin-left: auto; font-size: 15px; }
+.cres-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-bottom: 8px; }
+.cres { display: flex; align-items: center; gap: 6px; font-size: 16px; }
+.cres svg { width: 20px; height: 20px; flex: none; }
+.cres b { margin-left: auto; font-weight: normal; font-variant-numeric: tabular-nums; }
+#city-win .mixrow { gap: 8px; margin-bottom: 8px; }
+.mixchip { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px 1px 4px; border-radius: 12px; background: rgba(59, 51, 42, .07); font-size: 14px; }
+.mixchip svg { width: 14px; height: 20px; }
+.mixchip b { font-weight: normal; margin-left: 2px; }
+.cbars { display: flex; flex-direction: column; gap: 5px; }
+.cbar { display: grid; grid-template-columns: 20px 40px 1fr 38px 38px; align-items: center; gap: 6px; font-size: 15px; }
+.cbar svg { width: 18px; height: 18px; }
+.cbar .track, .gs .track { height: 8px; border-radius: 4px; background: rgba(59, 51, 42, .1); overflow: hidden; }
+.cbar .track i, .gs .track i { display: block; height: 100%; border-radius: 4px; }
+.cbar .val { text-align: right; font-variant-numeric: tabular-nums; }
+.cbar .rate { font-size: 13px; color: var(--dim); text-align: right; }
+.sec { margin: 12px 0 6px; font-family: Kai, Body; font-size: 19px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.sec::before { content: ''; width: 6px; height: 6px; transform: rotate(45deg); background: var(--red); }
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.gcards { display: flex; flex-direction: column; gap: 8px; }
+.gcard { display: flex; gap: 10px; padding: 8px 10px; border-radius: 10px; background: #fffaf0; border: 1px solid rgba(59, 51, 42, .12); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(59, 51, 42, .06); transition: box-shadow .12s, transform .12s; }
+.gcard:hover { box-shadow: 0 4px 12px rgba(59, 51, 42, .15); transform: translateY(-1px); }
+.gcard.acted { opacity: .6; }
+.gc-face { width: 56px; height: 56px; border-radius: 50%; flex: none; }
+.gc-main { flex: 1; min-width: 0; }
+.gc-name { display: flex; align-items: center; gap: 6px; font-family: Kai, Body; font-size: 20px; line-height: 26px; }
+.gc-name .badge { font-family: Body; font-size: 12px; line-height: 18px; padding: 0 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--dim); }
+.gc-name .badge.ruler { background: var(--red); border-color: var(--red); color: #fff; }
+.gc-name .done { margin-left: auto; font-family: Body; font-size: 12px; color: var(--dim); }
+.gstats { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; margin: 3px 0; }
+.gs { display: grid; grid-template-columns: 16px 1fr 26px; align-items: center; gap: 4px; font-size: 13px; line-height: 17px; }
+.gs .k { color: var(--dim); }
+.gs .v { text-align: right; font-variant-numeric: tabular-nums; }
+.gcard .apt { font-size: 13px; color: var(--dim); display: flex; gap: 10px; }
+.others { display: flex; flex-wrap: wrap; gap: 6px; }
+.ochip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 2px; border-radius: 14px; background: rgba(59, 51, 42, .07); font-size: 14px; cursor: pointer; }
+.ochip .face.mini { width: 22px; height: 22px; border-radius: 50%; border-width: 1px; }
+.ochip small { color: var(--dim); }
+.ochip.pris small { color: var(--red); }
+
+#cmd-win h3 { font-size: 18px; margin-bottom: 6px; }
+.menu.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.menu.tiles li { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 52px; padding: 2px; line-height: 18px;
+  border-radius: 10px; background: #fffaf0; border: 1px solid rgba(59, 51, 42, .14); border-top: 3px solid var(--tc, #b8892c); font-family: Kai, Body; font-size: 16px; }
+.menu.tiles li::before { display: none; }
+.menu.tiles li .mi { width: 24px; height: 24px; margin: 0; }
+.menu.tiles li .hint { display: none; }
+.menu.tiles li.sel { background: #fbecd9; box-shadow: 0 0 0 2px var(--red); color: var(--ink); }
+.menu.tiles li.off { opacity: .45; }
+.menu.tiles li:nth-child(-n+5) { --tc: #5b9a5b; }
+.menu.tiles li:nth-child(n+6):nth-child(-n+8) { --tc: #b8503a; }
+.menu.tiles li:nth-child(n+9):nth-child(-n+13) { --tc: #5a6b8a; }
+
+/* 手機 */
+body.mobile #status { gap: 4px 10px; }
+body.mobile #status .brand, body.mobile #status .chips, body.mobile #status .grow { display: none; }
+body.mobile #status .date b { font-size: 18px; }
+body.mobile #status .fac { font-size: 16px; }
+body.mobile #status .seal { width: 22px; height: 22px; font-size: 13px; }
+body.mobile #status .resources { gap: 8px; width: 100%; order: 5; }
+body.mobile #status .res { font-size: 13px; gap: 2px; }
+body.mobile #status .res svg { width: 16px; height: 16px; }
+body.mobile #status .tb { height: 30px; padding: 0 8px; font-size: 14px; }
+body.mobile #status .tb.endturn { height: 32px; padding: 0 10px; font-size: 15px; letter-spacing: 1px; margin-left: auto; }
+body.mobile #city-win { height: auto; overflow: visible; }
+body.mobile #cmd-win { height: auto; }
+body.mobile #cmd-win > h3 { display: none; }
+body.mobile .menu.tiles li { height: 56px; font-size: 14px; }
+body.mobile #msg-win { width: auto !important; }
+body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 14px; }
+#status { gap: 12px; }
+#status .brand { display: none; }
+#status .resources { gap: 12px; }
+#status .res { font-size: 17px; }
+#status .tb { padding: 0 10px; font-size: 16px; }
+#status .tb.endturn { padding: 0 16px; font-size: 19px; letter-spacing: 2px; }
+#cmd-win h3 { margin-bottom: 4px; line-height: 24px; }
+.menu.tiles { gap: 5px; }
+.menu.tiles li { height: 48px; }
