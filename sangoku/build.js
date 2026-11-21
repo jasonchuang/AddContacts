@@ -29,6 +29,17 @@ fs.writeFileSync(path.join(portraitDir, 'manifest.js'),
   + `(function (TK) { TK.PORTRAIT_FILES = ${JSON.stringify(files, null, 2)}; })(globalThis.TK = globalThis.TK || {});\n`);
 console.log(`插畫：${Object.keys(files).filter((n) => !n.endsWith('_head')).length} 位`);
 
+// ---------- 事件背景插圖 ----------
+// scenes/<事件id>.jpg（由 tools/import_scenes.py 產生）；網頁版用到才下載，單檔版不內嵌（改用內建背景，避免檔案太大）
+const sceneDir = path.join(root, 'scenes');
+fs.mkdirSync(sceneDir, { recursive: true });
+const sceneFiles = {};
+for (const f of fs.readdirSync(sceneDir).sort()) if (/\.jpg$/i.test(f)) sceneFiles[path.basename(f, path.extname(f))] = `scenes/${f}`;
+fs.writeFileSync(path.join(sceneDir, 'manifest.js'),
+  '/* 由 build.js 自動產生：列出 scenes/ 中的事件背景插圖。請勿手動編輯。 */\n'
+  + `(function (TK) { TK.SCENE_FILES = ${JSON.stringify(sceneFiles, null, 2)}; })(globalThis.TK = globalThis.TK || {});\n`);
+console.log(`事件背景：${Object.keys(sceneFiles).length} 張`);
+
 // ---------- 士兵 sprite sheet ----------
 // sprites/sprites.json 描述每個兵種的圖檔與動畫格（格式見 sprites/README.md）；產生 sprites/manifest.js
 const spriteDir = path.join(root, 'sprites');
@@ -77,9 +88,15 @@ function bundle(portraits) {
     `url("data:font/woff2;base64,${fs.readFileSync(path.join(root, f)).toString('base64')}")`);
   html = html.replace(/<link rel="stylesheet" href="style\.css">/, () => `<style>\n${css}\n</style>`);
 
-  html = html.replace(/<script src="((?:js|portraits|sprites)\/[\w.]+)"><\/script>/g, (_, src) => {
+  html = html.replace(/<script src="((?:js|portraits|sprites|scenes)\/[\w.]+)"><\/script>/g, (_, src) => {
     let code;
-    if (src === 'sprites/manifest.js') {
+    if (src === 'scenes/manifest.js') {
+      const map = {};
+      if (portraits !== 'inline') for (const [id, rel] of Object.entries(sceneFiles)) {
+        map[id] = `${rel}?v=${crypto.createHash('md5').update(fs.readFileSync(path.join(root, rel))).digest('hex').slice(0, 8)}`;
+      }
+      code = `(function (TK) { TK.SCENE_FILES = ${JSON.stringify(map)}; })(globalThis.TK = globalThis.TK || {});`;
+    } else if (src === 'sprites/manifest.js') {
       code = spriteManifest((f) => `data:${MIME[path.extname(f).toLowerCase()]};base64,${fs.readFileSync(path.join(spriteDir, f)).toString('base64')}`);
     } else if (src === 'portraits/manifest.js') {
       const map = {};
@@ -96,7 +113,7 @@ function bundle(portraits) {
     return `<script>\n/* ${src} */\n${code.replace(/<\/script/gi, '<\\/script')}\n</script>`;
   });
 
-  if (/src="(js|portraits|sprites)\//.test(html) || /href="style\.css"/.test(html) || /url\("fonts\//.test(html)) throw new Error('仍有未內嵌的檔案');
+  if (/src="(js|portraits|sprites|scenes)\//.test(html) || /href="style\.css"/.test(html) || /url\("fonts\//.test(html)) throw new Error('仍有未內嵌的檔案');
   return html;
 }
 const size = (str) => { const kb = Buffer.byteLength(str) / 1024; return kb >= 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb.toFixed(0) + ' KB'; };
@@ -119,6 +136,10 @@ fs.mkdirSync(site, { recursive: true });
 fs.rmSync(sitePortraits, { recursive: true, force: true });
 fs.mkdirSync(sitePortraits, { recursive: true });
 for (const rel of Object.values(files)) fs.copyFileSync(path.join(root, rel), path.join(site, rel));
+const siteScenes = path.join(site, 'scenes');
+fs.rmSync(siteScenes, { recursive: true, force: true });
+fs.mkdirSync(siteScenes, { recursive: true });
+for (const rel of Object.values(sceneFiles)) fs.copyFileSync(path.join(root, rel), path.join(site, rel));
 let web = bundle('url');
 if (!release) {
   // 預覽版：左下角標示，避免跟正式版搞混

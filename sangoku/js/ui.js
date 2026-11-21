@@ -1154,7 +1154,7 @@
       const kind = TK.Scenes ? TK.Scenes.forEvent(ev) : 'palace';
       const prevTrack = TK.Music ? TK.Music.current() : null;
       if (TK.Music) TK.Music.play(['fire', 'night', 'rain'].includes(kind) ? 'tense' : 'event');
-      const bg = h('div', { class: 'scene-bg', style: TK.Scenes ? `background-image:url("${TK.Scenes.url(kind)}")` : '' });
+      const bg = h('div', { class: 'scene-bg', style: TK.Scenes ? `background-image:url("${TK.Scenes.urlFor(ev)}")` : '' });
       const actors = { left: h('div', { class: 'actor left' }), right: h('div', { class: 'actor right' }) };
       const nameEl = h('div', { class: 'sc-name' }), textEl = h('div', { class: 'sc-text' });
       const root = h('div', { class: 'scene scene-' + kind }, bg, actors.left, actors.right,
