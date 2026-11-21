@@ -104,7 +104,7 @@ body { font-family: Body, "Noto Serif TC", "PMingLiU", "Songti TC", serif; color
 /* 疊加視窗層 */
 #layer { position: absolute; inset: 0; pointer-events: none; }
 #layer .win { pointer-events: auto; z-index: 5; border: 1px solid rgba(59, 51, 42, .5); box-shadow: 0 0 0 4px rgba(248, 241, 223, .9), 0 0 0 5px rgba(59, 51, 42, .35), 0 16px 40px rgba(31, 26, 20, .4); }
-#layer .shade { position: absolute; inset: 0; background: rgba(31, 26, 20, .45); pointer-events: auto; }
+#layer .shade { position: absolute; inset: 0; background: rgba(31, 26, 20, .45); pointer-events: auto; z-index: 5; }
 .pop { min-width: 260px; max-height: 640px; overflow: auto; }
 
 /* 表格選擇 */
@@ -157,17 +157,79 @@ table.grid tr.sel td.hl { color: var(--hi); }
 
 /* ---------- 標題 ---------- */
 .screen { position: absolute; inset: 0; }
-#title-bg { position: absolute; inset: 0; width: 1280px; height: 800px; filter: brightness(.75) saturate(.85); }
-.title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.title-pre { font-family: Kai, Body; font-size: 40px; letter-spacing: .8em; padding-left: .8em; color: var(--red); text-shadow: 0 0 6px var(--paper); }
-.title-logo {
-  font-family: Kai, Body, sans-serif; font-size: 120px; line-height: 132px; color: var(--ink); letter-spacing: 12px;
-  text-shadow: 0 0 2px var(--paper), 4px 4px 0 rgba(239, 229, 207, .9), -2px -2px 0 rgba(239, 229, 207, .9);
-}
-.title-sub { font-size: 28px; color: var(--ink-2); margin: 6px 0 30px; text-shadow: 0 0 6px var(--paper), 0 0 2px var(--paper); }
-#title-menu .win { position: relative; min-width: 380px; }
-#title-menu .menu li { font-family: Kai, Body, sans-serif; font-size: 24px; height: 44px; line-height: 44px; }
-.title-foot { position: absolute; bottom: 18px; width: 100%; text-align: center; font-size: 18px; color: var(--ink-2); text-shadow: 0 0 4px var(--paper); }
+#title { overflow: hidden;
+  background: radial-gradient(ellipse at 50% 35%, #f7efdd 0%, #efe5cf 55%, #e2d4b6 100%); }
+#title::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background: repeating-linear-gradient(0deg, rgba(120, 95, 60, .05) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(120, 95, 60, .04) 0 1px, transparent 1px 4px); }
+.t-sun { position: absolute; right: 190px; top: 120px; width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle at 45% 40%, #c8604c, #b23a2c 60%, #9e3326); opacity: .82; filter: blur(.5px); }
+.t-birds { position: absolute; left: 230px; top: 150px; width: 260px; fill: none; stroke: #3b332a; stroke-width: 2.4; stroke-linecap: round; opacity: .7; }
+.t-hills { position: absolute; left: 0; bottom: 0; width: 100%; height: 260px; }
+.t-hills .far { fill: #b9ae98; opacity: .55; }
+.t-hills .near { fill: #8f8470; opacity: .45; }
+.title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+.title-head { display: flex; align-items: flex-start; gap: 22px; }
+.title-seal { margin-top: 18px; padding: 8px 10px; font-family: Kai, Body; font-size: 34px; line-height: 38px; color: #fff5ea; background: var(--red);
+  border-radius: 6px; box-shadow: inset 0 0 0 3px rgba(255, 245, 234, .55); transform: rotate(-4deg); }
+.title-logo { font-family: Kai, Body, sans-serif; font-size: 150px; line-height: 170px; color: var(--ink); letter-spacing: 10px;
+  text-shadow: 3px 4px 0 rgba(31, 26, 20, .12); }
+.title-sub { font-size: 24px; letter-spacing: .5em; padding-left: .5em; color: var(--ink-2); margin: 4px 0 34px; }
+.title-menu { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; width: 360px; }
+.title-menu li { display: flex; align-items: center; justify-content: center; gap: 10px; height: 52px; border-radius: 26px; cursor: pointer;
+  font-family: Kai, Body, sans-serif; font-size: 24px; color: var(--ink); background: rgba(255, 251, 240, .78); border: 1px solid rgba(59, 51, 42, .2);
+  box-shadow: 0 2px 6px rgba(59, 51, 42, .08); transition: transform .12s, background .12s, box-shadow .12s; }
+.title-menu li .hint { font-size: 15px; color: var(--dim); font-family: Body; }
+.title-menu li.sel { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 6px 16px rgba(178, 58, 44, .3); transform: translateY(-1px); }
+.title-menu li.sel .hint { color: rgba(255, 255, 255, .8); }
+.title-menu li.off { opacity: .45; }
+.title-menu li .mi { display: none; }
+.title-foot { position: absolute; bottom: 16px; width: 100%; text-align: center; font-size: 16px; color: var(--dim); z-index: 1; }
+
+/* ---------- 卡片選擇畫面（劇本、君主） ---------- */
+#layer .win.picker { position: absolute; padding: 26px 34px 20px; border-radius: 0; border: 0; box-shadow: none; display: flex; flex-direction: column;
+  background: radial-gradient(ellipse at 50% 20%, #f7efdd, #efe5cf 60%, #e4d7bb); }
+.picker > .win-x { display: none; }
+.pk-head { text-align: center; margin-bottom: 18px; }
+.pk-title { font-family: Kai, Body; font-size: 38px; letter-spacing: .12em; color: var(--ink); }
+.pk-sub { margin-top: 4px; color: var(--dim); font-size: 17px; }
+.cards { display: grid; gap: 16px; overflow-y: auto; padding: 4px 6px 10px; flex: 1; min-height: 0; align-content: start; grid-auto-rows: max-content; }
+.card { position: relative; background: #fbf6ea; border-radius: 12px; border: 1px solid rgba(59, 51, 42, .14); cursor: pointer;
+  box-shadow: 0 2px 8px rgba(59, 51, 42, .1); transition: transform .14s, box-shadow .14s, border-color .14s; }
+.card.sel { transform: translateY(-3px); border-color: var(--red); box-shadow: 0 10px 24px rgba(59, 51, 42, .2), 0 0 0 2px rgba(178, 58, 44, .35); }
+.card.off { opacity: .5; }
+.pk-foot { text-align: center; margin-top: 12px; }
+/* 劇本卡 */
+.scard { padding: 16px 18px 14px; min-height: 170px; }
+.scard .sc-year { color: var(--red); font-size: 16px; } .scard .sc-year b { font-size: 30px; font-family: Kai, Body; margin-right: 2px; }
+.scard .sc-name { font-family: Kai, Body; font-size: 28px; line-height: 36px; color: var(--ink); }
+.scard .sc-tag { color: var(--ink-2); font-size: 16px; }
+.scard .sc-desc { color: var(--dim); font-size: 14px; line-height: 21px; margin: 6px 0 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sc-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 13px; line-height: 20px; color: #fff; background: var(--c, #888); }
+/* 勢力卡 */
+.fcard { display: flex; align-items: center; gap: 16px; padding: 16px 18px 16px 24px; overflow: hidden; }
+.fcard::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--c); }
+.fcard .fc-face { width: 92px; height: 92px; border-radius: 50%; flex: none; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--c), 0 4px 10px rgba(0, 0, 0, .15); }
+.fc-main { flex: 1; min-width: 0; font-size: 16px; line-height: 25px; }
+.fc-name { font-family: Kai, Body; font-size: 28px; line-height: 36px; display: flex; align-items: center; gap: 8px; }
+.fc-name .seal { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 5px; color: #fff; font-size: 18px; }
+.fc-diff { color: var(--red); } .fc-diff span { letter-spacing: 1px; }
+.fc-army { display: flex; align-self: flex-start; margin-top: 6px; }
+.fc-army svg { width: 18px; height: 26px; margin-left: -4px; }
+/* 開局設定 */
+.setup-win { padding: 18px 24px !important; }
+.su-top { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.su-face { width: 84px; height: 105px; border-radius: 10px; }
+.su-name { font-family: Kai, Body; font-size: 32px; line-height: 40px; }
+.su-row { display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: 4px 12px; padding: 10px 12px; border-radius: 10px; }
+.su-row.focus { background: rgba(178, 58, 44, .07); }
+.su-label { color: var(--ink-2); font-family: Kai, Body; font-size: 20px; }
+.su-hint { grid-column: 2; font-size: 15px; line-height: 22px; }
+.seg { display: inline-flex; background: rgba(59, 51, 42, .08); border-radius: 22px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; padding: 6px 18px; border-radius: 19px; font: inherit; font-size: 18px; color: var(--ink-2); cursor: pointer; }
+.seg button.on { background: #fff; color: var(--red); box-shadow: 0 1px 4px rgba(0, 0, 0, .15); }
+.su-foot { display: flex; justify-content: flex-end; gap: 12px; margin-top: 14px; }
+.su-foot .start { padding-left: 34px; padding-right: 34px; }
 
 /* ---------- 換月橫幅 ---------- */
 #banner { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 20; background: radial-gradient(ellipse, rgba(239, 229, 207, .7), transparent 65%); }
@@ -304,13 +366,28 @@ body.mobile .win h3 { font-size: 18px; line-height: 24px; margin-bottom: 4px; }
 
 /* 標題 */
 body.mobile #title { position: relative; min-height: 100dvh; overflow: hidden; }
-body.mobile #title-bg { width: 100%; height: 100%; object-fit: cover; }
-body.mobile .title-pre { font-size: 26px; }
-body.mobile .title-logo { font-size: 64px !important; line-height: 1.2 !important; }
-body.mobile .title-sub { font-size: 16px; margin-bottom: 18px; }
-body.mobile #title-menu .win { min-width: 0; width: 80vw; }
-body.mobile #title-menu .menu li { font-size: 20px; height: 46px; line-height: 46px; }
+body.mobile .title-logo { font-size: 64px !important; line-height: 1.2 !important; letter-spacing: 4px; }
+body.mobile .title-seal { font-size: 18px; line-height: 21px; padding: 5px 6px; margin-top: 10px; }
+body.mobile .title-head { gap: 10px; }
+body.mobile .title-sub { font-size: 14px; letter-spacing: .2em; margin-bottom: 18px; }
+body.mobile .title-menu { width: 78vw; }
+body.mobile .title-menu li { font-size: 20px; height: 46px; }
+body.mobile .t-sun { width: 150px; height: 150px; right: 20px; top: 60px; }
+body.mobile .t-birds { left: 20px; top: 70px; width: 140px; }
 body.mobile .title-foot { display: none; }
+body.mobile #layer .win.picker { position: fixed; padding: 16px 12px; }
+body.mobile .pk-title { font-size: 19px; letter-spacing: .05em; }
+body.mobile .pk-sub { font-size: 14px; }
+body.mobile .cards { grid-template-columns: 1fr !important; gap: 10px; }
+body.mobile .scard { min-height: 0; padding: 12px 14px; }
+body.mobile .fcard { padding: 12px 12px 12px 18px; gap: 12px; }
+body.mobile .fcard .fc-face { width: 64px; height: 64px; }
+body.mobile .fc-name { font-size: 22px; line-height: 28px; }
+body.mobile .fc-main { font-size: 14px; line-height: 21px; }
+body.mobile .setup-win { width: 94vw !important; }
+body.mobile .su-row { grid-template-columns: 1fr; }
+body.mobile .su-hint { grid-column: 1; }
+body.mobile .seg button { padding: 6px 12px; font-size: 16px; }
 
 /* 遊戲畫面：直式排列 */
 body.mobile #game { display: flex; flex-direction: column; gap: 6px; padding: 0 0 calc(96px + env(safe-area-inset-bottom)); }
@@ -397,11 +474,11 @@ body.mobile .scene .sc-noface { font-size: 80px; }
 
 /* ---------- 視窗底部按鈕列、關閉鈕 ---------- */
 .win-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); background: var(--panel); }
-.win-foot .act { min-width: 110px; height: 42px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2, #fbf6ea); color: var(--ink); font-family: Kai, Body; font-size: 20px; cursor: pointer; }
-.win-foot .act.primary { background: var(--red); border-color: #7e2219; color: #fff; box-shadow: 0 3px 0 #7e2219; }
-.win-foot .act.primary:disabled { background: #c9b8a8; border-color: #a89888; box-shadow: none; cursor: default; }
-.win-foot .act.sel { outline: 3px solid #f0b040; outline-offset: 1px; }
-.win-foot .act:active { transform: translateY(2px); box-shadow: none; }
+.act { min-width: 110px; height: 42px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2, #fbf6ea); color: var(--ink); font-family: Kai, Body; font-size: 20px; cursor: pointer; }
+.act.primary { background: var(--red); border-color: #7e2219; color: #fff; box-shadow: 0 3px 0 #7e2219; }
+.act.primary:disabled { background: #c9b8a8; border-color: #a89888; box-shadow: none; cursor: default; }
+.act.sel { outline: 3px solid #f0b040; outline-offset: 1px; }
+.act:active { transform: translateY(2px); box-shadow: none; }
 .win.pop > .win-x { position: absolute; right: 8px; top: 8px; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 18px; cursor: pointer; z-index: 2; }
 .win.pop > .win-x:hover { background: var(--hi-bg); color: var(--red); }
 .win.pop > h3 { padding-right: 36px; }

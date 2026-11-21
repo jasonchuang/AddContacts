@@ -153,7 +153,9 @@
     if (!el.querySelector(':scope > .win-x')) {
       el.prepend(h('button', { class: 'win-x', title: '關閉（Esc）', onclick: (e) => { e.stopPropagation(); if (win.onKey) win.onKey({ key: 'Escape' }); else { SND.cancel(); popWin(); } } }, '✕'));
     }
-    if (opts.center) {
+    if (opts.full) {
+      el.style.inset = '0';
+    } else if (opts.center) {
       el.style.left = '50%'; el.style.top = '50%'; el.style.transform = 'translate(-50%, -50%)';
     } else {
       el.style.left = `${(opts.x != null ? opts.x : 420) + depth * 24}px`;
@@ -410,8 +412,6 @@
     if (TK.Music) TK.Music.play('title');
     $('game').classList.add('hidden');
     $('title').classList.remove('hidden');
-    const preview = E.newGame(null, 1);
-    MV.render($('title-bg'), preview, { selected: null, hovered: null, targets: [], blink: false, color: (f) => preview.factions[f].color, legend: false });
     const auto = meta(AUTO_KEY);
     const items = [
       { label: '新遊戲', act: chooseScenario },
@@ -422,7 +422,8 @@
       { label: '聲音診斷', act: soundCheck },
     ];
     const m = makeMenu(items, (it) => it.act());
-    $('title-menu').replaceChildren(h('div', { class: 'win' }, m.ul));
+    m.ul.classList.add('title-menu');
+    $('title-menu').replaceChildren(m.ul);
     rootKey = (e) => m.onKey(e);
   }
 
@@ -435,43 +436,130 @@
     } catch (e) { return ''; }
   }
 
+  // 卡片選擇畫面（全畫面）：cards 為 [{ el, off, act }]，方向鍵移動、Enter 決定、Esc 返回
+  function cardsWin(title, sub, cards, opts) {
+    opts = opts || {};
+    const cols = opts.cols || 3;
+    const grid = h('div', { class: 'cards', style: `grid-template-columns:repeat(${cols},1fr)` });
+    const el = h('div', { class: 'win picker' },
+      h('div', { class: 'pk-head' }, h('div', { class: 'pk-title' }, title), sub ? h('div', { class: 'pk-sub' }, sub) : null),
+      grid,
+      h('div', { class: 'pk-foot' }, h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); back(); } }, '返回')));
+    const win = { el, index: Math.max(0, cards.findIndex((c) => !c.off)) };
+    const render = () => cards.forEach((c, i) => c.el.classList.toggle('sel', i === win.index));
+    const choose = () => { const c = cards[win.index]; if (!c || c.off) { SND.error(); return; } SND.ok(); c.act(); };
+    const back = () => { SND.cancel(); popWin(); if (opts.onBack) opts.onBack(); };
+    cards.forEach((c, i) => {
+      c.el.classList.add('card');
+      if (c.off) c.el.classList.add('off');
+      c.el.addEventListener('mouseenter', () => { if (win.index !== i) { win.index = i; render(); } });
+      c.el.addEventListener('click', () => { win.index = i; choose(); });
+      grid.append(c.el);
+    });
+    win.onKey = (e) => {
+      const n = cards.length;
+      if (e.key === 'ArrowRight') win.index = Math.min(n - 1, win.index + 1);
+      else if (e.key === 'ArrowLeft') win.index = Math.max(0, win.index - 1);
+      else if (e.key === 'ArrowDown') win.index = Math.min(n - 1, win.index + cols);
+      else if (e.key === 'ArrowUp') win.index = Math.max(0, win.index - cols);
+      else if (e.key === 'Enter' || e.key === ' ') { choose(); return true; }
+      else if (e.key === 'Escape') { back(); return true; }
+      else return false;
+      SND.cursor(); render();
+      const sel = cards[win.index].el;
+      if (sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+      return true;
+    };
+    render();
+    return pushWin(win, { full: true });
+  }
+
   // 選擇劇本
   function chooseScenario() {
     const list = TK.SCENARIOS || [TK.SCENARIO];
-    menuWin('選擇劇本', list.map((sc) => ({
-      label: `${sc.year}年　${sc.title}`, hint: sc.tag,
-      act: () => { closeAll(); TK.SCENARIO = sc; chooseFaction(); say(null, sc.desc); },
-    })), null, { center: true, width: 900, shade: true });
+    cardsWin('選擇劇本', '從群雄割據到三國鼎立，選一個時代登場', list.map((sc) => ({
+      el: h('div', { class: 'scard' },
+        h('div', { class: 'sc-year' }, h('b', {}, String(sc.year)), '年'),
+        h('div', { class: 'sc-name' }, sc.title),
+        h('div', { class: 'sc-tag' }, sc.tag || ''),
+        h('div', { class: 'sc-desc' }, sc.desc || ''),
+        h('div', { class: 'sc-chips' }, sc.factions.slice(0, 6).map((f) => h('span', { class: 'chip', style: `--c:${f.color}` }, f.name.replace(/軍$/, ''))))),
+      act: () => { TK.SCENARIO = sc; chooseFaction(); },
+    })));
   }
 
+  // 選擇君主：勢力卡片
   function chooseFaction() {
     const sc = TK.SCENARIO;
-    const rows = sc.factions.map((f) => {
+    const cards = sc.factions.map((f) => {
       const cities = sc.cities.filter((c) => c.owner === f.id);
       const gens = sc.generals.filter((g) => g.faction === f.id).length;
       const troops = cities.reduce((a, c) => a + c.troops, 0);
       const diff = troops >= 60000 ? 1 : troops >= 40000 ? 2 : troops >= 30000 ? 3 : troops >= 15000 ? 4 : 5;
-      return { f, cities, cells: [f.name, f.ruler, cities.length, gens, fmtW(troops), '★'.repeat(diff)] };
+      const ruler = Object.assign({ id: f.ruler }, sc.generals.find((g) => g.id === f.ruler));
+      const army = Math.max(1, Math.min(4, Math.round(troops / 15000)));
+      return {
+        el: h('div', { class: 'fcard', style: `--c:${f.color}` },
+          face(ruler, 'head', 0, 0, 'fc-face'),
+          h('div', { class: 'fc-main' },
+            h('div', { class: 'fc-name' }, f.name, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler))),
+            h('div', { class: 'dim' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、') || '—'}`),
+            h('div', { class: 'dim' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
+            h('div', { class: 'fc-diff' }, '難度 ', h('span', {}, '★'.repeat(diff) + '☆'.repeat(5 - diff)))),
+          h('div', { class: 'fc-army' }, Array.from({ length: army }, () => svgNode(TK.Icons.unit('spear', f.color))))),
+        act: () => setupGame(f, ruler),
+      };
     });
-    tableWin(`選擇君主　${sc.year}年「${sc.title}」`, [{ label: '勢力' }, { label: '君主' }, { label: '城' }, { label: '將' }, { label: '兵力' }, { label: '難度' }], rows, (r) => {
-      menuWin('劇本模式', [
-        { label: '歷史劇本', hint: '依條件發生歷史事件', act: () => chooseDifficulty(r.f.id, 'historical') },
-        { label: '自由模式', hint: '各勢力自由發展', act: () => chooseDifficulty(r.f.id, 'free') },
-      ], null, { center: true, width: 620 });
-    }, {
-      center: true, width: 1000, shade: true,
-      side: (r) => h('div', {}, face(Object.assign({ id: r.f.ruler }, sc.generals.find((g) => g.id === r.f.ruler)), 'full', 48, 60, 'big'),
-        h('div', { class: 'desc' }, h('span', { style: `color:${r.f.color}` }, '■ '), r.f.name, h('br'), h('span', { class: 'dim' }, r.cities.map((c) => c.name).join('・')))),
-    });
+    cardsWin(`${sc.year}年「${sc.title}」・選擇君主`, sc.desc, cards);
   }
 
-  // 難易度
-  function chooseDifficulty(fid, mode) {
-    menuWin('難易度', Object.entries(E.DIFFICULTY).map(([k, d]) => ({
-      label: d.label, hint: d.desc, act: () => { closeAll(); newGame(fid, mode, k); },
-    })), null, { center: true, width: 760, shade: true });
-    stack[stack.length - 1].menu.index = 1;
-    stack[stack.length - 1].menu.render();
+  // 開局設定：模式與難易度
+  function setupGame(f, ruler) {
+    let mode = 'historical', diffKey = 'normal';
+    const rows = [
+      { key: 'mode', label: '模式', opts: [['historical', '歷史劇本', '依條件發生歷史事件與抉擇'], ['free', '自由模式', '不發生歷史事件，各勢力自由發展']] },
+      { key: 'diff', label: '難易度', opts: Object.entries(E.DIFFICULTY).map(([k, d]) => [k, d.label, d.desc]) },
+    ];
+    let row = 0;
+    const body = h('div', { class: 'setup' });
+    const start = () => { SND.ok(); closeAll(); newGame(f.id, mode, diffKey); };
+    const render = () => {
+      body.replaceChildren(
+        h('div', { class: 'su-top' }, face(ruler, 'full', 0, 0, 'su-face'),
+          h('div', {}, h('div', { class: 'su-name', style: `color:${f.color}` }, f.name), h('div', { class: 'dim' }, `君主 ${f.ruler}`))),
+        ...rows.map((r, ri) => {
+          const val = r.key === 'mode' ? mode : diffKey;
+          const cur = r.opts.find((o) => o[0] === val);
+          return h('div', { class: 'su-row' + (ri === row ? ' focus' : '') },
+            h('div', { class: 'su-label' }, r.label),
+            h('div', { class: 'seg' }, r.opts.map(([k, label]) => h('button', {
+              class: k === val ? 'on' : '',
+              onclick: (e) => { e.stopPropagation(); row = ri; if (r.key === 'mode') mode = k; else diffKey = k; SND.cursor(); render(); },
+            }, label))),
+            h('div', { class: 'su-hint dim' }, cur ? cur[2] : ''));
+        }),
+        h('div', { class: 'su-foot' },
+          h('button', { class: 'act', onclick: (e) => { e.stopPropagation(); SND.cancel(); popWin(); } }, '返回'),
+          h('button', { class: 'act primary start', onclick: (e) => { e.stopPropagation(); start(); } }, '出陣')));
+    };
+    const el = h('div', { class: 'win pop setup-win' }, h('h3', {}, '開局設定'), body);
+    const win = { el };
+    win.onKey = (e) => {
+      const r = rows[row];
+      const keys = r.opts.map((o) => o[0]);
+      const cur = keys.indexOf(r.key === 'mode' ? mode : diffKey);
+      const set = (i) => { if (r.key === 'mode') mode = keys[i]; else diffKey = keys[i]; };
+      if (e.key === 'ArrowUp') row = Math.max(0, row - 1);
+      else if (e.key === 'ArrowDown') row = Math.min(rows.length - 1, row + 1);
+      else if (e.key === 'ArrowLeft') set(Math.max(0, cur - 1));
+      else if (e.key === 'ArrowRight') set(Math.min(keys.length - 1, cur + 1));
+      else if (e.key === 'Enter' || e.key === ' ') { start(); return true; }
+      else if (e.key === 'Escape') { SND.cancel(); popWin(); return true; }
+      else return false;
+      SND.cursor(); render(); return true;
+    };
+    render();
+    return pushWin(win, { center: true, width: 760, shade: true });
   }
 
   function slotMenu(saving) {

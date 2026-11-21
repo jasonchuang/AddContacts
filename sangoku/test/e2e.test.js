@@ -43,17 +43,12 @@ async function open(browser, base, mobile) {
     AudioNode.prototype.connect = function (d, ...r) { if (d instanceof AudioDestinationNode) window.__sounds++; return orig.call(this, d, ...r); };
   });
   await p.goto(base + PAGE);
-  await p.waitForSelector('#title-menu li');
+  await p.waitForSelector('.title-menu li');
   return { ctx, p };
 }
 // 新遊戲：第一個劇本（190）、指定勢力、自由模式、中等難度，按到可以下指令為止
 async function newGame(p, faction) {
-  await p.click('#title-menu li >> nth=0');
-  await p.click('#layer li >> nth=0');
-  await p.click(`#layer tr:has-text("${faction}")`);
-  await p.click('#layer li:has-text("自由模式")');
-  await p.waitForTimeout(300);
-  if (await p.$('#layer li:has-text("中等")')) await p.click('#layer li:has-text("中等")');
+  await ui.setup(p, faction, '自由模式');
   for (let i = 0; i < 60; i++) {
     if (await p.$('#cmd-win li:has-text("內政"):not(.off)') && !(await p.$('.scene'))) return;
     await p.keyboard.press('Enter');
@@ -69,6 +64,15 @@ async function openGeneral(p, name) {
 }
 // 主畫面的操作（改版面時只要改這幾個函式）
 const ui = {
+  // 標題 → 第一個劇本 → 勢力卡片 → 模式與難易度 → 出陣
+  async setup(p, faction, mode) {
+    await p.click('.title-menu li:has-text("新遊戲")');
+    await p.click('.scard >> nth=0');
+    await p.click(`.fcard:has-text("${faction}")`);
+    await p.click(`.seg button:has-text("${mode}")`);
+    await p.click('.seg button:has-text("中等")');
+    await p.click('.setup-win .start');
+  },
   state: (p) => p.evaluate(() => { const S = TK.UI.state(); return S && JSON.parse(JSON.stringify(S)); }),
   async cmd(p, ...path) { // 例：cmd(p, '內政', '開墾')
     await p.click(`#cmd-win li:has-text("${path[0]}")`);
@@ -244,8 +248,8 @@ test('存檔與讀檔：存到存檔 1，回到標題後讀回同一個進度', 
   await ui.cmd(p, '系統', '存檔', '存檔 1');
   await p.waitForTimeout(300);
   await p.evaluate(() => location.reload());
-  await p.waitForSelector('#title-menu li');
-  await p.click('#title-menu li:has-text("讀取存檔")');
+  await p.waitForSelector('.title-menu li');
+  await p.click('.title-menu li:has-text("讀取存檔")');
   await p.click('#layer li:has-text("存檔 1")');
   await p.waitForTimeout(500);
   const s1 = await ui.state(p);
@@ -257,12 +261,7 @@ test('存檔與讀檔：存到存檔 1，回到標題後讀回同一個進度', 
 
 test('歷史劇本：開局事件以場景演出，可以一路按完並開始下指令', async (b, base) => {
   const { ctx, p } = await open(b, base);
-  await p.click('#title-menu li >> nth=0');
-  await p.click('#layer li >> nth=0');
-  await p.click('#layer tr:has-text("曹操軍")');
-  await p.click('#layer li:has-text("歷史劇本")');
-  await p.waitForTimeout(300);
-  if (await p.$('#layer li:has-text("中等")')) await p.click('#layer li:has-text("中等")');
+  await ui.setup(p, '曹操軍', '歷史劇本');
   let sawScene = false;
   for (let i = 0; i < 200; i++) {
     if (await p.$('.scene')) { if (!sawScene) await shot(p, '08-歷史事件'); sawScene = true; }
