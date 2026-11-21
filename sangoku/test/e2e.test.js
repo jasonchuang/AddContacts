@@ -36,6 +36,12 @@ async function open(browser, base, mobile) {
   p.portraitRequests = [];
   p.on('pageerror', (e) => p.errors.push(e.message));
   p.on('response', (r) => { if (r.url().includes('/portraits/')) p.portraitRequests.push(r.status()); });
+  // 計算接到喇叭（AudioDestinationNode）的聲音節點數，用來確認真的有發聲
+  await p.addInitScript(() => {
+    window.__sounds = 0;
+    const orig = AudioNode.prototype.connect;
+    AudioNode.prototype.connect = function (d, ...r) { if (d instanceof AudioDestinationNode) window.__sounds++; return orig.call(this, d, ...r); };
+  });
   await p.goto(base + PAGE);
   await p.waitForSelector('#title-menu li');
   return { ctx, p };
@@ -61,6 +67,28 @@ async function openGeneral(p, name) {
   await p.click(`#layer tr:has-text("${name}")`);
   await p.waitForSelector('.detail');
 }
+// 主畫面的操作（改版面時只要改這幾個函式）
+const ui = {
+  state: (p) => p.evaluate(() => { const S = TK.UI.state(); return S && JSON.parse(JSON.stringify(S)); }),
+  async cmd(p, ...path) { // 例：cmd(p, '內政', '開墾')
+    await p.click(`#cmd-win li:has-text("${path[0]}")`);
+    for (const x of path.slice(1)) await p.click(`#layer li:has-text("${x}")`);
+  },
+  async pickFirstRow(p) { await p.click('#layer table tr:has(td) >> nth=0'); },
+  async endMonth(p) {
+    const before = await p.evaluate(() => TK.UI.state().month);
+    await p.click('#cmd-win li:has-text("結束本月")');
+    // 按到可以下指令為止（略過戰報、事件、提議）
+    for (let i = 0; i < 120; i++) {
+      const ok = await p.evaluate((m) => TK.UI.state().month !== m, before);
+      if (ok && await p.$('#cmd-win li:has-text("內政"):not(.off)') && !(await p.$('.scene'))) return;
+      await p.keyboard.press(i % 3 === 2 ? 'Escape' : 'Enter');
+      await p.waitForTimeout(150);
+    }
+    throw new Error('結束本月後一直回不到可下指令的狀態');
+  },
+  sounds: (p) => p.evaluate(() => window.__sounds),
+};
 const shot = (p, name) => p.screenshot({ path: path.join(SHOTS, name + '.png') });
 async function imagesOk(p, sel) {
   return p.$$eval(sel, (a) => a.map((i) => ({ alt: i.alt, ok: i.complete && i.naturalWidth > 0, src: i.getAttribute('src') || '' })));
@@ -143,6 +171,109 @@ test('手機版：主畫面與武將詳細畫面沒有超出螢幕寬度', async
   assert(!o, `武將畫面有 ${o} 個元素超出寬度`);
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
+});
+
+test('聲音：點擊前不啟動、點擊後音訊運作並播放標題音樂，選單有音效，關掉音效就不發聲', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  const st = () => p.evaluate(() => ({ audio: TK.Audio.info().state, music: TK.Music.current(), on: TK.Music.isOn(), muted: TK.Sound.isMuted() }));
+  let s0 = await st();
+  assert(s0.audio === 'none', '還沒點畫面就啟動了音訊：' + s0.audio);
+  await p.mouse.click(5, 5);
+  await p.waitForTimeout(600);
+  s0 = await st();
+  assert(s0.audio === 'running', '點擊後音訊沒有運作：' + s0.audio);
+  assert(s0.music === 'title' && s0.on, '標題音樂沒有播放');
+  let n = await ui.sounds(p);
+  await p.keyboard.press('ArrowDown');
+  await p.waitForTimeout(200);
+  assert(await ui.sounds(p) > n, '移動選單沒有音效');
+  // 關掉音效：選單操作不再產生音效節點（音樂另外計算，所以先關音樂）
+  await p.evaluate(() => { if (TK.Music.isOn()) TK.Music.toggle(); if (!TK.Sound.isMuted()) TK.Sound.toggle(); });
+  await p.waitForTimeout(300);
+  n = await ui.sounds(p);
+  await p.keyboard.press('ArrowDown');
+  await p.waitForTimeout(200);
+  assert(await ui.sounds(p) === n, '音效關掉後還在發聲');
+  await p.evaluate(() => { TK.Music.toggle(); TK.Sound.toggle(); });
+  // 聲音診斷的測試音
+  n = await ui.sounds(p);
+  await p.evaluate(() => TK.Audio.testTone());
+  assert(await ui.sounds(p) > n, '測試音沒有發聲');
+  // 進入遊戲後換成內政音樂
+  await newGame(p, '劉備軍');
+  assert((await st()).music === 'domestic', '進入遊戲後沒有換成內政音樂：' + (await st()).music);
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+});
+
+test('內政：開墾後農業上升、金減少、該武將本月已行動', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  await newGame(p, '劉備軍');
+  const s0 = await ui.state(p);
+  const cityId = Object.values(s0.cities).find((c) => c.owner === s0.player).id;
+  await ui.cmd(p, '內政', '開墾');
+  await ui.pickFirstRow(p);
+  await p.waitForTimeout(400);
+  const s1 = await ui.state(p);
+  assert(s1.cities[cityId].farm > s0.cities[cityId].farm, `農業沒有上升（${s0.cities[cityId].farm} → ${s1.cities[cityId].farm}）`);
+  assert(s1.cities[cityId].gold < s0.cities[cityId].gold, '金沒有減少');
+  assert(Object.values(s1.generals).some((g) => g.acted), '沒有武將標記為已行動');
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+});
+
+test('結束本月：月份前進、自動存檔、武將行動次數重置', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  await newGame(p, '曹操軍');
+  const s0 = await ui.state(p);
+  await ui.endMonth(p);
+  const s1 = await ui.state(p);
+  assert(s1.month === s0.month + 1 || (s0.month === 12 && s1.month === 1), `月份沒有前進：${s0.month} → ${s1.month}`);
+  assert(await p.evaluate(() => !!localStorage.getItem('qunxiong.auto.v1')), '沒有自動存檔');
+  assert(Object.values(s1.generals).every((g) => !g.acted), '新的月份武將行動沒有重置');
+  await shot(p, '07-結束本月');
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+});
+
+test('存檔與讀檔：存到存檔 1，回到標題後讀回同一個進度', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  await newGame(p, '孫堅軍');
+  await ui.endMonth(p);
+  const s0 = await ui.state(p);
+  await ui.cmd(p, '系統', '存檔', '存檔 1');
+  await p.waitForTimeout(300);
+  await p.evaluate(() => location.reload());
+  await p.waitForSelector('#title-menu li');
+  await p.click('#title-menu li:has-text("讀取存檔")');
+  await p.click('#layer li:has-text("存檔 1")');
+  await p.waitForTimeout(500);
+  const s1 = await ui.state(p);
+  assert(s1 && s1.player === s0.player && s1.year === s0.year && s1.month === s0.month, '讀回的進度不同');
+  assert(JSON.stringify(s1.cities) === JSON.stringify(s0.cities), '讀回的城市資料不同');
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+});
+
+test('歷史劇本：開局事件以場景演出，可以一路按完並開始下指令', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  await p.click('#title-menu li >> nth=0');
+  await p.click('#layer li >> nth=0');
+  await p.click('#layer tr:has-text("曹操軍")');
+  await p.click('#layer li:has-text("歷史劇本")');
+  await p.waitForTimeout(300);
+  if (await p.$('#layer li:has-text("中等")')) await p.click('#layer li:has-text("中等")');
+  let sawScene = false;
+  for (let i = 0; i < 200; i++) {
+    if (await p.$('.scene')) { if (!sawScene) await shot(p, '08-歷史事件'); sawScene = true; }
+    if (await p.$('#cmd-win li:has-text("內政"):not(.off)') && !(await p.$('.scene'))) break;
+    await p.keyboard.press('Enter');
+    await p.waitForTimeout(120);
+  }
+  assert(await p.$('#cmd-win li:has-text("內政"):not(.off)'), '事件演完後無法下指令');
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+  return sawScene;
 });
 
 (async () => {
