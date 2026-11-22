@@ -41,5 +41,19 @@
       "fall": "xbow_fall_mask.png"
     }
   },
+  "general": {
+    "height": 86,
+    "facing": "right",
+    "poses": {
+      "idle": "general_idle.png",
+      "attack": "general_attack.png",
+      "fall": "general_fall.png"
+    },
+    "masks": {
+      "idle": "general_idle_mask.png",
+      "attack": "general_attack_mask.png",
+      "fall": "general_fall_mask.png"
+    }
+  },
   "_comment": "由 tools/import_units.py 產生：每個兵種 3 個姿勢（行軍、攻擊、倒下）與換色遮罩。"
 }
