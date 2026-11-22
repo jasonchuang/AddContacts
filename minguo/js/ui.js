@@ -1069,7 +1069,7 @@
     return h('div', { class: 'bio' },
       h('div', { class: 'bio-head' }, h('b', {}, '列傳'), h('span', { class: 'dim' }, head)),
       h('p', {}, b.bio),
-      b.tale ? h('p', { class: 'tale' }, h('b', {}, '演義'), b.tale) : null);
+      b.tale ? h('p', { class: 'tale' }, h('b', {}, '軼事'), b.tale) : null);
   }
 
   function cityGenerals(c) {
