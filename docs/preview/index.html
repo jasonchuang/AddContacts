@@ -692,6 +692,24 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 @keyframes lunge { 40% { translate: 14px -2px; } 100% { translate: 0 0; } }
 @keyframes lunge-l { 40% { translate: -14px -2px; } 100% { translate: 0 0; } }
 
+/* ---------- 戰場與單挑插圖（scenes/field_*.jpg、wall*.png、duel_*.jpg） ---------- */
+.battlefield.art { background-size: cover; background-position: center 35%; }
+.battlefield.art .bsky { display: none; }
+.battlefield .bwall.art { top: auto; bottom: 0; height: 92%; width: auto; aspect-ratio: 355 / 600; background: none; border: 0; right: -8px; }
+.battlefield .bwall.art::before { display: none; }
+.battlefield .bwall.art img { width: 100%; height: 100%; display: block; filter: drop-shadow(-4px 4px 6px rgba(40, 30, 20, .35)); }
+.battlefield .bwall.art .bflag { left: calc(30% + 2px); top: 1%; width: 26px; height: 22px; font-size: 15px !important; }
+.battlefield .bwall.art .bflag::before { display: none; }
+.battlefield.walled .units.right { right: 150px; }
+.battle .duel.art { background: linear-gradient(180deg, rgba(255, 248, 230, .15), rgba(30, 20, 10, .25)), var(--duel-bg) center / cover no-repeat; }
+.battle .duel.art .dname { color: #fff; text-shadow: 0 2px 4px rgba(0, 0, 0, .6); }
+.battle .duel.art .dname small { color: #f3e3c0; }
+.battle .duel.art .dcap { text-shadow: 0 2px 6px rgba(0, 0, 0, .5), 0 0 2px #fff; }
+body.mobile .battlefield .bwall.art { height: 78%; right: -6px; }
+body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-size: 11px !important; }
+body.mobile .battlefield.walled .units.right { right: 92px; }
+.battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
+
 </style>
 </head>
 <body>
@@ -4333,7 +4351,7 @@ function svg(g, color, mode, t) {
 </script>
   <script>
 /* scenes/manifest.js */
-(function (TK) { TK.SCENE_FILES = {"alliance":"scenes/alliance.jpg?v=f3a100eb","baidi":"scenes/baidi.jpg?v=7cc40388","baima":"scenes/baima.jpg?v=4ad43d06","baiyi":"scenes/baiyi.jpg?v=075accc7","bumper":"scenes/bumper.jpg?v=8ea145d1","caocao_dies":"scenes/caocao_dies.jpg?v=33a9f289","capital_move":"scenes/capital_move.jpg?v=f7c05043","chibi_fire":"scenes/chibi_fire.jpg?v=dbb7be7f","coalition":"scenes/coalition.jpg?v=a3adbce4","dingjun":"scenes/dingjun.jpg?v=90a8b293","dong_falls":"scenes/dong_falls.jpg?v=ed0d6d44","eastern":"scenes/eastern.jpg?v=11652ce3","emperor":"scenes/emperor.jpg?v=463c59bf","flood":"scenes/flood.jpg?v=2473134e","gexu":"scenes/gexu.jpg?v=f70ba13d","guandu":"scenes/guandu.jpg?v=c87eeb68","guandu_return":"scenes/guandu_return.jpg?v=50e8fb30","hanzhongwang":"scenes/hanzhongwang.jpg?v=fb00e4f5","heroes":"scenes/heroes.jpg?v=260e6ec0","jile":"scenes/jile.jpg?v=1c800055","jingnan":"scenes/jingnan.jpg?v=65d1da68","kongying":"scenes/kongying.jpg?v=f7dc268a","kurou":"scenes/kurou.jpg?v=431d89a4","lianying":"scenes/lianying.jpg?v=79289539","lijian":"scenes/lijian.jpg?v=bcd9ccd6","liubiao_dies":"scenes/liubiao_dies.jpg?v=9b90941e","locusts":"scenes/locusts.jpg?v=f5581dfd","luoyi":"scenes/luoyi.jpg?v=10f68265","maicheng":"scenes/maicheng.jpg?v=c7d00415","oath":"scenes/oath.jpg?v=e2e8c9be","pangtong_joins":"scenes/pangtong_joins.jpg?v=74ffc734","qingzhou":"scenes/qingzhou.jpg?v=e85445d4","return":"scenes/return.jpg?v=91b1deb8","seal":"scenes/seal.jpg?v=31aa6eb8","sun_ce":"scenes/sun_ce.jpg?v=f1d62b9d","sunce_dies":"scenes/sunce_dies.jpg?v=4de7fbaa","taishi":"scenes/taishi.jpg?v=9009f533","three_visits":"scenes/three_visits.jpg?v=c20d6159","wancheng":"scenes/wancheng.jpg?v=e890e1d1","weinan":"scenes/weinan.jpg?v=0e581a1e","wuchao":"scenes/wuchao.jpg?v=cdf0be39","wuchao_raid":"scenes/wuchao_raid.jpg?v=c0aa01e9","xuyou_defect":"scenes/xuyou_defect.jpg?v=64cffafd","xuzhou":"scenes/xuzhou.jpg?v=e80c19d6","yuan_retreat":"scenes/yuan_retreat.jpg?v=f1c61b71","yuanshao_dies":"scenes/yuanshao_dies.jpg?v=3945512f","yuanshu_emperor":"scenes/yuanshu_emperor.jpg?v=cb6f9b8d","zhanghe_defect":"scenes/zhanghe_defect.jpg?v=98cf530c","zhangxiu_surrender":"scenes/zhangxiu_surrender.jpg?v=19f00af9","zilong":"scenes/zilong.jpg?v=f3638f9a"}; })(globalThis.TK = globalThis.TK || {});
+(function (TK) { TK.SCENE_FILES = {"alliance":"scenes/alliance.jpg?v=f3a100eb","baidi":"scenes/baidi.jpg?v=7cc40388","baima":"scenes/baima.jpg?v=4ad43d06","baiyi":"scenes/baiyi.jpg?v=075accc7","bumper":"scenes/bumper.jpg?v=8ea145d1","caocao_dies":"scenes/caocao_dies.jpg?v=33a9f289","capital_move":"scenes/capital_move.jpg?v=f7c05043","chibi_fire":"scenes/chibi_fire.jpg?v=dbb7be7f","coalition":"scenes/coalition.jpg?v=a3adbce4","dingjun":"scenes/dingjun.jpg?v=90a8b293","dong_falls":"scenes/dong_falls.jpg?v=ed0d6d44","duel_day":"scenes/duel_day.jpg?v=01826629","duel_dusk":"scenes/duel_dusk.jpg?v=423747a2","eastern":"scenes/eastern.jpg?v=11652ce3","emperor":"scenes/emperor.jpg?v=463c59bf","field_mountain":"scenes/field_mountain.jpg?v=175afc6f","field_plain":"scenes/field_plain.jpg?v=c04512d6","field_river":"scenes/field_river.jpg?v=73f9b875","field_snow":"scenes/field_snow.jpg?v=35b2f254","flood":"scenes/flood.jpg?v=2473134e","gexu":"scenes/gexu.jpg?v=f70ba13d","guandu":"scenes/guandu.jpg?v=c87eeb68","guandu_return":"scenes/guandu_return.jpg?v=50e8fb30","hanzhongwang":"scenes/hanzhongwang.jpg?v=fb00e4f5","heroes":"scenes/heroes.jpg?v=260e6ec0","jile":"scenes/jile.jpg?v=1c800055","jingnan":"scenes/jingnan.jpg?v=65d1da68","kongying":"scenes/kongying.jpg?v=f7dc268a","kurou":"scenes/kurou.jpg?v=431d89a4","lianying":"scenes/lianying.jpg?v=79289539","lijian":"scenes/lijian.jpg?v=bcd9ccd6","liubiao_dies":"scenes/liubiao_dies.jpg?v=9b90941e","locusts":"scenes/locusts.jpg?v=f5581dfd","luoyi":"scenes/luoyi.jpg?v=10f68265","maicheng":"scenes/maicheng.jpg?v=c7d00415","oath":"scenes/oath.jpg?v=e2e8c9be","pangtong_joins":"scenes/pangtong_joins.jpg?v=74ffc734","qingzhou":"scenes/qingzhou.jpg?v=e85445d4","return":"scenes/return.jpg?v=91b1deb8","seal":"scenes/seal.jpg?v=31aa6eb8","sun_ce":"scenes/sun_ce.jpg?v=f1d62b9d","sunce_dies":"scenes/sunce_dies.jpg?v=4de7fbaa","taishi":"scenes/taishi.jpg?v=9009f533","three_visits":"scenes/three_visits.jpg?v=c20d6159","wall":"scenes/wall.png?v=ff102bbf","wall_damaged":"scenes/wall_damaged.png?v=4b076879","wancheng":"scenes/wancheng.jpg?v=e890e1d1","weinan":"scenes/weinan.jpg?v=0e581a1e","wuchao":"scenes/wuchao.jpg?v=cdf0be39","wuchao_raid":"scenes/wuchao_raid.jpg?v=c0aa01e9","xuyou_defect":"scenes/xuyou_defect.jpg?v=64cffafd","xuzhou":"scenes/xuzhou.jpg?v=e80c19d6","yuan_retreat":"scenes/yuan_retreat.jpg?v=f1c61b71","yuanshao_dies":"scenes/yuanshao_dies.jpg?v=3945512f","yuanshu_emperor":"scenes/yuanshu_emperor.jpg?v=cb6f9b8d","zhanghe_defect":"scenes/zhanghe_defect.jpg?v=98cf530c","zhangxiu_surrender":"scenes/zhangxiu_surrender.jpg?v=19f00af9","zilong":"scenes/zilong.jpg?v=f3638f9a"}; })(globalThis.TK = globalThis.TK || {});
 </script>
   <script>
 /* js/mapview.js */
@@ -6628,6 +6646,9 @@ function svg(g, color, mode, t) {
     return t + 1800;
   }
 
+  // 戰場背景依城市地形選擇
+  const BATTLE_RIVER = ['江陵', '江夏', '柴桑', '建業', '永安', '長沙', '會稽', '襄陽'];
+  const BATTLE_MOUNTAIN = ['漢中', '天水', '武威', '成都', '晉陽'];
   function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
@@ -6645,7 +6666,8 @@ function svg(g, color, mode, t) {
       };
       const A = side(r.atk, false), D = side(r.def, true);
       const resultEl = h('div', { class: 'stamp hidden' });
-      const duelEl = h('div', { class: 'duel hidden' });
+      const duelArt = (TK.SCENE_FILES || {})[(r.city || '').length % 2 ? 'duel_dusk' : 'duel_day'] || (TK.SCENE_FILES || {}).duel_day;
+      const duelEl = h('div', { class: 'duel hidden' + (duelArt ? ' art' : ''), style: duelArt ? `--duel-bg:url("${duelArt}")` : '' });
       const duelTimers = [];
       const evEl = h('div', { class: 'bevent' });
       // 戰場：雙方士兵（騎兵在前、槍兵居中、弩兵在後），守方背後是城牆
@@ -6668,8 +6690,15 @@ function svg(g, color, mode, t) {
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       const fx = h('div', { class: 'bfx' });
-      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
-      const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
+      // 戰場插圖（scenes/field_*.jpg、wall*.png；沒有時用 CSS 畫的背景）
+      const art = TK.SCENE_FILES || {};
+      const cityObj = S.cities[r.city];
+      const terrain = [12, 1, 2].includes(S.month) ? 'snow' : BATTLE_RIVER.includes(r.city) ? 'river' : BATTLE_MOUNTAIN.includes(r.city) ? 'mountain' : 'plain';
+      const fieldArt = art['field_' + terrain] || art.field_plain;
+      const wallArt = cityObj && cityObj.defense < 300 ? (art.wall_damaged || art.wall) : art.wall;
+      const wall = h('div', { class: 'bwall' + (wallArt ? ' art' : '') }, wallArt ? h('img', { src: wallArt, alt: '' }) : null,
+        h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
+      const field = h('div', { class: 'battlefield' + (fieldArt ? ' art' : '') + (wallArt ? ' walled' : ''), style: fieldArt ? `background-image:url("${fieldArt}")` : '' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
       const shade = h('div', { class: 'shade' });
@@ -6854,6 +6883,6 @@ function svg(g, color, mode, t) {
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
-<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/22 00:42</div>
+<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/22 09:37</div>
 </body>
 </html>

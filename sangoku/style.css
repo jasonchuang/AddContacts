@@ -680,3 +680,21 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 .battlefield .u.pose.fallen { transform: none; opacity: 0; animation: none; transition: opacity .6s 1s; }
 @keyframes lunge { 40% { translate: 14px -2px; } 100% { translate: 0 0; } }
 @keyframes lunge-l { 40% { translate: -14px -2px; } 100% { translate: 0 0; } }
+
+/* ---------- 戰場與單挑插圖（scenes/field_*.jpg、wall*.png、duel_*.jpg） ---------- */
+.battlefield.art { background-size: cover; background-position: center 35%; }
+.battlefield.art .bsky { display: none; }
+.battlefield .bwall.art { top: auto; bottom: 0; height: 92%; width: auto; aspect-ratio: 355 / 600; background: none; border: 0; right: -8px; }
+.battlefield .bwall.art::before { display: none; }
+.battlefield .bwall.art img { width: 100%; height: 100%; display: block; filter: drop-shadow(-4px 4px 6px rgba(40, 30, 20, .35)); }
+.battlefield .bwall.art .bflag { left: calc(30% + 2px); top: 1%; width: 26px; height: 22px; font-size: 15px !important; }
+.battlefield .bwall.art .bflag::before { display: none; }
+.battlefield.walled .units.right { right: 150px; }
+.battle .duel.art { background: linear-gradient(180deg, rgba(255, 248, 230, .15), rgba(30, 20, 10, .25)), var(--duel-bg) center / cover no-repeat; }
+.battle .duel.art .dname { color: #fff; text-shadow: 0 2px 4px rgba(0, 0, 0, .6); }
+.battle .duel.art .dname small { color: #f3e3c0; }
+.battle .duel.art .dcap { text-shadow: 0 2px 6px rgba(0, 0, 0, .5), 0 0 2px #fff; }
+body.mobile .battlefield .bwall.art { height: 78%; right: -6px; }
+body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-size: 11px !important; }
+body.mobile .battlefield.walled .units.right { right: 92px; }
+.battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
