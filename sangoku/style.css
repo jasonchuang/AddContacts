@@ -784,3 +784,9 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
 .menu.tiles li:nth-child(n+6):nth-child(-n+8) { --tc: #b8503a; }
 .menu.tiles li:nth-child(n+9):nth-child(-n+14) { --tc: #5a6b8a; }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
+
+/* ---------- 表格排序 ---------- */
+table.grid th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+table.grid th.sortable:hover { color: var(--red); }
+table.grid th.sorted { color: var(--red); }
+table.grid th .sarrow { font-size: .7em; margin-left: 2px; }

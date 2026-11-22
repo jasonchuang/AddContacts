@@ -796,6 +796,12 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
 .menu.tiles li:nth-child(n+9):nth-child(-n+14) { --tc: #5a6b8a; }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
 
+/* ---------- 表格排序 ---------- */
+table.grid th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+table.grid th.sortable:hover { color: var(--red); }
+table.grid th.sorted { color: var(--red); }
+table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
+
 </style>
 </head>
 <body>
@@ -5661,8 +5667,37 @@ function svg(g, color, mode, t) {
     const decide = opts.multi ? h('button', { class: 'act primary', onclick: () => { win.index = rows.length; choose(); } }) : null;
     if (decide) el.append(h('div', { class: 'win-foot' }, decide, h('button', { class: 'act', onclick: () => win.onKey({ key: 'Escape' }) }, '取消')));
     const total = rows.length + (opts.multi ? 1 : 0);
+    // 排序：點欄位標題排序，再點一次反向（數字先由大到小，文字由小到大）
+    const sort = { col: -1, dir: 1 };
+    const cellText = (v) => (v == null ? '' : typeof v === 'object' ? (v.textContent || '') : String(v));
+    const cellVal = (r, ci) => {
+      const t = cellText(r.cells[ci]).replace(/,/g, '').trim();
+      const m = t.match(/^-?\d+(\.\d+)?/);
+      if (!m) return t;
+      let n = parseFloat(m[0]);
+      if (/^-?\d+(\.\d+)?萬/.test(t)) n *= 10000;
+      return n;
+    };
+    const sortBy = (ci) => {
+      const cur = rows[win.index];
+      const marked = [...win.marks].map((i) => rows[i]);
+      if (sort.col === ci) sort.dir = -sort.dir;
+      else { sort.col = ci; sort.dir = typeof cellVal(rows[0] || { cells: [] }, ci) === 'number' ? -1 : 1; }
+      rows.sort((a, b) => {
+        const x = cellVal(a, ci), y = cellVal(b, ci);
+        const c = typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'zh-Hant');
+        return c * sort.dir;
+      });
+      win.index = Math.max(0, rows.indexOf(cur));
+      win.marks = new Set(marked.map((r) => rows.indexOf(r)));
+      SND.cursor();
+      render();
+    };
     const render = () => {
-      const head = h('tr', {}, cols.map((c) => h('th', {}, c.label)));
+      const head = h('tr', {}, cols.map((c, ci) => h('th', {
+        class: 'sortable' + (sort.col === ci ? ' sorted' : ''), title: '點一下排序',
+        onclick: (e) => { e.stopPropagation(); sortBy(ci); },
+      }, c.label, sort.col === ci ? h('span', { class: 'sarrow' }, sort.dir > 0 ? '▲' : '▼') : null)));
       const trs = rows.map((r, i) => h('tr', {
         class: (i === win.index ? 'sel ' : '') + (r.off ? 'off' : ''),
         onmouseenter: () => { if (win.index !== i) { win.index = i; render(); } },
