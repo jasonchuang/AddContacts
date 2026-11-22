@@ -1,4 +1,4 @@
-/* 自繪 SVG 圖示：民國步兵、騎兵、炮兵、資源、指令。全部為本作原創的簡單向量圖。 */
+/* 自繪 SVG 圖示：民國步兵、坦克、砲兵、戰機、砲艦、資源、指令。全部為本作原創的簡單向量圖。 */
 (function (TK) {
   'use strict';
 
@@ -72,9 +72,62 @@
     </g></svg>`;
   }
 
+  // 坦克：橄欖綠車身、履帶、砲塔與砲管；砲塔上的識別帶為勢力色
+  function tank(color, opts) {
+    opts = opts || {};
+    const flip = opts.flip ? ' transform="translate(40 0) scale(-1 1)"' : '';
+    return `<svg viewBox="0 0 40 26" class="${opts.cls || ''}" aria-hidden="true"><g${flip}>
+      <path d="M3 17 Q3 13 7 13 L33 13 Q37 13 37 17 L37 20 Q37 24 33 24 L7 24 Q3 24 3 20 Z" fill="#3a3a30" stroke="#22221a" stroke-width=".8"/>
+      <circle cx="8" cy="19.5" r="2.6" fill="#55554a"/><circle cx="14.5" cy="19.5" r="2.6" fill="#55554a"/><circle cx="21" cy="19.5" r="2.6" fill="#55554a"/>
+      <circle cx="27.5" cy="19.5" r="2.6" fill="#55554a"/><circle cx="33" cy="19.5" r="2.4" fill="#55554a"/>
+      <path d="M5 13 L8 9 L33 9 L36 13 Z" fill="#5f6b45" stroke="#3e4630" stroke-width=".8"/>
+      <path d="M13 9 L15 4 L26 4 L28 9 Z" fill="#6b774f" stroke="#3e4630" stroke-width=".8"/>
+      <rect x="26" y="5.2" width="13" height="2" rx=".8" fill="#3e4630"/>
+      <rect x="15.5" y="5.6" width="9" height="2" fill="${color}"/>
+      <rect x="19" y="2.2" width="3" height="2" rx=".6" fill="#3e4630"/>
+    </g></svg>`;
+  }
+
+  // 雙翼戰機（1920 年代）：上下雙翼、螺旋槳；機翼上的圓標為勢力色
+  function plane(color, opts) {
+    opts = opts || {};
+    const flip = opts.flip ? ' transform="translate(40 0) scale(-1 1)"' : '';
+    return `<svg viewBox="0 0 40 22" class="${opts.cls || ''}" aria-hidden="true"><g${flip}>
+      <path d="M4 11 Q4 8 9 8.5 L31 9.5 Q35 10 35 12 Q35 14 31 14 L9 14 Q6 14 4 11 Z" fill="#8a8466" stroke="#4e4a36" stroke-width=".8"/>
+      <path d="M1 6 L5 6 L8 10 L4 11 Z" fill="#6f6a50"/>
+      <rect x="13" y="3" width="13" height="2.4" rx="1" fill="#a49d78" stroke="#4e4a36" stroke-width=".6"/>
+      <rect x="12" y="15" width="14" height="2.4" rx="1" fill="#a49d78" stroke="#4e4a36" stroke-width=".6"/>
+      <line x1="15" y1="5.4" x2="15" y2="15" stroke="#4e4a36" stroke-width=".7"/><line x1="24" y1="5.4" x2="24" y2="15" stroke="#4e4a36" stroke-width=".7"/>
+      <circle cx="19.5" cy="4.2" r="1.6" fill="${color}" stroke="#fff" stroke-width=".5"/>
+      <circle cx="22" cy="8.4" r="1.6" fill="#5a4630"/>
+      <rect x="35" y="11" width="2" height="2" fill="#3a3a30"/>
+      <ellipse class="prop" cx="38" cy="12" rx="1" ry="5.5" fill="#cfd6da" opacity=".7"/>
+    </g></svg>`;
+  }
+
+  // 砲艦：灰色艦身、艦橋、煙囪與前後主砲；桅杆上的旗為勢力色
+  function ship(color, opts) {
+    opts = opts || {};
+    const flip = opts.flip ? ' transform="translate(48 0) scale(-1 1)"' : '';
+    return `<svg viewBox="0 0 48 26" class="${opts.cls || ''}" aria-hidden="true"><g${flip}>
+      <path d="M1 17 L47 17 L42 24 L5 24 Z" fill="#5d6670" stroke="#363d44" stroke-width=".8"/>
+      <rect x="1" y="17" width="46" height="1.4" fill="#8a2c22"/>
+      <rect x="17" y="11" width="12" height="6" fill="#7c8690" stroke="#363d44" stroke-width=".6"/>
+      <rect x="19" y="7" width="7" height="4" fill="#8f99a2" stroke="#363d44" stroke-width=".6"/>
+      <rect x="29.5" y="8" width="3.4" height="9" fill="#4a4f55"/><rect x="29.5" y="8" width="3.4" height="1.6" fill="#222"/>
+      <rect x="35" y="13.5" width="5" height="3.5" rx="1" fill="#6a737c"/><rect x="39" y="14.4" width="8" height="1.2" fill="#363d44"/>
+      <rect x="8" y="13.5" width="5" height="3.5" rx="1" fill="#6a737c"/><rect x="1" y="14.4" width="8" height="1.2" fill="#363d44"/>
+      <line x1="22.5" y1="7" x2="22.5" y2="0.5" stroke="#363d44" stroke-width=".8"/>
+      <path d="M22.5 0.8 L28 2 L22.5 3.4 Z" fill="${color}"/>
+      <path d="M0 24.5 Q6 22.5 12 24.5 T24 24.5 T36 24.5 T48 24.5" fill="none" stroke="#9cc3d8" stroke-width="1"/>
+    </g></svg>`;
+  }
+
   function unit(type, color, opts) {
-    if (type === 'cav') return cavalry(color, opts);
-    if (type === 'xbow') return xbowman(color, opts);
+    if (type === 'tank' || type === 'cav') return tank(color, opts);
+    if (type === 'art' || type === 'xbow') return xbowman(color, opts);
+    if (type === 'air') return plane(color, opts);
+    if (type === 'navy') return ship(color, opts);
     return soldier(color, opts);
   }
 
@@ -122,5 +175,5 @@
     return (ICONS[name] || '').replace('<svg ', `<svg class="ico ${cls || ''}" aria-hidden="true" `);
   }
 
-  TK.Icons = { soldier, cavalry, xbowman, unit, flag, icon, shade, ICONS };
+  TK.Icons = { soldier, cavalry, xbowman, tank, plane, ship, unit, flag, icon, shade, ICONS };
 })(globalThis.TK = globalThis.TK || {});

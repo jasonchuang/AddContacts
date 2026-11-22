@@ -7,7 +7,8 @@
   const $ = (id) => document.getElementById(id);
   const MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
   const SEASON = (m) => ['春', '夏', '秋', '冬'][Math.floor((m - 1) / 3)];
-  const UK = ['spear', 'cav', 'xbow'];
+  const UK = ['inf', 'tank', 'art', 'air', 'navy'];
+  const UK_SHORT = ['步', '坦', '砲', '空', '海'];
 
   let S = null;
   let selected = null;
@@ -180,7 +181,7 @@
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
     徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 交易: 'commerce', 送禮: 'reward', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
   };
-  const UNIT_BY_NAME = { 步兵: 'spear', 騎兵: 'cav', 炮兵: 'xbow' };
+  const UNIT_BY_NAME = { 步兵: 'inf', 坦克: 'tank', 砲兵: 'art', 空軍: 'air', 海軍: 'navy' };
   function svgNode(str) {
     const t = document.createElement('template');
     t.innerHTML = str.trim();
@@ -535,7 +536,7 @@
             h('div', { class: 'dim' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、') || '—'}`),
             h('div', { class: 'dim' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
             h('div', { class: 'fc-diff' }, '難度 ', h('span', {}, '★'.repeat(diff) + '☆'.repeat(5 - diff)))),
-          h('div', { class: 'fc-army' }, Array.from({ length: army }, () => svgNode(TK.Icons.unit('spear', f.color))))),
+          h('div', { class: 'fc-army' }, Array.from({ length: army }, () => svgNode(TK.Icons.unit('inf', f.color))))),
         act: () => setupGame(f, ruler),
       };
     });
@@ -926,7 +927,8 @@
   function draftFlow(c) {
     pickGeneral(c, 'cha', '徵兵：選擇武將', (g) => {
       menuWin('徵兵：選擇兵種', UK.map((k) => ({
-        label: E.UNITS[k].name, hint: `金${E.UNITS[k].cost}/千　適性${E.aptitude(g, k)}`,
+        label: E.UNITS[k].name, hint: E.canDraft(c, k) ? `金${E.UNITS[k].cost}/千　適性${E.aptitude(g, k)}` : `需要${E.FACILITY[E.UNITS[k].needs]}`,
+        off: !E.canDraft(c, k), why: `${c.name}沒有${E.FACILITY[E.UNITS[k].needs] || ''}，不能徵${E.UNITS[k].name}。`,
         act: () => {
           const max = E.maxDraft(S, c, g, k);
           if (max < 100) { SND.error(); say(g, '金錢或人口不足，無法徵兵。'); return; }
@@ -959,21 +961,21 @@
 
   function attackFlow(c) {
     const targets = E.neighbors(S, c.id).filter((id) => S.cities[id].owner !== S.player).map((id) => S.cities[id]);
-    tableWin('出征：選擇目標', [{ label: '城' }, { label: '勢力' }, { label: '兵' }, { label: '步' }, { label: '騎' }, { label: '炮' }, { label: '城防' }],
-      targets.map((t) => { const m = E.mixOf(t); return { t, cells: [t.name, E.factionName(S, t.owner), fmtW(t.troops), fmtW(m.spear), fmtW(m.cav), fmtW(m.xbow), t.defense] }; }),
+    tableWin('出征：選擇目標', [{ label: '城' }, { label: '勢力' }, { label: '兵' }, ...UK_SHORT.map((label) => ({ label })), { label: '城防' }],
+      targets.map((t) => { const m = E.mixOf(t); return { t, cells: [t.name, E.factionName(S, t.owner), fmtW(t.troops), ...UK.map((k) => fmtW(m[k])), t.defense] }; }),
       (row) => {
         const t = row.t;
         const list = E.officers(S, c.id).filter((g) => !g.acted).sort((a, b) => (b.lead + b.war) - (a.lead + a.war));
-        tableWin(`出征${t.name}：選擇武將（最多 3 名）`, genCols('lead', ['步', '騎', '炮']), genRows(list, { extra: (g) => UK.map((k) => E.aptitude(g, k)) }), (picked) => {
+        tableWin(`出征${t.name}：選擇武將（最多 3 名）`, genCols('lead', UK_SHORT), genRows(list, { extra: (g) => UK.map((k) => E.aptitude(g, k)) }), (picked) => {
           const gens = picked.map((r) => r.g);
           const mix = E.mixOf(c);
           const cmdr = gens.slice().sort((a, b) => b.lead - a.lead)[0];
           allocWin(`出征${t.name}：派遣兵力`, UK.map((k) => ({ key: k, label: E.UNITS[k].name, max: mix[k], init: Math.floor(mix[k] * 0.7 / 100) * 100, icon: unitIcon(k) })),
             (u) => {
-              const n = u.spear + u.cav + u.xbow;
+              const n = E.unitsTotal(u);
               const st = E.strategistOf(S, S.player);
               const est = st ? `\n軍師${st.name}：${oddsText(TK.AI.estimate(S, c, n, t))}` : '\n（任命軍師後可估計勝算）';
-              return `出陣 ${n} 人（軍糧 ${Math.ceil(n / 10)}／城中 ${c.food}）主將 ${cmdr.name}\n守軍 ${fmtW(t.troops)}：${verdictOf(u, E.mixOf(t))}（步剋騎・騎剋炮・炮剋步）${est}`;
+              return `出陣 ${n} 人（軍糧 ${Math.ceil(n / 10)}／城中 ${c.food}）主將 ${cmdr.name}\n守軍 ${fmtW(t.troops)}：${verdictOf(u, E.mixOf(t))}（步剋砲・砲剋坦克・坦克剋步）${est}`;
             },
             (u) => {
               const ids = gens.map((g) => g.id);
@@ -981,8 +983,8 @@
               run({ type: 'attack', city: c.id, general: ids[0], generals: ids, target: t.id, units: u, interactive: manualBattle });
             },
             {
-              validate: (u) => u.spear + u.cav + u.xbow >= 1000 && c.food >= Math.ceil((u.spear + u.cav + u.xbow) / 10),
-              why: (u) => (u.spear + u.cav + u.xbow < 1000 ? '出陣兵力至少要 1000。' : '軍糧不足。'),
+              validate: (u) => E.unitsTotal(u) >= 1000 && c.food >= Math.ceil(E.unitsTotal(u) / 10),
+              why: (u) => (E.unitsTotal(u) < 1000 ? '出陣兵力至少要 1000。' : '軍糧不足。'),
               pos: { x: 320, y: 200 },
             });
         }, { multi: true, max: 3, marks: [0], side: genSide, width: 940, x: 160 });
@@ -999,9 +1001,9 @@
           const mix = E.mixOf(c);
           const rows = UK.map((k) => ({ key: k, label: E.UNITS[k].name, max: mix[k], init: 0, icon: unitIcon(k) }));
           rows.push({ key: 'gold', label: '金', max: c.gold, init: 0, step: 100 }, { key: 'food', label: '糧', max: c.food, init: 0, step: 1000 });
-          allocWin(`移動至${id}：運送`, rows, (v) => `兵 ${v.spear + v.cav + v.xbow}　金 ${v.gold}　糧 ${v.food}`, (v) => {
+          allocWin(`移動至${id}：運送`, rows, (v) => `兵 ${E.unitsTotal(v)}　金 ${v.gold}　糧 ${v.food}`, (v) => {
             const ids = picked.map((r) => r.g.id);
-            run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: id, units: { spear: v.spear, cav: v.cav, xbow: v.xbow }, gold: v.gold, food: v.food },
+            run({ type: 'move', city: c.id, general: ids[0], generals: ids, dest: id, units: Object.fromEntries(UK.map((k) => [k, v[k]])), gold: v.gold, food: v.food },
               picked[0].g, () => `遵命，${picked.map((r) => r.g.name).join('、')}已前往${id}。`);
           }, { pos: { x: 320, y: 140 } });
         }, { multi: true, marks: [0], side: genSide, width: 800, x: 220 });
@@ -1072,13 +1074,13 @@
 
   function cityGenerals(c) {
     const list = E.officers(S, c.id);
-    tableWin(`${c.name}的武將`, genCols(null, ['步', '騎', '炮']), genRows(list, { extra: (g) => UK.map((k) => E.aptitude(g, k)) }), (r) => generalDetail(r.g), { side: genSide, width: 940, x: 160 });
+    tableWin(`${c.name}的武將`, genCols(null, UK_SHORT), genRows(list, { extra: (g) => UK.map((k) => E.aptitude(g, k)) }), (r) => generalDetail(r.g), { side: genSide, width: 940, x: 160 });
   }
 
   function allGenerals() {
     const list = Object.values(S.generals).filter((g) => g.faction === S.player && g.status === 'active')
       .sort((a, b) => (a.city > b.city ? 1 : a.city < b.city ? -1 : b.lead - a.lead));
-    tableWin('我方武將', genCols(null, ['所在', '步', '騎', '炮']), genRows(list, { extra: (g) => [g.city, ...UK.map((k) => E.aptitude(g, k))] }), (r) => generalDetail(r.g), { width: 1040, x: 120, maxH: 540 });
+    tableWin('我方武將', genCols(null, ['所在', ...UK_SHORT]), genRows(list, { extra: (g) => [g.city, ...UK.map((k) => E.aptitude(g, k))] }), (r) => generalDetail(r.g), { width: 1040, x: 120, maxH: 540 });
   }
 
   function myCities() {
@@ -1547,9 +1549,11 @@
       const big = Math.max(r.atk.troops, r.def.troops, 1);
       const army = (info, right, col) => {
         const n = Math.max(5, Math.round(32 * info.troops / big));
-        const cnt = E.scaleMix(info.units || { spear: info.troops }, n);
+        const cnt = E.scaleMix(info.units || { inf: info.troops }, n);
+        // 有派空軍至少畫一架飛機
+        if ((info.units || {}).air > 0 && !cnt.air) { cnt.air = 1; const big = UK.reduce((b, k) => (cnt[k] > cnt[b] ? k : b), 'inf'); cnt[big]--; }
         const list = [];
-        for (const k of ['cav', 'spear', 'xbow']) for (let i = 0; i < cnt[k]; i++) list.push(k);
+        for (const k of ['tank', 'inf', 'art', 'navy']) for (let i = 0; i < cnt[k]; i++) list.push(k);
         const units = list.map((k, i) => {
           // 有 sprite sheet（sprites/sprites.json）就用動畫圖，否則用程式畫的士兵
           const sp = TK.Sprite && TK.Sprite.make(k, col, right);
@@ -1559,7 +1563,14 @@
           return u;
         });
         const wrap = h('div', { class: 'units' + (right ? ' right' : '') }, ...(right ? units.slice().reverse() : units));
-        return { wrap, units, n: units.length };
+        // 飛機在天空另外排一列
+        const planes = Array.from({ length: cnt.air }, (_, i) => {
+          const u = svgNode(TK.Icons.unit('air', col, { flip: right, cls: 'u u-air' }));
+          u.style.animationDelay = `${i * 0.3}s`;
+          return u;
+        });
+        if (planes.length) wrap.append(h('div', { class: 'sky-units' }, ...planes));
+        return { wrap, units: units.concat(planes), n: units.length + planes.length };
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       // 主將：放大的騎兵＋金色光暈＋姓氏旗，站在軍隊最前方帶頭衝鋒（守軍沒有主將）

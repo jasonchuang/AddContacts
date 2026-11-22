@@ -211,17 +211,24 @@
   // 選擇徵募的兵種：剋制鄰近敵軍最多的兵種，並參考武將適性與金錢
   function draftUnit(s, city, g) {
     const Eng = E();
-    const enemy = { spear: 0, cav: 0, xbow: 0 };
+    const enemy = Eng.emptyUnits();
     for (const n of Eng.neighbors(s, city.id)) {
       const c = s.cities[n];
       if (c.owner === city.owner) continue;
       const m = Eng.mixOf(c);
       for (const k of Eng.UNIT_KEYS) enemy[k] += m[k];
     }
-    let best = 'spear', bestScore = -1;
+    const own = Eng.fractions(Eng.mixOf(city));
+    const foes = Eng.neighbors(s, city.id).map((n) => s.cities[n]).filter((c) => c.owner !== city.owner);
+    let best = 'inf', bestScore = -1;
     for (const k of Eng.UNIT_KEYS) {
+      if (!Eng.canDraft(city, k)) continue;
       let score = 0;
       for (const d of Eng.UNIT_KEYS) score += enemy[d] * Eng.matchup(k, d);
+      // 每兵戰力（坦克、空軍較強；海軍只在港口城有用），並偏好城內比例還少的兵種，避免全是步兵
+      // 海軍：鄰近的敵城是港口才有用
+      score *= k === 'navy' ? (foes.some((c) => c.port) ? TK.TUNING.units.navyPort * 0.8 : TK.TUNING.units.navyInland) : Eng.unitWeight(k, s, city);
+      score *= 1.4 - (own[k] || 0);
       score *= Eng.APT_MULT[Eng.aptitude(g, k)];
       if (city.gold < Eng.UNITS[k].cost * 3) score *= 0.5;
       score *= 0.9 + Eng.rand(s) * 0.2;

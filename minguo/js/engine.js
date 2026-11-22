@@ -118,45 +118,54 @@
   }
 
   // ---------- 兵種 ----------
-  // 槍剋騎、騎剋弩、弩剋槍。cost＝每 1000 兵所需金
+  // 陸軍三種互相剋制：步兵剋砲兵（衝進砲兵陣地）、砲兵剋坦克、坦克剋步兵。
+  // 空軍、海軍不參加相剋，改成有條件的加成。cost＝每 1000 兵所需金；needs＝徵兵需要的城市設施
   const UNITS = {
-    spear: { name: '步兵', short: '步', cost: 100, desc: '步槍與機槍陣地，損失較少，剋制騎兵' },
-    cav: { name: '騎兵', short: '騎', cost: 200, desc: '進攻時突擊加成，能衝散炮兵陣地' },
-    xbow: { name: '炮兵', short: '炮', cost: 150, desc: '守城時加成、開戰先行炮擊，剋制步兵' },
+    inf: { name: '步兵', short: '步', cost: 100, desc: '便宜耐打，守城主力；剋制砲兵' },
+    tank: { name: '坦克', short: '坦', cost: 400, needs: 'arsenal', desc: '攻擊力最強，開戰衝鋒；剋制步兵。只有兵工廠城能徵' },
+    art: { name: '砲兵', short: '砲', cost: 200, desc: '開戰砲擊、削減城防；剋制坦克' },
+    air: { name: '空軍', short: '空', cost: 600, needs: 'airfield', desc: '戰前轟炸、不受地面部隊剋制，冬季效果減半。只有機場城能徵' },
+    navy: { name: '海軍', short: '海', cost: 300, needs: 'port', desc: '攻守沿海、沿江城時艦砲支援；攻打內陸城幾乎無用。只有港口城能徵' },
   };
-  const UNIT_KEYS = ['spear', 'cav', 'xbow'];
-  const BEATS = { spear: 'cav', cav: 'xbow', xbow: 'spear' };
+  const UNIT_KEYS = ['inf', 'tank', 'art', 'air', 'navy'];
+  const LAND = ['inf', 'tank', 'art'];
+  const BEATS = { inf: 'art', art: 'tank', tank: 'inf' };
+  const FACILITY = { arsenal: '兵工廠', airfield: '機場', port: '港口' };
   const APT_MULT = T.units.apt;
 
-  function matchup(a, d) { return a === d ? 1 : BEATS[a] === d ? T.units.counter : T.units.countered; }
+  function matchup(a, d) {
+    if (!BEATS[a] || !BEATS[d] || a === d) return 1;
+    return BEATS[a] === d ? T.units.counter : T.units.countered;
+  }
+  // 這座城能不能徵這種兵
+  function canDraft(city, type) { const n = UNITS[type] && UNITS[type].needs; return !n || !!city[n]; }
 
   // 武將兵種適性：劇本可指定，否則依能力推得
   function aptitude(g, type) {
     if (!g) return 'C';
     const o = (TK.SCENARIO.aptitude || {})[g.name];
     if (o && o[type]) return o[type];
-    if (type === 'spear') return g.lead >= 85 || g.war >= 88 ? 'A' : g.lead >= 68 ? 'B' : 'C';
-    if (type === 'cav') return g.war >= 85 ? 'A' : g.war >= 70 ? 'B' : 'C';
+    if (type === 'inf') return g.lead >= 85 || g.war >= 88 ? 'A' : g.lead >= 68 ? 'B' : 'C';
+    if (type === 'tank') return g.war >= 85 || (g.lead >= 85 && g.war >= 70) ? 'A' : g.war >= 70 ? 'B' : 'C';
+    if (type === 'air') return g.int >= 85 ? 'A' : g.int >= 72 ? 'B' : 'C';
+    if (type === 'navy') return g.lead >= 85 && g.int >= 70 ? 'A' : g.lead >= 72 ? 'B' : 'C';
     return g.int >= 85 ? 'A' : g.int >= 68 || g.lead >= 80 ? 'B' : 'C';
   }
 
-  const FACTION_MIX = {
-    ma: { spear: 0.3, cav: 0.5, xbow: 0.2 }, gongsun: { spear: 0.3, cav: 0.5, xbow: 0.2 }, dong: { spear: 0.35, cav: 0.45, xbow: 0.2 },
-    sun: { spear: 0.4, cav: 0.15, xbow: 0.45 }, liubiao: { spear: 0.4, cav: 0.15, xbow: 0.45 },
-  };
+  // 開局各城的兵種比例（依城市設施）
   function defaultMix(c) {
-    const r = !c.owner ? { spear: 0.55, cav: 0.1, xbow: 0.35 } : FACTION_MIX[c.owner] || { spear: 0.45, cav: 0.25, xbow: 0.3 };
-    const m = { spear: Math.floor(c.troops * r.spear), cav: Math.floor(c.troops * r.cav), xbow: 0 };
-    m.xbow = c.troops - m.spear - m.cav;
-    return m;
+    const r = !c.owner ? { inf: 0.75, tank: 0, art: 0.25, air: 0, navy: 0 }
+      : { inf: 0.62, tank: c.arsenal ? 0.1 : 0.04, art: 0.22, air: c.airfield ? 0.05 : 0, navy: c.port ? 0.07 : 0 };
+    return scaleMix(r, c.troops);
   }
+  function emptyUnits() { return { inf: 0, tank: 0, art: 0, air: 0, navy: 0 }; }
   // 依比例分配 total，回傳整數且總和精確
   function scaleMix(mix, total) {
     const sum = UNIT_KEYS.reduce((a, k) => a + (mix[k] || 0), 0);
-    const out = { spear: 0, cav: 0, xbow: 0 };
+    const out = emptyUnits();
     if (total <= 0) return out;
-    if (sum <= 0) { out.spear = total; return out; }
-    let acc = 0, big = 'spear';
+    if (sum <= 0) { out.inf = total; return out; }
+    let acc = 0, big = 'inf';
     for (const k of UNIT_KEYS) {
       out[k] = Math.floor((mix[k] || 0) * total / sum);
       acc += out[k];
@@ -168,7 +177,8 @@
   // 取得城市兵種組成；troops 為準，組成不一致時依比例校正
   function mixOf(c) {
     if (!c.mix) c.mix = defaultMix(c);
-    const sum = c.mix.spear + c.mix.cav + c.mix.xbow;
+    for (const k of UNIT_KEYS) if (!(c.mix[k] >= 0)) c.mix[k] = 0;
+    const sum = unitsTotal(c.mix);
     if (sum !== c.troops) c.mix = scaleMix(c.mix, c.troops);
     return c.mix;
   }
@@ -202,10 +212,21 @@
   }
   function fractions(u) {
     const t = unitsTotal(u) || 1;
-    return { spear: (u.spear || 0) / t, cav: (u.cav || 0) / t, xbow: (u.xbow || 0) / t };
+    const f = {};
+    for (const k of UNIT_KEYS) f[k] = (u[k] || 0) / t;
+    return f;
   }
   function mixName(u) {
     return UNIT_KEYS.filter((k) => u[k] > 0).map((k) => `${UNITS[k].short}${u[k]}`).join('・') || '無兵';
+  }
+  // 每兵戰力倍率：坦克、砲兵較強；空軍冬季減半；海軍只在沿海沿江城發揮
+  function unitWeight(k, s, city) {
+    const U = T.units;
+    if (k === 'tank') return U.tankPower;
+    if (k === 'art') return U.artPower;
+    if (k === 'air') return U.airPower * (s.month === 12 || s.month <= 2 ? U.airWinter : 1);
+    if (k === 'navy') return city.port ? U.navyPort : U.navyInland;
+    return 1;
   }
 
   // ---------- 指令 ----------
@@ -237,7 +258,8 @@
   // 一城可養的兵力上限：人口的 12%（至少 15000）
   function troopCap(city) { return Math.max(T.economy.troopCapMin, Math.floor(city.pop * T.economy.troopCapPop)); }
   function maxDraft(s, city, g, type) {
-    const cost = UNITS[type || 'spear'].cost;
+    const cost = UNITS[type || 'inf'].cost;
+    if (!canDraft(city, type || 'inf')) return 0;
     return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), troopCap(city) - city.troops));
   }
 
@@ -304,7 +326,8 @@
 
     switch (cmd.type) {
       case 'draft': {
-        const type = UNITS[cmd.unit] ? cmd.unit : 'spear';
+        const type = UNITS[cmd.unit] ? cmd.unit : 'inf';
+        if (!canDraft(city, type)) return fail(`${city.name}沒有${FACILITY[UNITS[type].needs]}，不能徵${UNITS[type].name}`);
         const amt = Math.floor(cmd.amount || 0);
         const max = maxDraft(s, city, g, type);
         if (amt < 100) return fail('徵兵數至少 100');
@@ -515,23 +538,30 @@
     if (sa) A.int = Math.max(A.int, sa.int - 5);
     if (sd) D.int = Math.max(D.int, sd.int - 5);
     // 兵種：雙方組成比例、相剋、主將適性
-    const aUnits = atk.units || { spear: atk.troops, cav: 0, xbow: 0 };
+    const aUnits = atk.units || Object.assign(emptyUnits(), { inf: atk.troops });
     const dUnits = Object.assign({}, mixOf(city));
     const fA = fractions(aUnits), fD = fractions(dUnits);
-    let mA = 0, mD = 0, aptA = 0, aptD = 0;
-    for (const a of UNIT_KEYS) {
-      for (const d of UNIT_KEYS) { mA += fA[a] * fD[d] * matchup(a, d); mD += fD[d] * fA[a] * matchup(d, a); }
-      aptA += fA[a] * APT_MULT[aptitude(A.commander, a)];
-      aptD += fD[a] * (D.commander ? APT_MULT[aptitude(D.commander, a)] : 1);
+    // 相剋只算陸軍；空軍、海軍以每兵戰力倍率表現
+    const land = (f) => { const t = LAND.reduce((a, k) => a + f[k], 0) || 1; const o = {}; for (const k of LAND) o[k] = f[k] / t; return o; };
+    const lA = land(fA), lD = land(fD);
+    let mA = 0, mD = 0, aptA = 0, aptD = 0, wA = 0, wD = 0;
+    for (const a of LAND) for (const d of LAND) { mA += lA[a] * lD[d] * matchup(a, d); mD += lD[d] * lA[a] * matchup(d, a); }
+    // 有一方完全沒有陸軍（例如只派艦隊）時不算相剋
+    if (!mA || !mD) { mA = 1; mD = 1; }
+    for (const k of UNIT_KEYS) {
+      aptA += fA[k] * APT_MULT[aptitude(A.commander, k)];
+      aptD += fD[k] * (D.commander ? APT_MULT[aptitude(D.commander, k)] : 1);
+      wA += fA[k] * unitWeight(k, s, city);
+      wD += fD[k] * unitWeight(k, s, city);
     }
-    let bonusA = mA * aptA * (1 + T.units.cavCharge * fA.cav);
-    let bonusD = mD * aptD * (1 + T.units.xbowWall * fD.xbow);
+    let bonusA = mA * aptA * (wA || 1);
+    let bonusD = mD * aptD * (wD || 1);
     bonusA *= powerMult(s, atk.faction);
     bonusD *= powerMult(s, defOwner);
     const ctx = {
       city, atk, defOwner, defGens, A, D, aUnits, dUnits, fA, fD,
       bonusA, bonusD,
-      sturdyA: 1 - T.units.spearSturdy * fA.spear, sturdyD: 1 - T.units.spearSturdy * fD.spear,
+      sturdyA: 1 - T.units.infSturdy * fA.inf - T.units.airSturdy * fA.air, sturdyD: 1 - T.units.infSturdy * fD.inf - T.units.airSturdy * fD.air,
       A0: A.troops, D0: D.troops,
       aName: factionName(s, atk.faction), dName: factionName(s, defOwner),
       parties: [atk.faction, defOwner].filter(Boolean),
@@ -542,8 +572,8 @@
     ctx.lines.push(`${ctx.aName}（${ctx.aCmd}，${ctx.A0}兵）自${atk.from}進攻${city.name}（${ctx.dName}，${ctx.dCmd}，${ctx.D0}兵）`);
     // frames：給戰鬥畫面逐格播放 {a, d, ev, kind}
     ctx.frames = [{ a: ctx.A0, d: ctx.D0, ev: null }];
-    const domA = UNIT_KEYS.reduce((b, k) => (fA[k] > fA[b] ? k : b), 'spear');
-    const domD = UNIT_KEYS.reduce((b, k) => (fD[k] > fD[b] ? k : b), 'spear');
+    const domA = LAND.reduce((b, k) => (fA[k] > fA[b] ? k : b), 'inf');
+    const domD = LAND.reduce((b, k) => (fD[k] > fD[b] ? k : b), 'inf');
     if (mA > 1.06) ctx.lines.push(`兵種相剋：${ctx.aName}的${UNITS[domA].name}佔上風`);
     else if (mD > 1.06) ctx.lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
     ctx.ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0] || null;
@@ -593,12 +623,17 @@
     let ev = null, kind = null;
     let lossA = Math.round(powD * T.battle.lossRate * (0.85 + rand(s) * 0.3) * ctx.sturdyA);
     if (round === 1) {
-      // 開戰：炮兵齊射、騎兵衝鋒
-      if (fA.xbow >= 0.3) { lossD = Math.round(lossD * (1 + fA.xbow)); ev = `${aName}炮兵齊射！`; kind = 'volley-a'; }
-      if (fD.xbow >= 0.3) { lossA = Math.round(lossA * (1 + fD.xbow)); ev = `城頭炮火猛烈！`; kind = 'volley-d'; }
-      if (fA.cav >= 0.3) {
-        if (fD.spear >= 0.4) { lossA = Math.round(lossA * T.units.chargeIntoSpear); ev = '騎兵衝鋒，撞上機槍陣地！'; kind = 'charge-fail'; }
-        else { lossD = Math.round(lossD * (1 + fA.cav * 0.8)); ev = `${aName}騎兵衝鋒！`; kind = 'charge'; }
+      // 開戰：空軍轟炸、艦砲射擊、砲兵齊射、坦克衝鋒（後面的事件蓋過前面的文字）
+      const winter = s.month === 12 || s.month <= 2;
+      if (fA.air >= 0.05) { lossD = Math.round(lossD * (1 + fA.air * T.units.airStrike * (winter ? T.units.airWinter : 1))); ev = `${aName}空軍轟炸！`; kind = 'air-a'; }
+      if (fD.air >= 0.05) { lossA = Math.round(lossA * (1 + fD.air * T.units.airStrike * (winter ? T.units.airWinter : 1))); ev = '守軍飛機升空迎擊！'; kind = 'air-d'; }
+      if (city.port && fA.navy >= 0.1) { lossD = Math.round(lossD * (1 + fA.navy * T.units.navalGun)); ev = `${aName}艦砲轟擊！`; kind = 'navy-a'; }
+      if (city.port && fD.navy >= 0.1) { lossA = Math.round(lossA * (1 + fD.navy * T.units.navalGun)); ev = '港內軍艦開砲！'; kind = 'navy-d'; }
+      if (fA.art >= 0.3) { lossD = Math.round(lossD * (1 + fA.art)); ev = `${aName}砲兵齊射！`; kind = 'volley-a'; }
+      if (fD.art >= 0.3) { lossA = Math.round(lossA * (1 + fD.art)); ev = '城頭砲火猛烈！'; kind = 'volley-d'; }
+      if (fA.tank >= 0.2) {
+        if (fD.art >= 0.35) { lossA = Math.round(lossA * T.units.tankIntoArt); ev = '坦克衝鋒，撞上砲兵陣地！'; kind = 'charge-fail'; }
+        else { lossD = Math.round(lossD * (1 + fA.tank * 1.2)); ev = `${aName}坦克衝鋒！`; kind = 'charge'; }
       }
       if (ev) lines.push(ev);
     }
@@ -624,7 +659,8 @@
     }
     A.troops = Math.max(0, A.troops - lossA);
     D.troops = Math.max(0, D.troops - lossD);
-    city.defense = Math.max(0, city.defense - rint(s, T.battle.wallWearMin, T.battle.wallWearMax));
+    // 砲兵越多，城防削得越快
+    city.defense = Math.max(0, city.defense - rint(s, T.battle.wallWearMin, T.battle.wallWearMax) - Math.round(T.units.artWall * fA.art));
     ctx.frames.push({ a: A.troops, d: D.troops, ev, kind });
 
     if (D.troops <= 0) ctx.result = 'win';
@@ -835,6 +871,6 @@
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
-    UNITS, UNIT_KEYS, BEATS, APT_MULT, matchup, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
+    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});

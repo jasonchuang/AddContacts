@@ -112,8 +112,8 @@
         const c = s.cities[e.city];
         if (!c.owner && alive(s, e.faction)) {
           c.owner = e.faction;
-          c.mix = Object.assign({ spear: 0, cav: 0, xbow: 0 }, e.units);
-          c.troops = c.mix.spear + c.mix.cav + c.mix.xbow;
+          c.mix = Object.assign(E().emptyUnits(), e.units);
+          c.troops = E().unitsTotal(c.mix);
         }
         break;
       }

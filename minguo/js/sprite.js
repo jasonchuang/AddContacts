@@ -3,7 +3,7 @@
  * 動作：walk 行軍（必要）、attack 攻擊、die 倒下（沒有就退回 walk／淡出）。 */
 (function (TK) {
   'use strict';
-  const HEIGHT = { spear: 48, xbow: 48, cav: 60 }; // 桌機畫面上的預設高度（px）
+  const HEIGHT = { inf: 48, art: 48, tank: 44, air: 34, navy: 40 }; // 桌機畫面上的預設高度（px）
 
   function cfgOf(k) {
     const u = TK.SPRITES && TK.SPRITES[k];

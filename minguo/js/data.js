@@ -26,8 +26,13 @@
     ['重慶', 330, 562, 600000, 600, 640, 640], ['成都', 215, 560, 700000, 720, 560, 600], ['貴陽', 410, 650, 300000, 460, 300, 520],
     ['昆明', 300, 690, 400000, 520, 400, 600],
   ];
+  // 城市設施：兵工廠可徵坦克、機場可徵空軍、港口（沿海、沿江）可徵海軍，海軍在港口城作戰才有加成
+  const ARSENAL = ['瀋陽', '武漢', '太原', '上海', '南京'];
+  const AIRFIELD = ['北京', '瀋陽', '南京', '廣州'];
+  const PORT = ['天津', '青島', '上海', '福州', '廣州', '南京', '武漢'];
   const cities = C.map(([id, x, y, pop, farm, commerce, defense]) => ({
     id, name: id, x, y, owner: null, troops: 8000, gold: 800, food: 8000, pop, farm, commerce, defense, order: 60, train: 40,
+    arsenal: ARSENAL.includes(id), airfield: AIRFIELD.includes(id), port: PORT.includes(id),
   }));
 
   // 道路：以當時的鐵路線與主要官道為主
@@ -81,14 +86,15 @@
     張勳: [66, 72, 40, 40, 52], 黎元洪: [50, 40, 60, 66, 76],
   };
 
-  // 兵種適性：spear 步兵、cav 騎兵、xbow 炮兵（S／A／B／C）
+  // 兵種適性：inf 步兵、tank 坦克、art 砲兵、air 空軍、navy 海軍（S／A／B／C；未列出的依能力推得）
   const aptitude = {
-    吳佩孚: { spear: 'S', xbow: 'S', cav: 'A' }, 郭松齡: { spear: 'S', xbow: 'A', cav: 'A' }, 白崇禧: { spear: 'S', cav: 'A', xbow: 'A' },
-    李宗仁: { spear: 'S', xbow: 'A' }, 孫傳芳: { spear: 'A', xbow: 'A' }, 張作霖: { cav: 'S', spear: 'A' }, 吳俊升: { cav: 'S' },
-    張宗昌: { cav: 'A', spear: 'A' }, 馮玉祥: { spear: 'S', cav: 'A' }, 傅作義: { spear: 'S', xbow: 'A' }, 蔣介石: { spear: 'A', xbow: 'A' },
-    葉挺: { spear: 'S' }, 張發奎: { spear: 'S' }, 蔡鍔: { spear: 'S', xbow: 'A' }, 段祺瑞: { xbow: 'S', spear: 'A' },
-    徐樹錚: { cav: 'A', xbow: 'A' }, 馬福祥: { cav: 'S' }, 宋哲元: { spear: 'A', cav: 'A' }, 唐生智: { spear: 'A' },
-    閻錫山: { xbow: 'A', spear: 'A' }, 韓麟春: { xbow: 'S' }, 楊宇霆: { xbow: 'A' }, 陳炯明: { spear: 'A' },
+    吳佩孚: { inf: 'S', art: 'S', tank: 'A', navy: 'A' }, 郭松齡: { inf: 'S', art: 'A', tank: 'S' }, 白崇禧: { inf: 'S', tank: 'A', art: 'A' },
+    李宗仁: { inf: 'S', art: 'A' }, 孫傳芳: { inf: 'A', art: 'A', navy: 'A' }, 張作霖: { tank: 'A', inf: 'A' }, 吳俊升: { tank: 'A' },
+    張宗昌: { tank: 'S', inf: 'A' }, 馮玉祥: { inf: 'S', tank: 'A' }, 傅作義: { inf: 'S', art: 'A' }, 蔣介石: { inf: 'A', art: 'A', air: 'A' },
+    葉挺: { inf: 'S' }, 張發奎: { inf: 'S' }, 蔡鍔: { inf: 'S', art: 'A' }, 段祺瑞: { art: 'S', inf: 'A', navy: 'A' },
+    徐樹錚: { tank: 'A', air: 'A' }, 馬福祥: { inf: 'A' }, 宋哲元: { inf: 'A', tank: 'A' }, 唐生智: { inf: 'A' },
+    閻錫山: { art: 'A', inf: 'A' }, 韓麟春: { art: 'S', tank: 'A' }, 楊宇霆: { art: 'A', air: 'A' }, 陳炯明: { inf: 'A', navy: 'A' },
+    張學良: { air: 'S', tank: 'A' }, 孫中山: { navy: 'A' }, 李濟深: { navy: 'A' },
   };
 
   // 稱號（詳細畫面的「」）

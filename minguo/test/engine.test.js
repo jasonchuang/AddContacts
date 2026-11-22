@@ -23,10 +23,47 @@ test('劇本：五個劇本都能開局，每個勢力有首領與城，AI 跑�
   }
 });
 
-test('兵種：步兵、騎兵、炮兵，相剋為步剋騎、騎剋炮、炮剋步', () => {
-  assert.strictEqual(E.UNITS.spear.name, '步兵');
-  assert.strictEqual(E.UNITS.cav.name, '騎兵');
-  assert.strictEqual(E.UNITS.xbow.name, '炮兵');
+test('兵種：五種兵，陸軍相剋為步剋砲、砲剋坦克、坦克剋步；空軍海軍不參加相剋', () => {
+  assert.deepStrictEqual(E.UNIT_KEYS.map((k) => E.UNITS[k].name), ['步兵', '坦克', '砲兵', '空軍', '海軍']);
+  const C = TK.TUNING.units.counter;
+  assert.strictEqual(E.matchup('inf', 'art'), C);
+  assert.strictEqual(E.matchup('art', 'tank'), C);
+  assert.strictEqual(E.matchup('tank', 'inf'), C);
+  assert(E.matchup('inf', 'tank') < 1);
+  for (const k of E.UNIT_KEYS) { assert.strictEqual(E.matchup('air', k), 1); assert.strictEqual(E.matchup(k, 'navy'), 1); }
+});
+
+test('徵兵：坦克要兵工廠、空軍要機場、海軍要港口', () => {
+  TK.SCENARIO = TK.scenarioById('1917');
+  const s = E.newGame('zhi', 3);
+  const nj = s.cities['南京'], bd = s.cities['保定'];
+  nj.gold = bd.gold = 9000;
+  const g1 = s.generals['李純'], g2 = s.generals['王承斌'];
+  // 南京有兵工廠、機場、港口；保定都沒有
+  for (const k of ['tank', 'air', 'navy']) {
+    assert(E.maxDraft(s, nj, g1, k) > 0, '南京應可徵' + k);
+    assert.strictEqual(E.maxDraft(s, bd, g2, k), 0, '保定不應可徵' + k);
+  }
+  const r = E.exec(s, 'zhi', { type: 'draft', city: '保定', general: '王承斌', unit: 'tank', amount: 1000 });
+  assert(!r.ok && /兵工廠/.test(r.msg), JSON.stringify(r));
+  const r2 = E.exec(s, 'zhi', { type: 'draft', city: '南京', general: '李純', unit: 'tank', amount: 1000 });
+  assert(r2.ok, JSON.stringify(r2));
+  assert(s.cities['南京'].mix.tank >= 1000);
+});
+
+test('海軍在港口城才有用、空軍冬季減半', () => {
+  TK.SCENARIO = TK.scenarioById('1917');
+  const s = E.newGame('zhi', 3);
+  const gens = [s.generals['李純']];
+  const atk = (units) => ({ faction: 'zhi', from: '南京', generals: gens, troops: E.unitsTotal(units), train: 50, units });
+  const navy = Object.assign(E.emptyUnits(), { navy: 10000 });
+  const port = E.battleStart(s, atk(navy), '上海');
+  const inland = E.battleStart(s, atk(navy), '合肥');
+  assert(port.bonusA > inland.bonusA * 3, `港口 ${port.bonusA} 內陸 ${inland.bonusA}`);
+  const air = Object.assign(E.emptyUnits(), { air: 10000 });
+  s.month = 6; const summer = E.battleStart(s, atk(air), '合肥').bonusA;
+  s.month = 1; const winter = E.battleStart(s, atk(air), '合肥').bonusA;
+  assert(winter < summer * 0.6, `夏 ${summer} 冬 ${winter}`);
 });
 
 test('直奉大戰：北京政變，馮玉祥倒戈，國民軍佔領北京', () => {

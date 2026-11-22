@@ -268,7 +268,12 @@ table.grid tr.sel td.hl { color: var(--hi); }
 .battlefield .units:not(.right) { left: 2%; }
 .battlefield .units.right { right: 100px; align-content: flex-end; }
 .battlefield .u { width: 34px; height: 45px; transition: opacity .5s, transform .5s; }
-.battlefield .u.u-cav { width: 60px; height: 54px; }
+.battlefield .u.u-tank { width: 58px; height: 38px; align-self: flex-end; }
+.battlefield .u.u-navy { width: 62px; height: 34px; }
+.battlefield .units .sky-units { position: absolute; top: -88px; left: 8%; right: 8%; display: flex; gap: 18px; justify-content: center; pointer-events: none; }
+.battlefield .u.u-air { width: 54px; height: 30px; animation: fly-bob 1.6s ease-in-out infinite; }
+.battlefield .u.u-air.fallen { opacity: 0; transform: rotate(30deg) translateY(60px); animation: none; transition: opacity .8s, transform .8s; }
+@keyframes fly-bob { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(6px, -5px); } }
 .battlefield .u.march { animation: bob .6s ease-in-out infinite; }
 .battlefield .u.fallen { opacity: 0; transform: rotate(80deg) translateY(14px); animation: none; }
 .battlefield .units.hit { animation: shake .25s; }
@@ -447,7 +452,10 @@ body.mobile .battle .hi { font-size: 14px; }
 body.mobile .battle .dim { font-size: 12px; }
 body.mobile .battlefield { height: 220px; }
 body.mobile .battlefield .u { width: 18px; height: 24px; }
-body.mobile .battlefield .u.u-cav { width: 32px; height: 29px; }
+body.mobile .battlefield .u.u-tank { width: 31px; height: 20px; }
+body.mobile .battlefield .u.u-navy { width: 33px; height: 18px; }
+body.mobile .battlefield .u.u-air { width: 30px; height: 17px; }
+body.mobile .battlefield .units .sky-units { top: -58px; gap: 8px; }
 body.mobile .battlefield .units { width: 42%; }
 body.mobile .battlefield .units.right { right: 54px; }
 body.mobile .battlefield .bwall { width: 50px; }
