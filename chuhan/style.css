@@ -682,3 +682,4 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 .menu.tiles li:nth-child(n+10):nth-child(-n+16) { --tc: #5a6b8a; }
 body.mobile .menu.tiles { grid-template-columns: repeat(5, 1fr); }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
+#status .seal, .fc-name .seal { min-width: 30px; width: auto; padding: 0 3px; letter-spacing: -1px; white-space: nowrap; }

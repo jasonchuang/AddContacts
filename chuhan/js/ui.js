@@ -41,7 +41,7 @@
     const f = fid && TK.SCENARIO.factions.find((x) => x.id === fid);
     return f ? f.color : '#9a948a';
   }
-  const sealChar = (name) => (name ? name.slice(-1) : '空');
+  const sealChar = (name) => (name ? TK.surname(name) : '空'); // 勢力印章：君主的姓
   const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); return true; } catch (e) { return null; } };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -1515,7 +1515,7 @@
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       const fx = h('div', { class: 'bfx' });
-      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
+      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
       const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));

@@ -693,6 +693,7 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 .menu.tiles li:nth-child(n+10):nth-child(-n+16) { --tc: #5a6b8a; }
 body.mobile .menu.tiles { grid-template-columns: repeat(5, 1fr); }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
+#status .seal, .fc-name .seal { min-width: 30px; width: auto; padding: 0 3px; letter-spacing: -1px; white-space: nowrap; }
 
 </style>
 </head>
@@ -3855,6 +3856,10 @@ function svg(g, color, mode, t) {
   const PAPER = '#efe5cf', INK = '#1f1a14', INK2 = '#3b332a', RIVER = '61,134,166', GOLD = '#b8892c', RED = '#b23a2c';
   const FONT = '"Kai", "Body", "Kaiti TC", "DFKai-SB", serif';
 
+  // 姓氏（印章、旗號用）：複姓取兩字，其餘取第一個字
+  const COMPOUND = ['夏侯', '諸葛', '司馬', '太史', '公孫', '皇甫', '令狐', '歐陽', '上官', '淳于', '東方', '慕容', '尉遲'];
+  TK.surname = (n) => (!n ? '' : COMPOUND.find((x) => n.startsWith(x)) || n.slice(0, 1));
+
   function rgba(hex, a) {
     const n = parseInt(hex.slice(1), 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
@@ -4000,8 +4005,9 @@ function svg(g, color, mode, t) {
         ctx.fillStyle = fc; ctx.fillRect(sx, sy, 18 * S2, 18 * S2);
         ctx.strokeStyle = 'rgba(245,237,217,.95)'; ctx.lineWidth = 1.2 * S2; ctx.strokeRect(sx + 2 * S2, sy + 2 * S2, 14 * S2, 14 * S2);
         const ruler = state.factions[c.owner].ruler;
-        ctx.fillStyle = '#f6eedb'; ctx.font = `bold ${Math.round(12 * S2)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(ruler.slice(-1), sx + 9 * S2, sy + 9.5 * S2);
+        const sn = TK.surname(ruler);
+        ctx.fillStyle = '#f6eedb'; ctx.font = `bold ${Math.round((sn.length > 1 ? 7.5 : 12) * S2)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(sn, sx + 9 * S2, sy + 9.5 * S2);
       }
       // 名牌
       ctx.font = `bold ${Math.round(15 * S2)}px ${FONT}`;
@@ -4745,7 +4751,7 @@ function svg(g, color, mode, t) {
     const f = fid && TK.SCENARIO.factions.find((x) => x.id === fid);
     return f ? f.color : '#9a948a';
   }
-  const sealChar = (name) => (name ? name.slice(-1) : '空');
+  const sealChar = (name) => (name ? TK.surname(name) : '空'); // 勢力印章：君主的姓
   const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); return true; } catch (e) { return null; } };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -6219,7 +6225,7 @@ function svg(g, color, mode, t) {
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       const fx = h('div', { class: 'bfx' });
-      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
+      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
       const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
