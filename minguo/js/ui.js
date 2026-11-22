@@ -447,6 +447,7 @@
       { label: '新遊戲', act: chooseScenario },
       { label: '繼續遊戲', hint: auto, off: !auto, act: () => loadKey(AUTO_KEY) },
       { label: '讀取存檔', act: () => slotMenu(false) },
+      ...(TK.Mod ? [{ label: '自訂劇本', hint: 'MOD', act: modMenu }] : []),
       { label: `音效：${SND.isMuted() ? '關' : '開'}`, act: () => { SND.toggle(); showTitle(); } },
       { label: `音樂：${TK.Music && TK.Music.isOn() ? '開' : '關'}`, act: () => { if (TK.Music) TK.Music.toggle(); showTitle(); } },
       { label: '聲音診斷', act: soundCheck },
@@ -455,6 +456,62 @@
     m.ul.classList.add('title-menu');
     $('title-menu').replaceChildren(m.ul);
     rootKey = (e) => m.onKey(e);
+  }
+
+  // ---------- 自訂劇本（MOD，資料處理在 mod.js） ----------
+  function modNotice(title, text) {
+    infoWin(title, h('div', { class: 'detail', style: 'white-space:pre-wrap;max-height:50vh;overflow:auto' }, text), { width: 560 });
+  }
+  function modMenu() {
+    const mods = (TK.SCENARIOS || []).filter((x) => x.mod);
+    menuWin('自訂劇本', [
+      { label: '匯入劇本檔', hint: '.json', act: modImport },
+      { label: '匯出劇本', hint: '改好再匯入', act: modExport },
+      { label: '安裝範例：假如蔡鍔沒有病逝', act: () => {
+        popWin();
+        try { const sc = TK.Mod.install(TK.Mod.sample()); SND.ok(); modNotice('安裝完成', `「${sc.title}」已加入劇本清單，選「新遊戲」就能玩。`); } catch (e) { SND.error(); modNotice('安裝失敗', e.message); }
+      } },
+      { label: '刪除自訂劇本', hint: mods.length ? `${mods.length} 個` : '沒有', off: !mods.length, act: () => {
+        menuWin('刪除哪一個？', mods.map((sc) => ({ label: sc.title, act: () => {
+          confirmWin(`確定刪除「${sc.title}」？`, () => { TK.Mod.remove(sc.id); popWin(); popWin(); SND.ok(); });
+        } })), null, { width: 440 });
+      } },
+      { label: '格式說明', act: () => modNotice('自訂劇本怎麼做', [
+        '1. 選「匯出劇本」，下載任一劇本的 JSON 檔。',
+        '2. 用文字編輯器修改：人物能力（lead 統率、war 武力、int 智略、pol 政務、cha 魅力）、所屬勢力、城市兵力、勢力關係、事件台詞……',
+        '3. 選「匯入劇本檔」，選擇改好的檔案。格式有錯時會列出哪裡不對。',
+        '4. 匯入的劇本存在這個瀏覽器裡，下次開啟仍在；換瀏覽器要再匯入一次。',
+        '',
+        '欄位的完整說明在專案的 minguo/MOD.md。'].join('\n')) },
+    ], null, { width: 480 });
+  }
+  function modImport() {
+    const input = h('input', { type: 'file', accept: '.json,application/json', style: 'display:none' });
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      input.remove();
+      if (!file) return;
+      file.text().then((text) => {
+        let json;
+        try { json = JSON.parse(text); } catch (e) { throw new Error('這不是正確的 JSON 檔：' + e.message); }
+        const sc = TK.Mod.install(json);
+        popWin();
+        SND.ok();
+        modNotice('匯入完成', `「${sc.title}」（${sc.year}年，${sc.factions.length} 個勢力、${sc.generals.length} 位人物）已加入劇本清單。`);
+      }).catch((e) => { SND.error(); modNotice('匯入失敗', e.message); });
+    });
+    document.body.append(input);
+    input.click();
+  }
+  function modExport() {
+    menuWin('匯出哪一個劇本？', (TK.SCENARIOS || []).map((sc) => ({ label: `${sc.year}年 ${sc.title}`, act: () => {
+      const blob = new Blob([JSON.stringify(TK.Mod.exportScenario(sc), null, 1)], { type: 'application/json' });
+      const a = h('a', { href: URL.createObjectURL(blob), download: `${sc.title}.json`, style: 'display:none' });
+      document.body.append(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      SND.ok();
+    } })), null, { width: 440 });
   }
 
   function meta(key) {
@@ -507,7 +564,7 @@
   // 選擇劇本
   function chooseScenario() {
     const list = TK.SCENARIOS || [TK.SCENARIO];
-    cardsWin('選擇劇本', '從府院之爭到東北易幟，選一個時代登場', list.map((sc) => ({
+    cardsWin('選擇劇本', '從護國戰爭到東北易幟，選一個時代登場（自訂劇本排在最後）', list.map((sc) => ({
       el: h('div', { class: 'scard' },
         h('div', { class: 'sc-year' }, h('b', {}, String(sc.year)), '年'),
         h('div', { class: 'sc-name' }, sc.title),

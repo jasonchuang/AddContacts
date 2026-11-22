@@ -67,7 +67,7 @@ const ui = {
   // 標題 → 第一個劇本 → 勢力卡片 → 模式與難易度 → 出陣
   async setup(p, faction, mode) {
     await p.click('.title-menu li:has-text("新遊戲")');
-    await p.click('.scard >> nth=0');
+    await p.click('.scard:has-text("府院之爭")');
     await p.click(`.fcard:has-text("${faction}")`);
     await p.click(`.seg button:has-text("${mode}")`);
     await p.click('.seg button:has-text("中等")');
@@ -156,6 +156,30 @@ test('手機版：主畫面與武將詳細畫面沒有超出螢幕寬度', async
   await shot(p, '06-手機列傳');
   o = await p.evaluate(() => [...document.querySelectorAll('.detail *')].filter((e) => e.getBoundingClientRect().right > innerWidth + 2).length);
   assert(!o, `武將畫面有 ${o} 個元素超出寬度`);
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+});
+
+test('自訂劇本：安裝範例後出現在劇本清單，可以開局', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  await p.click('.title-menu li:has-text("自訂劇本")');
+  await p.click('#layer li:has-text("安裝範例")');
+  await p.waitForSelector('.win.pop:has-text("安裝完成")');
+  await p.keyboard.press('Escape');
+  await p.keyboard.press('Escape');
+  await p.click('.title-menu li:has-text("新遊戲")');
+  await p.click('.scard:has-text("假如蔡鍔沒有病逝")');
+  await p.click('.fcard:has-text("滇系")');
+  await p.click('.seg button:has-text("歷史劇本")');
+  await p.click('.seg button:has-text("中等")');
+  await p.click('.setup-win .start');
+  for (let i = 0; i < 60; i++) {
+    if (await p.$('#cmd-win li:has-text("開墾"):not(.off)') && !(await p.$('.scene'))) break;
+    await p.keyboard.press('Enter');
+    await p.waitForTimeout(200);
+  }
+  assert(await p.evaluate(() => TK.UI.state().generals['蔡鍔'].faction === 'dian'), '蔡鍔不在滇系');
+  await shot(p, '09-自訂劇本');
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
 });

@@ -100,7 +100,7 @@
         break;
       }
       case 'city_scale': s.cities[e.city][e.field] = Math.round(s.cities[e.city][e.field] * e.mult); break;
-      case 'city_add': s.cities[e.city][e.field] += e.amount; break;
+      case 'city_add': s.cities[e.city][e.field] = Math.max(0, s.cities[e.city][e.field] + e.amount); break;
       case 'troops': {
         const c = s.cities[e.city];
         const m = E().mixOf(c);
@@ -146,6 +146,7 @@
         else Object.assign(g, { status: 'dead', city: null, ruler: false });
         break;
       }
+      case 'rename': if (alive(s, e.faction)) s.factions[e.faction].name = e.name; break;
       case 'absorb': if (alive(s, e.faction) && alive(s, e.into)) D().absorb(s, e.into, e.faction); break;
       case 'seize': {
         // 城池易主：原守將退往本國其他城

@@ -2,15 +2,15 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js', 'bios.js']) require(path.join(__dirname, '..', 'js', f));
+for (const f of ['tuning.js', 'data.js', 'scenarios.js', 'engine.js', 'ai.js', 'diplomacy.js', 'events.js', 'bios.js', 'mod.js']) require(path.join(__dirname, '..', 'js', f));
 const { Engine: E } = globalThis.TK;
 
 let passed = 0;
 function test(name, fn) { try { fn(); passed++; console.log('ok  -', name); } catch (e) { console.error('FAIL-', name); throw e; } }
 const D = TK.Diplomacy, EV = TK.Events;
 
-test('劇本：五個劇本都能開局，每個勢力有首領與城，AI 跑五年不出錯', () => {
-  assert.deepStrictEqual(TK.SCENARIOS.map((x) => x.id), ['1917', '1920', '1924', '1926', '1928']);
+test('劇本：六個劇本都能開局，每個勢力有首領與城，AI 跑五年不出錯', () => {
+  assert.deepStrictEqual(TK.SCENARIOS.map((x) => x.id), ['1915', '1917', '1920', '1924', '1926', '1928']);
   for (const sc of TK.SCENARIOS) {
     TK.SCENARIO = sc;
     const s = E.newGame(null, 7);
@@ -64,6 +64,56 @@ test('海軍在港口城才有用、空軍冬季減半', () => {
   s.month = 6; const summer = E.battleStart(s, atk(air), '合肥').bonusA;
   s.month = 1; const winter = E.battleStart(s, atk(air), '合肥').bonusA;
   assert(winter < summer * 0.6, `夏 ${summer} 冬 ${winter}`);
+});
+
+test('護國戰爭：洪憲帝制、雲南起義、廣西響應，袁世凱病逝後北洋分裂為皖系與直系', () => {
+  TK.SCENARIO = TK.scenarioById('1915');
+  const s = E.newGame('dian', 5);
+  for (const [y, m] of [[1915, 12], [1916, 1], [1916, 3], [1916, 6], [1916, 11]]) { s.year = y; s.month = m; EV.run(s); }
+  assert.strictEqual(s.generals['袁世凱'].status, 'dead');
+  assert.strictEqual(s.factions.duan.ruler, '段祺瑞');
+  assert.strictEqual(s.factions.duan.name, '皖系');
+  assert.strictEqual(s.factions.zhi.name, '直系');
+  assert.strictEqual(s.generals['曹錕'].faction, 'zhi');
+  assert.strictEqual(s.generals['蔡鍔'].status, 'dead');
+  assert.strictEqual(D.stateOf(s, 'gui', 'dian'), 'alliance');
+});
+
+test('地方事件：五四運動只在 1919 年 5～6 月發生，晚開局的劇本不會補發', () => {
+  TK.SCENARIO = TK.scenarioById('1917');
+  const s = E.newGame('duan', 5);
+  s.year = 1919; s.month = 5;
+  const o = s.cities['北京'].order;
+  assert(EV.run(s).some((e) => e.id === 'may4'));
+  assert(s.cities['北京'].order < o);
+  TK.SCENARIO = TK.scenarioById('1920');
+  const s2 = E.newGame('duan', 5);
+  assert(!EV.run(s2).some((e) => e.id === 'may4'));
+  assert(TK.SCENARIOS.every((sc) => sc.events.some((e) => e.id === 'wushe')));
+});
+
+test('自訂劇本：匯出再匯入可以開局；格式錯誤會用中文說明；範例劇本可以玩', () => {
+  const M = TK.Mod;
+  const d = JSON.parse(JSON.stringify(M.exportScenario(TK.scenarioById('1924'))));
+  d.id = 'test'; d.title = '測試劇本';
+  d.generals.find((g) => g.name === '吳佩孚').war = 99;
+  const sc = M.register(M.importScenario(d));
+  TK.SCENARIO = TK.scenarioById('mod:test');
+  assert.strictEqual(TK.SCENARIO, sc);
+  const s = E.newGame('zhi', 3);
+  assert.strictEqual(s.generals['吳佩孚'].war, 99);
+  for (let i = 0; i < 24 && !s.over; i++) E.endTurn(s);
+  const bad = JSON.parse(JSON.stringify(d));
+  bad.generals[0].city = '火星';
+  bad.factions[0].ruler = '無名氏';
+  assert.throws(() => M.importScenario(bad), (e) => /火星/.test(e.message) && /無名氏/.test(e.message));
+  const sample = M.register(M.importScenario(M.sample()));
+  TK.SCENARIO = sample;
+  const s2 = E.newGame('dian', 4);
+  assert.strictEqual(s2.generals['蔡鍔'].faction, 'dian');
+  for (let i = 0; i < 24 && !s2.over; i++) E.endTurn(s2);
+  M.remove('mod:test'); M.remove(sample.id);
+  assert(!TK.SCENARIOS.some((x) => x.mod));
 });
 
 test('直奉大戰：北京政變，馮玉祥倒戈，國民軍佔領北京', () => {
