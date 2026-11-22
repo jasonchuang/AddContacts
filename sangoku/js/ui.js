@@ -1396,7 +1396,7 @@
     const A = fighter(ga, false), D = fighter(gd, true);
     const fx = h('div', { class: 'dfx' });
     const caption = h('div', { class: 'dcap' }, '一騎討');
-    el.replaceChildren(h('div', { class: 'dtop' }, A.card, caption, D.card), h('div', { class: 'arena' }, A.root, fx, D.root));
+    el.replaceChildren(h('div', { class: 'dtop' }, A.card, caption, D.card), h('div', { class: 'arena' + (mounted ? ' close' : '') }, A.root, fx, D.root));
     el.classList.remove('hidden');
     SND.march();
     const STEP = 620;
@@ -1408,11 +1408,15 @@
         if (mounted) { TK.Sprite.setPose(atk.rider, 'attack'); later(450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
         later(230, () => {
           def.body.classList.remove('hit', 'dodge'); void def.body.offsetWidth;
-          const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: b.who === 'a' ? 'right:22%' : 'left:22%' },
+          const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: mounted ? (b.who === 'a' ? 'left:56%' : 'right:56%') : (b.who === 'a' ? 'right:22%' : 'left:22%') },
             b.dmg ? (b.crit ? `會心 -${b.dmg}` : `-${b.dmg}`) : '閃');
           fx.append(pop);
           later(800, () => pop.remove());
-          if (b.dmg) { def.body.classList.add('hit'); SND.clash(); if (b.crit) later(90, SND.clash); }
+          if (b.dmg) {
+            def.body.classList.add('hit'); SND.clash(); if (b.crit) later(90, SND.clash);
+            // 兵器交擊的火花（兩人中間）
+            if (mounted) { const sp = h('div', { class: 'dspark' + (b.crit ? ' crit' : '') }); fx.append(sp); later(450, () => sp.remove()); }
+          }
           else { def.body.classList.add('dodge'); SND.cursor(); }
           A.hp.style.width = b.hpA + '%';
           D.hp.style.width = b.hpD + '%';

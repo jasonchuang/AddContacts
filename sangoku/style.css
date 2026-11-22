@@ -751,3 +751,28 @@ body.mobile .battlefield .u.pose.leader .lflag { font-size: 10px; }
 /* 有主將專屬圖時不用金色光暈，高度沿用 sprites.json */
 .u.pose.leader.own img { filter: drop-shadow(0 2px 4px rgba(40, 30, 20, .35)); }
 .battlefield .u.pose.leader.own, body.mobile .battlefield .u.pose.leader.own { --ph: 86; }
+
+/* ---------- 單挑：兩騎貼近肉搏 ---------- */
+.battle .duel .arena.close { justify-content: center; padding: 0 0 18px; }
+.battle .duel .arena.close .fighter { margin: 0 -55px; }
+.battle .duel .arena.close .fighter:not(.right) { animation: closeInL .9s ease-out both; }
+.battle .duel .arena.close .fighter.right { animation: closeInR .9s ease-out both; }
+@keyframes closeInL { from { translate: -260px 0; } }
+@keyframes closeInR { from { translate: 260px 0; } }
+.battle .duel .arena.close .dbody.lunge { animation: closeLungeL .45s ease-in-out; }
+.battle .duel .arena.close .fighter.right .dbody.lunge { animation: closeLungeR .45s ease-in-out; }
+@keyframes closeLungeL { 45% { transform: translateX(60px) rotate(4deg); } }
+@keyframes closeLungeR { 45% { transform: translateX(-60px) rotate(-4deg); } }
+.battle .duel .arena.close .dbody.dodge { animation: dodgeCloseL .35s; }
+.battle .duel .arena.close .fighter.right .dbody.dodge { animation: dodgeCloseR .35s; }
+@keyframes dodgeCloseL { 50% { transform: translate(-30px, -8px); } }
+@keyframes dodgeCloseR { 50% { transform: translate(30px, -8px); } }
+.battle .duel .arena.close .fighter.down { transform: translateX(-60px) rotate(-8deg); }
+.battle .duel .arena.close .fighter.right.down { transform: translateX(60px) rotate(8deg); }
+.battle .duel .dspark { position: absolute; left: 50%; bottom: 30%; width: 70px; height: 70px; margin-left: -35px; pointer-events: none;
+  background: radial-gradient(circle, #fff 0 12%, #ffe08a 22%, rgba(255, 170, 60, .7) 40%, transparent 68%); border-radius: 50%; animation: spark .45s ease-out forwards; }
+.battle .duel .dspark.crit { width: 110px; height: 110px; margin-left: -55px; }
+@keyframes spark { 0% { transform: scale(.3) rotate(0); opacity: 1; } 100% { transform: scale(1.6) rotate(40deg); opacity: 0; } }
+body.mobile .battle .duel .arena.close .fighter { margin: 0 -1vw; }
+body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
+
