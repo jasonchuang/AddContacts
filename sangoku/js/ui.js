@@ -41,7 +41,7 @@
     const f = fid && TK.SCENARIO.factions.find((x) => x.id === fid);
     return f ? f.color : '#9a948a';
   }
-  const sealChar = (name) => (name ? name.slice(-1) : '空');
+  const sealChar = (name) => (name ? TK.surname(name) : '空'); // 勢力印章：君主的姓（曹操→曹、公孫瓚→公孫）
   const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); return true; } catch (e) { return null; } };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -1438,8 +1438,7 @@
   }
 
   // 主將造型（戰場與單挑共用）：沿用騎兵姿勢圖，加上 leader 樣式與姓氏旗；沒有騎兵圖或沒有主將時回傳 null
-  const COMPOUND = ['夏侯', '諸葛', '司馬', '太史', '公孫', '皇甫', '令狐', '歐陽', '上官', '淳于'];
-  const surname = (n) => COMPOUND.find((x) => n.startsWith(x)) || n.slice(0, 1);
+  const surname = (n) => TK.surname(n);
   function leaderSprite(g, col, right) {
     if (!g || !TK.Sprite || !TK.Sprite.hasPose) return null;
     // 有主將專屬圖（sprites.json 的 general）就用，否則沿用騎兵
@@ -1508,7 +1507,7 @@
       const fieldArt = art['field_' + terrain] || art.field_plain;
       const wallArt = cityObj && cityObj.defense < 300 ? (art.wall_damaged || art.wall) : art.wall;
       const wall = h('div', { class: 'bwall' + (wallArt ? ' art' : '') }, wallArt ? h('img', { src: wallArt, alt: '' }) : null,
-        h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? S.factions[r.def.faction].ruler.slice(-1) : '守'));
+        h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
       const field = h('div', { class: 'battlefield' + (fieldArt ? ' art' : '') + (wallArt ? ' walled' : ''), style: fieldArt ? `background-image:url("${fieldArt}")` : '' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));

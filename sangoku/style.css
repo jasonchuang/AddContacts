@@ -776,3 +776,5 @@ body.mobile .battlefield .u.pose.leader .lflag { font-size: 10px; }
 body.mobile .battle .duel .arena.close .fighter { margin: 0 -1vw; }
 body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
 
+/* 複姓（公孫、夏侯）印章放得下兩字 */
+#status .seal, .fc-name .seal { min-width: 30px; width: auto; padding: 0 3px; letter-spacing: -1px; white-space: nowrap; }

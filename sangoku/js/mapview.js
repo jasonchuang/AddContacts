@@ -19,6 +19,10 @@
   const PAPER = '#efe5cf', INK = '#1f1a14', INK2 = '#3b332a', RIVER = '61,134,166', GOLD = '#b8892c', RED = '#b23a2c';
   const FONT = '"Kai", "Body", "Kaiti TC", "DFKai-SB", serif';
 
+  // 姓氏（印章、旗號用）：複姓取兩字，其餘取第一個字
+  const COMPOUND = ['夏侯', '諸葛', '司馬', '太史', '公孫', '皇甫', '令狐', '歐陽', '上官', '淳于', '東方', '慕容', '尉遲'];
+  TK.surname = (n) => (!n ? '' : COMPOUND.find((x) => n.startsWith(x)) || n.slice(0, 1));
+
   function rgba(hex, a) {
     const n = parseInt(hex.slice(1), 16);
     return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
@@ -164,8 +168,9 @@
         ctx.fillStyle = fc; ctx.fillRect(sx, sy, 18 * S2, 18 * S2);
         ctx.strokeStyle = 'rgba(245,237,217,.95)'; ctx.lineWidth = 1.2 * S2; ctx.strokeRect(sx + 2 * S2, sy + 2 * S2, 14 * S2, 14 * S2);
         const ruler = state.factions[c.owner].ruler;
-        ctx.fillStyle = '#f6eedb'; ctx.font = `bold ${Math.round(12 * S2)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(ruler.slice(-1), sx + 9 * S2, sy + 9.5 * S2);
+        const sn = TK.surname(ruler);
+        ctx.fillStyle = '#f6eedb'; ctx.font = `bold ${Math.round((sn.length > 1 ? 7.5 : 12) * S2)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(sn, sx + 9 * S2, sy + 9.5 * S2);
       }
       // 名牌
       ctx.font = `bold ${Math.round(15 * S2)}px ${FONT}`;
