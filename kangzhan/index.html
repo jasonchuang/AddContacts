@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#231c15">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="烽火十四年">
+  <title>烽火 十四年</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 固定 1280×800 的遊戲畫面，依視窗大小等比縮放 -->
+  <div id="stage">
+    <div id="app">
+      <section id="title" class="screen">
+        <!-- 宣紙、紅日、遠山與飛鳥（全部用 CSS／SVG 畫，沒有外部圖檔） -->
+        <div class="t-sun"></div>
+        <svg class="t-birds" viewBox="0 0 200 60" aria-hidden="true"><path d="M10 30q8-8 16 0q8-8 16 0M70 14q6-6 12 0q6-6 12 0M140 40q7-7 14 0q7-7 14 0M120 8q5-5 10 0q5-5 10 0"/></svg>
+        <svg class="t-hills" viewBox="0 0 1280 260" preserveAspectRatio="none" aria-hidden="true">
+          <path class="far" d="M0 170 Q120 90 230 150 T470 120 T720 160 T960 100 T1280 150 V260 H0Z"/>
+          <path class="near" d="M0 220 Q160 150 320 205 T640 190 T940 215 T1280 185 V260 H0Z"/>
+        </svg>
+        <div class="title-wrap">
+          <div class="title-head">
+            <div class="title-seal">抗<br>戰</div>
+            <div class="title-logo">烽火 十四年</div>
+          </div>
+          <div class="title-sub">九一八到日本投降・山河破碎・堅持到最後一刻</div>
+          <div id="title-menu"></div>
+        </div>
+        <div class="title-foot">滑鼠點選，或用方向鍵與 Enter</div>
+      </section>
+
+      <section id="game" class="hidden">
+        <header id="status" class="win"></header>
+        <div id="map-win" class="win"><canvas id="map"></canvas></div>
+        <aside id="city-win" class="win"></aside>
+        <nav id="cmd-win" class="win"></nav>
+        <footer id="msg-win" class="win">
+          <img id="msg-face" class="face hidden" alt="">
+          <div class="msg-main">
+            <div id="msg-name"></div>
+            <div id="msg-text"></div>
+          </div>
+          <div id="msg-more" class="hidden">▼</div>
+        </footer>
+      </section>
+
+      <div id="layer"></div>
+      <div id="banner" class="hidden"></div>
+    </div>
+  </div>
+
+  <script src="js/tuning.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/scenarios.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/diplomacy.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/bios.js"></script>
+  <script src="js/mod.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/anime.js"></script>
+  <script src="js/sprite.js"></script>
+  <script src="js/portraits.js"></script>
+  <script src="portraits/manifest.js"></script>
+  <script src="sprites/manifest.js"></script>
+  <script src="scenes/manifest.js"></script>
+  <script src="js/mapview.js"></script>
+  <script src="js/scenes.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
