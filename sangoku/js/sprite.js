@@ -121,6 +121,8 @@
 
   TK.Sprite = {
     has: (k) => !!cfgOf(k) || !!poseCfg(k),
+    hasPose: (k) => !!poseCfg(k),
+    setPose,
     make: (k, col, flip) => (poseCfg(k) ? makePose(k, col, flip) : make(k, col, flip)),
     play,
     attack(el, delay) {

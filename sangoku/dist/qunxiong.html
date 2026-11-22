@@ -710,6 +710,37 @@ body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-siz
 body.mobile .battlefield.walled .units.right { right: 92px; }
 .battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
 
+/* ---------- 單挑：上方名牌、下方騎馬對衝 ---------- */
+.battle .duel .dtop { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 16px 0; box-sizing: border-box; z-index: 2; }
+.battle .duel .dtop .dcap { margin-top: 6px; }
+.battle .duel .dcard { display: flex; align-items: center; gap: 12px; width: 340px; padding: 10px 14px 10px 10px; border-radius: 12px;
+  background: rgba(251, 246, 234, .93); border: 1px solid rgba(59, 51, 42, .2); border-left: 6px solid var(--c); box-shadow: 0 6px 18px rgba(31, 26, 20, .25); transition: opacity .6s, filter .6s; }
+.battle .duel .dcard.right { flex-direction: row-reverse; border-left: 1px solid rgba(59, 51, 42, .2); border-right: 6px solid var(--c); padding: 10px 10px 10px 14px; text-align: right; }
+.battle .duel .dcard.down { opacity: .55; filter: grayscale(1); }
+.battle .duel .dhead { width: 76px; height: 76px; border-radius: 10px; flex: none; border: 2px solid #fff; box-shadow: 0 0 0 2px var(--c); }
+.battle .duel .dinfo { flex: 1; min-width: 0; }
+.battle .duel .dcard .dname, .battle .duel.art .dcard .dname { font-family: Kai, Body; font-size: 26px; font-weight: normal; color: var(--ink); text-shadow: none; }
+.battle .duel .dcard .dname small, .battle .duel.art .dcard .dname small { font-family: Body; font-size: 14px; color: var(--dim); margin: 0 8px; }
+.battle .duel .dcard .dhp { width: 100%; height: 12px; margin-top: 6px; }
+.battle .duel .dbody.mounted { width: 300px; height: 270px; display: flex; align-items: flex-end; justify-content: center; }
+.battle .duel .dbody.mounted .u.pose { --h: 250px; height: var(--h); width: calc(var(--h) * var(--pr)); position: relative; }
+.battle .duel .dbody.mounted .u.pose img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.battle .duel .dbody.mounted .u.pose img.flip { transform: scaleX(-1); }
+.battle .duel .arena { padding: 0 14% 18px; }
+body.mobile .battle .duel .dtop { padding: 8px 6px 0; gap: 4px; flex-wrap: wrap; }
+body.mobile .battle .duel .dtop .dcap { order: -1; width: 100%; text-align: center; margin: 0; }
+body.mobile .battle .duel .dcard { width: calc(50% - 4px); padding: 6px; gap: 6px; }
+body.mobile .battle .duel .dcard.right { padding: 6px; }
+body.mobile .battle .duel .dhead { width: 44px; height: 44px; }
+body.mobile .battle .duel .dcard .dname { font-size: 17px; }
+body.mobile .battle .duel .dcard .dname small { font-size: 11px; margin: 0 4px; }
+body.mobile .battle .duel .dbody.mounted { width: 44vw; height: 46vw; }
+body.mobile .battle .duel .dbody.mounted .u.pose { --h: 40vw; }
+body.mobile .battle .duel .dhp { width: 100%; }
+.battle .duel .dbody.mounted .u.pose { animation: bob .6s ease-in-out infinite; }
+.battle .duel .fighter.right .dbody.mounted .u.pose { animation-delay: .3s; }
+.battle .duel .fighter.down .dbody.mounted .u.pose { animation: none; }
+
 </style>
 </head>
 <body>
@@ -3875,6 +3906,8 @@ function svg(g, color, mode, t) {
 
   TK.Sprite = {
     has: (k) => !!cfgOf(k) || !!poseCfg(k),
+    hasPose: (k) => !!poseCfg(k),
+    setPose,
     make: (k, col, flip) => (poseCfg(k) ? makePose(k, col, flip) : make(k, col, flip)),
     play,
     attack(el, delay) {
@@ -6602,17 +6635,26 @@ function svg(g, color, mode, t) {
   function playDuel(el, f, timers) {
     const later = (ms, fn) => timers.push(setTimeout(fn, ms));
     const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
+    // 上方名牌：頭像、名字、武力、體力條；下方戰場：兩位武將騎馬對衝（騎兵姿勢圖依勢力換色，沒有圖時用立繪）
+    const mounted = TK.Sprite && TK.Sprite.hasPose && TK.Sprite.hasPose('cav');
     const fighter = (g, right) => {
-      const hp = h('div', { class: 'dhp-fill', style: `background:${color(g.faction)}` });
-      const body = h('div', { class: 'dbody' }, face(g, 'full', 0, 0, 'dface'));
-      const root = h('div', { class: 'fighter' + (right ? ' right' : '') },
-        h('div', { class: 'dname' }, g.name, h('small', {}, `武${g.war}`)), h('div', { class: 'dhp' }, hp), body);
-      return { root, body, hp };
+      const col = color(g.faction);
+      const hp = h('div', { class: 'dhp-fill', style: `background:${col}` });
+      const card = h('div', { class: 'dcard' + (right ? ' right' : ''), style: `--c:${col}` },
+        face(g, 'head', 0, 0, 'dhead'),
+        h('div', { class: 'dinfo' },
+          h('div', { class: 'dname' }, g.name, h('small', {}, `武力 ${g.war}`)),
+          h('div', { class: 'dhp' }, hp)));
+      const rider = mounted ? TK.Sprite.make('cav', col, right) : face(g, 'full', 0, 0, 'dface');
+      if (mounted) rider.classList.remove('march');
+      const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : '') }, rider);
+      const root = h('div', { class: 'fighter' + (right ? ' right' : '') }, body);
+      return { root, body, hp, card, rider };
     };
     const A = fighter(ga, false), D = fighter(gd, true);
     const fx = h('div', { class: 'dfx' });
     const caption = h('div', { class: 'dcap' }, '一騎討');
-    el.replaceChildren(caption, h('div', { class: 'arena' }, A.root, fx, D.root));
+    el.replaceChildren(h('div', { class: 'dtop' }, A.card, caption, D.card), h('div', { class: 'arena' }, A.root, fx, D.root));
     el.classList.remove('hidden');
     SND.march();
     const STEP = 620;
@@ -6621,6 +6663,7 @@ function svg(g, color, mode, t) {
       later(t, () => {
         const atk = b.who === 'a' ? A : D, def = b.who === 'a' ? D : A;
         atk.body.classList.remove('lunge'); void atk.body.offsetWidth; atk.body.classList.add('lunge');
+        if (mounted) { TK.Sprite.setPose(atk.rider, 'attack'); later(450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
         later(230, () => {
           def.body.classList.remove('hit', 'dodge'); void def.body.offsetWidth;
           const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: b.who === 'a' ? 'right:22%' : 'left:22%' },
@@ -6638,6 +6681,8 @@ function svg(g, color, mode, t) {
     later(t + 150, () => {
       const win = f.winner === 'a' ? A : D, lose = f.winner === 'a' ? D : A;
       lose.root.classList.add('down');
+      lose.card.classList.add('down');
+      if (mounted) TK.Sprite.setPose(lose.rider, 'fall');
       win.root.classList.add('victor');
       caption.textContent = `${S.generals[f.duel[f.winner === 'a' ? 0 : 1]].name} 勝！`;
       SND.win();

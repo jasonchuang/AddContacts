@@ -1377,17 +1377,26 @@
   function playDuel(el, f, timers) {
     const later = (ms, fn) => timers.push(setTimeout(fn, ms));
     const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
+    // 上方名牌：頭像、名字、武力、體力條；下方戰場：兩位武將騎馬對衝（騎兵姿勢圖依勢力換色，沒有圖時用立繪）
+    const mounted = TK.Sprite && TK.Sprite.hasPose && TK.Sprite.hasPose('cav');
     const fighter = (g, right) => {
-      const hp = h('div', { class: 'dhp-fill', style: `background:${color(g.faction)}` });
-      const body = h('div', { class: 'dbody' }, face(g, 'full', 0, 0, 'dface'));
-      const root = h('div', { class: 'fighter' + (right ? ' right' : '') },
-        h('div', { class: 'dname' }, g.name, h('small', {}, `武${g.war}`)), h('div', { class: 'dhp' }, hp), body);
-      return { root, body, hp };
+      const col = color(g.faction);
+      const hp = h('div', { class: 'dhp-fill', style: `background:${col}` });
+      const card = h('div', { class: 'dcard' + (right ? ' right' : ''), style: `--c:${col}` },
+        face(g, 'head', 0, 0, 'dhead'),
+        h('div', { class: 'dinfo' },
+          h('div', { class: 'dname' }, g.name, h('small', {}, `武力 ${g.war}`)),
+          h('div', { class: 'dhp' }, hp)));
+      const rider = mounted ? TK.Sprite.make('cav', col, right) : face(g, 'full', 0, 0, 'dface');
+      if (mounted) rider.classList.remove('march');
+      const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : '') }, rider);
+      const root = h('div', { class: 'fighter' + (right ? ' right' : '') }, body);
+      return { root, body, hp, card, rider };
     };
     const A = fighter(ga, false), D = fighter(gd, true);
     const fx = h('div', { class: 'dfx' });
     const caption = h('div', { class: 'dcap' }, '一騎討');
-    el.replaceChildren(caption, h('div', { class: 'arena' }, A.root, fx, D.root));
+    el.replaceChildren(h('div', { class: 'dtop' }, A.card, caption, D.card), h('div', { class: 'arena' }, A.root, fx, D.root));
     el.classList.remove('hidden');
     SND.march();
     const STEP = 620;
@@ -1396,6 +1405,7 @@
       later(t, () => {
         const atk = b.who === 'a' ? A : D, def = b.who === 'a' ? D : A;
         atk.body.classList.remove('lunge'); void atk.body.offsetWidth; atk.body.classList.add('lunge');
+        if (mounted) { TK.Sprite.setPose(atk.rider, 'attack'); later(450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
         later(230, () => {
           def.body.classList.remove('hit', 'dodge'); void def.body.offsetWidth;
           const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: b.who === 'a' ? 'right:22%' : 'left:22%' },
@@ -1413,6 +1423,8 @@
     later(t + 150, () => {
       const win = f.winner === 'a' ? A : D, lose = f.winner === 'a' ? D : A;
       lose.root.classList.add('down');
+      lose.card.classList.add('down');
+      if (mounted) TK.Sprite.setPose(lose.rider, 'fall');
       win.root.classList.add('victor');
       caption.textContent = `${S.generals[f.duel[f.winner === 'a' ? 0 : 1]].name} 勝！`;
       SND.win();

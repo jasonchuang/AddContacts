@@ -698,3 +698,34 @@ body.mobile .battlefield .bwall.art { height: 78%; right: -6px; }
 body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-size: 11px !important; }
 body.mobile .battlefield.walled .units.right { right: 92px; }
 .battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
+
+/* ---------- 單挑：上方名牌、下方騎馬對衝 ---------- */
+.battle .duel .dtop { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 16px 0; box-sizing: border-box; z-index: 2; }
+.battle .duel .dtop .dcap { margin-top: 6px; }
+.battle .duel .dcard { display: flex; align-items: center; gap: 12px; width: 340px; padding: 10px 14px 10px 10px; border-radius: 12px;
+  background: rgba(251, 246, 234, .93); border: 1px solid rgba(59, 51, 42, .2); border-left: 6px solid var(--c); box-shadow: 0 6px 18px rgba(31, 26, 20, .25); transition: opacity .6s, filter .6s; }
+.battle .duel .dcard.right { flex-direction: row-reverse; border-left: 1px solid rgba(59, 51, 42, .2); border-right: 6px solid var(--c); padding: 10px 10px 10px 14px; text-align: right; }
+.battle .duel .dcard.down { opacity: .55; filter: grayscale(1); }
+.battle .duel .dhead { width: 76px; height: 76px; border-radius: 10px; flex: none; border: 2px solid #fff; box-shadow: 0 0 0 2px var(--c); }
+.battle .duel .dinfo { flex: 1; min-width: 0; }
+.battle .duel .dcard .dname, .battle .duel.art .dcard .dname { font-family: Kai, Body; font-size: 26px; font-weight: normal; color: var(--ink); text-shadow: none; }
+.battle .duel .dcard .dname small, .battle .duel.art .dcard .dname small { font-family: Body; font-size: 14px; color: var(--dim); margin: 0 8px; }
+.battle .duel .dcard .dhp { width: 100%; height: 12px; margin-top: 6px; }
+.battle .duel .dbody.mounted { width: 300px; height: 270px; display: flex; align-items: flex-end; justify-content: center; }
+.battle .duel .dbody.mounted .u.pose { --h: 250px; height: var(--h); width: calc(var(--h) * var(--pr)); position: relative; }
+.battle .duel .dbody.mounted .u.pose img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.battle .duel .dbody.mounted .u.pose img.flip { transform: scaleX(-1); }
+.battle .duel .arena { padding: 0 14% 18px; }
+body.mobile .battle .duel .dtop { padding: 8px 6px 0; gap: 4px; flex-wrap: wrap; }
+body.mobile .battle .duel .dtop .dcap { order: -1; width: 100%; text-align: center; margin: 0; }
+body.mobile .battle .duel .dcard { width: calc(50% - 4px); padding: 6px; gap: 6px; }
+body.mobile .battle .duel .dcard.right { padding: 6px; }
+body.mobile .battle .duel .dhead { width: 44px; height: 44px; }
+body.mobile .battle .duel .dcard .dname { font-size: 17px; }
+body.mobile .battle .duel .dcard .dname small { font-size: 11px; margin: 0 4px; }
+body.mobile .battle .duel .dbody.mounted { width: 44vw; height: 46vw; }
+body.mobile .battle .duel .dbody.mounted .u.pose { --h: 40vw; }
+body.mobile .battle .duel .dhp { width: 100%; }
+.battle .duel .dbody.mounted .u.pose { animation: bob .6s ease-in-out infinite; }
+.battle .duel .fighter.right .dbody.mounted .u.pose { animation-delay: .3s; }
+.battle .duel .fighter.down .dbody.mounted .u.pose { animation: none; }
