@@ -1387,7 +1387,7 @@
         h('div', { class: 'dinfo' },
           h('div', { class: 'dname' }, g.name, h('small', {}, `武力 ${g.war}`)),
           h('div', { class: 'dhp' }, hp)));
-      const rider = mounted ? TK.Sprite.make('cav', col, right) : face(g, 'full', 0, 0, 'dface');
+      const rider = mounted ? leaderSprite(g, col, right) : face(g, 'full', 0, 0, 'dface');
       if (mounted) rider.classList.remove('march');
       const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : '') }, rider);
       const root = h('div', { class: 'fighter' + (right ? ' right' : '') }, body);
@@ -1433,6 +1433,17 @@
     return t + 1800;
   }
 
+  // 主將造型（戰場與單挑共用）：沿用騎兵姿勢圖，加上 leader 樣式與姓氏旗；沒有騎兵圖或沒有主將時回傳 null
+  const COMPOUND = ['夏侯', '諸葛', '司馬', '太史', '公孫', '皇甫', '令狐', '歐陽', '上官', '淳于'];
+  const surname = (n) => COMPOUND.find((x) => n.startsWith(x)) || n.slice(0, 1);
+  function leaderSprite(g, col, right) {
+    if (!g || !TK.Sprite || !TK.Sprite.hasPose || !TK.Sprite.hasPose('cav')) return null;
+    const el = TK.Sprite.make('cav', col, right);
+    el.classList.add('leader');
+    el.append(h('span', { class: 'lflag' + (right ? ' right' : ''), style: `background:${col}` }, surname(g.name)));
+    return el;
+  }
+
   // 戰場背景依城市地形選擇
   const BATTLE_RIVER = ['江陵', '江夏', '柴桑', '建業', '永安', '長沙', '會稽', '襄陽'];
   const BATTLE_MOUNTAIN = ['漢中', '天水', '武威', '成都', '晉陽'];
@@ -1476,6 +1487,11 @@
         return { wrap, units, n: units.length };
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
+      // 主將：放大的騎兵＋金色光暈＋姓氏旗，站在軍隊最前方帶頭衝鋒（守軍沒有主將）
+      UA.leader = leaderSprite(S.generals[r.atk.commander], aCol, false);
+      UD.leader = leaderSprite(S.generals[r.def.commander], dCol, true);
+      if (UA.leader) UA.wrap.append(UA.leader);
+      if (UD.leader) UD.wrap.append(UD.leader);
       const fx = h('div', { class: 'bfx' });
       // 戰場插圖（scenes/field_*.jpg、wall*.png；沒有時用 CSS 畫的背景）
       const art = TK.SCENE_FILES || {};
@@ -1568,6 +1584,9 @@
         else if (r.def.faction === me) { text = atkWon ? '失守' : '守住'; good = !atkWon; }
         else text = atkWon ? '攻陷' : '擊退';
         resultEl.textContent = text;
+        // 敗方主將落馬退走
+        const loserLeader = atkWon ? UD.leader : UA.leader;
+        if (loserLeader) { TK.Sprite.setPose(loserLeader, 'fall'); loserLeader.classList.add('rout'); }
         resultEl.className = 'stamp ' + (good ? 'win' : 'lose');
         flashEv(r.summary);
         if (good) SND.win(); else SND.lose();
@@ -1591,6 +1610,8 @@
         if (TK.Sprite) {
           if (f.d < prev.d) UA.units.forEach((u) => TK.Sprite.attack(u, Math.random() * 220));
           if (f.a < prev.a) UD.units.forEach((u) => TK.Sprite.attack(u, Math.random() * 220));
+          if (f.d < prev.d && UA.leader) TK.Sprite.attack(UA.leader, 0);
+          if (f.a < prev.a && UD.leader) TK.Sprite.attack(UD.leader, 0);
         }
         const fw = field.clientWidth || 1160;
         advance = Math.min(advance + fw * 0.012, fw * 0.13);
