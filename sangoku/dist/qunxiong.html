@@ -4950,9 +4950,14 @@ function svg(g, color, mode, t) {
   }
   function forEvent(ev) { return ev.scene || BY_EVENT[ev.id] || 'palace'; }
   // 事件背景：有專屬插圖（scenes/<事件id>.jpg）就用，否則用該種類的內建背景
-  function urlFor(ev) { return (TK.SCENE_FILES || {})[ev.id] || url(forEvent(ev)); }
+  // 抉擇後的演出 id 是「事件id_選項序號」：沒有該選項專屬的圖時，沿用原事件的插圖
+  function fileFor(ev) {
+    const F = TK.SCENE_FILES || {};
+    return F[ev.id] || (ev.id && F[String(ev.id).replace(/_\d+$/, '')]) || null;
+  }
+  function urlFor(ev) { return fileFor(ev) || url(forEvent(ev)); }
 
-  TK.Scenes = { url, urlFor, forEvent, KINDS: Object.keys(SCENES) };
+  TK.Scenes = { url, urlFor, fileFor, forEvent, KINDS: Object.keys(SCENES) };
 })(globalThis.TK = globalThis.TK || {});
 
 </script>

@@ -568,4 +568,23 @@ test('送禮：花金糧提高友好度，對方收到禮物；交戰中不能�
   assert(!E.exec(s, 'cao', { type: 'diplo', action: 'gift', target: 'dong', general: '曹仁', gold: 100, food: 0 }).ok, '交戰中不能送禮');
 });
 
+test('事件背景：每個劇本事件（含抉擇後的演出）都有對應的插圖檔', () => {
+  const fs = require('fs');
+  require('../js/scenes.js');
+  require('../scenes/manifest.js');
+  const missing = [];
+  const check = (id) => {
+    const f = TK.Scenes.fileFor({ id });
+    if (!f || !fs.existsSync(path.join(__dirname, '..', f))) missing.push(id);
+  };
+  for (const sc of TK.SCENARIOS) {
+    for (const ev of sc.events || []) {
+      check(ev.id);
+      (ev.choices || []).forEach((c, i) => { if (c.lines) check(`${ev.id}_${i}`); });
+    }
+  }
+  for (const ev of TK.Events.EVENTS || []) check(ev.id);
+  assert(!missing.length, '沒有背景圖的事件：' + missing.join('、'));
+});
+
 console.log(`\n${passed} tests passed`);
