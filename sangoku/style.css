@@ -748,3 +748,6 @@ body.mobile .battlefield .u.pose.leader .lflag { font-size: 10px; }
 @keyframes leaderIn { from { translate: -80px 0; opacity: 0; } }
 @keyframes leaderInR { from { translate: 80px 0; opacity: 0; } }
 .battle .duel .u.pose.leader .lflag { font-size: 26px; top: -2%; }
+/* 有主將專屬圖時不用金色光暈，高度沿用 sprites.json */
+.u.pose.leader.own img { filter: drop-shadow(0 2px 4px rgba(40, 30, 20, .35)); }
+.battlefield .u.pose.leader.own, body.mobile .battlefield .u.pose.leader.own { --ph: 86; }

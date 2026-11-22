@@ -24,11 +24,11 @@ from import_bundle import unpack  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'sprites')
-UNITS = ['spear', 'cav', 'xbow']
+UNITS = ['spear', 'cav', 'xbow', 'general']  # general（主將）為選用
 POSES = ['idle', 'attack', 'fall']
 MIN_HOLE = 120             # 封閉白色區塊大於此面積（1024 原圖的像素數）就去掉
 TARGET_H = 180               # 輸出高度（遊戲內顯示約 48～64px，留給高解析度螢幕）
-HEIGHT = {'spear': 50, 'xbow': 50, 'cav': 64}  # 遊戲中顯示高度（px）
+HEIGHT = {'spear': 50, 'xbow': 50, 'cav': 64, 'general': 86}  # 遊戲中顯示高度（px）
 
 
 def find(folder, name):
@@ -98,10 +98,16 @@ def main():
         for p in POSES:
             f = find_file(folder, f'{u}_{p}.png', False)
             m = find_file(folder, f'{u}_{p}.png', True)
-            if not f or not m:
-                sys.exit(f'缺少 {u}_{p}.png 或它的遮罩')
+            if not f:
+                if u == 'general':
+                    break
+                sys.exit(f'缺少 {u}_{p}.png')
             rgb = np.asarray(Image.open(f).convert('RGB')).copy()
-            mask = np.asarray(Image.open(m).convert('RGBA'))[..., 3] > 127
+            if m:
+                mask = np.asarray(Image.open(m).convert('RGBA'))[..., 3] > 127
+            else:  # 沒有遮罩：直接抓純紅色區
+                c = rgb.astype(int)
+                mask = (c[..., 0] > 200) & (c[..., 1] < 70) & (c[..., 2] < 70)
             # 遮罩外擴 2px，連同殘留的紅色邊一起改成灰色
             grown = np.asarray(Image.fromarray(mask.astype(np.uint8) * 255).filter(ImageFilter.MaxFilter(5))) > 0
             r, g, b = rgb[..., 0].astype(int), rgb[..., 1].astype(int), rgb[..., 2].astype(int)
@@ -114,6 +120,14 @@ def main():
             alpha[mask] = 255
             imgs[p] = Image.fromarray(np.dstack([rgb, alpha]), 'RGBA')
             masks[p] = Image.fromarray(np.where(mask | reddish, 255, 0).astype(np.uint8), 'L')
+        if len(imgs) < len(POSES):
+            # 既有的主將圖保留（這次素材沒附就沿用）
+            old = os.path.join(OUT, 'sprites.json')
+            if u == 'general' and os.path.exists(old):
+                prev = json.load(open(old, encoding='utf-8')).get('general')
+                if prev:
+                    cfg[u] = prev
+            continue
         # 三個姿勢共用的裁切框
         box = None
         for p in POSES:

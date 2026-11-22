@@ -759,6 +759,9 @@ body.mobile .battlefield .u.pose.leader .lflag { font-size: 10px; }
 @keyframes leaderIn { from { translate: -80px 0; opacity: 0; } }
 @keyframes leaderInR { from { translate: 80px 0; opacity: 0; } }
 .battle .duel .u.pose.leader .lflag { font-size: 26px; top: -2%; }
+/* 有主將專屬圖時不用金色光暈，高度沿用 sprites.json */
+.u.pose.leader.own img { filter: drop-shadow(0 2px 4px rgba(40, 30, 20, .35)); }
+.battlefield .u.pose.leader.own, body.mobile .battlefield .u.pose.leader.own { --ph: 86; }
 
 </style>
 </head>
@@ -6655,7 +6658,7 @@ function svg(g, color, mode, t) {
     const later = (ms, fn) => timers.push(setTimeout(fn, ms));
     const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
     // 上方名牌：頭像、名字、武力、體力條；下方戰場：兩位武將騎馬對衝（騎兵姿勢圖依勢力換色，沒有圖時用立繪）
-    const mounted = TK.Sprite && TK.Sprite.hasPose && TK.Sprite.hasPose('cav');
+    const mounted = TK.Sprite && TK.Sprite.hasPose && (TK.Sprite.hasPose('general') || TK.Sprite.hasPose('cav'));
     const fighter = (g, right) => {
       const col = color(g.faction);
       const hp = h('div', { class: 'dhp-fill', style: `background:${col}` });
@@ -6714,8 +6717,12 @@ function svg(g, color, mode, t) {
   const COMPOUND = ['夏侯', '諸葛', '司馬', '太史', '公孫', '皇甫', '令狐', '歐陽', '上官', '淳于'];
   const surname = (n) => COMPOUND.find((x) => n.startsWith(x)) || n.slice(0, 1);
   function leaderSprite(g, col, right) {
-    if (!g || !TK.Sprite || !TK.Sprite.hasPose || !TK.Sprite.hasPose('cav')) return null;
-    const el = TK.Sprite.make('cav', col, right);
+    if (!g || !TK.Sprite || !TK.Sprite.hasPose) return null;
+    // 有主將專屬圖（sprites.json 的 general）就用，否則沿用騎兵
+    const kind = TK.Sprite.hasPose('general') ? 'general' : TK.Sprite.hasPose('cav') ? 'cav' : null;
+    if (!kind) return null;
+    const el = TK.Sprite.make(kind, col, right);
+    if (kind === 'general') el.classList.add('own');
     el.classList.add('leader');
     el.append(h('span', { class: 'lflag' + (right ? ' right' : ''), style: `background:${col}` }, surname(g.name)));
     return el;
@@ -6968,6 +6975,6 @@ function svg(g, color, mode, t) {
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
-<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/22 09:45</div>
+<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/22 09:47</div>
 </body>
 </html>

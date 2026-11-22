@@ -1378,7 +1378,7 @@
     const later = (ms, fn) => timers.push(setTimeout(fn, ms));
     const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
     // 上方名牌：頭像、名字、武力、體力條；下方戰場：兩位武將騎馬對衝（騎兵姿勢圖依勢力換色，沒有圖時用立繪）
-    const mounted = TK.Sprite && TK.Sprite.hasPose && TK.Sprite.hasPose('cav');
+    const mounted = TK.Sprite && TK.Sprite.hasPose && (TK.Sprite.hasPose('general') || TK.Sprite.hasPose('cav'));
     const fighter = (g, right) => {
       const col = color(g.faction);
       const hp = h('div', { class: 'dhp-fill', style: `background:${col}` });
@@ -1437,8 +1437,12 @@
   const COMPOUND = ['夏侯', '諸葛', '司馬', '太史', '公孫', '皇甫', '令狐', '歐陽', '上官', '淳于'];
   const surname = (n) => COMPOUND.find((x) => n.startsWith(x)) || n.slice(0, 1);
   function leaderSprite(g, col, right) {
-    if (!g || !TK.Sprite || !TK.Sprite.hasPose || !TK.Sprite.hasPose('cav')) return null;
-    const el = TK.Sprite.make('cav', col, right);
+    if (!g || !TK.Sprite || !TK.Sprite.hasPose) return null;
+    // 有主將專屬圖（sprites.json 的 general）就用，否則沿用騎兵
+    const kind = TK.Sprite.hasPose('general') ? 'general' : TK.Sprite.hasPose('cav') ? 'cav' : null;
+    if (!kind) return null;
+    const el = TK.Sprite.make(kind, col, right);
+    if (kind === 'general') el.classList.add('own');
     el.classList.add('leader');
     el.append(h('span', { class: 'lflag' + (right ? ' right' : ''), style: `background:${col}` }, surname(g.name)));
     return el;
