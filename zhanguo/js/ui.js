@@ -610,7 +610,8 @@
     banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
       const adv = advisor();
-      if (adv && adv !== ruler) await say(adv, '大王，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
+      // 開場對話不擋住操作（不必先點掉訊息才能下指令）
+      if (adv && adv !== ruler) say(adv, '大王，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
       await playEvents(opening);
       busy = false;
       render();
@@ -1302,12 +1303,12 @@
         if (!f || !f.alive) { next(); return; }
         const label = p.kind === 'alliance' ? '同盟' : '停戰（一年）';
         SND.event();
-        say(S.generals[f.ruler] || null, `${f.name}派使者前來，提議兩家${label}。`).then(() => {
-          menuWin(`${f.name}提議${label}`, [
-            { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
-            { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
-          ], null, { center: true, width: 520, shade: true });
-        });
+        // 選單直接跳出，不等下方訊息被點掉（否則沒點訊息就會卡住）
+        say(S.generals[f.ruler] || null, `${f.name}派使者前來，提議兩家${label}。`);
+        menuWin(`${f.name}派使者前來，提議兩家${label}`, [
+          { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
+          { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
+        ], null, { center: true, width: 520, shade: true });
       };
       next();
     });
@@ -1419,9 +1420,8 @@
     const win = S.over.result === 'win';
     if (win) SND.win(); else SND.lose();
     const ruler = S.generals[S.factions[S.player].ruler];
-    say(ruler, win ? '天下終於平定了。從今以後，百姓可以安居樂業了。' : '……大勢已去。只恨未能完成大業。', { wait: true }).then(() => {
-      menuWin(win ? '天下統一' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
-    });
+    say(ruler, win ? '天下終於平定了。從今以後，百姓可以安居樂業了。' : '……大勢已去。只恨未能完成大業。');
+    menuWin(win ? '天下統一' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
     return true;
   }
 
