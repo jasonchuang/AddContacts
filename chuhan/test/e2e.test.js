@@ -225,6 +225,27 @@ test('內政：開墾後農業上升、金減少、該武將本月已行動', as
   await ctx.close();
 });
 
+test('外交提議：不用先點下方訊息，接受／拒絕視窗會直接出現，選完可以繼續下指令', async (b, base) => {
+  const { ctx, p } = await open(b, base);
+  await newGame(p, '漢');
+  assert(await p.$('#cmd-win li:has-text("開墾"):not(.off)'), '開場訊息沒點掉時指令被鎖住');
+  await p.evaluate(() => { const s = TK.UI.state(); const other = Object.keys(s.factions).find((f) => f !== s.player && s.factions[f].alive && !s.factions[f].npc); s.pending = [{ type: 'proposal', from: other, kind: 'truce' }]; });
+  await p.click('#status .endturn');
+  let found = false;
+  for (let i = 0; i < 80 && !found; i++) {
+    if (await p.$('.win.pop:has-text("派使者前來")')) { found = true; break; }
+    if (await p.$('.win.battle')) await p.click('.win.battle');
+    if (await p.$('.scene')) await p.click('.scene');
+    await p.waitForTimeout(250);
+  }
+  assert(found, '外交提議的視窗沒有出現（卡住）');
+  await p.click('.win.pop li:has-text("拒絕")');
+  await p.waitForTimeout(300);
+  assert(await p.$('#cmd-win li:has-text("開墾"):not(.off)'), '選完之後還是不能下指令');
+  assert(!p.errors.length, p.errors.join('\n'));
+  await ctx.close();
+});
+
 test('結束本月：月份前進、自動存檔、武將行動次數重置', async (b, base) => {
   const { ctx, p } = await open(b, base);
   await newGame(p, '西楚');
