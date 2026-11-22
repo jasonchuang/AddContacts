@@ -527,4 +527,45 @@ test('SPEC.md 的數值表與 tuning.js 一致，且每個數值都有說明', (
   assert(!r.changed, 'SPEC.md 數值表過期，請執行 node sangoku/tools/spec_tables.js');
 });
 
+test('交易：商業夠高才能交易；買糧花金、賣糧得金；秋收後糧價較便宜、政務高價格較好', () => {
+  TK.SCENARIO = TK.scenarioById('190');
+  const s = E.newGame('cao', 600, 'free');
+  const c = s.cities['陳留'];
+  c.commerce = 100;
+  assert(!E.exec(s, 'cao', { type: 'trade', city: '陳留', general: '荀彧', mode: 'buy', amount: 1000 }).ok, '商業不足不能交易');
+  c.commerce = 500; c.gold = 2000;
+  const f0 = c.food, g0 = c.gold;
+  const r = E.exec(s, 'cao', { type: 'trade', city: '陳留', general: '荀彧', mode: 'buy', amount: 1000 });
+  assert(r.ok, r.msg);
+  assert.strictEqual(c.food, f0 + 1000);
+  assert(c.gold < g0);
+  assert(s.generals['荀彧'].acted);
+  const g1 = c.gold;
+  assert(E.exec(s, 'cao', { type: 'trade', city: '陳留', general: '典韋', mode: 'sell', amount: 1000 }).ok);
+  assert(c.gold > g1 && c.gold < g0, '賣價比買價低，不能套利');
+  s.month = 8; const autumn = E.tradeQuote(s, c, s.generals['荀彧']).buy;
+  s.month = 4; const spring = E.tradeQuote(s, c, s.generals['荀彧']).buy;
+  assert(autumn < spring, `秋 ${autumn}／春 ${spring}`);
+  assert(E.tradeQuote(s, c, s.generals['荀彧']).buy < E.tradeQuote(s, c, s.generals['典韋']).buy, '政務高價格較好');
+});
+
+test('送禮：花金糧提高友好度，對方收到禮物；交戰中不能送；友好度高時同盟成功率較高', () => {
+  const D = globalThis.TK.Diplomacy;
+  TK.SCENARIO = TK.scenarioById('190');
+  const s = E.newGame('cao', 601, 'free');
+  const c = s.cities['陳留'];
+  c.gold = 3000;
+  const p0 = D.chance(s, 'cao', 'liu', 'alliance', s.generals['荀彧']);
+  const liuCity = s.cities[s.generals['劉備'].city];
+  const lg = liuCity.gold;
+  const r = E.exec(s, 'cao', { type: 'diplo', action: 'gift', target: 'liu', general: '荀彧', gold: 1000, food: 0 });
+  assert(r.ok && r.gain > 0, r.msg);
+  assert.strictEqual(c.gold, 2000);
+  assert.strictEqual(liuCity.gold, lg + 1000);
+  assert(D.rel(s, 'cao', 'liu').rel > 0);
+  assert(D.chance(s, 'cao', 'liu', 'alliance', s.generals['曹操']) >= p0, '友好度提高後同盟較容易');
+  D.setState(s, 'cao', 'dong', 'war');
+  assert(!E.exec(s, 'cao', { type: 'diplo', action: 'gift', target: 'dong', general: '曹仁', gold: 100, food: 0 }).ok, '交戰中不能送禮');
+});
+
 console.log(`\n${passed} tests passed`);

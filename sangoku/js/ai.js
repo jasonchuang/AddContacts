@@ -103,6 +103,17 @@
     for (const city of cities) {
       if (city.owner !== fid) continue; // 本回合可能已失守
 
+      // 缺糧（不到三個月）又有錢：派政務最高的武將買糧
+      const monthly = Math.ceil(city.troops / TK.TUNING.economy.foodPer);
+      if (city.commerce >= TK.TUNING.trade.minCommerce && city.food < monthly * 3) {
+        const tr = idle(s, city.id, fid).sort((a, b) => b.pol - a.pol)[0];
+        if (tr) {
+          const q = Eng.tradeQuote(s, city, tr);
+          const amt = Math.min(q.max, monthly * 4, Math.floor((city.gold - 300) * 100 / q.buy));
+          if (amt >= 500) Eng.exec(s, fid, { type: 'trade', city: city.id, general: tr.id, mode: 'buy', amount: amt });
+        }
+      }
+
       // 俘虜：登用或釋放
       for (const p of Eng.generalsIn(s, city.id, (g) => g.status === 'prisoner')) {
         const rec = idle(s, city.id, fid).sort((a, b) => b.cha - a.cha)[0];

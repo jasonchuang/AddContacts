@@ -53,6 +53,19 @@ const DOCS = [
     [['troopCapPop', 'troopCapMin'], '一城可養兵力＝人口 × 此值（有最低值）'],
     [['desertUnpaid', 'desertStarve'], '欠餉、缺糧時的逃兵比例'],
   ] },
+  { key: 'trade', title: '交易', rows: [
+    [['minCommerce'], '商業達到此值的城才能交易'],
+    [['buyPrice', 'sellPrice'], '每 100 糧的買價／賣價（金，基準）'],
+    [['harvestMult', 'springMult'], '糧價季節倍率：秋收後（7～9 月）便宜、青黃不接（3～5 月）貴'],
+    [['polBonus'], '負責武將政務每高於 50 一點，價格好多少'],
+    [['maxPerCommerce'], '單次最多交易糧＝商業 × 此值'],
+  ] },
+  { key: 'gift', title: '外交送禮', rows: [
+    [['relPer100'], '每送 100 金，友好度上升多少'],
+    [['foodPerGold'], '送糧時幾糧折算 1 金'],
+    [['relMax'], '送禮最多把友好度提到此值'],
+    [['chaBonus'], '使者魅力每高於 50 一點，效果提高多少'],
+  ] },
   { key: 'recruit', title: '登用', rows: [
     [['freeBase', 'freeCha', 'freeMax'], '在野武將：成功率＝基礎＋魅力/100×係數，上限'],
     [['prisonerBase', 'prisonerCha', 'prisonerMax'], '俘虜（再扣忠誠）'],

@@ -241,6 +241,19 @@
     return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), troopCap(city) - city.troops));
   }
 
+  // 交易報價：每 100 糧的買價與賣價（金），以及單次上限
+  function tradeQuote(s, city, g) {
+    const m = s.month;
+    const season = m >= 7 && m <= 9 ? T.trade.harvestMult : m >= 3 && m <= 5 ? T.trade.springMult : 1;
+    const skill = g ? Math.max(-0.15, Math.min(0.2, (g.pol - 50) * T.trade.polBonus)) : 0;
+    return {
+      buy: Math.max(1, Math.round(T.trade.buyPrice * season * (1 - skill) * 10) / 10),
+      sell: Math.max(1, Math.round(T.trade.sellPrice * season * (1 + skill) * 10) / 10),
+      max: Math.floor(city.commerce * T.trade.maxPerCommerce),
+      season: season < 1 ? '秋收後糧價便宜' : season > 1 ? '青黃不接糧價高' : '糧價平穩',
+    };
+  }
+
   function recruitChance(s, g, target) {
     if (target.ruler) return 0;
     const bonus = g.faction === s.player ? diff(s).recruit : 0;
@@ -347,6 +360,28 @@
           return ok(t ? `任命${t.name}為${city.name}太守` : `解除了${city.name}太守`);
         }
         return fail('未知的官職');
+      }
+      case 'trade': {
+        // 交易：在商業發達的城買賣軍糧；價格依季節與負責武將的政務
+        if (city.commerce < T.trade.minCommerce) return fail(`商業需達 ${T.trade.minCommerce} 才能交易`);
+        const amt = Math.floor(cmd.amount || 0);
+        const q = tradeQuote(s, city, g);
+        if (amt <= 0 || amt > q.max) return fail(`一次最多交易糧 ${q.max}`);
+        if (cmd.mode === 'buy') {
+          const cost = Math.ceil(amt * q.buy / 100);
+          if (city.gold < cost) return fail('金不足');
+          city.gold -= cost; city.food += amt;
+          g.acted = true;
+          return ok(`${g.name}在${city.name}以金 ${cost} 買進糧 ${amt}`);
+        }
+        if (cmd.mode === 'sell') {
+          if (city.food < amt) return fail('糧不足');
+          const got = Math.floor(amt * q.sell / 100);
+          city.food -= amt; city.gold += got;
+          g.acted = true;
+          return ok(`${g.name}在${city.name}賣出糧 ${amt}，得金 ${got}`);
+        }
+        return fail('未知的交易');
       }
       case 'reward': {
         const t = s.generals[cmd.target];
@@ -796,7 +831,7 @@
 
   TK.Engine = {
     duel,
-    destroyFaction, DIFFICULTY, diff, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
+    destroyFaction, DIFFICULTY, diff, tradeQuote, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,

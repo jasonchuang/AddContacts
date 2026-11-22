@@ -10,7 +10,16 @@
     truce: { label: '停戰', cost: 200 },
     war: { label: '宣戰', cost: 0 },
     surrender: { label: '勸降', cost: 100 },
+    gift: { label: '送禮', cost: 0 },
   };
+  // 送禮：送出金或糧，提高友好度（同盟、停戰、勸降的成功率都會跟著提高）
+  function giftGain(s, fid, target, gold, food, envoy) {
+    const T = TK.TUNING.gift;
+    const value = gold + food / T.foodPerGold;
+    const bonus = 1 + Math.max(-0.2, (envoy.cha - 50) * T.chaBonus);
+    const r = rel(s, fid, target);
+    return Math.max(0, Math.min(T.relMax - r.rel, Math.round(value / 100 * T.relPer100 * bonus)));
+  }
 
   const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
   function rel(s, a, b) {
@@ -67,6 +76,8 @@
       if (ratio > 1.3) p += 0.15; else if (ratio < 0.7) p -= 0.08;
     } else if (action === 'war') {
       return r.state !== 'war' ? 1 : 0;
+    } else if (action === 'gift') {
+      return r.state === 'war' || r.rel >= TK.TUNING.gift.relMax ? 0 : 1;
     } else if (action === 'surrender') {
       if (ratio < 3) return 0;
       p = Math.min(0.45, (ratio - 3) / 6) + envoy.cha / 400 - 0.05;
@@ -105,6 +116,22 @@
     g.acted = true;
     const fname = E().factionName(s, fid), tname = E().factionName(s, target);
     const r = rel(s, fid, target);
+    if (cmd.action === 'gift') {
+      const gold = Math.floor(cmd.gold || 0), food = Math.floor(cmd.food || 0);
+      if (gold < 0 || food < 0 || gold + food <= 0) { return { ok: false, msg: '請選擇要送的金或糧' }; }
+      if (gold > city.gold || food > city.food) return { ok: false, msg: '金或糧不足' };
+      const gain = giftGain(s, fid, target, gold, food, g);
+      city.gold -= gold; city.food -= food;
+      g.acted = true;
+      r.rel += gain;
+      // 收禮的一方也得到這些金糧（送到對方君主所在的城）
+      const rc = s.cities[(s.generals[s.factions[target].ruler] || {}).city] || E().citiesOf(s, target)[0];
+      if (rc) { rc.gold += gold; rc.food += food; }
+      const what = [gold ? `金 ${gold}` : '', food ? `糧 ${food}` : ''].filter(Boolean).join('、');
+      const msg = `${g.name}帶著${what}出使${tname}，友好度 +${gain}`;
+      E().addLog(s, msg, 'info', [fid, target]);
+      return { ok: true, msg, success: true, gain };
+    }
     if (cmd.action === 'war') {
       const betrayal = r.state === 'alliance' || r.state === 'truce';
       setState(s, fid, target, 'war');
@@ -176,5 +203,5 @@
     return `拒絕了${E().factionName(s, fid)}的${label}提議。`;
   }
 
-  TK.Diplomacy = { STATE_LABEL, ACTIONS, rel, setState, stateOf, canAttack, onAttack, chance, exec, absorb, monthTick, aiConsider, respond, power, atWarWith };
+  TK.Diplomacy = { STATE_LABEL, ACTIONS, giftGain, rel, setState, stateOf, canAttack, onAttack, chance, exec, absorb, monthTick, aiConsider, respond, power, atWarWith };
 })(globalThis.TK = globalThis.TK || {});

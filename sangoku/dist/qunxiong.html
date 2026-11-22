@@ -789,6 +789,12 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
 
 /* 複姓（公孫、夏侯）印章放得下兩字 */
 #status .seal, .fc-name .seal { min-width: 30px; width: auto; padding: 0 3px; letter-spacing: -1px; white-space: nowrap; }
+/* 指令變多：一排 5 個 */
+.menu.tiles { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.menu.tiles li { height: 46px; font-size: 15px; }
+.menu.tiles li:nth-child(n+6):nth-child(-n+8) { --tc: #b8503a; }
+.menu.tiles li:nth-child(n+9):nth-child(-n+14) { --tc: #5a6b8a; }
+body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
 
 </style>
 </head>
@@ -888,6 +894,22 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
       troopCapMin: 15000,
       desertUnpaid: 0.05,      // 欠餉時逃兵比例
       desertStarve: 0.1,       // 缺糧時逃兵比例
+    },
+    // ---------- 交易與送禮 ----------
+    trade: {
+      minCommerce: 200,        // 商業達到此值的城才能交易
+      buyPrice: 12,            // 買 100 糧要多少金（基準）
+      sellPrice: 8,            // 賣 100 糧得多少金（基準，比買價低，避免來回套利）
+      harvestMult: 0.8,        // 秋收後（7～9 月）糧價倍率：便宜
+      springMult: 1.25,        // 青黃不接（3～5 月）糧價倍率：貴
+      polBonus: 0.004,         // 武將政務每高於 50 一點，價格好 0.4%
+      maxPerCommerce: 20,      // 單次最多交易糧＝商業 × 此值
+    },
+    gift: {
+      relPer100: 4,            // 每送 100 金，友好度上升（上限見 relMax）
+      foodPerGold: 10,         // 送糧時 10 糧折算 1 金
+      relMax: 60,              // 送禮最多把友好度提到此值
+      chaBonus: 0.005,         // 使者魅力每高於 50 一點，效果 +0.5%
     },
     // ---------- 登用 ----------
     recruit: {
@@ -2016,6 +2038,19 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
     return Math.max(0, Math.min(g.cha * 100, Math.floor(city.gold * 1000 / cost), Math.floor(city.pop / 5), troopCap(city) - city.troops));
   }
 
+  // 交易報價：每 100 糧的買價與賣價（金），以及單次上限
+  function tradeQuote(s, city, g) {
+    const m = s.month;
+    const season = m >= 7 && m <= 9 ? T.trade.harvestMult : m >= 3 && m <= 5 ? T.trade.springMult : 1;
+    const skill = g ? Math.max(-0.15, Math.min(0.2, (g.pol - 50) * T.trade.polBonus)) : 0;
+    return {
+      buy: Math.max(1, Math.round(T.trade.buyPrice * season * (1 - skill) * 10) / 10),
+      sell: Math.max(1, Math.round(T.trade.sellPrice * season * (1 + skill) * 10) / 10),
+      max: Math.floor(city.commerce * T.trade.maxPerCommerce),
+      season: season < 1 ? '秋收後糧價便宜' : season > 1 ? '青黃不接糧價高' : '糧價平穩',
+    };
+  }
+
   function recruitChance(s, g, target) {
     if (target.ruler) return 0;
     const bonus = g.faction === s.player ? diff(s).recruit : 0;
@@ -2122,6 +2157,28 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
           return ok(t ? `任命${t.name}為${city.name}太守` : `解除了${city.name}太守`);
         }
         return fail('未知的官職');
+      }
+      case 'trade': {
+        // 交易：在商業發達的城買賣軍糧；價格依季節與負責武將的政務
+        if (city.commerce < T.trade.minCommerce) return fail(`商業需達 ${T.trade.minCommerce} 才能交易`);
+        const amt = Math.floor(cmd.amount || 0);
+        const q = tradeQuote(s, city, g);
+        if (amt <= 0 || amt > q.max) return fail(`一次最多交易糧 ${q.max}`);
+        if (cmd.mode === 'buy') {
+          const cost = Math.ceil(amt * q.buy / 100);
+          if (city.gold < cost) return fail('金不足');
+          city.gold -= cost; city.food += amt;
+          g.acted = true;
+          return ok(`${g.name}在${city.name}以金 ${cost} 買進糧 ${amt}`);
+        }
+        if (cmd.mode === 'sell') {
+          if (city.food < amt) return fail('糧不足');
+          const got = Math.floor(amt * q.sell / 100);
+          city.food -= amt; city.gold += got;
+          g.acted = true;
+          return ok(`${g.name}在${city.name}賣出糧 ${amt}，得金 ${got}`);
+        }
+        return fail('未知的交易');
       }
       case 'reward': {
         const t = s.generals[cmd.target];
@@ -2571,7 +2628,7 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
 
   TK.Engine = {
     duel,
-    destroyFaction, DIFFICULTY, diff, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
+    destroyFaction, DIFFICULTY, diff, tradeQuote, ORDERS, battleStart, battleRound, battleEnd, troopCap, goldIncome, upkeep, strategistOf, governorOf,
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, recruitChance, powerOf, rand, rint, pick, clamp,
@@ -2686,6 +2743,17 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
 
     for (const city of cities) {
       if (city.owner !== fid) continue; // 本回合可能已失守
+
+      // 缺糧（不到三個月）又有錢：派政務最高的武將買糧
+      const monthly = Math.ceil(city.troops / TK.TUNING.economy.foodPer);
+      if (city.commerce >= TK.TUNING.trade.minCommerce && city.food < monthly * 3) {
+        const tr = idle(s, city.id, fid).sort((a, b) => b.pol - a.pol)[0];
+        if (tr) {
+          const q = Eng.tradeQuote(s, city, tr);
+          const amt = Math.min(q.max, monthly * 4, Math.floor((city.gold - 300) * 100 / q.buy));
+          if (amt >= 500) Eng.exec(s, fid, { type: 'trade', city: city.id, general: tr.id, mode: 'buy', amount: amt });
+        }
+      }
 
       // 俘虜：登用或釋放
       for (const p of Eng.generalsIn(s, city.id, (g) => g.status === 'prisoner')) {
@@ -2857,7 +2925,16 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
     truce: { label: '停戰', cost: 200 },
     war: { label: '宣戰', cost: 0 },
     surrender: { label: '勸降', cost: 100 },
+    gift: { label: '送禮', cost: 0 },
   };
+  // 送禮：送出金或糧，提高友好度（同盟、停戰、勸降的成功率都會跟著提高）
+  function giftGain(s, fid, target, gold, food, envoy) {
+    const T = TK.TUNING.gift;
+    const value = gold + food / T.foodPerGold;
+    const bonus = 1 + Math.max(-0.2, (envoy.cha - 50) * T.chaBonus);
+    const r = rel(s, fid, target);
+    return Math.max(0, Math.min(T.relMax - r.rel, Math.round(value / 100 * T.relPer100 * bonus)));
+  }
 
   const key = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
   function rel(s, a, b) {
@@ -2914,6 +2991,8 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
       if (ratio > 1.3) p += 0.15; else if (ratio < 0.7) p -= 0.08;
     } else if (action === 'war') {
       return r.state !== 'war' ? 1 : 0;
+    } else if (action === 'gift') {
+      return r.state === 'war' || r.rel >= TK.TUNING.gift.relMax ? 0 : 1;
     } else if (action === 'surrender') {
       if (ratio < 3) return 0;
       p = Math.min(0.45, (ratio - 3) / 6) + envoy.cha / 400 - 0.05;
@@ -2952,6 +3031,22 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
     g.acted = true;
     const fname = E().factionName(s, fid), tname = E().factionName(s, target);
     const r = rel(s, fid, target);
+    if (cmd.action === 'gift') {
+      const gold = Math.floor(cmd.gold || 0), food = Math.floor(cmd.food || 0);
+      if (gold < 0 || food < 0 || gold + food <= 0) { return { ok: false, msg: '請選擇要送的金或糧' }; }
+      if (gold > city.gold || food > city.food) return { ok: false, msg: '金或糧不足' };
+      const gain = giftGain(s, fid, target, gold, food, g);
+      city.gold -= gold; city.food -= food;
+      g.acted = true;
+      r.rel += gain;
+      // 收禮的一方也得到這些金糧（送到對方君主所在的城）
+      const rc = s.cities[(s.generals[s.factions[target].ruler] || {}).city] || E().citiesOf(s, target)[0];
+      if (rc) { rc.gold += gold; rc.food += food; }
+      const what = [gold ? `金 ${gold}` : '', food ? `糧 ${food}` : ''].filter(Boolean).join('、');
+      const msg = `${g.name}帶著${what}出使${tname}，友好度 +${gain}`;
+      E().addLog(s, msg, 'info', [fid, target]);
+      return { ok: true, msg, success: true, gain };
+    }
     if (cmd.action === 'war') {
       const betrayal = r.state === 'alliance' || r.state === 'truce';
       setState(s, fid, target, 'war');
@@ -3023,7 +3118,7 @@ body.mobile .battle .duel .arena.close .dbody.mounted { width: 40vw; }
     return `拒絕了${E().factionName(s, fid)}的${label}提議。`;
   }
 
-  TK.Diplomacy = { STATE_LABEL, ACTIONS, rel, setState, stateOf, canAttack, onAttack, chance, exec, absorb, monthTick, aiConsider, respond, power, atWarWith };
+  TK.Diplomacy = { STATE_LABEL, ACTIONS, giftGain, rel, setState, stateOf, canAttack, onAttack, chance, exec, absorb, monthTick, aiConsider, respond, power, atWarWith };
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
@@ -5490,7 +5585,7 @@ function svg(g, color, mode, t) {
   const MENU_ICON = {
     內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
-    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 交易: 'commerce', 送禮: 'reward', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
   };
   const UNIT_BY_NAME = { 槍兵: 'spear', 騎兵: 'cav', 弩兵: 'xbow' };
   function svgNode(str) {
@@ -6058,6 +6153,7 @@ function svg(g, color, mode, t) {
       items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
       items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
       items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
+      items.push({ label: '交易', hint: '買賣軍糧', off: busy || !idle || c.commerce < TK.TUNING.trade.minCommerce, why: !idle ? why : `商業需達 ${TK.TUNING.trade.minCommerce} 才能交易。`, act: () => tradeFlow(c) });
       items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
       items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
       items.push({ label: '任命', hint: '軍師・太守', off: busy, act: () => appointMenu(c) });
@@ -6067,7 +6163,7 @@ function svg(g, color, mode, t) {
     items.push({ label: '情報', act: () => infoMenu(c) });
     items.push({ label: '系統', act: systemMenu });
     const keep = rootMenu ? rootMenu.index : 0;
-    rootMenu = makeMenu(items, (it) => it.act(), { cols: 4 });
+    rootMenu = makeMenu(items, (it) => it.act(), { cols: 5 });
     rootMenu.index = Math.min(keep, items.length - 1);
     rootMenu.ul.classList.add('tiles');
     rootMenu.render();
@@ -6148,6 +6244,23 @@ function svg(g, color, mode, t) {
   }
 
   const SUB = { x: 600, y: 360, width: 320 };
+
+  // 交易：選負責武將（政務高價格好）→ 買糧或賣糧 → 數量
+  function tradeFlow(c) {
+    pickGeneral(c, 'pol', '交易：選擇負責的武將（政務越高，價格越好）', (g) => {
+      const q = E.tradeQuote(S, c, g);
+      const maxBuy = Math.min(q.max, Math.floor(c.gold * 100 / q.buy));
+      const maxSell = Math.min(q.max, c.food);
+      menuWin(`${c.name}市集（${q.season}）`, [
+        { label: '買糧', hint: `每 100 糧 金${q.buy}`, off: maxBuy < 100, why: '金不足。', act: () => numberWin('買進多少糧？', {
+          max: maxBuy, min: 100, value: Math.min(maxBuy, 2000), info: (v) => `花費金 ${Math.ceil(v * q.buy / 100)}（城中有金 ${fmt(c.gold)}）`,
+        }, (v) => run({ type: 'trade', city: c.id, general: g.id, mode: 'buy', amount: v }, g, () => `買進了糧 ${fmt(v)}，花了金 ${Math.ceil(v * q.buy / 100)}。`)) },
+        { label: '賣糧', hint: `每 100 糧 金${q.sell}`, off: maxSell < 100, why: '糧不足。', act: () => numberWin('賣出多少糧？', {
+          max: maxSell, min: 100, value: Math.min(maxSell, 2000), info: (v) => `得到金 ${Math.floor(v * q.sell / 100)}（城中有糧 ${fmt(c.food)}，每月吃 ${Math.ceil(c.troops / TK.TUNING.economy.foodPer)}）`,
+        }, (v) => run({ type: 'trade', city: c.id, general: g.id, mode: 'sell', amount: v }, g, () => `賣出了糧 ${fmt(v)}，得到金 ${Math.floor(v * q.sell / 100)}。`)) },
+      ], null, { center: true, width: 520, shade: true });
+    });
+  }
 
   function devAct(c, type) {
     const d = E.DEV[type];
@@ -6432,10 +6545,11 @@ function svg(g, color, mode, t) {
       menuWin(`對${row.f.name}`, Object.entries(D.ACTIONS).map(([k, a]) => {
         const p = best ? D.chance(S, S.player, fid, k, best) : 0;
         return {
-          label: a.label, hint: k === 'war' ? '' : (p > 0 ? `約${Math.round(p * 100)}%　金${a.cost}` : '不可'),
-          off: !best || p <= 0, why: !best ? '本月沒有可以出使的武將。' : `目前無法${a.label}。`,
+          label: a.label, hint: k === 'war' ? '' : k === 'gift' ? (p > 0 ? `友好 ${D.rel(S, S.player, fid).rel}／${TK.TUNING.gift.relMax}` : '不可') : (p > 0 ? `約${Math.round(p * 100)}%　金${a.cost}` : '不可'),
+          off: !best || p <= 0, why: !best ? '本月沒有可以出使的武將。' : k === 'gift' ? '交戰中或友好度已經很高，不能送禮。' : `目前無法${a.label}。`,
           act: () => {
             if (k === 'war') { confirmWin(`真的要向${row.f.name}宣戰嗎？`, () => sendEnvoy(fid, k, best)); return; }
+            if (k === 'gift') { giftFlow(row.f, envoys); return; }
             tableWin(`${a.label}：選擇使者（金${a.cost}，由使者所在城支出）`, genCols('cha', ['所在', '成功率']),
               genRows(envoys.sort((x, y) => D.chance(S, S.player, fid, k, y) - D.chance(S, S.player, fid, k, x)), {
                 extra: (g) => [g.city, `${Math.round(D.chance(S, S.player, fid, k, g) * 100)}%`],
@@ -6445,6 +6559,26 @@ function svg(g, color, mode, t) {
         };
       }), null, { x: 560, y: 260, width: 420 });
     }, { width: 860, x: 200, side: (r) => h('div', {}, face(S.generals[r.f.ruler], 'head', 36, 36), h('div', { class: 'desc', style: `color:${r.f.color}` }, `■ ${r.f.name}`)) });
+  }
+
+  // 送禮：選使者（魅力高效果好）→ 金與糧的數量（由使者所在城支出）
+  function giftFlow(f, envoys) {
+    const D = TK.Diplomacy;
+    tableWin(`送禮給${f.name}：選擇使者（魅力越高效果越好）`, genCols('cha', ['所在', '金', '糧']),
+      genRows(envoys.slice().sort((a, b) => b.cha - a.cha), { extra: (g) => [g.city, fmt(S.cities[g.city].gold), fmtW(S.cities[g.city].food)] }), (r) => {
+        const g = r.g, c = S.cities[g.city];
+        allocWin(`送給${f.name}的禮物（從${c.name}支出）`, [
+          { key: 'gold', label: '金', max: c.gold, init: Math.min(c.gold, 300) },
+          { key: 'food', label: '糧', max: c.food, init: 0 },
+        ], (v) => `友好度 +${D.giftGain(S, S.player, f.id, v.gold, v.food, g)}（目前 ${D.rel(S, S.player, f.id).rel}，送禮最多到 ${TK.TUNING.gift.relMax}）。友好度高，同盟與停戰較容易成功`, (v) => {
+          const res = E.exec(S, S.player, { type: 'diplo', action: 'gift', target: f.id, general: g.id, gold: v.gold, food: v.food });
+          closeAll(); render();
+          if (!res.ok) { SND.error(); say(null, res.msg); return; }
+          SND.win();
+          say(S.generals[f.ruler] || null, '如此厚禮，盛情難卻。');
+          say(g, res.msg);
+        }, { validate: (v) => v.gold + v.food > 0, why: () => '請選擇要送的金或糧。' });
+      }, { side: genSide, width: 900, x: 180 });
   }
 
   function sendEnvoy(fid, action, g) {

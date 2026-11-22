@@ -178,7 +178,7 @@
   const MENU_ICON = {
     內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
-    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 交易: 'commerce', 送禮: 'reward', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
   };
   const UNIT_BY_NAME = { 槍兵: 'spear', 騎兵: 'cav', 弩兵: 'xbow' };
   function svgNode(str) {
@@ -746,6 +746,7 @@
       items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
       items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
       items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
+      items.push({ label: '交易', hint: '買賣軍糧', off: busy || !idle || c.commerce < TK.TUNING.trade.minCommerce, why: !idle ? why : `商業需達 ${TK.TUNING.trade.minCommerce} 才能交易。`, act: () => tradeFlow(c) });
       items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
       items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
       items.push({ label: '任命', hint: '軍師・太守', off: busy, act: () => appointMenu(c) });
@@ -755,7 +756,7 @@
     items.push({ label: '情報', act: () => infoMenu(c) });
     items.push({ label: '系統', act: systemMenu });
     const keep = rootMenu ? rootMenu.index : 0;
-    rootMenu = makeMenu(items, (it) => it.act(), { cols: 4 });
+    rootMenu = makeMenu(items, (it) => it.act(), { cols: 5 });
     rootMenu.index = Math.min(keep, items.length - 1);
     rootMenu.ul.classList.add('tiles');
     rootMenu.render();
@@ -836,6 +837,23 @@
   }
 
   const SUB = { x: 600, y: 360, width: 320 };
+
+  // 交易：選負責武將（政務高價格好）→ 買糧或賣糧 → 數量
+  function tradeFlow(c) {
+    pickGeneral(c, 'pol', '交易：選擇負責的武將（政務越高，價格越好）', (g) => {
+      const q = E.tradeQuote(S, c, g);
+      const maxBuy = Math.min(q.max, Math.floor(c.gold * 100 / q.buy));
+      const maxSell = Math.min(q.max, c.food);
+      menuWin(`${c.name}市集（${q.season}）`, [
+        { label: '買糧', hint: `每 100 糧 金${q.buy}`, off: maxBuy < 100, why: '金不足。', act: () => numberWin('買進多少糧？', {
+          max: maxBuy, min: 100, value: Math.min(maxBuy, 2000), info: (v) => `花費金 ${Math.ceil(v * q.buy / 100)}（城中有金 ${fmt(c.gold)}）`,
+        }, (v) => run({ type: 'trade', city: c.id, general: g.id, mode: 'buy', amount: v }, g, () => `買進了糧 ${fmt(v)}，花了金 ${Math.ceil(v * q.buy / 100)}。`)) },
+        { label: '賣糧', hint: `每 100 糧 金${q.sell}`, off: maxSell < 100, why: '糧不足。', act: () => numberWin('賣出多少糧？', {
+          max: maxSell, min: 100, value: Math.min(maxSell, 2000), info: (v) => `得到金 ${Math.floor(v * q.sell / 100)}（城中有糧 ${fmt(c.food)}，每月吃 ${Math.ceil(c.troops / TK.TUNING.economy.foodPer)}）`,
+        }, (v) => run({ type: 'trade', city: c.id, general: g.id, mode: 'sell', amount: v }, g, () => `賣出了糧 ${fmt(v)}，得到金 ${Math.floor(v * q.sell / 100)}。`)) },
+      ], null, { center: true, width: 520, shade: true });
+    });
+  }
 
   function devAct(c, type) {
     const d = E.DEV[type];
@@ -1120,10 +1138,11 @@
       menuWin(`對${row.f.name}`, Object.entries(D.ACTIONS).map(([k, a]) => {
         const p = best ? D.chance(S, S.player, fid, k, best) : 0;
         return {
-          label: a.label, hint: k === 'war' ? '' : (p > 0 ? `約${Math.round(p * 100)}%　金${a.cost}` : '不可'),
-          off: !best || p <= 0, why: !best ? '本月沒有可以出使的武將。' : `目前無法${a.label}。`,
+          label: a.label, hint: k === 'war' ? '' : k === 'gift' ? (p > 0 ? `友好 ${D.rel(S, S.player, fid).rel}／${TK.TUNING.gift.relMax}` : '不可') : (p > 0 ? `約${Math.round(p * 100)}%　金${a.cost}` : '不可'),
+          off: !best || p <= 0, why: !best ? '本月沒有可以出使的武將。' : k === 'gift' ? '交戰中或友好度已經很高，不能送禮。' : `目前無法${a.label}。`,
           act: () => {
             if (k === 'war') { confirmWin(`真的要向${row.f.name}宣戰嗎？`, () => sendEnvoy(fid, k, best)); return; }
+            if (k === 'gift') { giftFlow(row.f, envoys); return; }
             tableWin(`${a.label}：選擇使者（金${a.cost}，由使者所在城支出）`, genCols('cha', ['所在', '成功率']),
               genRows(envoys.sort((x, y) => D.chance(S, S.player, fid, k, y) - D.chance(S, S.player, fid, k, x)), {
                 extra: (g) => [g.city, `${Math.round(D.chance(S, S.player, fid, k, g) * 100)}%`],
@@ -1133,6 +1152,26 @@
         };
       }), null, { x: 560, y: 260, width: 420 });
     }, { width: 860, x: 200, side: (r) => h('div', {}, face(S.generals[r.f.ruler], 'head', 36, 36), h('div', { class: 'desc', style: `color:${r.f.color}` }, `■ ${r.f.name}`)) });
+  }
+
+  // 送禮：選使者（魅力高效果好）→ 金與糧的數量（由使者所在城支出）
+  function giftFlow(f, envoys) {
+    const D = TK.Diplomacy;
+    tableWin(`送禮給${f.name}：選擇使者（魅力越高效果越好）`, genCols('cha', ['所在', '金', '糧']),
+      genRows(envoys.slice().sort((a, b) => b.cha - a.cha), { extra: (g) => [g.city, fmt(S.cities[g.city].gold), fmtW(S.cities[g.city].food)] }), (r) => {
+        const g = r.g, c = S.cities[g.city];
+        allocWin(`送給${f.name}的禮物（從${c.name}支出）`, [
+          { key: 'gold', label: '金', max: c.gold, init: Math.min(c.gold, 300) },
+          { key: 'food', label: '糧', max: c.food, init: 0 },
+        ], (v) => `友好度 +${D.giftGain(S, S.player, f.id, v.gold, v.food, g)}（目前 ${D.rel(S, S.player, f.id).rel}，送禮最多到 ${TK.TUNING.gift.relMax}）。友好度高，同盟與停戰較容易成功`, (v) => {
+          const res = E.exec(S, S.player, { type: 'diplo', action: 'gift', target: f.id, general: g.id, gold: v.gold, food: v.food });
+          closeAll(); render();
+          if (!res.ok) { SND.error(); say(null, res.msg); return; }
+          SND.win();
+          say(S.generals[f.ruler] || null, '如此厚禮，盛情難卻。');
+          say(g, res.msg);
+        }, { validate: (v) => v.gold + v.food > 0, why: () => '請選擇要送的金或糧。' });
+      }, { side: genSide, width: 900, x: 180 });
   }
 
   function sendEnvoy(fid, action, g) {
