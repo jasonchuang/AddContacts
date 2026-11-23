@@ -705,3 +705,11 @@ body.mobile .battlefield .bwall.art { height: 78%; right: -6px; }
 body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-size: 11px !important; }
 body.mobile .battlefield.walled .units.right { right: 92px; }
 .battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
+
+/* 隱藏下方訊息框：地圖往下延伸補滿 */
+body.nomsg #msg-win { display: none !important; }
+#msg-win .msg-hide { position: absolute; top: 4px; right: 8px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 20px; line-height: 26px; cursor: pointer; }
+#msg-win .msg-hide:hover { background: rgba(0, 0, 0, .08); color: var(--ink); }
+#map-win .msg-show { display: none; position: absolute; left: 12px; bottom: 44px; z-index: 3; padding: 6px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+body.nomsg #map-win .msg-show { display: block; }
+body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; }
