@@ -43,6 +43,32 @@
   }
 
   let view = { s: 1, ox: 0, oy: 0, W: 0, H: 0 };
+  const cam = { z: 1, cx: null, cy: null };
+  const ZMIN = 1, ZMAX = 2.6;
+  // 以畫面上一點為中心縮放（clientX/Y 為滑鼠或兩指中心）；沒有給點就以畫面中央縮放
+  function zoomBy(canvas, f, clientX, clientY) {
+    const z = Math.min(ZMAX, Math.max(ZMIN, cam.z * f));
+    if (z === cam.z) return false;
+    if (clientX !== undefined && view.s) {
+      const r = canvas.getBoundingClientRect();
+      const x = (clientX - r.left) * canvas.width / r.width, y = (clientY - r.top) * canvas.height / r.height;
+      const wx = (x - view.ox) / view.s, wy = (y - view.oy) / view.s;
+      const s2 = view.base * z;
+      cam.cx = wx - (x - view.W / 2) / s2;
+      cam.cy = wy - (y - view.H / 2) / s2;
+    }
+    cam.z = z;
+    return true;
+  }
+  // 拖曳：dx、dy 為螢幕上的位移（CSS 像素）
+  function panBy(canvas, dx, dy) {
+    const r = canvas.getBoundingClientRect();
+    const k = canvas.width / (r.width || 1) / (view.s || 1);
+    if (cam.cx === null) return;
+    cam.cx -= dx * k; cam.cy -= dy * k;
+  }
+  function resetView() { cam.z = 1; cam.cx = null; cam.cy = null; }
+  const zoomLevel = () => cam.z;
   const P = (p) => [view.ox + p[0] * view.s, view.oy + p[1] * view.s];
 
   function smooth(ctx, pts) {
@@ -63,8 +89,16 @@
     if (canvas.width !== W) canvas.width = W;
     if (canvas.height !== H) canvas.height = H;
     // 世界座標 1000×720，上下各留一點邊（下方多留，避免最下排城名被切掉）
-    const s = Math.min(W / 1000, H / 795);
-    view = { s, ox: (W - 1000 * s) / 2, oy: (H - 795 * s) / 2 + 12 * s, W, H };
+    const base = Math.min(W / 1000, H / 795);
+    // 鏡頭：縮放 cam.z（1＝全圖），中心 cam.cx、cam.cy（世界座標）；捲動不會超出地圖範圍
+    const s = base * cam.z;
+    const halfW = W / 2 / s, halfH = H / 2 / s;
+    const defCy = (H / 2 - ((H - 795 * base) / 2 + 12 * base)) / base;
+    if (cam.cx === null) { cam.cx = 500; cam.cy = defCy; }
+    const clampC = (v, lo, hi, half, def) => (hi - lo <= half * 2 ? def : Math.min(hi - half, Math.max(lo + half, v)));
+    cam.cx = clampC(cam.cx, -20, 1020, halfW, 500);
+    cam.cy = clampC(cam.cy, -45, 790, halfH, defCy);
+    view = { s, base, ox: W / 2 - cam.cx * s, oy: H / 2 - cam.cy * s, W, H };
     const ctx = canvas.getContext('2d');
     const color = opts.color;
     const cities = Object.values(state.cities);
@@ -163,7 +197,7 @@
     ctx.setLineDash([]);
 
     // 城市
-    const S2 = Math.max(0.8, s);
+    const S2 = Math.max(0.8, base * Math.min(cam.z, 1.35)); // 放大時城池圖示只略為變大，城與城之間拉開
     const rulerCity = {};
     for (const g of Object.values(state.generals)) if (g.ruler && g.status === 'active') rulerCity[g.city] = true;
     for (const c of cities) {
@@ -246,5 +280,5 @@
     return best;
   }
 
-  TK.MapView = { render, cityAt };
+  TK.MapView = { render, cityAt, zoomBy, panBy, resetView, zoomLevel };
 })(globalThis.TK = globalThis.TK || {});

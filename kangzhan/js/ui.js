@@ -1836,7 +1836,51 @@
     fit();
     addEventListener('resize', fit);
     const map = $('map');
+    // 地圖縮放與捲動：滾輪縮放、拖曳移動、兩指縮放；拖曳過的那一下不算點擊
+    let drag = null, dragged = false;
+    const pts = new Map();
+    map.addEventListener('wheel', (e) => {
+      if (!S) return;
+      e.preventDefault();
+      if (MV.zoomBy(map, e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX, e.clientY)) renderMap();
+    }, { passive: false });
+    map.addEventListener('pointerdown', (e) => {
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      drag = { x: e.clientX, y: e.clientY, d: null };
+      dragged = false;
+    });
+    map.addEventListener('pointermove', (e) => {
+      if (!pts.has(e.pointerId)) return;
+      const prev = pts.get(e.pointerId);
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (drag.d) { MV.zoomBy(map, dist / drag.d, (a.x + b.x) / 2, (a.y + b.y) / 2); renderMap(); }
+        drag.d = dist; dragged = true;
+        return;
+      }
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 6 && MV.zoomLevel() > 1) {
+        dragged = true;
+        try { map.setPointerCapture(e.pointerId); } catch (err) { /* 舊瀏覽器 */ }
+        MV.panBy(map, e.clientX - prev.x, e.clientY - prev.y);
+        map.style.cursor = 'grabbing';
+        renderMap();
+      }
+    });
+    const up = (e) => { pts.delete(e.pointerId); if (pts.size < 2 && drag) drag.d = null; };
+    map.addEventListener('pointerup', up);
+    map.addEventListener('pointercancel', up);
+    map.addEventListener('pointerleave', (e) => { if (!map.hasPointerCapture || !map.hasPointerCapture(e.pointerId)) up(e); map.style.cursor = 'default'; });
+    map.style.touchAction = 'none';
+    // 縮放按鈕
+    const zbtn = (label, title, act) => h('button', { class: 'zbtn', title, onclick: (e) => { e.stopPropagation(); act(); renderMap(); } }, label);
+    $('map-win').append(h('div', { class: 'zoom-ctl' },
+      zbtn('＋', '放大地圖（滾輪也可以）', () => MV.zoomBy(map, 1.35)),
+      zbtn('－', '縮小地圖', () => MV.zoomBy(map, 1 / 1.35)),
+      zbtn('⟲', '顯示全圖', () => MV.resetView())));
     map.addEventListener('click', (e) => {
+      if (dragged) { dragged = false; return; }
       if (!S || stack.length || battleKey) return;
       const id = MV.cityAt(S, map, e.clientX, e.clientY);
       if (id) selectCity(id);
