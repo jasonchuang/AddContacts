@@ -694,6 +694,10 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 body.mobile .menu.tiles { grid-template-columns: repeat(5, 1fr); }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
 
+/* 抉擇視窗：說明文字放在選項下一行，避免長說明蓋到下一個選項 */
+.win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
+.win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
+
 </style>
 </head>
 <body>
@@ -5054,7 +5058,7 @@ function svg(g, color, mode, t) {
 
   function menuWin(title, items, onCancel, opts) {
     opts = opts || {};
-    const el = h('div', { class: 'win pop' }, title ? h('h3', {}, title) : null);
+    const el = h('div', { class: 'win pop' + (opts.cls ? ' ' + opts.cls : '') }, title ? h('h3', {}, title) : null);
     const win = { el };
     const m = makeMenu(items, (it) => it.act(), opts);
     el.append(m.ul);
@@ -6116,7 +6120,7 @@ function svg(g, color, mode, t) {
           checkOver();
           resolve();
         },
-      })), null, { center: true, width: 680, shade: true });
+      })), null, { center: true, width: 680, shade: true, cls: 'choice' });
       stack[stack.length - 1].onKey = ((orig) => (e) => (e.key === 'Escape' ? true : orig(e)))(stack[stack.length - 1].onKey);
     });
   }
@@ -6528,6 +6532,6 @@ function svg(g, color, mode, t) {
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
-<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/23 07:38</div>
+<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/23 14:49</div>
 </body>
 </html>
