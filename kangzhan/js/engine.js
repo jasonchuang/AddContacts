@@ -58,10 +58,15 @@
   function powerMult(s, fid) {
     if (!fid) return 1;
     const f = s.factions[fid];
-    const side = f && f.side === 'axis' ? T.war.axisPower : 1;
+    const side = f && f.side === 'axis' ? T.war.axisPower * supplyMult(s, fid) : 1;
     if (!s.player) return side;
     const d = diff(s);
     return side * (fid === s.player ? d.playerPower : d.aiPower);
+  }
+  // 日方補給線：佔領越多城、戰線越長，戰力越低
+  function supplyMult(s, fid) {
+    const n = citiesOf(s, fid).length;
+    return Math.max(T.war.supplyMin, 1 - Math.max(0, n - T.war.supplyFree) * T.war.supplyPer);
   }
   // 海路（臺灣海峽、東海）：兩城之間只能渡海
   function isSea(s, a, b) { return (s.sea || []).some(([x, y]) => (x === a && y === b) || (x === b && y === a)); }
@@ -90,6 +95,7 @@
       generals: {},
       roads: sc.roads,
       sea: sc.sea || [],
+      coop: sc.coop === undefined ? null : sc.coop,
       log: [],
       over: null,
       mode: mode || 'historical',
@@ -347,6 +353,14 @@
     }
 
     switch (cmd.type) {
+      case 'evacuate': {
+        if (city.evacuated) return fail(`${city.name}已經遷移過了`);
+        const dest = s.cities[cmd.dest];
+        if (!dest || !evacDests(s, fid, city).includes(dest)) return fail('只能遷往沒有與日軍接壤的我方城市');
+        const r = evacuate(s, city, dest);
+        g.acted = true;
+        return ok(`${g.name}主持${city.name}西遷，商業 ${r.com}、人口 ${r.pop}、金 ${r.gold} 移往${dest.name}`);
+      }
       case 'draft': {
         const type = UNITS[cmd.unit] ? cmd.unit : 'inf';
         if (!canDraft(city, type)) return fail(`${city.name}沒有${FACILITY[UNITS[type].needs]}，不能徵${UNITS[type].name}`);
@@ -377,6 +391,7 @@
         return ok(`${g.name}在${city.name}搜索，一無所獲`);
       }
       case 'recruit': {
+        if (s.factions[fid] && s.factions[fid].side === 'axis') return fail('日方不登用人才');
         const t = s.generals[cmd.target];
         if (!t || t.city !== city.id || !(t.status === 'prisoner' || (t.status === 'free' && !t.hidden))) {
           return fail('找不到登用對象');
@@ -745,7 +760,14 @@
 
     if (oldOwner) {
       const escapes = neighbors(s, city.id).filter((id) => s.cities[id].owner === oldOwner);
+      const axisDef = s.factions[oldOwner] && s.factions[oldOwner].side === 'axis';
       for (const g of defenders) {
+        // 日方指揮官（只用職稱）不會成為俘虜：撤離戰場
+        if (axisDef && !(escapes.length && (g.ruler || rand(s) < 0.5 + g.war / 400))) {
+          Object.assign(g, { status: 'dead', city: null, faction: null, ruler: false });
+          lines.push(`${g.name}撤離戰場`);
+          continue;
+        }
         if (escapes.length && (g.ruler || rand(s) < 0.5 + g.war / 400)) {
           g.city = pick(s, escapes);
           lines.push(`${g.name}逃往${g.city}`);
@@ -800,7 +822,7 @@
   function endTurn(s) {
     if (s.over) return [];
     ensure(s);
-    const order = Object.keys(s.factions).filter((id) => id !== s.player && s.factions[id].alive);
+    const order = Object.keys(s.factions).filter((id) => id !== s.player && s.factions[id].alive && !s.factions[id].dormant);
     // 打亂 AI 順序
     for (let i = order.length - 1; i > 0; i--) {
       const j = Math.floor(rand(s) * (i + 1));
@@ -819,27 +841,98 @@
     return fired;
   }
 
-  // 抗戰的每月結算：日方本土增援；抗戰期間中方各勢力的同盟自動延續
+  // 抗戰的每月結算：日方增援與補給、游擊戰、國共合作度、美援、大後方遷移（電腦）
+  const alive = (s, id) => s.factions[id] && s.factions[id].alive;
+  function active(f) { return f && f.alive && !f.dormant; }
   function warTick(s) {
+    const W = T.war;
     const axis = Object.values(s.factions).filter((f) => f.alive && f.side === 'axis');
+    const late = s.year >= 1943 ? W.axisLate : 1;
     for (const f of axis) {
       const mine = citiesOf(s, f.id);
       const front = mine.filter((c) => neighbors(s, c.id).some((n) => s.cities[n].owner && s.cities[n].owner !== f.id && !s.cities[n].locked));
       const list = front.length ? front : mine;
       if (!list.length) continue;
-      const each = Math.floor(T.war.axisReinforce / list.length);
+      const each = Math.floor(W.axisReinforce * late / list.length);
       for (const c of list) {
         addUnits(c, scaleMix({ inf: 0.55, tank: 0.12, art: 0.2, air: c.airfield ? 0.08 : 0, navy: c.port ? 0.05 : 0 }, each), 70);
         c.food = Math.max(c.food, Math.ceil(c.troops / T.economy.foodPer) * 6);
         c.gold = Math.max(c.gold, upkeep(c) * 3);
       }
     }
+    // 游擊戰：中共在兩步以內的日佔城展開游擊，削弱守軍；敵後根據地吸收新兵
+    if (alive(s, 'ccp') && axis.length) {
+      const hit = {};
+      for (const c of citiesOf(s, 'ccp')) {
+        const near = new Set();
+        for (const n of neighbors(s, c.id)) { near.add(n); for (const m of neighbors(s, n)) near.add(m); }
+        for (const id of near) {
+          const t = s.cities[id];
+          if (!t.owner || !s.factions[t.owner] || s.factions[t.owner].side !== 'axis') continue;
+          const loss = Math.min(W.guerrillaMax - (hit[id] || 0), Math.round(c.troops * W.guerrillaRate));
+          if (loss <= 0) continue;
+          hit[id] = (hit[id] || 0) + loss;
+          takeUnits(t, scaleMix(mixOf(t), Math.max(0, Math.min(loss, t.troops - 500))));
+          addUnits(c, { inf: W.guerrillaRecruit }, 40);
+        }
+      }
+      const n = Object.keys(hit).length;
+      if (n && (s.player === 'ccp' || (s.factions[s.player] && s.factions[s.player].side === 'axis'))) addLog(s, `八路軍、新四軍在敵後 ${n} 座城展開游擊戰。`, 'info', ['ccp']);
+    }
+    // 國共合作度
+    if (s.coop !== null && s.coop !== undefined && alive(s, 'kmt') && alive(s, 'ccp')) {
+      const extra = Math.max(0, citiesOf(s, 'ccp').length - W.coopCcp) * 0.5;
+      s.coop = Math.max(0, Math.min(100, s.coop - W.coopDrift - extra));
+      if (TK.Diplomacy) {
+        const st = TK.Diplomacy.stateOf(s, 'kmt', 'ccp');
+        if (s.coop >= W.coopAlliance && st !== 'alliance') TK.Diplomacy.setState(s, 'kmt', 'ccp', 'alliance', 12);
+        else if (s.coop < W.coopFriction && st === 'alliance') {
+          TK.Diplomacy.setState(s, 'kmt', 'ccp', 'neutral');
+          addLog(s, '國共摩擦加劇，合作瀕臨破裂。', 'major', ['kmt', 'ccp']);
+        }
+      }
+    }
+    // 中方（與盟軍）之間的同盟自動延續；國共兩黨則看合作度
     if (axis.length && TK.Diplomacy) {
       for (const [k, r] of Object.entries(s.relations || {})) {
         const [a, b] = k.split('|');
-        if (r.state === 'alliance' && !TK.Diplomacy.enemies(s, a, b) && r.months > 0 && r.months < 6) r.months = 12;
+        if (r.state !== 'alliance' || TK.Diplomacy.enemies(s, a, b) || !(r.months > 0 && r.months < 6)) continue;
+        if (a + b === 'ccpkmt' || a + b === 'kmtccp') { if (s.coop === null || s.coop === undefined || s.coop >= W.coopAlliance) r.months = 12; } else r.months = 12;
       }
     }
+    // 美援：參戰後每月援助國府；1942 年起駝峰航線送來空軍
+    const usa = s.factions.usa;
+    if (active(usa) && usa.side === 'allies' && alive(s, 'kmt')) {
+      const mine = citiesOf(s, 'kmt');
+      if (mine.length) {
+        const rich = mine.slice().sort((x, y) => y.gold - x.gold)[0];
+        rich.gold += W.usAidGold;
+        const base = ['昆明', '重慶', '芷江', '成都'].map((id) => s.cities[id]).find((c) => c && c.owner === 'kmt');
+        if (s.year >= 1942 && base) addUnits(base, { air: W.usAidAir }, 70);
+      }
+    }
+    // 電腦的國府：受威脅的城先把商業與人口遷往大後方
+    if (axis.length && alive(s, 'kmt') && s.player !== 'kmt') {
+      for (const c of citiesOf(s, 'kmt')) {
+        if (c.evacuated || c.commerce < 300) continue;
+        const threat = neighbors(s, c.id).reduce((m, n) => (s.cities[n].owner && s.factions[s.cities[n].owner].side === 'axis' ? Math.max(m, s.cities[n].troops) : m), 0);
+        if (threat > c.troops * 1.5) { const d = evacDests(s, 'kmt', c)[0]; if (d) evacuate(s, c, d); }
+      }
+    }
+  }
+  // 大後方：沒有和日方相鄰的我方城（越遠越好）
+  function evacDests(s, fid, from) {
+    return citiesOf(s, fid).filter((c) => c.id !== from.id && !neighbors(s, c.id).some((n) => s.cities[n].owner && s.factions[s.cities[n].owner] && s.factions[s.cities[n].owner].side === 'axis'))
+      .sort((a, b) => b.x < a.x ? 1 : -1);
+  }
+  function evacuate(s, c, dest) {
+    const com = Math.floor(c.commerce * T.war.evacCommerce), pop = Math.floor(c.pop * T.war.evacPop), gold = Math.floor(c.gold / 2);
+    c.commerce -= com; dest.commerce = Math.min(MAX.commerce, dest.commerce + com);
+    c.pop -= pop; dest.pop += pop;
+    c.gold -= gold; dest.gold += gold;
+    c.evacuated = true;
+    addLog(s, `${c.name}的工廠、學校與人口西遷${dest.name}（商業 ${com}、人口 ${pop}）。`, 'info', [c.owner]);
+    return { com, pop, gold };
   }
 
   function monthEnd(s) {
@@ -891,9 +984,10 @@
     if (s.player && s.factions[s.player] && !s.factions[s.player].alive) {
       s.over = { result: 'lose' };
       addLog(s, '我軍覆滅……', 'major', [s.player]);
-    } else if (s.player && Object.values(s.cities).every((c) => c.locked || c.owner === s.player)) {
+    } else if (s.player && (Object.values(s.cities).every((c) => c.locked || c.owner === s.player)
+      || (Object.values(s.factions).some((f) => f.side === 'axis') && !Object.values(s.factions).some((f) => f.alive && f.side === 'axis')))) {
       s.over = { result: 'win' };
-      addLog(s, `${s.factions[s.player].name}統一天下！`, 'major', [s.player]);
+      addLog(s, Object.values(s.factions).some((f) => f.side === 'axis') ? '日方勢力瓦解，抗戰勝利！' : `${s.factions[s.player].name}統一天下！`, 'major', [s.player]);
     } else if (!s.player || !s.factions[s.player]) {
       if (alive.length === 1 && Object.values(s.cities).every((c) => c.locked || c.owner === alive[0].id)) {
         s.over = { result: 'unified', faction: alive[0].id };
@@ -919,6 +1013,6 @@
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, powerMult, recruitChance, powerOf, rand, rint, pick, clamp,
-    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
+    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});

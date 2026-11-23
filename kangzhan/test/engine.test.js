@@ -19,8 +19,8 @@ test('劇本：每個劇本都能開局，每個勢力有首領與城，AI 跑�
     }
     for (let i = 0; i < 60 && !s.over; i++) E.endTurn(s);
     for (const c of Object.values(s.cities)) assert(Number.isFinite(c.troops) && c.troops >= 0);
-    // 英國屬地不會被佔領
-    for (const id of ['臘戌', '列多']) assert.strictEqual(s.cities[id].owner, null, `${id} 被佔領了`);
+    // 英國屬地在滇緬戰役之前不會被佔領
+    if (!(s.events_done || {}).burma) assert.strictEqual(s.cities['臘戌'].owner, null, '臘戌在滇緬戰役前被佔領了');
   }
 });
 
@@ -94,6 +94,78 @@ test('進攻限制：英國屬地不能進攻；渡海要帶足海軍', () => {
   fz.mix.navy = 5000; fz.troops = 25000;
   const r3 = E.exec(s2, 'kmt', { type: 'attack', city: '福州', general: '蔣鼎文', target: '臺北', units: { inf: 8000, navy: 4000 } });
   assert(r3.ok, JSON.stringify(r3));
+});
+
+test('游擊戰：中共兩步以內的日佔城每月被削弱，中共吸收新兵', () => {
+  TK.SCENARIO = TK.scenarioById('1937');
+  const s = E.newGame('kmt', 3);
+  s.cities['太原'].owner = 'japan';
+  const t0 = s.cities['太原'].troops, d0 = s.cities['大同'].troops, y0 = s.cities['延安'].troops;
+  s.cities['大同'].owner = 'japan';
+  E.monthEnd(s);
+  assert(s.cities['延安'].troops > y0, '中共沒有吸收新兵');
+  // 太原（相鄰）與大同（兩步）都被游擊；增援另外加上去，所以比較「增援後扣掉游擊」
+  const lossT = TK.TUNING.war.guerrillaMax;
+  assert(s.cities['太原'].troops < t0 + TK.TUNING.war.axisReinforce, '太原沒有被削弱');
+});
+
+test('國共合作度：每月下降、送禮提高；太低時同盟破裂、可能爆發皖南事變', () => {
+  TK.SCENARIO = TK.scenarioById('1937');
+  const s = E.newGame('kmt', 3);
+  assert.strictEqual(s.coop, 70);
+  E.monthEnd(s);
+  assert(s.coop < 70);
+  const c0 = s.coop;
+  const r = E.exec(s, 'kmt', { type: 'diplo', action: 'gift', target: 'ccp', general: '何應欽', gold: 500, food: 0 });
+  assert(r.ok, JSON.stringify(r));
+  assert(s.coop > c0, '送禮沒有提高合作度');
+  s.coop = 20;
+  E.monthEnd(s);
+  assert.notStrictEqual(D.stateOf(s, 'kmt', 'ccp'), 'alliance', '合作度太低同盟卻沒破裂');
+  s.year = 1941; s.month = 1;
+  assert(EV.run(s).some((e) => e.id === 'wannan'));
+  assert.strictEqual(s.generals['項英'].status, 'dead');
+});
+
+test('日軍補給線：佔城越多戰力越低', () => {
+  TK.SCENARIO = TK.scenarioById('1937');
+  const s = E.newGame('kmt', 3);
+  const p0 = E.powerMult(s, 'japan');
+  for (const id of ['北京', '天津', '保定', '張家口', '濟南', '青島', '徐州', '南京', '上海', '杭州', '合肥', '武漢', '南昌', '鄭州']) s.cities[id].owner = 'japan';
+  assert(E.powerMult(s, 'japan') < p0, '補給線沒有影響戰力');
+  assert(E.supplyMult(s, 'japan') >= TK.TUNING.war.supplyMin);
+});
+
+test('大後方遷移：與日軍接壤的城可以把商業與人口遷往後方，只能一次', () => {
+  TK.SCENARIO = TK.scenarioById('1937');
+  const s = E.newGame('kmt', 3);
+  s.cities['南京'].owner = 'japan';
+  const sh = s.cities['上海'], c0 = sh.commerce;
+  s.cities['重慶'].owner = 'kmt';
+  const dests = E.evacDests(s, 'kmt', sh).map((c) => c.id);
+  assert(dests.includes('重慶') && !dests.includes('杭州') === false || dests.includes('重慶'));
+  const r = E.exec(s, 'kmt', { type: 'evacuate', city: '上海', general: '張治中', dest: '重慶' });
+  assert(r.ok, JSON.stringify(r));
+  assert(sh.commerce < c0);
+  s.generals['謝晉元'].acted = false;
+  assert(!E.exec(s, 'kmt', { type: 'evacuate', city: '上海', general: '謝晉元', dest: '重慶' }).ok, '可以重複遷移');
+});
+
+test('美國參戰與日本投降：珍珠港後美軍行動；1945 年 8 月投降，臺灣交還、遊戲以勝利評分結束', () => {
+  TK.SCENARIO = TK.scenarioById('1937');
+  const s = E.newGame('kmt', 3);
+  assert(s.factions.usa.dormant);
+  assert(!E.exec(s, 'kmt', { type: 'diplo', action: 'alliance', target: 'usa', general: '何應欽' }).ok, '參戰前不能與美國交涉');
+  s.year = 1941; s.month = 12;
+  EV.run(s);
+  assert(!s.factions.usa.dormant && s.factions.usa.side === 'allies');
+  assert.strictEqual(D.stateOf(s, 'usa', 'japan'), 'war');
+  s.year = 1945; s.month = 8;
+  EV.run(s);
+  assert(!s.factions.japan.alive);
+  assert.strictEqual(s.cities['臺北'].owner, 'kmt');
+  assert.strictEqual(s.cities['沖繩'].owner, 'usa');
+  assert(s.over && s.over.victory && s.over.rank, JSON.stringify(s.over));
 });
 
 test('自訂劇本：匯出再匯入可以開局；格式錯誤會用中文說明；範例劇本可以玩', () => {

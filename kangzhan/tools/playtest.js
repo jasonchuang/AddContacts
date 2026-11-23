@@ -47,7 +47,7 @@ function main() {
   const allIssues = new Set();
   for (const sc of TK.SCENARIOS) {
     if (only && sc.id !== only) continue;
-    for (const f of sc.factions.filter((x) => !x.npc)) {
+    for (const f of sc.factions.filter((x) => !x.npc && !x.dormant)) {
       const res = [];
       for (let r = 0; r < RUNS; r++) res.push(playOne(sc, f.id, 1000 + r * 7919));
       res.forEach((x) => x.issues.forEach((i) => allIssues.add(`[${sc.id} ${f.name}] ${i}`)));

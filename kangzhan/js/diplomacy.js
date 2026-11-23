@@ -64,7 +64,10 @@
   // 陣營不同（日方與中方、盟軍）：永遠交戰，不能外交
   function enemies(s, a, b) {
     const A = s.factions[a], B = s.factions[b];
-    return !!(A && B && (A.side || 'allies') !== (B.side || 'allies'));
+    if (!A || !B) return false;
+    const x = A.side || 'allies', y = B.side || 'allies';
+    if (x === 'neutral' || y === 'neutral') return x !== y; // 尚未參戰（例：珍珠港事件前的美國）也不能交涉
+    return x !== y;
   }
   function chance(s, fid, target, action, envoy) {
     if (enemies(s, fid, target)) return 0;
@@ -131,6 +134,8 @@
       city.gold -= gold; city.food -= food;
       g.acted = true;
       r.rel += gain;
+      // 國共之間送禮：提高合作度
+      if (s.coop !== null && s.coop !== undefined && [fid, target].sort().join() === 'ccp,kmt') s.coop = Math.min(100, s.coop + Math.round((gold + food / TK.TUNING.gift.foodPerGold) / 100 * TK.TUNING.war.coopPerGift));
       // 收禮的一方也得到這些金糧（送到對方君主所在的城）
       const rc = s.cities[(s.generals[s.factions[target].ruler] || {}).city] || E().citiesOf(s, target)[0];
       if (rc) { rc.gold += gold; rc.food += food; }

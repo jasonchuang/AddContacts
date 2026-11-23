@@ -18,7 +18,7 @@
     return {
       format: FORMAT, version: VERSION,
       id: sc.id, title: sc.title, year: sc.year, month: sc.month, tag: sc.tag || '', desc: sc.desc || '',
-      factions: sc.factions.map((f) => ({ id: f.id, name: f.name, ruler: f.ruler, color: f.color, heirs: f.heirs || [], strategist: f.strategist || null, npc: !!f.npc, side: f.side || 'allies' })),
+      factions: sc.factions.map((f) => ({ id: f.id, name: f.name, ruler: f.ruler, color: f.color, heirs: f.heirs || [], strategist: f.strategist || null, npc: !!f.npc, side: f.side || 'allies', dormant: !!f.dormant })),
       cities: sc.cities.map((c) => {
         const o = { id: c.id, x: c.x, y: c.y, owner: c.owner, troops: c.troops, gold: c.gold, food: c.food, pop: c.pop,
           farm: c.farm, commerce: c.commerce, defense: c.defense, order: c.order, train: c.train };
@@ -27,6 +27,8 @@
       }),
       roads: sc.roads,
       sea: sc.sea || [],
+      coop: sc.coop === undefined ? null : sc.coop,
+      axisPlan: sc.axisPlan || [],
       generals: sc.generals.map((g) => ({ name: g.name, faction: g.faction, city: g.city, lead: g.lead, war: g.war, int: g.int, pol: g.pol, cha: g.cha,
         loyalty: g.loyalty, status: g.status })),
       relations: sc.relations || [],
@@ -95,11 +97,13 @@
       aptitude: Object.assign({}, (TK.WORLD && TK.WORLD.aptitude) || {}, d.aptitude || {}),
       factions: factions.map((f) => ({ id: f.id, name: f.name, ruler: f.ruler, color: f.color || '#888888',
         heirs: (f.heirs || []).filter((h) => generals.some((g) => g.name === h && g.faction === f.id)), strategist: f.strategist || null,
-        npc: !!f.npc, side: f.side === 'axis' ? 'axis' : 'allies' })),
+        npc: !!f.npc, dormant: !!f.dormant || undefined, side: ['axis', 'neutral'].includes(f.side) ? f.side : 'allies' })),
       cities: cities.map((c) => Object.assign({ name: c.id, gold: 800, food: 8000, pop: 300000, farm: 400, commerce: 400, defense: 400, order: 60, train: 40 }, c,
         { owner: c.owner || null })),
       roads: roads.map((r) => [r[0], r[1]]),
       sea: (Array.isArray(d.sea) ? d.sea : []).filter((r) => Array.isArray(r) && cids.has(r[0]) && cids.has(r[1])),
+      coop: num(d.coop, 0, 100) ? d.coop : null,
+      axisPlan: Array.isArray(d.axisPlan) ? d.axisPlan : [],
       generals: generals.map((g) => {
         const fac = factions.find((f) => f.id === g.faction);
         return { id: g.name, name: g.name, faction: g.faction || null, city: g.city, lead: g.lead, war: g.war, int: g.int, pol: g.pol, cha: g.cha,

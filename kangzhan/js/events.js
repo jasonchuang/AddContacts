@@ -60,6 +60,7 @@
     // 某些事件發生之後才會觸發；某些武將已經死亡
     for (const id of cond.after || []) if (!(s.events_done || {})[id] && (s.events_done || {})[id] !== 0) return false;
     for (const n of cond.general_dead || []) if (!s.generals[n] || s.generals[n].status !== 'dead') return false;
+    if (cond.coop_below !== undefined && !(s.coop !== null && s.coop !== undefined && s.coop < cond.coop_below)) return false;
     if (cond.chance && E().rand(s) >= cond.chance) return false;
     return true;
   }
@@ -81,6 +82,44 @@
     dest = dest || capital(s, fid);
     if (!dest) return;
     Object.assign(g, { faction: fid, status: 'active', hidden: false, loyalty: 90, formerFaction: null, city: dest });
+  }
+
+  // 日本投降：日方各城交還中國（臺灣、東北、華北……），太平洋的島嶼交給美軍；遊戲結束並評分
+  function surrender(s) {
+    const axis = Object.values(s.factions).filter((f) => f.alive && f.side === 'axis');
+    if (!axis.length) return;
+    const pick = (c) => {
+      if (['沖繩', '塞班'].includes(c.id) && alive(s, 'usa')) return 'usa';
+      if (alive(s, 'kmt')) return 'kmt';
+      const near = E().neighbors(s, c.id).map((n) => s.cities[n].owner).find((o) => o && s.factions[o] && s.factions[o].side !== 'axis');
+      return near || null;
+    };
+    for (const c of Object.values(s.cities)) {
+      const f = c.owner && s.factions[c.owner];
+      if (!f || f.side !== 'axis') continue;
+      c.owner = pick(c);
+      c.troops = Math.round(c.troops * 0.3);
+      c.mix = null;
+      E().mixOf(c);
+    }
+    // 日方指揮官撤離；被日方關押的人獲釋
+    for (const g of Object.values(s.generals)) if (g.status === 'active' && s.factions[g.faction] && s.factions[g.faction].side === 'axis') Object.assign(g, { status: 'dead', city: null, ruler: false });
+    for (const g of Object.values(s.generals)) if (g.status === 'prisoner' && g.formerFaction && alive(s, g.formerFaction)) {
+      const home = E().citiesOf(s, g.formerFaction)[0];
+      if (home) Object.assign(g, { status: 'active', faction: g.formerFaction, city: home.id, formerFaction: null });
+    }
+    for (const f of axis) E().destroyFaction(s, f.id);
+    const p = s.player && s.factions[s.player];
+    if (p && p.alive && p.side !== 'axis') {
+      const mine = E().citiesOf(s, s.player).length;
+      const total = Object.values(s.cities).filter((c) => !c.locked).length;
+      const score = Math.round(mine / total * 100);
+      const rank = score >= 50 ? '甲等' : score >= 25 ? '乙等' : score >= 10 ? '丙等' : '丁等';
+      s.over = { result: 'win', victory: true, score, rank, cities: mine };
+      E().addLog(s, `抗戰勝利！${p.name}握有 ${mine} 城（全國 ${total} 城），評等：${rank}。`, 'major', [s.player]);
+    } else if (!s.player) {
+      s.over = { result: 'unified', faction: alive(s, 'kmt') ? 'kmt' : null };
+    }
   }
 
   function apply(s, e) {
@@ -146,6 +185,11 @@
         else Object.assign(g, { status: 'dead', city: null, ruler: false });
         break;
       }
+      // 勢力參戰：改變陣營、開始行動（例：珍珠港事件後的美國）
+      case 'activate': if (s.factions[e.faction]) Object.assign(s.factions[e.faction], { dormant: false, side: e.side || s.factions[e.faction].side }); break;
+      case 'unlock': for (const id of [].concat(e.cities || e.city)) if (s.cities[id]) s.cities[id].locked = false; break;
+      case 'coop': if (s.coop !== null && s.coop !== undefined) s.coop = Math.max(0, Math.min(100, e.set !== undefined ? e.set : s.coop + e.amount)); break;
+      case 'axis_surrender': surrender(s); break;
       case 'rename': if (alive(s, e.faction)) s.factions[e.faction].name = e.name; break;
       case 'absorb': if (alive(s, e.faction) && alive(s, e.into)) D().absorb(s, e.into, e.faction); break;
       case 'seize': {

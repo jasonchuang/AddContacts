@@ -127,7 +127,8 @@
       }
 
       // 俘虜：登用或釋放
-      for (const p of Eng.generalsIn(s, city.id, (g) => g.status === 'prisoner')) {
+      // 日方不處置俘虜：關押到城池被收復、獲救為止
+      if (s.factions[fid].side !== 'axis') for (const p of Eng.generalsIn(s, city.id, (g) => g.status === 'prisoner')) {
         const rec = idle(s, city.id, fid).sort((a, b) => b.cha - a.cha)[0];
         if (rec && Eng.recruitChance(s, rec, p) > 0.15) Eng.exec(s, fid, { type: 'recruit', city: city.id, general: rec.id, target: p.id });
         else if (p.ruler || E().rand(s) < 0.3) Eng.exec(s, fid, { type: 'release', city: city.id, target: p.id });

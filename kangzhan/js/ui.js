@@ -179,7 +179,7 @@
   const MENU_ICON = {
     內政: 'domestic', 軍事: 'military', 人事: 'personnel', 外交: 'diplo', 情報: 'info', 系統: 'system', 結束本月: 'endturn',
     開墾: 'farm', 商業: 'commerce', 巡察: 'order', 築城: 'defense', 訓練: 'train',
-    徵兵: 'draft', 出征: 'attack', 移動: 'move', 搜索: 'search', 交易: 'commerce', 送禮: 'reward', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
+    徵兵: 'draft', 出征: 'attack', 移動: 'move', 遷移: 'move', 搜索: 'search', 交易: 'commerce', 送禮: 'reward', 登用: 'recruit', 賞賜: 'reward', 俘虜: 'prisoner', 任命: 'appoint', 軍師: 'info', 太守: 'city',
   };
   const UNIT_BY_NAME = { 步兵: 'inf', 坦克: 'tank', 砲兵: 'art', 空軍: 'air', 海軍: 'navy' };
   function svgNode(str) {
@@ -578,7 +578,7 @@
   // 選擇君主：勢力卡片
   function chooseFaction() {
     const sc = TK.SCENARIO;
-    const cards = sc.factions.filter((f) => !f.npc).map((f) => {
+    const cards = sc.factions.filter((f) => !f.npc && !f.dormant).map((f) => {
       const cities = sc.cities.filter((c) => c.owner === f.id);
       const gens = sc.generals.filter((g) => g.faction === f.id).length;
       const troops = cities.reduce((a, c) => a + c.troops, 0);
@@ -736,6 +736,8 @@
       h('div', { class: 'chips' },
         h('span', { class: 'chip-s' }, E.DIFFICULTY[S.difficulty || 'normal'].label),
         h('span', { class: 'chip-s', title: '軍師：在「任命」指定' }, `軍師 ${strat ? strat.name : '空缺'}`),
+        S.coop !== null && S.coop !== undefined && ['kmt', 'ccp'].includes(S.player) && S.factions.kmt.alive && S.factions.ccp.alive
+          ? h('span', { class: 'chip-s', title: `國共合作度：${TK.TUNING.war.coopAlliance} 以上同盟延續，低於 ${TK.TUNING.war.coopFriction} 同盟破裂；國共之間送禮可以提高` }, `國共合作 ${Math.round(S.coop)}`) : null,
         hov ? h('span', { class: 'chip-s hov' }, `${hov.name}・${E.factionName(S, hov.owner)}・兵${fmtW(hov.troops)}`) : null),
       h('div', { class: 'grow' }),
       btn('存檔', '存檔', () => slotMenu(true)),
@@ -834,6 +836,12 @@
       items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
       items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
       items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
+      const evac = E.evacDests(S, S.player, c);
+      const axisNear = adj.some((id) => S.cities[id].owner && S.factions[S.cities[id].owner] && S.factions[S.cities[id].owner].side === 'axis');
+      if (Object.values(S.factions).some((f) => f.alive && f.side === 'axis')) items.push({ label: '遷移', hint: '西遷大後方', off: busy || !idle || c.evacuated || !evac.length || !axisNear,
+        why: c.evacuated ? '這座城已經遷移過了。' : !axisNear ? '只有與日軍接壤的城需要遷移。' : !evac.length ? '沒有安全的大後方城市可以遷往。' : why,
+        act: () => pickGeneral(c, 'pol', '遷移：選擇主持的武將', (g) => menuWin('遷往哪裡？', evac.map((d) => ({ label: d.name, hint: `商業${d.commerce}`,
+          act: () => { popWin(); run({ type: 'evacuate', city: c.id, general: g.id, dest: d.id }, g, () => `遵命，${c.name}的工廠與學校即日起西遷${d.name}。`); } })), null, { width: 420 })) });
       items.push({ label: '交易', hint: '買賣軍糧', off: busy || !idle || c.commerce < TK.TUNING.trade.minCommerce, why: !idle ? why : `商業需達 ${TK.TUNING.trade.minCommerce} 才能交易。`, act: () => tradeFlow(c) });
       items.push({ label: '登用', off: busy || !idle || !cand.length, why: cand.length ? why : '城中沒有可登用的人才，先搜索看看吧。', act: () => recruitFlow(c, cand) });
       items.push({ label: '賞賜', hint: '金100', off: busy || c.gold < 100 || !hasNonRuler, why: c.gold < 100 ? '金不足。' : '沒有可以賞賜的武將。', act: () => rewardFlow(c) });
@@ -1493,8 +1501,9 @@
     const win = S.over.result === 'win';
     if (win) SND.win(); else SND.lose();
     const ruler = S.generals[S.factions[S.player].ruler];
-    say(ruler, win ? '天下終於平定了。從今以後，百姓可以安居樂業了。' : '……大勢已去。只恨未能完成大業。');
-    menuWin(win ? '天下統一' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
+    const v = S.over.victory;
+    say(ruler, v ? `十四年的苦戰，終於等到這一天。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。` : win ? '日軍終於被趕出了國土。' : '……大勢已去。只恨未能看到勝利的那一天。');
+    menuWin(v ? `抗戰勝利・評等${S.over.rank}` : win ? '抗戰勝利' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
     return true;
   }
 
