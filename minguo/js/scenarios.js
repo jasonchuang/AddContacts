@@ -421,7 +421,9 @@
     const owner = {};
     const cities = W.cities.map((c0) => {
       const c = JSON.parse(JSON.stringify(c0));
-      const o = d.cities[c.id];
+      // 金門沒有特別指定時，跟著福州的勢力（兵力較少）
+      const fz = d.cities['福州'];
+      const o = d.cities[c.id] || (c.id === '金門' && fz && fz[0] ? [fz[0], Math.round(fz[1] * 0.3)] : null);
       c.owner = o ? o[0] : null;
       c.troops = o ? o[1] : 6000;
       if (o && o[2]) Object.assign(c, o[2]);
