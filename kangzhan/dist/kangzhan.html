@@ -822,6 +822,28 @@ body.nomsg #msg-win { display: none !important; }
 body.nomsg #map-win .msg-show { display: block; }
 body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; }
 
+/* 勢力旗（國旗）取代文字印章 */
+.seal.flag { background: none !important; border: 0 !important; padding: 0; width: 33px !important; height: 22px !important; border-radius: 2px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.seal.flag svg, .bflag.flag svg, .lflag.flag svg { display: block; width: 100%; height: 100%; }
+body.mobile #status .seal.flag { width: 24px !important; height: 16px !important; }
+.battlefield .bflag.flag { background: none; border: 0; padding: 0; width: 33px; height: 22px; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+.battlefield .bwall.art .bflag.flag { width: 30px; height: 20px; }
+body.mobile .battlefield .bwall.art .bflag.flag { width: 21px; height: 14px; }
+.u.pose.leader .lflag.flag { background: none; min-width: 0; width: 30px; height: 20px; padding: 0; }
+
+/* 近代單挑：持槍對射 */
+.battle .duel .dbody.gun { width: 260px; height: 250px; display: flex; align-items: flex-end; justify-content: center; }
+.battle .duel .dbody.gun .u.pose { --h: 220px; height: var(--h); width: calc(var(--h) * var(--pr)); position: relative; margin: 0; animation: none; }
+.battle .duel .dbody.gun .u.pose img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.battle .duel .dbody.gun .u.pose img.flip { transform: scaleX(-1); }
+.battle .duel .fighter.down .dbody.gun, .battle .duel .fighter.right.down .dbody.gun { transform: none; }
+.battle .duel .fighter.down:has(.dbody.gun) { transform: none; opacity: .55; }
+.battle .duel .dmuzzle { position: absolute; top: 58%; width: 46px; height: 30px; border-radius: 50%; pointer-events: none; z-index: 3;
+  background: radial-gradient(ellipse, #fff8d0 0%, #ffd24a 35%, rgba(255, 120, 20, .7) 60%, transparent 72%); animation: muzzle .26s ease-out forwards; }
+@keyframes muzzle { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+body.mobile .battle .duel .dbody.gun { width: 42vw; height: 40vw; }
+body.mobile .battle .duel .dbody.gun .u.pose { --h: 36vw; }
+
 </style>
 </head>
 <body>
@@ -3921,6 +3943,104 @@ body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; 
       bio: '回族，馬福祥之子，追隨馮玉祥，後長期任寧夏省主席。' },
     馬步芳: { zi: '子香', home: '甘肅河州', life: '1903－1975',
       bio: '回族，馬麒之子，在西北馬家軍中崛起，日後接掌青海軍政大權。' },
+    // ---------- 抗戰時期 ----------
+    馬占山: { zi: '秀芳', home: '吉林懷德', life: '1885－1950',
+      bio: '綠林出身，九一八事變時任黑龍江省代主席。1931 年 11 月在嫩江橋率部抵抗日軍，是事變後第一場有組織的抵抗，舉國傳頌。抗戰期間任東北挺進軍司令，在綏遠一帶堅持作戰。' },
+    湯玉麟: { zi: '閣臣', home: '奉天義縣', life: '1871－1937',
+      bio: '張作霖的舊部，任熱河省主席。1933 年日軍進犯熱河時未作有力抵抗便撤離承德，熱河迅速失守，被國民政府下令通緝。' },
+    趙登禹: { zi: '舜誠', home: '山東菏澤', life: '1898－1937',
+      bio: '第二十九軍將領，練得一身武藝。1933 年長城抗戰率大刀隊夜襲喜峰口日軍，名震一時。1937 年 7 月在北平南苑與日軍激戰，壯烈殉國。' },
+    劉汝明: { zi: '子亮', home: '直隸獻縣', life: '1895－1975',
+      bio: '西北軍出身的將領，後隸屬第二十九軍。抗戰時率部在察哈爾、河北一帶作戰，後任集團軍總司令。' },
+    宋美齡: { zi: '', home: '廣東文昌', life: '1898－2003',
+      bio: '宋家三姊妹中的小妹，留學美國。1927 年與蔣介石結婚，曾主持航空委員會、推動婦女與戰時兒童救濟工作。1943 年赴美國國會演講，為中國爭取援助。享壽一百零五歲。' },
+    戴笠: { zi: '雨農', home: '浙江江山', life: '1897－1946',
+      bio: '黃埔軍校第六期出身，長期主持軍事委員會調查統計局（軍統），負責情報與特務工作，抗戰期間在淪陷區展開諜報與暗殺行動。1946 年因飛機失事身亡。' },
+    張治中: { zi: '文白', home: '安徽巢縣', life: '1890－1969',
+      bio: '保定軍校出身，曾任黃埔軍校教官。1932 年率第五軍參加一二八淞滬抗戰；1937 年淞滬會戰時任前線總指揮。後任湖南省主席，長沙大火後去職，並多次擔任國共談判代表。' },
+    高志航: { zi: '', home: '遼寧通化', life: '1907－1937',
+      bio: '中國空軍的王牌飛行員。1937 年 8 月 14 日率第四大隊在杭州筧橋迎擊來襲的日本轟炸機，首戰告捷，此日後來定為空軍節。同年 11 月在周口機場遭日機空襲殉國。' },
+    孫立人: { zi: '撫民', home: '安徽舒城', life: '1900－1990',
+      bio: '清華大學畢業後留學美國維吉尼亞軍校。淞滬會戰中身受重傷。1942 年在緬甸仁安羌解救被圍的英軍，後率新一軍在緬北反攻，屢戰屢勝。1955 年起在臺灣遭軟禁三十多年。' },
+    謝晉元: { zi: '中民', home: '廣東蕉嶺', life: '1905－1941',
+      bio: '黃埔軍校第四期畢業。淞滬會戰尾聲率約四百名官兵死守四行倉庫，被稱為「八百壯士」。撤入租界後遭拘留在「孤軍營」，1941 年被收買的士兵刺殺。' },
+    孫元良: { zi: '', home: '四川華陽', life: '1904－2007',
+      bio: '黃埔軍校第一期畢業，淞滬會戰與南京保衛戰時任第八十八師師長，四行倉庫的守軍即出自該師。' },
+    衛立煌: { zi: '俊如', home: '安徽合肥', life: '1897－1960',
+      bio: '行伍出身的名將。1937 年指揮忻口會戰；後任第一戰區司令長官。1944 年任中國遠征軍司令長官，指揮滇西反攻，打通中印公路。' },
+    湯恩伯: { zi: '克勤', home: '浙江武義', life: '1899－1954',
+      bio: '日本陸軍士官學校畢業。1937 年指揮南口戰役；1938 年台兒莊會戰時率軍團從外線包抄，促成大捷。1944 年豫中會戰失利，遭輿論嚴厲批評。' },
+    沈鴻烈: { zi: '成章', home: '湖北天門', life: '1882－1969',
+      bio: '東北海軍出身，任青島市長，治理市政頗有成績。抗戰時任山東省主席，在魯南山區堅持敵後抗戰。' },
+    王耀武: { zi: '佐民', home: '山東泰安', life: '1904－1968',
+      bio: '黃埔軍校第三期畢業，長期統率第七十四軍，參加上高、常德、湘西等會戰，是抗戰中期的勁旅。' },
+    戴安瀾: { zi: '衍功', home: '安徽無為', life: '1904－1942',
+      bio: '黃埔軍校第三期畢業，率領中國第一支機械化部隊第二〇〇師，參加崑崙關戰役。1942 年隨遠征軍入緬，在同古以一師之力阻擊日軍十二天，突圍途中重傷殉國。' },
+    張靈甫: { zi: '鍾麟', home: '陝西長安', life: '1903－1947',
+      bio: '黃埔軍校第四期畢業，第七十四軍的悍將，參加萬家嶺、上高、常德等戰役，在戰鬥中負傷致腿部殘疾。1947 年在內戰中於孟良崮陣亡。' },
+    胡璉: { zi: '伯玉', home: '陝西華縣', life: '1907－1977',
+      bio: '黃埔軍校第四期畢業。1943 年任第十一師師長，在石牌要塞死守，阻止日軍沿長江西進，被視為守住重慶門戶的一戰。' },
+    宋希濂: { zi: '蔭國', home: '湖南湘鄉', life: '1907－1993',
+      bio: '黃埔軍校第一期畢業，淞滬會戰與南京保衛戰時任第三十六師師長。1944 年率第十一集團軍渡過怒江，參加滇西反攻。' },
+    方先覺: { zi: '子珊', home: '江蘇蕭縣', life: '1903－1983',
+      bio: '黃埔軍校第三期畢業。1944 年任第十軍軍長，在衡陽以孤軍死守四十七天，日軍傷亡慘重。城破後被俘，後來脫險。' },
+    鄭洞國: { zi: '桂庭', home: '湖南石門', life: '1903－1991',
+      bio: '黃埔軍校第一期畢業，參加崑崙關戰役，後任中國駐印軍副總指揮，在緬北反攻中與孫立人等並肩作戰。' },
+    孫蔚如: { zi: '', home: '陝西長安', life: '1896－1979',
+      bio: '楊虎城的部將，第十七路軍將領。抗戰時率陝軍東渡黃河，在山西中條山堅守多年，阻止日軍渡河進入關中。' },
+    毛澤東: { zi: '潤之', home: '湖南湘潭', life: '1893－1976',
+      bio: '中國共產黨的主要領導人。曾在井岡山建立根據地，長征途中於遵義會議後確立領導地位，抗戰期間在延安撰寫《論持久戰》，主張敵後游擊與持久抗戰。1949 年起長期領導中華人民共和國。' },
+    周恩來: { zi: '翔宇', home: '江蘇淮安', life: '1898－1976',
+      bio: '留學日本、法國，曾任黃埔軍校政治部主任。西安事變時赴西安斡旋；抗戰期間長駐武漢、重慶，負責與國民政府及各方聯絡，擅長外交。' },
+    朱德: { zi: '玉階', home: '四川儀隴', life: '1886－1976',
+      bio: '雲南講武堂出身，參加過護國戰爭，後留學德國。參與南昌起義，與毛澤東會師井岡山，長期任紅軍總司令；抗戰時任八路軍總司令。' },
+    彭德懷: { zi: '石穿', home: '湖南湘潭', life: '1898－1974',
+      bio: '湘軍出身，後加入紅軍。抗戰時任八路軍副總司令，1940 年指揮百團大戰，破襲華北的鐵路與據點。' },
+    林彪: { zi: '', home: '湖北黃岡', life: '1907－1971',
+      bio: '黃埔軍校第四期出身，以用兵機敏著稱。1937 年任八路軍第一一五師師長，指揮平型關伏擊戰。1938 年負傷，赴蘇聯療養。' },
+    劉伯承: { zi: '', home: '四川開縣', life: '1892－1986',
+      bio: '川軍出身，早年作戰中失去右眼，人稱「獨眼將軍」。抗戰時任八路軍第一二九師師長，在太行山區建立根據地，擅長以少擊眾。' },
+    葉劍英: { zi: '', home: '廣東梅縣', life: '1897－1986',
+      bio: '雲南講武堂出身，曾任黃埔軍校教官。抗戰時任八路軍參謀長，常駐重慶、武漢與國民政府聯絡。' },
+    聶榮臻: { zi: '', home: '四川江津', life: '1899－1992',
+      bio: '早年赴法國勤工儉學。抗戰時創建晉察冀根據地，任軍區司令員，在日軍佔領區的後方堅持游擊。',
+      tale: '1940 年在戰火中救下兩名日本小女孩，派人護送回日軍據點；四十年後其中一位專程來中國與他重逢。' },
+    項英: { zi: '', home: '湖北武昌', life: '1898－1941',
+      bio: '工人運動出身的中共領導人，長征時留在南方堅持游擊。新四軍成立後任副軍長，1941 年皖南事變中遇害。' },
+    陳毅: { zi: '仲弘', home: '四川樂至', life: '1901－1972',
+      bio: '早年留學法國。長征時留在江西堅持游擊，抗戰時任新四軍第一支隊司令，皖南事變後代理軍長。文采出眾，以詩詞聞名。' },
+    粟裕: { zi: '', home: '湖南會同', life: '1907－1984',
+      bio: '新四軍將領，善於運動戰，在蘇中、蘇北一帶屢敗日偽軍與國軍，1940 年指揮黃橋戰役。' },
+    左權: { zi: '叔仁', home: '湖南醴陵', life: '1905－1942',
+      bio: '黃埔軍校第一期畢業，後留學蘇聯。抗戰時任八路軍副參謀長，1942 年在山西十字嶺突圍作戰中殉國，是八路軍在抗戰中陣亡的最高階將領。' },
+    賀龍: { zi: '雲卿', home: '湖南桑植', life: '1896－1969',
+      bio: '早年以兩把菜刀起事，後參加南昌起義。抗戰時任八路軍第一二〇師師長，在晉西北建立根據地。' },
+    徐向前: { zi: '', home: '山西五台', life: '1901－1990',
+      bio: '黃埔軍校第一期畢業，曾任紅四方面軍總指揮。抗戰時任八路軍第一二九師副師長，在華北敵後作戰。' },
+    陳濟棠: { zi: '伯南', home: '廣東防城', life: '1890－1954',
+      bio: '粵軍將領，1929 年起主政廣東七年，建設廣州頗有成績，人稱「南天王」。1936 年聯合廣西發動兩廣事變反對南京，部屬倒戈後下野。' },
+    余漢謀: { zi: '幄奇', home: '廣東高要', life: '1896－1981',
+      bio: '粵軍將領。1936 年兩廣事變中轉而擁護中央，接掌廣東軍政。抗戰時任第四戰區、第七戰區司令長官，坐鎮華南。' },
+    田頌堯: { zi: '', home: '四川簡陽', life: '1888－1975',
+      bio: '川軍將領，與劉湘、鄧錫侯、劉文輝等人分據四川，曾率部「圍剿」川陝紅軍。' },
+    盧漢: { zi: '永衡', home: '雲南昭通', life: '1895－1974',
+      bio: '滇軍將領，龍雲的親信。抗戰時率第六十軍出滇，參加台兒莊會戰。1945 年率軍入越南北部接受日軍投降。' },
+    羅斯福: { zi: '', home: '美國紐約', life: '1882－1945',
+      bio: '美國第三十二任總統，以「新政」帶領美國走出經濟大蕭條。珍珠港事件後領導美國參戰，提供中國租借法案援助。1945 年 4 月病逝，未能看到戰爭結束。' },
+    史迪威: { zi: '', home: '美國佛羅里達', life: '1883－1946',
+      bio: '早年曾在中國任武官，能說中文。太平洋戰爭爆發後任中國戰區參謀長與中緬印戰區美軍司令，訓練中國駐印軍、主持修築中印公路，因與蔣介石意見不合，1944 年被召回。' },
+    魏德邁: { zi: '', home: '美國內布拉斯加', life: '1897－1989',
+      bio: '美國陸軍將領，1944 年接替史迪威任中國戰區參謀長，協助國民政府整編與裝備部隊，與蔣介石合作較為順利。' },
+    麥克阿瑟: { zi: '', home: '美國阿肯色', life: '1880－1964',
+      bio: '西南太平洋戰區盟軍總司令。菲律賓失守時撤往澳洲，留下「我將回來」的名言，1944 年率軍重返菲律賓。1945 年 9 月 2 日在東京灣密蘇里號上主持日本投降儀式。' },
+    尼米茲: { zi: '', home: '美國德克薩斯', life: '1885－1966',
+      bio: '珍珠港事件後接掌美國太平洋艦隊，中途島海戰重創日本艦隊，之後以「跳島戰術」一路西進，攻下塞班、硫磺島與沖繩。' },
+    劉志丹: { zi: '', home: '陝西保安', life: '1903－1936',
+      bio: '黃埔軍校第四期出身，陝北根據地的主要創建者，中央紅軍長征後即落腳在這片根據地。1936 年在東征山西的戰鬥中陣亡。' },
+    陳納德: { zi: '', home: '美國德克薩斯', life: '1893－1958',
+      bio: '美國陸軍航空隊退役軍官，1937 年來華任中國空軍顧問。1941 年組建美國志願航空隊，即「飛虎隊」，屢次擊落日機；後任美國第十四航空隊司令，戰後與陳香梅結婚，長期留在亞洲。' },
+    王銘章: { zi: '之鍾', home: '四川新都', life: '1893－1938',
+      bio: '川軍第一二二師師長。1938 年 3 月在山東滕縣率部死守，阻滯日軍南下三晝夜，為台兒莊會戰爭取時間，城破時殉國。' },
   };
 })(globalThis.TK = globalThis.TK || {});
 
@@ -4681,6 +4801,91 @@ function svg(g, color, mode, t) {
 
 </script>
   <script>
+/* js/flags.js */
+/* 勢力旗幟：用當時的國旗代替文字印章。
+ * 國民政府與名義上隸屬國民政府的各地方軍：青天白日滿地紅（外框用勢力色區分）
+ * 中共：紅底黃星；日方：日章旗；美軍：四十八星旗（縮小時簡化）。
+ * 同一份圖形同時提供畫布（地圖）與 SVG（介面）兩種畫法。 */
+(function (TK) {
+  'use strict';
+
+  function kind(fid) {
+    if (fid === 'japan') return 'jp';
+    if (fid === 'usa') return 'us';
+    if (fid === 'ccp') return 'ccp';
+    return 'roc';
+  }
+
+  // 青天白日的太陽：十二道光芒的三角形 + 藍環 + 白日
+  function sunPath(cx, cy, r) {
+    const pts = [];
+    for (let i = 0; i < 24; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 12;
+      const rr = i % 2 === 0 ? r : r * 0.53;
+      pts.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a)]);
+    }
+    return pts;
+  }
+  function starPath(cx, cy, r) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5;
+      const rr = i % 2 === 0 ? r : r * 0.4;
+      pts.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a)]);
+    }
+    return pts;
+  }
+
+  // ---------- 畫布 ----------
+  function poly(ctx, pts) { ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.fill(); }
+  function draw(ctx, x, y, w, h, fid, border) {
+    const k = kind(fid);
+    ctx.save();
+    if (k === 'jp') {
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#bc002d'; ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, h * 0.3, 0, 7); ctx.fill();
+    } else if (k === 'us') {
+      for (let i = 0; i < 13; i++) { ctx.fillStyle = i % 2 ? '#ffffff' : '#b22234'; ctx.fillRect(x, y + h * i / 13, w, h / 13 + 0.5); }
+      ctx.fillStyle = '#3c3b6e'; ctx.fillRect(x, y, w * 0.4, h * 7 / 13);
+      ctx.fillStyle = '#ffffff';
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) ctx.fillRect(x + w * 0.4 * (c + 0.5) / 5 - 0.5, y + h * 7 / 13 * (r + 0.5) / 4 - 0.5, 1.2, 1.2);
+    } else if (k === 'ccp') {
+      ctx.fillStyle = '#d0021b'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#ffd200'; poly(ctx, starPath(x + w * 0.25, y + h * 0.3, h * 0.22));
+    } else {
+      ctx.fillStyle = '#fe0000'; ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#000095'; ctx.fillRect(x, y, w / 2, h / 2);
+      const cx = x + w / 4, cy = y + h / 4, r = h * 0.2;
+      ctx.fillStyle = '#ffffff'; poly(ctx, sunPath(cx, cy, r));
+      ctx.fillStyle = '#000095'; ctx.beginPath(); ctx.arc(cx, cy, r * 0.5, 0, 7); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx, cy, r * 0.42, 0, 7); ctx.fill();
+    }
+    if (border) { ctx.strokeStyle = border; ctx.lineWidth = Math.max(1.5, h * 0.12); ctx.strokeRect(x, y, w, h); }
+    ctx.restore();
+  }
+
+  // ---------- SVG（30×20）----------
+  const P = (pts) => pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+  function svg(fid, border) {
+    const k = kind(fid);
+    let body = '';
+    if (k === 'jp') body = '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#bc002d"/>';
+    else if (k === 'us') {
+      for (let i = 0; i < 13; i++) body += `<rect y="${(20 * i / 13).toFixed(2)}" width="30" height="${(20 / 13 + 0.05).toFixed(2)}" fill="${i % 2 ? '#fff' : '#b22234'}"/>`;
+      body += '<rect width="12" height="10.77" fill="#3c3b6e"/>';
+      for (let r = 0; r < 6; r++) for (let c = 0; c < 8; c++) body += `<circle cx="${(0.75 + c * 1.5).toFixed(2)}" cy="${(0.9 + r * 1.8).toFixed(2)}" r=".35" fill="#fff"/>`;
+    } else if (k === 'ccp') body = `<rect width="30" height="20" fill="#d0021b"/><polygon points="${P(starPath(7.5, 6, 4.4))}" fill="#ffd200"/>`;
+    else body = `<rect width="30" height="20" fill="#fe0000"/><rect width="15" height="10" fill="#000095"/><polygon points="${P(sunPath(7.5, 5, 4))}" fill="#fff"/>`
+      + '<circle cx="7.5" cy="5" r="2" fill="#000095"/><circle cx="7.5" cy="5" r="1.7" fill="#fff"/>';
+    const frame = border ? `<rect x=".6" y=".6" width="28.8" height="18.8" fill="none" stroke="${border}" stroke-width="1.2"/>` : '';
+    return `<svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" class="flag-svg" aria-hidden="true">${body}${frame}</svg>`;
+  }
+
+  TK.Flags = { kind, draw, svg };
+})(globalThis.TK = globalThis.TK || {});
+
+</script>
+  <script>
 /* js/portraits.js */
 /* 武將肖像：以特徵參數組合繪製的原創 SVG 半身像。
  * 特徵依身分與能力自動決定；部分人物依史書／演義中的公有領域描述加上特徵（例如老將、紅臉、眼罩）。
@@ -5100,12 +5305,11 @@ function svg(g, color, mode, t) {
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考
   // 遊戲使用動畫風肖像（js/anime.js）；Q 版與水墨版保留作參考
-  // 日方指揮官只用職稱、不畫人像：顯示深灰底的「日」字印章
+  // 日方指揮官只用職稱、不畫人像：顯示日章旗
   const AXIS_TITLE = /(司令官|師團長|司令長官)$/;
   function axisSeal() {
-    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#4d4d4d"/>'
-      + '<rect x="14" y="14" width="72" height="72" fill="none" stroke="#d9d9d9" stroke-width="3"/>'
-      + '<text x="50" y="66" text-anchor="middle" font-size="46" fill="#ececec" font-family="serif">日</text></svg>';
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#5a5a5a"/>'
+      + '<rect x="8" y="22" width="84" height="56" fill="#fff"/><circle cx="50" cy="50" r="17" fill="#bc002d"/></svg>';
   }
   function svg(g, color, mode) {
     if (g && AXIS_TITLE.test(g.name)) return axisSeal();
@@ -5333,15 +5537,11 @@ function svg(g, color, mode, t) {
         ctx.beginPath(); ctx.moveTo(...Q(-11, -24)); ctx.lineTo(...Q(0, -31)); ctx.lineTo(...Q(11, -24)); ctx.fill();
       }
       ctx.fillStyle = PAPER; ctx.fillRect(...Q(-4, 6), 8 * S2, 7 * S2);
-      // 勢力印章
+      // 勢力旗（當時的國旗；名義上隸屬國民政府的地方軍用勢力色外框區分）
       if (c.owner) {
-        const [sx, sy] = Q(13, -33);
-        ctx.fillStyle = fc; ctx.fillRect(sx, sy, 18 * S2, 18 * S2);
-        ctx.strokeStyle = 'rgba(245,237,217,.95)'; ctx.lineWidth = 1.2 * S2; ctx.strokeRect(sx + 2 * S2, sy + 2 * S2, 14 * S2, 14 * S2);
-        const ruler = state.factions[c.owner].ruler;
-        const sn = TK.surname(ruler);
-        ctx.fillStyle = '#f6eedb'; ctx.font = `bold ${Math.round((sn.length > 1 ? 7.5 : 12) * S2)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(sn, sx + 9 * S2, sy + 9.5 * S2);
+        const [sx, sy] = Q(11, -32);
+        ctx.fillStyle = 'rgba(40,30,20,.35)'; ctx.fillRect(sx + 1.5 * S2, sy + 1.5 * S2, 24 * S2, 16 * S2);
+        TK.Flags.draw(ctx, sx, sy, 24 * S2, 16 * S2, c.owner, TK.Flags.kind(c.owner) === 'roc' && c.owner !== 'kmt' ? fc : 'rgba(245,237,217,.9)');
       }
       // 名牌
       ctx.font = `bold ${Math.round(15 * S2)}px ${FONT}`;
@@ -6091,7 +6291,10 @@ function svg(g, color, mode, t) {
     const f = fid && TK.SCENARIO.factions.find((x) => x.id === fid);
     return f ? f.color : '#9a948a';
   }
-  const sealChar = (name) => (name ? TK.surname(name) : '空'); // 勢力印章：君主的姓（曹操→曹、公孫瓚→公孫）
+  const sealChar = (name) => (name ? TK.surname(name) : '空');
+  // 勢力旗：當時的國旗（名義上隸屬國民政府的地方軍加勢力色外框）
+  const flagBorder = (fid, col) => (TK.Flags.kind(fid) === 'roc' && fid !== 'kmt' ? col : null);
+  const flagNode = (fid, col) => svgNode(TK.Flags.svg(fid, flagBorder(fid, col)));
   const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); return true; } catch (e) { return null; } };
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -6639,7 +6842,7 @@ function svg(g, color, mode, t) {
         el: h('div', { class: 'fcard', style: `--c:${f.color}` },
           face(ruler, 'head', 0, 0, 'fc-face'),
           h('div', { class: 'fc-main' },
-            h('div', { class: 'fc-name' }, f.name, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler))),
+            h('div', { class: 'fc-name' }, f.name, h('span', { class: 'seal flag' }, flagNode(f.id, f.color))),
             h('div', { class: 'dim' }, `君主 ${f.ruler}｜${cities.map((c) => c.name).join('、') || '—'}`),
             h('div', { class: 'dim' }, `武將 ${gens} 名｜兵 ${fmtW(troops)}`),
             h('div', { class: 'fc-diff' }, '難度 ', h('span', {}, '★'.repeat(diff) + '☆'.repeat(5 - diff)))),
@@ -6794,7 +6997,7 @@ function svg(g, color, mode, t) {
     $('status').replaceChildren(
       h('div', { class: 'brand' }, '烽火十四年'),
       h('div', { class: 'date' }, h('small', {}, `${S.year}年`), h('b', {}, MONTHS[S.month - 1]), h('span', { class: 'season' }, SEASON(S.month))),
-      h('div', { class: 'fac' }, h('span', { class: 'seal', style: `background:${f.color}` }, sealChar(f.ruler)), f.name),
+      h('div', { class: 'fac' }, h('span', { class: 'seal flag' }, flagNode(f.id, f.color)), f.name),
       h('div', { class: 'resources' },
         res('city', p.cities, '城數'), res('troops', fmtW(p.troops), '兵力'), res('gold', fmtW(p.gold), '金'), res('food', fmtW(p.food), '糧'), res('general', p.generals, '武將')),
       h('div', { class: 'chips' },
@@ -7579,6 +7782,9 @@ function svg(g, color, mode, t) {
     const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
     // 上方名牌：頭像、名字、武力、體力條；下方戰場：兩位武將騎馬對衝（騎兵姿勢圖依勢力換色，沒有圖時用立繪）
     const mounted = TK.Sprite && TK.Sprite.hasPose && (TK.Sprite.hasPose('general') || TK.Sprite.hasPose('cav'));
+    // 近代：不騎馬，兩人持槍對射（用步兵姿勢圖：待命、跪射、倒地）
+    const gun = !mounted && TK.Sprite && TK.Sprite.hasPose && TK.Sprite.hasPose('inf');
+    const gunman = (col, right) => { const el = TK.Sprite.make('inf', col, right); el.classList.remove('march'); el.classList.add('gunman'); return el; };
     const fighter = (g, right) => {
       const col = color(g.faction);
       const hp = h('div', { class: 'dhp-fill', style: `background:${col}` });
@@ -7587,15 +7793,15 @@ function svg(g, color, mode, t) {
         h('div', { class: 'dinfo' },
           h('div', { class: 'dname' }, g.name, h('small', {}, `武力 ${g.war}`)),
           h('div', { class: 'dhp' }, hp)));
-      const rider = mounted ? leaderSprite(g, col, right) : face(g, 'full', 0, 0, 'dface');
+      const rider = mounted ? leaderSprite(g, col, right) : gun ? gunman(col, right) : face(g, 'full', 0, 0, 'dface');
       if (mounted) rider.classList.remove('march');
-      const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : '') }, rider);
+      const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : gun ? ' gun' : '') }, rider);
       const root = h('div', { class: 'fighter' + (right ? ' right' : '') }, body);
       return { root, body, hp, card, rider };
     };
     const A = fighter(ga, false), D = fighter(gd, true);
     const fx = h('div', { class: 'dfx' });
-    const caption = h('div', { class: 'dcap' }, '一騎討');
+    const caption = h('div', { class: 'dcap' }, gun ? '對決' : '一騎討');
     el.replaceChildren(h('div', { class: 'dtop' }, A.card, caption, D.card), h('div', { class: 'arena' + (mounted ? ' close' : '') }, A.root, fx, D.root));
     el.classList.remove('hidden');
     SND.march();
@@ -7605,7 +7811,13 @@ function svg(g, color, mode, t) {
       later(t, () => {
         const atk = b.who === 'a' ? A : D, def = b.who === 'a' ? D : A;
         atk.body.classList.remove('lunge'); void atk.body.offsetWidth; atk.body.classList.add('lunge');
-        if (mounted) { TK.Sprite.setPose(atk.rider, 'attack'); later(450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
+        if (mounted || gun) { TK.Sprite.setPose(atk.rider, 'attack'); later(gun ? 520 : 450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
+        if (gun) {
+          // 槍口火光與槍聲
+          const flash = h('div', { class: 'dmuzzle', style: b.who === 'a' ? 'left:31%' : 'right:31%' });
+          fx.append(flash); later(260, () => flash.remove());
+          later(60, SND.clash);
+        }
         later(230, () => {
           def.body.classList.remove('hit', 'dodge'); void def.body.offsetWidth;
           const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: mounted ? (b.who === 'a' ? 'left:56%' : 'right:56%') : (b.who === 'a' ? 'right:22%' : 'left:22%') },
@@ -7616,6 +7828,7 @@ function svg(g, color, mode, t) {
             def.body.classList.add('hit'); SND.clash(); if (b.crit) later(90, SND.clash);
             // 兵器交擊的火花（兩人中間）
             if (mounted) { const sp = h('div', { class: 'dspark' + (b.crit ? ' crit' : '') }); fx.append(sp); later(450, () => sp.remove()); }
+            if (gun && b.crit) later(120, SND.clash);
           }
           else { def.body.classList.add('dodge'); SND.cursor(); }
           A.hp.style.width = b.hpA + '%';
@@ -7628,7 +7841,7 @@ function svg(g, color, mode, t) {
       const win = f.winner === 'a' ? A : D, lose = f.winner === 'a' ? D : A;
       lose.root.classList.add('down');
       lose.card.classList.add('down');
-      if (mounted) TK.Sprite.setPose(lose.rider, 'fall');
+      if (mounted || gun) TK.Sprite.setPose(lose.rider, 'fall');
       win.root.classList.add('victor');
       caption.textContent = `${S.generals[f.duel[f.winner === 'a' ? 0 : 1]].name} 勝！`;
       SND.win();
@@ -7647,7 +7860,7 @@ function svg(g, color, mode, t) {
     const el = TK.Sprite.make(kind, col, right);
     if (kind === 'general') el.classList.add('own');
     el.classList.add('leader');
-    el.append(h('span', { class: 'lflag' + (right ? ' right' : ''), style: `background:${col}` }, surname(g.name)));
+    el.append(h('span', { class: 'lflag flag' + (right ? ' right' : '') }, flagNode(g.faction, col)));
     return el;
   }
 
@@ -7718,7 +7931,7 @@ function svg(g, color, mode, t) {
       const fieldArt = art['field_' + terrain] || art.field_plain;
       const wallArt = cityObj && cityObj.defense < 300 ? (art.wall_damaged || art.wall) : art.wall;
       const wall = h('div', { class: 'bwall' + (wallArt ? ' art' : '') }, wallArt ? h('img', { src: wallArt, alt: '' }) : null,
-        h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
+        r.def.faction ? h('span', { class: 'bflag flag' }, flagNode(r.def.faction, dCol)) : h('span', { class: 'bflag', style: 'background:#8a7a5c' }, '守'));
       const field = h('div', { class: 'battlefield' + (fieldArt ? ' art' : '') + (wallArt ? ' walled' : ''), style: fieldArt ? `background-image:url("${fieldArt}")` : '' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));

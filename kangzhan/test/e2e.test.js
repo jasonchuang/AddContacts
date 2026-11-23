@@ -246,9 +246,11 @@ test('外交提議：不用先點下方訊息，接受／拒絕視窗會直接�
     await p.waitForTimeout(250);
   }
   assert(found, '外交提議的視窗沒有出現（卡住）');
-  // 按 Esc 關掉提議視窗（視同拒絕）也不能卡住
-  await p.keyboard.press('Escape');
-  await p.waitForTimeout(300);
+  // 按 Esc 關掉提議視窗（視同拒絕）也不能卡住；同一個月可能有好幾個勢力來提議，逐一關掉
+  for (let i = 0; i < 12 && await p.$('.win.pop:has-text("派使者前來")'); i++) {
+    await p.keyboard.press('Escape');
+    await p.waitForTimeout(400);
+  }
   assert(await p.evaluate(() => !document.querySelector('#status .endturn').disabled), '關掉提議視窗之後遊戲還鎖著（不能結束本月）');
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
