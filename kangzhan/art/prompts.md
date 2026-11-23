@@ -222,6 +222,130 @@ Bottom-right — a young northwestern general in his thirties: lean face, sharp 
 dark uniform with a fur-trimmed coat. Background: high grassland near a blue lake.
 ```
 
+## 日方人物（第 9～13 組）
+
+日方人物使用真實姓名；沒有專屬頭像時用「通用日軍將校」，連通用頭像也沒有時顯示日章旗。
+服裝以 1930～1940 年代日本陸軍的土黃色軍服（立領、領章、星形帽徽的軍帽）為主，海軍將領穿深藍或白色海軍制服。
+畫風、構圖與前面相同，**中性呈現，不美化也不醜化**；背景不要放旭日旗或任何文字。
+
+### 第 9 組
+左上 裕仁、中上 東條英機、右上 岡村寧次 ／ 左下 山本五十六、中下 山下奉文、右下 松井石根
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a slender Japanese monarch in his late thirties: small mustache, round wire spectacles, reserved expression,
+formal dark military dress uniform with a sash and medals. Background: a quiet palace garden with pine trees and a moat.
+
+Top-middle — a stern Japanese general-politician in his fifties: shaved head, round spectacles, neat mustache,
+khaki army uniform with high collar. Background: a government office with heavy curtains.
+
+Top-right — a composed senior Japanese general in his late fifties: bald head, round spectacles, small mustache,
+khaki uniform with medal ribbons. Background: a wartime headquarters with maps of China.
+
+Bottom-left — a calm Japanese admiral in his late fifties: closely cropped grey hair, strong jaw, thoughtful eyes,
+white naval dress uniform. Background: the deck of a battleship at sea.
+
+Bottom-middle — a large, heavy-set Japanese general in his late fifties: shaved head, broad round face, impassive eyes,
+khaki field uniform. Background: a tropical jungle airfield.
+
+Bottom-right — a thin, elderly Japanese general in his late fifties: gaunt face, grey mustache, tired eyes,
+khaki uniform with a long greatcoat. Background: a grey winter river port.
+```
+
+### 第 10 組
+左上 板垣征四郎、中上 石原莞爾、右上 土肥原賢二 ／ 左下 本庄繁、中下 畑俊六、右下 梅津美治郎
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a tough Japanese staff officer in his late forties: shaved head, thick mustache, hard eyes,
+khaki uniform with staff aiguillette. Background: a railway yard in Manchuria at dusk.
+
+Top-middle — an intense, intellectual Japanese officer in his early forties: short hair, sharp piercing eyes, thin mustache,
+khaki uniform, holding a strategy notebook. Background: a snowy northeastern plain.
+
+Top-right — a shrewd Japanese intelligence officer in his late forties: round face, small mustache, watchful smile,
+civilian suit over a military collar. Background: a dim tea house in a northern city.
+
+Bottom-left — an elderly Japanese general in his mid-fifties: grey hair, large mustache, stiff posture,
+khaki dress uniform with medals. Background: a Manchurian city railway station.
+
+Bottom-middle — an elderly, dignified Japanese field marshal in his sixties: white mustache, calm eyes,
+khaki uniform with rows of medals. Background: a riverside headquarters building.
+
+Bottom-right — a reserved Japanese general in his fifties: thin mustache, narrow eyes, neat hair,
+khaki uniform. Background: a frozen city with onion-domed buildings.
+```
+
+### 第 11 組
+左上 寺內壽一、中上 香月清司、右上 磯谷廉介 ／ 左下 谷壽夫、中下 中島今朝吾、右下 阿南惟幾
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — an aristocratic Japanese general in his late fifties: neat grey mustache, proud bearing,
+khaki uniform with gold braid. Background: an old northern capital gate.
+
+Top-middle — a stocky Japanese general in his fifties: square face, cropped hair, small mustache,
+khaki uniform. Background: a city of grey courtyard houses in summer.
+
+Top-right — a lean Japanese general in his fifties: sharp features, thin mustache,
+khaki uniform. Background: a dusty canal town on a plain.
+
+Bottom-left — a severe Japanese division commander in his fifties: hard features, cropped grey hair,
+khaki field uniform. Background: a dark overcast sky over a city wall.
+
+Bottom-middle — a stern Japanese division commander in his fifties: heavy brows, mustache,
+khaki field uniform with binoculars. Background: grey winter fields.
+
+Bottom-right — a solemn Japanese general in his fifties: lean face, short hair, steady eyes,
+khaki uniform. Background: a rainy government courtyard.
+```
+
+### 第 12 組
+左上 安藤利吉、中上 牛島滿、右上 植田謙吉 ／ 左下 武藤信義、中下 橫山勇、右下 山田乙三
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a reserved Japanese general in his fifties: round face, small mustache,
+khaki uniform. Background: a subtropical harbor city with palm trees.
+
+Top-middle — a calm, heavy-set Japanese general in his fifties: round face, cropped hair, quiet eyes,
+khaki field uniform. Background: limestone cliffs and caves by the sea.
+
+Top-right — an elderly Japanese general in his sixties: white mustache, upright posture,
+khaki uniform with medals. Background: a snowy grassland frontier.
+
+Bottom-left — a very elderly Japanese marshal in his sixties: white beard and mustache, dignified,
+khaki dress uniform. Background: a cold northern city in winter.
+
+Bottom-middle — a firm Japanese general in his fifties: square jaw, cropped hair,
+khaki field uniform. Background: red-soil hills of southern China.
+
+Bottom-right — an aging Japanese general in his early sixties: thin face, round spectacles,
+khaki uniform with a fur collar. Background: snowy Manchurian plains.
+```
+
+### 第 13 組（1×3）
+左 河邊正三、中 牟田口廉也、右 通用日軍將校
+
+```
+A 1x3 row of three separate character portraits, each panel 4:5.
+
+Left — a quiet Japanese general in his fifties: thin mustache, narrow face,
+khaki uniform. Background: a jungle road in Burma.
+
+Middle — a stubborn Japanese general in his fifties: round face, small mustache, determined eyes,
+khaki field uniform. Background: misty jungle mountains.
+
+Right — a generic Japanese army officer (not any real person): middle-aged, cropped hair, neutral expression,
+khaki uniform with peaked cap and collar tabs. Background: a plain field headquarters tent.
+```
+
+通用頭像的檔名請用 `_通用日軍`。
+
 ## 交回方式
 
 和民國版一樣：整張 2×3 的圖加上對照表（第幾組、哪個位置是誰），或切好的單張圖（檔名用人名），打包成 zip 傳回來即可。
