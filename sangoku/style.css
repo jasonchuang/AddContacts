@@ -790,3 +790,7 @@ table.grid th.sortable { cursor: pointer; user-select: none; white-space: nowrap
 table.grid th.sortable:hover { color: var(--red); }
 table.grid th.sorted { color: var(--red); }
 table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
+
+/* 抉擇視窗：說明文字放在選項下一行，避免長說明蓋到下一個選項 */
+.win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
+.win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
