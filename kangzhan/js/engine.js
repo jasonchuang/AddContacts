@@ -766,6 +766,10 @@
       const axisDef = s.factions[oldOwner] && s.factions[oldOwner].side === 'axis';
       for (const g of defenders) {
         // 日方指揮官（只用職稱）不會成為俘虜：撤離戰場
+        if (axisDef && g.ruler && !escapes.length) {
+          const back = citiesOf(s, oldOwner).find((x) => x.id !== city.id);
+          if (back) { g.city = back.id; continue; }
+        }
         if (axisDef && !(escapes.length && (g.ruler || rand(s) < 0.5 + g.war / 400))) {
           Object.assign(g, { status: 'dead', city: null, faction: null, ruler: false });
           lines.push(`${g.name}撤離戰場`);

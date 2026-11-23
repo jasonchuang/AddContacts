@@ -416,14 +416,15 @@
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考
   // 遊戲使用動畫風肖像（js/anime.js）；Q 版與水墨版保留作參考
-  // 日方指揮官只用職稱、不畫人像：顯示日章旗
+  // 日方人物：頭像暫以日章旗代替
   const AXIS_TITLE = /(司令官|師團長|司令長官)$/;
+  const isJapanese = (g) => !!g && (AXIS_TITLE.test(g.name) || ((TK.WORLD && TK.WORLD.japanese) || []).includes(g.name));
   function axisSeal() {
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#5a5a5a"/>'
       + '<rect x="8" y="22" width="84" height="56" fill="#fff"/><circle cx="50" cy="50" r="17" fill="#bc002d"/></svg>';
   }
   function svg(g, color, mode) {
-    if (g && AXIS_TITLE.test(g.name)) return axisSeal();
+    if (isJapanese(g)) return axisSeal();
     return TK.Anime ? TK.Anime.svg(g, color, mode, traits(g)) : svgChibi(g, color, mode);
   }
 
@@ -438,7 +439,7 @@
   function art(g, mode) {
     const files = TK.PORTRAIT_FILES || {};
     const pick = (name) => (mode === 'head' && files[name + '_head']) || files[name] || null;
-    if (AXIS_TITLE.test(g.name)) return null;
+    if (isJapanese(g)) return null;
     return pick(g.name) || pick('_通用' + genericKind(g));
   }
 
