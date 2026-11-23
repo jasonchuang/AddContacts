@@ -814,6 +814,14 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
 .win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
 .win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
 
+/* 隱藏下方訊息框：地圖往下延伸補滿 */
+body.nomsg #msg-win { display: none !important; }
+#msg-win .msg-hide { position: absolute; top: 4px; right: 8px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 20px; line-height: 26px; cursor: pointer; }
+#msg-win .msg-hide:hover { background: rgba(0, 0, 0, .08); color: var(--ink); }
+#map-win .msg-show { display: none; position: absolute; left: 12px; bottom: 44px; z-index: 3; padding: 6px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+body.nomsg #map-win .msg-show { display: block; }
+body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; }
+
 </style>
 </head>
 <body>
@@ -992,7 +1000,7 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
     ['北京', 760, 95, 900000, 520, 820, 760], ['天津', 818, 138, 700000, 460, 860, 560], ['保定', 728, 165, 400000, 560, 420, 520],
     ['張家口', 672, 70, 220000, 340, 360, 480], ['承德', 798, 52, 200000, 320, 260, 420],
     // 東北
-    ['錦州', 852, 100, 300000, 520, 420, 520], ['瀋陽', 902, 80, 800000, 640, 720, 680], ['長春', 944, 54, 500000, 600, 560, 560],
+    ['錦州', 852, 100, 300000, 520, 420, 520], ['瀋陽', 893, 80, 800000, 640, 720, 680], ['長春', 944, 54, 500000, 600, 560, 560],
     ['哈爾濱', 978, 32, 600000, 600, 620, 560],
     ['太原', 590, 185, 450000, 540, 440, 620], ['大同', 600, 108, 220000, 380, 300, 520], ['濟南', 790, 252, 520000, 620, 600, 560],
     ['青島', 905, 288, 400000, 420, 720, 520], ['徐州', 790, 360, 420000, 600, 480, 600], ['鄭州', 650, 330, 380000, 600, 520, 480],
@@ -1006,7 +1014,7 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
     // 華中
     ['武漢', 640, 560, 1000000, 640, 860, 680], ['宜昌', 520, 555, 260000, 480, 380, 520], ['長沙', 590, 628, 520000, 660, 520, 560],
     // 華南
-    ['廣州', 650, 705, 900000, 620, 900, 600], ['桂林', 555, 678, 300000, 480, 340, 560], ['南寧', 490, 708, 260000, 460, 300, 520],
+    ['廣州', 650, 700, 900000, 620, 900, 600], ['桂林', 555, 678, 300000, 480, 340, 560], ['南寧', 490, 708, 260000, 460, 300, 520],
     ['衡陽', 612, 666, 300000, 560, 420, 520], ['芷江', 468, 612, 120000, 380, 200, 420], ['瑞金', 772, 668, 150000, 420, 220, 420],
     // 臺灣與沖繩（日本統治）
     ['臺北', 952, 640, 400000, 520, 640, 560], ['臺南', 934, 700, 350000, 600, 520, 480], ['沖繩', 990, 578, 450000, 380, 360, 600],
@@ -1014,15 +1022,17 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
     // 西南
     ['重慶', 330, 562, 600000, 600, 640, 640], ['成都', 215, 560, 700000, 720, 560, 600], ['貴陽', 410, 650, 300000, 460, 300, 520],
     ['昆明', 300, 690, 400000, 520, 400, 600],
+    // 香港（英國屬地）
+    ['香港', 700, 724, 800000, 200, 900, 420],
     // 滇緬路（英國屬地，開戰後才能進入）
     ['臘戌', 205, 708, 100000, 300, 220, 360], ['列多', 108, 660, 80000, 260, 200, 360],
   ];
   // 城市設施：兵工廠可徵坦克、機場可徵空軍、港口（沿海、沿江）可徵海軍，海軍在港口城作戰才有加成
   const ARSENAL = ['瀋陽', '武漢', '太原', '上海', '南京', '重慶', '哈爾濱'];
   const AIRFIELD = ['北京', '瀋陽', '南京', '廣州', '重慶', '昆明', '芷江', '臺北', '臺南', '沖繩', '列多', '衡陽', '長春', '塞班'];
-  const PORT = ['天津', '青島', '上海', '福州', '廣州', '南京', '武漢', '臺北', '臺南', '沖繩', '塞班'];
+  const PORT = ['天津', '青島', '上海', '福州', '廣州', '南京', '武漢', '臺北', '臺南', '沖繩', '塞班', '香港'];
   // 戰爭範圍外的城（英國屬地）：事件開放前不能進攻
-  const LOCKED = ['臘戌', '列多'];
+  const LOCKED = ['臘戌', '列多', '香港'];
   const cities = C.map(([id, x, y, pop, farm, commerce, defense]) => ({
     id, name: id, x, y, owner: null, troops: 8000, gold: 800, food: 8000, pop, farm, commerce, defense, order: 60, train: 40,
     arsenal: ARSENAL.includes(id), airfield: AIRFIELD.includes(id), port: PORT.includes(id), locked: LOCKED.includes(id),
@@ -1036,7 +1046,7 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
     ['西安', '蘭州'], ['包頭', '延安'], ['西安', '成都'], ['西安', '宜昌'], ['徐州', '南京'], ['徐州', '合肥'], ['南京', '上海'],
     ['南京', '合肥'], ['上海', '杭州'], ['杭州', '南昌'], ['杭州', '福州'], ['合肥', '武漢'], ['南京', '南昌'], ['南昌', '武漢'],
     ['南昌', '長沙'], ['南昌', '福州'], ['武漢', '長沙'], ['武漢', '宜昌'], ['宜昌', '重慶'], ['重慶', '成都'], ['重慶', '貴陽'],
-    ['長沙', '廣州'], ['長沙', '桂林'], ['廣州', '桂林'], ['廣州', '福州'], ['桂林', '南寧'], ['桂林', '貴陽'], ['南寧', '昆明'],
+    ['長沙', '廣州'], ['長沙', '桂林'], ['廣州', '桂林'], ['廣州', '福州'], ['廣州', '香港'], ['桂林', '南寧'], ['桂林', '貴陽'], ['南寧', '昆明'],
     ['貴陽', '昆明'], ['成都', '昆明'],
     // 東北
     ['承德', '錦州'], ['錦州', '瀋陽'], ['瀋陽', '長春'], ['長春', '哈爾濱'], ['天津', '錦州'],
@@ -1397,7 +1407,7 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
         重慶: ['kmt', 60000], 西安: ['kmt', 40000], 洛陽: ['kmt', 35000], 鄭州: ['kmt', 30000], 長沙: ['kmt', 45000], 衡陽: ['kmt', 25000], 芷江: ['kmt', 25000],
         貴陽: ['kmt', 25000], 福州: ['kmt', 15000], 瑞金: ['kmt', 10000],
         桂林: ['gui', 35000], 包頭: ['jin', 25000], 延安: ['ccp', 60000], 成都: ['chuan', 35000], 昆明: ['dian', 35000], 蘭州: ['ma', 20000] },
-        ISLANDS, { 臘戌: ['japan', 40000, { locked: false }], 列多: ['usa', 60000, { locked: false }] }),
+        ISLANDS, { 臘戌: ['japan', 40000, { locked: false }], 列多: ['usa', 60000, { locked: false }], 香港: ['japan', 20000, { locked: false }] }),
       people: {
         japan: { 南京: '中國派遣軍總司令官', 武漢: '第十一軍司令官 第六師團長', 北京: '華北方面軍司令官', 宜昌: '第十六師團長', 臘戌: '緬甸方面軍司令官 第十五軍司令官',
           廣州: '第五師團長', 瀋陽: '關東軍司令官', 長春: '第二師團長', 濟南: '第十師團長', 太原: '第十四師團長', 上海: '上海派遣軍司令官', 臺北: '臺灣軍司令官', 沖繩: '聯合艦隊司令長官', 塞班: '第三十二軍司令官' },
@@ -1586,6 +1596,12 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
             { do: 'loyalty', faction: 'kmt', amount: 10 }],
           lines: [['', '1941 年 12 月 7 日，日本海軍偷襲美國夏威夷珍珠港。'], ['羅斯福', '這是一個永遠活在恥辱中的日子。'],
             ['', '美國對日宣戰，國民政府也正式對日宣戰。中國不再孤軍奮戰。']],
+        },
+        {
+          id: 'hongkong', title: '香港淪陷', scene: 'fire',
+          cond: { from: [1941, 12], until: [1942, 2], alive: ['japan'], after: ['pearl_harbor'] },
+          effects: [{ do: 'unlock', city: '香港' }, { do: 'seize', city: '香港', faction: 'japan' }, { do: 'troops', city: '香港', unit: 'inf', amount: 20000, if_owner: 'japan' }],
+          lines: [['', '珍珠港事件同一天，日軍從廣州方向進攻英屬香港。'], ['', '守軍苦戰十八天後投降，香港進入「三年零八個月」的日佔時期。']],
         },
         {
           id: 'burma', title: '滇緬戰役', scene: 'field',
@@ -3430,7 +3446,8 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
     for (const c of Object.values(s.cities)) {
       const f = c.owner && s.factions[c.owner];
       if (!f || f.side !== 'axis') continue;
-      c.owner = pick(c);
+      c.owner = c.id === '香港' ? null : pick(c);
+      if (c.id === '香港') c.locked = true; // 戰後歸還英國
       c.troops = Math.round(c.troops * 0.3);
       c.mix = null;
       E().mixOf(c);
@@ -3976,7 +3993,7 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
       if (!c || !c.id) { err('每座城都要有 id'); continue; }
       if (cids.has(c.id)) err(`城市重複：${c.id}`);
       cids.add(c.id);
-      if (!num(c.x, 0, 1000) || !num(c.y, 0, 720)) err(`城市 ${c.id} 的座標要在 x 0～1000、y 0～720 之內`);
+      if (!num(c.x, 0, 1000) || !num(c.y, 0, 760)) err(`城市 ${c.id} 的座標要在 x 0～1000、y 0～760 之內`);
       if (c.owner && !fids.has(c.owner)) err(`城市 ${c.id} 的 owner「${c.owner}」不是任何勢力`);
       if (!num(c.troops, 0, 999999)) err(`城市 ${c.id} 的 troops 不正確`);
     }
@@ -5133,13 +5150,17 @@ function svg(g, color, mode, t) {
 (function (TK) {
   'use strict';
 
-  const COAST = [[1015, -10], [1004, 46], [972, 96], [985, 150], [952, 228], [990, 296], [958, 352], [978, 420], [938, 472], [962, 525], [948, 566], [928, 610], [905, 652], [882, 694], [866, 730]];
+  // 海岸線（由北往南再往西）：遼東半島、渤海灣、山東半島、江浙閩沿海、廣東沿海（珠江口）；線的右下側是海
+  const COAST = [[1015, -10], [1008, 40], [985, 80], [960, 110], [935, 140], [912, 170], [892, 196], [884, 186], [896, 150], [888, 128],
+    [862, 130], [836, 134], [818, 150], [822, 172], [828, 200], [836, 222], [870, 232], [910, 236], [950, 240], [972, 252], [955, 272],
+    [920, 296], [900, 322], [905, 345], [912, 400], [925, 450], [945, 490], [962, 525], [948, 566], [928, 610], [905, 652], [882, 694], [852, 712], [800, 722], [745, 728], [712, 734],
+    [690, 724], [672, 716], [658, 724], [640, 736], [590, 744], [540, 752], [500, 764], [470, 790]];
   // 臺灣、沖繩：海上的島嶼（城池另外畫）
   const TAIWAN = [[948, 620], [960, 634], [966, 662], [962, 692], [950, 716], [936, 730], [922, 712], [920, 684], [928, 652]];
   const OKINAWA = [[984, 566], [994, 570], [998, 584], [990, 592], [982, 586]];
   const SAIPAN = [[982, 698], [992, 696], [996, 710], [988, 716], [980, 710]];
   const RIVERS = [
-    { name: '黃河', label: [455, 302], pts: [[-10, 252], [60, 238], [120, 232], [180, 244], [230, 262], [290, 276], [330, 284], [380, 298], [430, 310], [470, 312], [520, 295], [560, 270], [610, 252], [660, 242], [700, 238], [750, 250], [790, 258], [840, 252], [900, 242], [940, 230], [960, 222]] },
+    { name: '黃河', label: [455, 302], pts: [[-10, 252], [60, 238], [120, 232], [180, 244], [230, 262], [290, 276], [330, 284], [380, 298], [430, 310], [470, 312], [520, 295], [560, 270], [610, 252], [660, 242], [700, 238], [750, 250], [790, 258], [815, 242], [836, 222]] },
     { name: '長江', label: [262, 622], pts: [[40, 515], [100, 530], [150, 548], [210, 568], [270, 590], [330, 594], [380, 592], [430, 598], [480, 606], [520, 612], [570, 606], [610, 598], [660, 584], [720, 560], [760, 554], [800, 552], [860, 548], [920, 550], [975, 552]] },
     { name: '', pts: [[330, 450], [390, 480], [450, 520], [520, 545], [600, 568]] },
     { name: '', pts: [[535, 330], [575, 365], [640, 410]] },
@@ -5187,8 +5208,9 @@ function svg(g, color, mode, t) {
     const W = Math.max(400, Math.round((r.width || 838) * dpr)), H = Math.max(300, Math.round((r.height || 592) * dpr));
     if (canvas.width !== W) canvas.width = W;
     if (canvas.height !== H) canvas.height = H;
-    const s = Math.min(W / 1000, H / 720);
-    view = { s, ox: (W - 1000 * s) / 2, oy: (H - 720 * s) / 2, W, H };
+    // 世界座標 1000×720，上下各留一點邊（下方多留，避免最下排城名被切掉）
+    const s = Math.min(W / 1000, H / 795);
+    view = { s, ox: (W - 1000 * s) / 2, oy: (H - 795 * s) / 2 + 12 * s, W, H };
     const ctx = canvas.getContext('2d');
     const color = opts.color;
     const cities = Object.values(state.cities);
@@ -5203,18 +5225,6 @@ function svg(g, color, mode, t) {
     ctx.fillStyle = '#9fb6b4'; ctx.fill();
     smooth(ctx, COAST);
     ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2.5 * s + 1; ctx.stroke();
-    ctx.strokeStyle = 'rgba(61,89,96,.45)'; ctx.lineWidth = 1.2 * s;
-    for (let i = 0; i < 24; i++) {
-      const [x, y] = P([985 - ((i * 37) % 26), 30 + i * 28]);
-      ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
-    }
-
-    // 臺灣、沖繩
-    for (const isl of [TAIWAN, OKINAWA, SAIPAN]) {
-      smooth(ctx, isl); ctx.closePath();
-      ctx.fillStyle = PAPER; ctx.fill();
-      ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2 * s + 1; ctx.stroke();
-    }
 
     // 勢力領土：同一勢力相鄰（有道路相連）的城，領土連成一整片。
     // 先在離屏畫布上用不透明色畫出聯集，再一次以半透明疊上去，重疊處才不會變深。
@@ -5242,6 +5252,25 @@ function svg(g, color, mode, t) {
       ctx.globalAlpha = 0.2;
       ctx.drawImage(off, 0, 0);
       ctx.restore();
+    }
+
+    // 海面蓋在領土色塊上（領土只留在陸地）
+    smooth(ctx, COAST);
+    ctx.lineTo(W + 10, H + 10); ctx.lineTo(W + 10, -10); ctx.closePath();
+    ctx.fillStyle = '#9fb6b4'; ctx.fill();
+    smooth(ctx, COAST);
+    ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2.5 * s + 1; ctx.stroke();
+    ctx.strokeStyle = 'rgba(61,89,96,.45)'; ctx.lineWidth = 1.2 * s;
+    for (let i = 0; i < 24; i++) {
+      const [x, y] = P([985 - ((i * 37) % 26), 270 + i * 18]);
+      ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
+    }
+
+    // 臺灣、沖繩
+    for (const isl of [TAIWAN, OKINAWA, SAIPAN]) {
+      smooth(ctx, isl); ctx.closePath();
+      ctx.fillStyle = PAPER; ctx.fill();
+      ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2 * s + 1; ctx.stroke();
     }
 
     // 河流
@@ -6451,6 +6480,7 @@ function svg(g, color, mode, t) {
     if ((e.key === 'Enter' || e.key === ' ') && advanceMsg()) { e.preventDefault(); return; }
     const top = stack[stack.length - 1];
     if (top && top.onKey) { if (top.onKey(e)) e.preventDefault(); return; }
+    if ((e.key === 'm' || e.key === 'M') && S && !stack.length && !e.ctrlKey && !e.metaKey) { toggleMsg(); e.preventDefault(); return; }
     if (rootKey && !busy && rootKey(e)) e.preventDefault();
   });
 
@@ -6739,6 +6769,20 @@ function svg(g, color, mode, t) {
   }
 
   // 頂部列：日期、勢力、資源（圖示＋數字）、常用按鈕
+  // 下方訊息框可以隱藏，讓地圖往下延伸（設定記在瀏覽器）
+  const MSG_KEY = 'kangzhan.nomsg';
+  function msgHidden() { return document.body.classList.contains('nomsg'); }
+  function applyMsgPref() { try { document.body.classList.toggle('nomsg', localStorage.getItem(MSG_KEY) === '1'); } catch (e) { /* 無法讀取時維持顯示 */ } }
+  function toggleMsg() {
+    document.body.classList.toggle('nomsg');
+    try { localStorage.setItem(MSG_KEY, msgHidden() ? '1' : '0'); } catch (e) { /* 無法儲存就只在這次有效 */ }
+    if (S) render();
+  }
+  applyMsgPref();
+  // 訊息框右上角的「×」隱藏；隱藏後地圖左下角出現「訊息」按鈕可以叫回來
+  $('msg-win').append(h('button', { class: 'msg-hide', title: '隱藏訊息框（M）', onclick: (e) => { e.stopPropagation(); toggleMsg(); } }, '×'));
+  $('map-win').append(h('button', { class: 'msg-show', title: '顯示訊息框（M）', onclick: (e) => { e.stopPropagation(); toggleMsg(); } }, '訊息 ▴'));
+
   function renderStatus() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
@@ -6853,7 +6897,7 @@ function svg(g, color, mode, t) {
         items.push({ label: d.label, hint: d.cost ? `金${d.cost}` : '', off: busy || !idle || c.gold < d.cost, why: !idle ? why : '金不足。', act: () => devAct(c, type) });
       }
       items.push({ label: '徵兵', off: busy || !idle, why, act: () => draftFlow(c) });
-      items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
+      items.push({ label: '出征', off: busy || !idle || !adj.some((id) => S.cities[id].owner !== S.player && !S.cities[id].locked), why: !idle ? why : '附近沒有可進攻的城。', act: () => attackFlow(c) });
       items.push({ label: '移動', off: busy || !idle || !adj.some((id) => S.cities[id].owner === S.player), why: !idle ? why : '沒有相鄰的我方城市。', act: () => moveFlow(c) });
       items.push({ label: '搜索', off: busy || !idle, why, act: () => pickGeneral(c, 'int', '搜索：選擇武將', (g) => run({ type: 'search', city: c.id, general: g.id }, g, searchSpeech)) });
       const evac = E.evacDests(S, S.player, c);
@@ -7409,7 +7453,7 @@ function svg(g, color, mode, t) {
         menuWin(`${f.name}派使者前來，提議兩家${label}`, [
           { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
           { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
-        ], null, { center: true, width: 520, shade: true });
+        ], () => { say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); }, { center: true, width: 520, shade: true }); // 按 Esc 視同拒絕，遊戲才不會卡住
       };
       next();
     });
@@ -7865,6 +7909,6 @@ function svg(g, color, mode, t) {
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
-<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/23 15:21</div>
+<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/23 16:29</div>
 </body>
 </html>
