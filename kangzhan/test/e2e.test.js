@@ -249,7 +249,7 @@ test('外交提議：不用先點下方訊息，接受／拒絕視窗會直接�
   // 按 Esc 關掉提議視窗（視同拒絕）也不能卡住
   await p.keyboard.press('Escape');
   await p.waitForTimeout(300);
-  assert(await p.$('#cmd-win li:has-text("開墾"):not(.off)'), '關掉提議視窗之後還是不能下指令');
+  assert(await p.evaluate(() => !document.querySelector('#status .endturn').disabled), '關掉提議視窗之後遊戲還鎖著（不能結束本月）');
   assert(!p.errors.length, p.errors.join('\n'));
   await ctx.close();
 });

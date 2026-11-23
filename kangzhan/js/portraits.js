@@ -416,12 +416,11 @@
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考
   // 遊戲使用動畫風肖像（js/anime.js）；Q 版與水墨版保留作參考
-  // 日方指揮官只用職稱、不畫人像：顯示深灰底的「日」字印章
+  // 日方指揮官只用職稱、不畫人像：顯示日章旗
   const AXIS_TITLE = /(司令官|師團長|司令長官)$/;
   function axisSeal() {
-    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#4d4d4d"/>'
-      + '<rect x="14" y="14" width="72" height="72" fill="none" stroke="#d9d9d9" stroke-width="3"/>'
-      + '<text x="50" y="66" text-anchor="middle" font-size="46" fill="#ececec" font-family="serif">日</text></svg>';
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#5a5a5a"/>'
+      + '<rect x="8" y="22" width="84" height="56" fill="#fff"/><circle cx="50" cy="50" r="17" fill="#bc002d"/></svg>';
   }
   function svg(g, color, mode) {
     if (g && AXIS_TITLE.test(g.name)) return axisSeal();

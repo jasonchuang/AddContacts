@@ -186,15 +186,11 @@
         ctx.beginPath(); ctx.moveTo(...Q(-11, -24)); ctx.lineTo(...Q(0, -31)); ctx.lineTo(...Q(11, -24)); ctx.fill();
       }
       ctx.fillStyle = PAPER; ctx.fillRect(...Q(-4, 6), 8 * S2, 7 * S2);
-      // 勢力印章
+      // 勢力旗（當時的國旗；名義上隸屬國民政府的地方軍用勢力色外框區分）
       if (c.owner) {
-        const [sx, sy] = Q(13, -33);
-        ctx.fillStyle = fc; ctx.fillRect(sx, sy, 18 * S2, 18 * S2);
-        ctx.strokeStyle = 'rgba(245,237,217,.95)'; ctx.lineWidth = 1.2 * S2; ctx.strokeRect(sx + 2 * S2, sy + 2 * S2, 14 * S2, 14 * S2);
-        const ruler = state.factions[c.owner].ruler;
-        const sn = TK.surname(ruler);
-        ctx.fillStyle = '#f6eedb'; ctx.font = `bold ${Math.round((sn.length > 1 ? 7.5 : 12) * S2)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(sn, sx + 9 * S2, sy + 9.5 * S2);
+        const [sx, sy] = Q(11, -32);
+        ctx.fillStyle = 'rgba(40,30,20,.35)'; ctx.fillRect(sx + 1.5 * S2, sy + 1.5 * S2, 24 * S2, 16 * S2);
+        TK.Flags.draw(ctx, sx, sy, 24 * S2, 16 * S2, c.owner, TK.Flags.kind(c.owner) === 'roc' && c.owner !== 'kmt' ? fc : 'rgba(245,237,217,.9)');
       }
       // 名牌
       ctx.font = `bold ${Math.round(15 * S2)}px ${FONT}`;

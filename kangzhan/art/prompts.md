@@ -1,240 +1,227 @@
 # 烽火 十四年：人物頭像提示詞
 
-風格延續三國版的頭像：日系動畫賽璐璐上色，半寫實比例，半身像。服裝換成 1910～1920 年代的軍裝、長袍或西裝。
-每組 6 人，排成 2 列 × 3 欄。生成後把整張圖傳給 Claude，並說明哪一格是誰。不滿意的格子可以說「跳過」。
+畫風和民國版的頭像一樣：日系動畫賽璐璐上色、半寫實比例、半身像，服裝換成 1930～1940 年代的軍裝、長衫或西裝。
+每組 6 人，排成 2 列 × 3 欄。生成後把整張圖（或切好的單張）和對照表傳給 Claude，跟民國版一樣先驗收再匯入。
 
 **注意**
-- 這些是近代真實人物，請畫成**動畫風格的角色**，不要追求照片般寫實，也不要醜化或美化。
-- 提示詞只描述外型，不寫人名，這樣比較不會在圖上出現名字標籤。
-- 共產黨與日軍人物屬於第二款《烽火 抗戰八年》，等那款開工時再一起準備，這款用不到。
-
-**使用方式**：每組都先貼「共用風格」，再貼該組的內容。
-- ChatGPT 或 Gemini：整段直接貼。
-- Midjourney：在最後加上 `--ar 6:5`（整張 2×3）或 `--ar 4:5`（單人）。
+- 這些是近代真實人物，請畫成**動畫風格的角色**，不要照片般寫實，也不要醜化或美化。
+- 提示詞只描述外型，不寫人名，避免圖上出現名字標籤。
+- **日方不畫頭像**：日方指揮官只用職稱，遊戲裡顯示「日」字印章。
+- 民國版已匯入的 45 位（蔣介石、張學良、楊虎城、張自忠、薛岳、杜聿明、宋哲元……）抗戰版已經直接共用，不用重畫。
+- 下面沒有列到的人物，會用通用的君主、文官、武將頭像。
 
 ## 共用風格（每次都貼在最前面）
 
 ```
-Anime cel-shaded illustration, semi-realistic proportions, early Republic of China era (1910s-1920s).
+Anime cel-shaded illustration, semi-realistic proportions, Republic of China era during the War of Resistance (1930s-1940s).
 Half-body portrait, three-quarter view, face clearly visible in the upper 40% of each panel, sharp clean line art,
-period-accurate costume: Beiyang-era military dress uniforms (high collar, epaulettes, braid, medals, peaked cap or
-plumed kepi), khaki field uniforms with Sam Browne belts, or long scholar gowns / western suits for civilians.
-Soft cinematic lighting. Each panel is a separate portrait with its own background.
-Dignified and neutral portrayal, not a caricature. No text, no names, no labels, no flags with writing, no watermark,
-no borders between panels wider than a thin line.
+period-accurate costume: Nationalist army khaki or grey-green field uniforms with peaked caps or German-style steel helmets,
+plain grey cotton uniforms with soft caps for communist guerrilla commanders, long gowns or western suits for civilians,
+1940s US Army and Navy uniforms for American officers. Soft cinematic lighting, slightly weathered wartime mood.
+Each panel is a separate portrait with its own background. Dignified and neutral portrayal, not a caricature.
+No text, no names, no labels, no flags with writing, no watermark, no borders between panels wider than a thin line.
 ```
 
-## 第 1 組：北洋・皖系與直系
-左上 段祺瑞、中上 徐樹錚、右上 馮國璋 ／ 左下 曹錕、中下 吳佩孚、右下 孫傳芳
-
-```
-A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
-
-Top-left — a stern, thin-faced senior general in his fifties: neat drooping mustache, cold calculating eyes,
-dark blue full-dress uniform with gold braid, a plumed kepi under his arm. Background: a grey government hall with columns.
-
-Top-middle — a sharp, ambitious staff officer in his late thirties: slim face, small neat mustache, confident half-smile,
-khaki uniform with a cavalry sabre at his side, a folded map in his hand. Background: a windswept northern steppe at dusk.
-
-Top-right — a heavy-set, round-faced elder general: thick walrus mustache, calm cautious eyes,
-dark dress uniform with many medals. Background: a city wall by a wide river, misty morning.
-
-Bottom-left — a genial, plump general in his late fifties: round face, full mustache, easygoing smile,
-dark uniform with a broad sash. Background: a red-pillared courtyard with lanterns.
-
-Bottom-middle — a brilliant field commander in his late forties with a scholar's air: firm mustache, steady piercing eyes,
-plain grey cotton field uniform, holding a writing brush beside a war map. Background: a railway line and plum blossoms.
-
-Bottom-right — a shrewd, elegant general around forty: clean-cut face, thin mustache, poised expression,
-tailored khaki uniform with white gloves. Background: a southern river city with sailing boats.
-```
-
-## 第 2 組：奉系
-左上 張作霖、中上 張學良、右上 楊宇霆 ／ 左下 郭松齡、中下 張宗昌、右下 吳俊升
+## 第 1 組：中共領導人
+左上 毛澤東、中上 周恩來、右上 朱德 ／ 左下 彭德懷、中下 劉伯承、右下 林彪
 
 ```
 A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
 
-Top-left — a small, wiry Manchurian warlord in his fifties: thin mustache, very sharp clever eyes, slight confident smile,
-dark marshal's uniform with a fur-collared greatcoat. Background: a snowy northeastern city with onion-domed railway station.
+Top-left — a tall political leader in his forties: broad forehead, long swept-back hair, calm thoughtful eyes,
+plain grey cotton uniform with a soft cap in hand. Background: yellow loess hills and cave dwellings at dusk.
 
-Top-middle — a handsome young marshal in his mid-twenties: clean-shaven, bright eyes, slightly rebellious expression,
-khaki uniform with a peaked cap, leather gloves, a biplane in the distant sky. Background: a winter airfield.
+Top-middle — a handsome diplomat-commander in his late thirties: thick dark eyebrows, keen warm eyes, slight smile,
+neat grey uniform buttoned to the collar. Background: a wartime city street with sandbags and rain.
 
-Top-right — a brisk, intelligent chief of staff in his forties: neat short hair, small mustache, alert analytical eyes,
-crisp dark uniform, holding a document folder. Background: an arsenal workshop with lathes.
+Top-right — a kindly veteran commander in his fifties: round weathered face, gentle smile, short grey hair,
+simple grey uniform and a cotton cap with a star badge. Background: a mountain base camp with cooking smoke.
 
-Bottom-left — a serious, idealistic general in his early forties: clean-shaven, firm jaw, determined eyes,
-khaki uniform with binoculars around his neck. Background: a frozen river with troops marching at dawn.
+Bottom-left — a stern, tough field general in his forties: square jaw, short cropped hair, frowning resolute eyes,
+grey uniform with a leather belt and binoculars. Background: a railway line with smoke in North China.
 
-Bottom-middle — a huge, burly general, very tall and broad: big rough grin, heavy features,
-ornate uniform stretched over his frame, a riding whip in hand. Background: a seaside port with a lighthouse.
+Bottom-middle — a scholarly strategist general in his late forties: round spectacles, an old scar near his right eye,
+calm analytical expression, grey uniform, holding a pencil over a map. Background: the Taihang mountains in mist.
 
-Bottom-right — a grizzled old cavalry general in his sixties: weathered face, grey mustache,
-fur hat and heavy cavalry coat, holding horse reins. Background: endless snowy plains.
+Bottom-right — a slim, sharp young commander around thirty: thick eyebrows, intense narrow eyes, quiet expression,
+grey uniform with a cap pulled low. Background: a narrow mountain pass with autumn grass.
 ```
 
-## 第 3 組：晉系、西北軍、國民黨
-左上 閻錫山、中上 馮玉祥、右上 傅作義 ／ 左下 孫中山、中下 蔣介石、右下 汪精衛
-
-```
-A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
-
-Top-left — a careful, practical provincial governor in his late thirties: round face, small mustache, calm prudent eyes,
-dark uniform with a high collar. Background: yellow loess mountains and terraced fields.
-
-Top-middle — a very tall, broad-shouldered general in his forties: shaved head, plain honest face,
-simple grey cotton soldier's uniform like his troops, a straw sandal strap visible. Background: a dusty northwestern road with marching soldiers.
-
-Top-right — a sturdy young general in his early thirties: square face, short hair, steady resolute eyes,
-khaki uniform with a pistol holster. Background: a fortified northern city gate.
-
-Bottom-left — a revolutionary statesman in his late fifties: distinguished mustache, gentle but determined eyes,
-dark buttoned high-collar tunic suit. Background: a southern harbor with palm trees and steamships.
-
-Bottom-middle — a lean military academy commandant around forty: shaved head, short mustache, strict focused eyes,
-khaki uniform with a Sam Browne belt and a ceremonial sword. Background: an island military academy parade ground.
-
-Bottom-right — a strikingly handsome civilian politician in his forties: clean-shaven, eloquent expressive face,
-neat western suit and tie. Background: a crowded assembly hall with paper lanterns.
-```
-
-## 第 4 組：桂系、滇系、粵系
-左上 李宗仁、中上 白崇禧、右上 陸榮廷 ／ 左下 唐繼堯、中下 蔡鍔、右下 陳炯明
+## 第 2 組：八路軍、新四軍將領
+左上 賀龍、中上 聶榮臻、右上 葉劍英 ／ 左下 陳毅、中下 粟裕、右下 左權
 
 ```
 A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
 
-Top-left — a steady, broad-faced general in his mid-thirties: short hair, calm reliable expression,
-khaki field uniform, arms crossed. Background: karst limestone peaks and a winding river.
+Top-left — a bold, charismatic general in his forties: thick mustache, confident grin, holding a tobacco pipe,
+grey uniform with an open collar. Background: windswept plateau with a fortified village.
 
-Top-middle — a lean, razor-sharp strategist general in his early thirties: clean-shaven, narrow face,
-quick piercing eyes with a slight smile, khaki uniform, pointing at a map. Background: karst mountains under storm clouds.
+Top-middle — a calm, composed commander in his late thirties: neat short hair, steady gentle eyes,
+grey uniform with a soft cap. Background: snowy northern mountains and a stone watchtower.
 
-Top-right — a rugged veteran warlord in his late fifties: weathered tanned face, grey mustache,
-old-style uniform with a broad belt. Background: a southern river valley with banana trees.
+Top-right — a thin, intelligent chief of staff around forty: lean face, alert eyes, faint smile,
+grey uniform with a map case. Background: a wartime headquarters room with telephones.
 
-Bottom-left — a proud southwestern governor in his thirties: groomed mustache, confident chin,
-ornate dress uniform with gold epaulettes. Background: a high plateau lake and blue sky.
+Bottom-left — a cheerful, round-faced commander-poet around forty: wide smile, lively eyes,
+grey uniform, a writing brush tucked in his pocket. Background: the Yangtze riverbank with reeds.
 
-Bottom-middle — a slender, noble young general in his early thirties: thin face, small mustache,
-pale but resolute, a scarf around his throat, dark uniform with a cape. Background: snowy mountain pass at sunrise.
+Bottom-middle — a young, quiet tactical genius in his early thirties: slim face, focused eyes,
+grey uniform and puttees, studying a field map. Background: water-town canals in Jiangsu.
 
-Bottom-right — a reform-minded southern commander in his forties: round face, clean-shaven, earnest look,
-khaki uniform. Background: a coastal town with stone-arcade shophouses.
+Bottom-right — a young, earnest staff officer in his thirties: neat hair, determined expression,
+grey uniform and leather belt. Background: rugged mountain ridges of Shanxi.
 ```
 
-## 第 5 組：國民黨與川系
-左上 廖仲愷、中上 胡漢民、右上 何應欽 ／ 左下 葉挺、中下 唐生智、右下 劉湘
-
-```
-A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
-
-Top-left — a warm, energetic finance minister in his forties: short mustache, friendly eyes,
-western suit with a vest. Background: a busy labor-union hall.
-
-Top-middle — a scholarly party theorist in his forties: round wire-rimmed glasses, thin face, serious expression,
-long dark scholar's gown. Background: a study full of books and calligraphy scrolls.
-
-Top-right — a disciplined academy officer in his mid-thirties: round face, neat hair, composed expression,
-khaki uniform with white gloves. Background: a drill ground with cadets.
-
-Bottom-left — a fearless young vanguard commander around thirty: clean-shaven, intense eyes, a fighter's stance,
-khaki uniform with puttees and a rifle slung over his shoulder. Background: a stone bridge over a river with smoke.
-
-Bottom-middle — an ambitious Hunan general in his late thirties: neat mustache, sharp eyes,
-dark uniform with a Buddhist prayer bead bracelet. Background: a lakeside city with red hills.
-
-Bottom-right — a calm Sichuan warlord in his late thirties: round full face, small mustache, patient look,
-khaki uniform. Background: the Yangtze river gorges with mist.
-```
-
-## 第 6 組：其他人物與通用頭像
-左上 張勳、中上 黎元洪、右上 宋哲元 ／ 左下 通用君主、中下 通用文官、右下 通用武將
-
-通用頭像給沒有專屬頭像的人物使用，不要像任何特定的人。
+## 第 3 組：國民政府核心
+左上 宋美齡、中上 陳誠、右上 戴笠 ／ 左下 衛立煌、中下 湯恩伯、右下 胡宗南
 
 ```
 A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
 
-Top-left — a stubborn old loyalist general in his sixties: long braided queue hairstyle of the old dynasty, heavy mustache,
-old-fashioned uniform mixed with imperial-style robes. Background: a palace gate in the Forbidden City.
+Top-left — an elegant, poised woman in her forties: neat waved black hair, intelligent eyes, composed smile,
+dark silk qipao with a small brooch. Background: a wartime capital terrace above a foggy river city.
 
-Top-middle — a mild, kindly elder statesman in his fifties: round face, broad mustache, gentle eyes,
-navy dress uniform with a presidential sash. Background: a quiet garden pavilion.
+Top-middle — a slim, short, energetic general in his forties: shaved head, alert eyes, firm mouth,
+khaki uniform with a Sam Browne belt. Background: a mountain city with stone stairways in mist.
 
-Top-right — a tough, straightforward cavalry general in his forties: square jaw, short hair, stern eyes,
-khaki uniform with a big broadsword strapped on his back. Background: the Great Wall in autumn.
+Top-right — a stern intelligence chief in his forties: sharp watchful eyes, hard face, short hair,
+dark trench coat over a khaki uniform, fedora hat in hand. Background: a shadowy alley with a single lamp.
 
-Bottom-left — a generic warlord leader (not any real person): middle-aged, firm mustache, commanding posture,
-dark marshal's uniform with medals and a plumed cap. Background: a provincial yamen courtyard.
+Bottom-left — a seasoned front-line commander in his forties: strong face, steady eyes,
+khaki uniform with medals ribbons. Background: a mountain pass battlefield in Shanxi.
 
-Bottom-middle — a generic civilian official (not any real person): middle-aged, round glasses, thoughtful,
-long grey scholar's gown with a mandarin jacket. Background: an office with telegraph machine and documents.
+Bottom-middle — a solid, heavy-set general in his forties: round face, small mustache, serious look,
+khaki uniform and steel helmet under his arm. Background: a dusty plain with a walled town.
 
-Bottom-right — a generic field officer (not any real person): young adult, clean-shaven, alert,
-khaki uniform, puttees, rifle and peaked cap. Background: a trench line under a grey sky.
+Bottom-right — a short, sturdy general in his forties: broad face, crew cut, determined eyes,
+khaki greatcoat over uniform. Background: the ancient city wall of Xi'an in winter.
 ```
 
-通用頭像存成 `_通用君主`、`_通用文官`、`_通用武將`（說明哪一格是哪一個即可）。
-
-## 第 7 組：護國戰爭
-左上 袁世凱、中上 黃興、右上 梁啟超 ／ 左下 王士珍、中下 李烈鈞、右下 岑春煊
+## 第 4 組：國軍名將
+左上 孫立人、中上 戴安瀾、右上 謝晉元 ／ 左下 張靈甫、中下 方先覺、右下 王耀武
 
 ```
 A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
 
-Top-left — a stout, powerful statesman in his late fifties: bald head, large walrus mustache, heavy-lidded shrewd eyes,
-grand marshal's dress uniform with a plumed helmet set on the table beside him. Background: a palace hall with yellow silk drapes.
+Top-left — a tall, handsome, Western-educated general in his forties: neat hair, confident eyes,
+tropical khaki uniform with rolled sleeves and a jungle hat. Background: Burmese jungle and a river.
 
-Top-middle — a broad-faced revolutionary commander in his early forties: thick mustache, warm resolute eyes,
-simple dark tunic with a pistol belt. Background: a riverside battle line at dusk with smoke.
+Top-middle — a young, resolute division commander in his late thirties: lean face, firm eyes,
+khaki uniform with a pistol holster, an armored car behind. Background: a dusty Burmese town.
 
-Top-right — a learned scholar-reformer in his forties: high forehead, thin mustache, keen intellectual eyes,
-long dark scholar's gown, holding a brush over a newspaper manuscript. Background: a study with stacks of books and a lamp.
+Top-right — a young, brave battalion commander in his early thirties: clean-shaven, determined eyes,
+German-style steel helmet and khaki uniform. Background: a concrete warehouse by a city creek at night.
 
-Bottom-left — a quiet, dignified old general in his fifties: neat grey mustache, calm modest expression,
-plain dark uniform without many medals. Background: a temple courtyard with pine trees.
+Bottom-left — a tall, fierce general in his late thirties: sharp features, intense eyes,
+khaki uniform, leaning on a walking cane. Background: hills covered in red autumn leaves.
 
-Bottom-middle — a spirited southern general in his thirties: short mustache, bold eyes,
-khaki uniform with a sabre, riding gloves. Background: a lake fortress with cannons.
+Bottom-middle — a steadfast general in his early forties: square face, grim determined eyes,
+dusty khaki uniform with bandaged arm. Background: a battered city wall under smoke.
 
-Bottom-right — a veteran former viceroy in his fifties: long thin face, sparse beard, sharp stern eyes,
-silk mandarin jacket over a long gown. Background: a southern government office with arched windows.
+Bottom-right — a capable corps commander in his late thirties: round face, calm eyes,
+khaki uniform with white gloves. Background: green hills of Hunan with terraced fields.
 ```
 
-## 第 8 組：西北軍與北伐將領
-左上 楊虎城、中上 張自忠、右上 吉鴻昌 ／ 左下 薛岳、中下 杜聿明、右下 蔡廷鍇
+## 第 5 組：國軍將領與空軍
+左上 高志航、中上 張治中、右上 宋希濂 ／ 左下 胡璉、中下 鄭洞國、右下 王銘章
 
 ```
 A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
 
-Top-left — a tall, rugged northwestern general in his thirties: short mustache, steady eyes,
-grey cotton uniform with a fur hat. Background: the ancient city wall of a northwestern capital in winter.
+Top-left — a dashing fighter pilot around thirty: confident smile, wind-swept hair,
+leather flight jacket, flying cap and goggles pushed up. Background: a biplane fighter on a grass airfield.
 
-Top-middle — a disciplined, upright general in his thirties: clean-shaven square face, serious eyes,
-grey uniform buttoned to the neck, white gloves. Background: a drill ground under a cloudy sky.
+Top-middle — a refined, earnest general in his late forties: neat hair, thoughtful eyes,
+khaki uniform with a high collar. Background: a modern city skyline across a river with smoke.
 
-Top-right — a fiery young general around thirty: lean face, intense burning eyes, determined grin,
-grey uniform with a big broadsword on his back. Background: grassland and a mountain pass.
+Top-right — a young, alert division commander in his early thirties: sharp face, keen eyes,
+khaki uniform and helmet. Background: a misty river crossing in Yunnan.
 
-Bottom-left — a short, wiry, energetic commander in his early thirties: clean-shaven, quick fierce eyes,
-khaki uniform with puttees, a map case on his hip. Background: red hills of southern China.
+Bottom-left — a tough, sharp-eyed officer in his thirties: angular face, stern mouth,
+khaki uniform and helmet. Background: cliffs above the Yangtze gorges.
 
-Bottom-middle — a young academy-trained officer in his early twenties: neat hair, clean-shaven, thoughtful eyes,
-khaki uniform with a cadet's collar badge. Background: an early armored car in a depot.
+Bottom-middle — a calm, dependable general in his late thirties: oval face, steady gaze,
+khaki tropical uniform. Background: a jungle airfield with transport planes.
 
-Bottom-right — a sturdy, plain-spoken soldier-general in his thirties: broad face, short hair, honest smile,
-khaki uniform and a straw sun hat. Background: a southern river town with banyan trees.
+Bottom-right — a stern Sichuan division commander in his forties: weathered face, short mustache,
+worn grey-khaki uniform and straw sandals. Background: an old county town wall under attack.
+```
+
+## 第 6 組：地方軍將領
+左上 于學忠、中上 馬占山、右上 趙登禹 ／ 左下 佟麟閣、中下 龍雲、右下 陳濟棠
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a dignified northeastern general in his forties: neat mustache, calm eyes,
+dark grey uniform with a fur collar. Background: a frozen river and pine forest.
+
+Top-middle — a small, tough cavalry general in his forties: lean weathered face, thin mustache, fierce eyes,
+fur hat and heavy greatcoat. Background: an iron bridge over a frozen river.
+
+Top-right — a big, powerful swordsman general in his thirties: square jaw, bold eyes,
+grey uniform with a large broadsword on his back. Background: the Great Wall at night with torches.
+
+Bottom-left — a devout, upright general in his forties: kind but resolute face, short hair,
+grey uniform with a steel helmet. Background: an airfield south of Beiping under smoke.
+
+Bottom-middle — a shrewd southwestern governor in his fifties: thin face, small mustache, watchful eyes,
+dark uniform with high collar. Background: a plateau lake and red earth hills of Yunnan.
+
+Bottom-right — a prosperous southern warlord in his forties: round face, neat mustache, confident smile,
+dark uniform with gold buttons. Background: a southern harbor city with arcade buildings.
+```
+
+## 第 7 組：美軍
+左上 羅斯福、中上 史迪威、右上 陳納德 ／ 左下 麥克阿瑟、中下 尼米茲、右下 魏德邁
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — an American statesman in his fifties: wide confident smile, pince-nez glasses, cigarette holder,
+dark suit with a navy cape over his shoulders. Background: an office with a large world map and flags without text.
+
+Top-middle — a lean, wiry American general in his late fifties: round wire glasses, sharp skeptical eyes,
+campaign hat and plain field uniform. Background: a jungle road with Chinese and American trucks.
+
+Top-right — a rugged American aviator in his late forties: deeply weathered tanned face, piercing eyes, dark hair,
+leather flight jacket. Background: fighter planes with shark-mouth noses on a mountain airfield.
+
+Bottom-left — a commanding American general in his sixties: aviator sunglasses, corncob pipe, proud chin,
+peaked cap with gold braid. Background: a tropical beach landing with ships offshore.
+
+Bottom-middle — a calm white-haired American admiral in his late fifties: gentle blue eyes, composed expression,
+khaki navy uniform. Background: an aircraft carrier deck at sea.
+
+Bottom-right — a tall American general in his late forties: lean face, neat hair, intelligent eyes,
+olive army uniform. Background: a wartime headquarters with maps of China.
+```
+
+## 第 8 組：其他人物
+左上 徐向前、中上 項英、右上 劉志丹 ／ 左下 孫連仲、中下 韓復榘、右下 馬步芳
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a quiet, reserved commander in his late thirties: thin face, calm eyes,
+grey uniform and soft cap. Background: rolling loess plateau.
+
+Top-middle — a weathered labor leader turned commander in his forties: earnest face, short hair,
+worn grey uniform. Background: misty southern hills with bamboo.
+
+Top-right — a young, beloved guerrilla founder around thirty: gentle smile, bright eyes,
+sheepskin vest over a grey uniform. Background: northern Shaanxi cave dwellings.
+
+Bottom-left — a solid, stern general in his forties: square face, firm eyes,
+khaki uniform and steel helmet. Background: a walled town with a canal.
+
+Bottom-middle — a burly provincial general in his forties: heavy face, small eyes, stubborn expression,
+dark uniform. Background: a city gate in Shandong.
+
+Bottom-right — a young northwestern general in his thirties: lean face, sharp eyes,
+dark uniform with a fur-trimmed coat. Background: high grassland near a blue lake.
 ```
 
 ## 交回方式
 
-和三國版一樣：整張 2×3 的圖直接傳回來，說明每格是誰。驗收流程（對照圖、確認後再匯入）也相同。
-
-## 之後還要準備的素材（下一階段再給提示詞）
-
-- 兵種圖：步兵、坦克、砲兵、空軍（雙翼機）、海軍（砲艦）各 3 個姿勢（待命、攻擊、倒下）加換色遮罩。目前由程式畫。
-- 戰場背景：華北平原、長江沿岸、山地；冬季雪景。
-- 城防：民國時代的城牆加沙包、鐵絲網與機槍陣地。
-- 事件背景：張勳復辟、北京政變、汀泗橋、皇姑屯、東北易幟等。
+和民國版一樣：整張 2×3 的圖加上對照表（第幾組、哪個位置是誰），或切好的單張圖（檔名用人名），打包成 zip 傳回來即可。

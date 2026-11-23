@@ -810,3 +810,25 @@ body.nomsg #msg-win { display: none !important; }
 #map-win .msg-show { display: none; position: absolute; left: 12px; bottom: 44px; z-index: 3; padding: 6px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
 body.nomsg #map-win .msg-show { display: block; }
 body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; }
+
+/* 勢力旗（國旗）取代文字印章 */
+.seal.flag { background: none !important; border: 0 !important; padding: 0; width: 33px !important; height: 22px !important; border-radius: 2px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); }
+.seal.flag svg, .bflag.flag svg, .lflag.flag svg { display: block; width: 100%; height: 100%; }
+body.mobile #status .seal.flag { width: 24px !important; height: 16px !important; }
+.battlefield .bflag.flag { background: none; border: 0; padding: 0; width: 33px; height: 22px; box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+.battlefield .bwall.art .bflag.flag { width: 30px; height: 20px; }
+body.mobile .battlefield .bwall.art .bflag.flag { width: 21px; height: 14px; }
+.u.pose.leader .lflag.flag { background: none; min-width: 0; width: 30px; height: 20px; padding: 0; }
+
+/* 近代單挑：持槍對射 */
+.battle .duel .dbody.gun { width: 260px; height: 250px; display: flex; align-items: flex-end; justify-content: center; }
+.battle .duel .dbody.gun .u.pose { --h: 220px; height: var(--h); width: calc(var(--h) * var(--pr)); position: relative; margin: 0; animation: none; }
+.battle .duel .dbody.gun .u.pose img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.battle .duel .dbody.gun .u.pose img.flip { transform: scaleX(-1); }
+.battle .duel .fighter.down .dbody.gun, .battle .duel .fighter.right.down .dbody.gun { transform: none; }
+.battle .duel .fighter.down:has(.dbody.gun) { transform: none; opacity: .55; }
+.battle .duel .dmuzzle { position: absolute; top: 58%; width: 46px; height: 30px; border-radius: 50%; pointer-events: none; z-index: 3;
+  background: radial-gradient(ellipse, #fff8d0 0%, #ffd24a 35%, rgba(255, 120, 20, .7) 60%, transparent 72%); animation: muzzle .26s ease-out forwards; }
+@keyframes muzzle { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.4); opacity: 0; } }
+body.mobile .battle .duel .dbody.gun { width: 42vw; height: 40vw; }
+body.mobile .battle .duel .dbody.gun .u.pose { --h: 36vw; }

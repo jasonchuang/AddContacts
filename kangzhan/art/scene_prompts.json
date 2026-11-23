@@ -1,0 +1,341 @@
+{
+  "style": "1930～1940 年代中國的手繪動畫背景，16:10 橫幅，匯入尺寸 1280×800。下三分之一留給對話，兩側留給角色。不加可讀文字、姓名或浮水印。戰爭場面以景物、天候與氣氛表現，不畫血腥、屍體或暴力細節。",
+  "events": [
+    {
+      "id": "mukden",
+      "title": "九一八事變",
+      "scenario": "1931 九一八事變",
+      "scene": "night",
+      "file": "mukden.png",
+      "prompt": "夜色中的南滿鐵路與瀋陽城外的兵營，遠處鐵軌旁升起爆炸後的煙，探照燈劃過天空。"
+    },
+    {
+      "id": "jiangqiao",
+      "title": "江橋抗戰",
+      "scenario": "1931 九一八事變",
+      "scene": "field",
+      "file": "jiangqiao.png",
+      "prompt": "初冬的嫩江鐵橋，河面結薄冰，兩岸散布著沙包與壕溝，灰白天空。"
+    },
+    {
+      "id": "jinzhou",
+      "title": "錦州失守",
+      "scenario": "1931 九一八事變",
+      "scene": "field",
+      "file": "jinzhou.png",
+      "prompt": "冬日遼西平原上的錦州城與火車站，撤退的長列車隊伍在雪地中延伸。"
+    },
+    {
+      "id": "harbin",
+      "title": "哈爾濱淪陷",
+      "scenario": "1931 九一八事變",
+      "scene": "field",
+      "file": "harbin.png",
+      "prompt": "雪中的哈爾濱，洋蔥頂的教堂與中央大街石板路，街上冷清，天色陰沉。"
+    },
+    {
+      "id": "yierba",
+      "title": "一二八淞滬抗戰",
+      "scenario": "1931 九一八事變",
+      "scene": "fire",
+      "file": "yierba.png",
+      "prompt": "上海閘北的街巷與石庫門房屋，沙包工事後方冒著黑煙，冬日陰天。"
+    },
+    {
+      "id": "manchukuo",
+      "title": "偽滿洲國",
+      "scenario": "1931 九一八事變",
+      "scene": "palace",
+      "file": "manchukuo.png",
+      "prompt": "長春一座新落成的官署大樓前，空蕩的廣場與冷灰色的晨光，氣氛壓抑。"
+    },
+    {
+      "id": "rehe",
+      "title": "熱河失守",
+      "scenario": "1931 九一八事變",
+      "scene": "field",
+      "file": "rehe.png",
+      "prompt": "承德避暑山莊外的山嶺與城門，雪地上只留下撤退的車轍。"
+    },
+    {
+      "id": "xifengkou",
+      "title": "喜峰口大刀隊",
+      "scenario": "1933 長城抗戰",
+      "scene": "night",
+      "file": "xifengkou.png",
+      "prompt": "月夜下的長城喜峰口，城牆蜿蜒在山脊上，關口旁的營火與立著的大刀剪影。"
+    },
+    {
+      "id": "changzheng",
+      "title": "長征",
+      "scenario": "1931 九一八事變",
+      "scene": "field",
+      "file": "changzheng.png",
+      "prompt": "雪山與草地交界的高原，遠處一列長長的行軍隊伍在山腰間前進，天空遼闊。"
+    },
+    {
+      "id": "yierjiu",
+      "title": "一二九運動",
+      "scenario": "1933 長城抗戰",
+      "scene": "palace",
+      "file": "yierjiu.png",
+      "prompt": "冬日的北平街道，城門樓下鋪著積雪，遠處人群聚集，手持白布條（不寫字）。"
+    },
+    {
+      "id": "xian",
+      "title": "西安事變",
+      "scenario": "1936 西安事變",
+      "scene": "night",
+      "file": "xian.png",
+      "prompt": "冬夜的臨潼華清池，驪山腳下的亭台與溫泉，遠處的山坡上有手電光。"
+    },
+    {
+      "id": "lugouqiao",
+      "title": "盧溝橋事變",
+      "scenario": "1937 七七事變",
+      "scene": "night",
+      "file": "lugouqiao.png",
+      "prompt": "夏夜的盧溝橋，石獅子欄杆與永定河，宛平城牆在遠處，天邊有砲火的光。"
+    },
+    {
+      "id": "lushan",
+      "title": "廬山談話",
+      "scenario": "1937 七七事變",
+      "scene": "palace",
+      "file": "lushan.png",
+      "prompt": "廬山牯嶺的石造別墅與松林，雲霧繚繞的夏日山景。"
+    },
+    {
+      "id": "nanyuan",
+      "title": "南苑之戰",
+      "scenario": "1937 七七事變",
+      "scene": "field",
+      "file": "nanyuan.png",
+      "prompt": "北平南苑的營房與機場，天空中有雙翼機飛過，地面揚起塵土。"
+    },
+    {
+      "id": "songhu",
+      "title": "淞滬會戰",
+      "scenario": "1937 七七事變",
+      "scene": "fire",
+      "file": "songhu.png",
+      "prompt": "上海黃浦江畔的街道與碼頭，江面上停著軍艦，城區冒著濃煙，夏末黃昏。"
+    },
+    {
+      "id": "sihang",
+      "title": "四行倉庫",
+      "scenario": "1937 七七事變",
+      "scene": "night",
+      "file": "sihang.png",
+      "prompt": "夜晚蘇州河畔的四行倉庫，混凝土大樓頂上飄著一面旗，對岸租界燈火通明。"
+    },
+    {
+      "id": "pingxingguan",
+      "title": "平型關",
+      "scenario": "1937 七七事變",
+      "scene": "field",
+      "file": "pingxingguan.png",
+      "prompt": "秋天山西平型關的狹長山溝，兩側陡坡上長滿枯草，溝底一條土路。"
+    },
+    {
+      "id": "xinsijun",
+      "title": "新四軍成立",
+      "scenario": "1937 七七事變",
+      "scene": "camp",
+      "file": "xinsijun.png",
+      "prompt": "江南丘陵的竹林與小村莊，清晨薄霧中的集合場，灰色的行囊整齊排列。"
+    },
+    {
+      "id": "nanjing_falls",
+      "title": "南京失守",
+      "scenario": "1937 七七事變",
+      "scene": "night",
+      "file": "nanjing_falls.png",
+      "prompt": "冬日陰沉天空下的南京中華門，城牆斑駁，城門前空無一人，寒風捲起落葉，氣氛肅穆哀傷（不呈現暴力）。"
+    },
+    {
+      "id": "wuhan_falls",
+      "title": "武漢會戰",
+      "scenario": "1938 台兒莊與武漢",
+      "scene": "river",
+      "file": "wuhan_falls.png",
+      "prompt": "秋天的長江與武漢三鎮，黃鶴樓遠影，江面上撤退的船隻，天空有砲火的煙。"
+    },
+    {
+      "id": "baituan",
+      "title": "百團大戰",
+      "scenario": "1940 相持階段",
+      "scene": "night",
+      "file": "baituan.png",
+      "prompt": "夜色中的華北鐵路與碉堡，遠處鐵軌冒出火光，山嶺在月光下起伏。"
+    },
+    {
+      "id": "wannan",
+      "title": "皖南事變",
+      "scenario": "1940 相持階段",
+      "scene": "night",
+      "file": "wannan.png",
+      "prompt": "寒冬皖南茂林的山谷，霧氣籠罩的竹林與小溪，氣氛沉重。"
+    },
+    {
+      "id": "pearl_harbor",
+      "title": "珍珠港事件",
+      "scenario": "1937 七七事變",
+      "scene": "river",
+      "file": "pearl_harbor.png",
+      "prompt": "清晨的熱帶海港，棕櫚樹與停泊的軍艦，遠方天空飛來成群的飛機，海面冒出黑煙。"
+    },
+    {
+      "id": "hongkong",
+      "title": "香港淪陷",
+      "scenario": "1937 七七事變",
+      "scene": "fire",
+      "file": "hongkong.png",
+      "prompt": "冬日的香港維多利亞港，山坡上的洋樓與九龍碼頭，港口上空有煙。"
+    },
+    {
+      "id": "burma",
+      "title": "滇緬戰役",
+      "scenario": "1937 七七事變",
+      "scene": "field",
+      "file": "burma.png",
+      "prompt": "緬甸叢林中的公路與佛塔，雨季的濃雲，遠處山脊上一條蜿蜒的公路。"
+    },
+    {
+      "id": "saipan",
+      "title": "塞班島登陸",
+      "scenario": "1937 七七事變",
+      "scene": "river",
+      "file": "saipan.png",
+      "prompt": "熱帶島嶼的海灘與珊瑚礁，海上排列著登陸艇與軍艦，白色浪花。"
+    },
+    {
+      "id": "surrender",
+      "title": "日本投降",
+      "scenario": "1937 七七事變",
+      "scene": "palace",
+      "file": "surrender.png",
+      "prompt": "秋天的南京，一座禮堂前的廣場，陽光明亮，旗幟與花環（不寫字），平靜莊重的勝利氣氛。"
+    },
+    {
+      "id": "quanmian",
+      "title": "日軍大舉增兵",
+      "scenario": "1931 九一八事變",
+      "scene": "river",
+      "file": "quanmian.png",
+      "prompt": "東海上排成縱隊的運兵船，灰色的海與雲，遠處海岸線。"
+    },
+    {
+      "id": "liuxiang_dies",
+      "title": "劉湘病逝",
+      "scenario": "1937 七七事變",
+      "scene": "palace",
+      "file": "liuxiang_dies.png",
+      "prompt": "冬日漢口的醫院走廊與窗外的長江，窗台上放著一頂軍帽，氣氛哀傷。"
+    },
+    {
+      "id": "taierzhuang",
+      "title": "台兒莊大捷",
+      "scenario": "1938 台兒莊與武漢",
+      "scene": "fire",
+      "file": "taierzhuang.png",
+      "prompt": "春天的台兒莊古鎮，運河邊的石牆與巷弄，遠處冒著煙，殘破中透出堅韌。"
+    },
+    {
+      "id": "huayuankou",
+      "title": "花園口決堤",
+      "scenario": "1938 台兒莊與武漢",
+      "scene": "rain",
+      "file": "huayuankou.png",
+      "prompt": "黃河大堤在大雨中決口，混濁的洪水漫過田野與村莊，天色灰暗（不呈現人物傷亡）。"
+    },
+    {
+      "id": "changsha_fire",
+      "title": "長沙大火",
+      "scenario": "1938 台兒莊與武漢",
+      "scene": "fire",
+      "file": "changsha_fire.png",
+      "prompt": "夜晚燃燒中的長沙古城，火光映紅天空與湘江，遠處城樓的剪影。"
+    },
+    {
+      "id": "wang_regime",
+      "title": "汪精衛政權",
+      "scenario": "1940 相持階段",
+      "scene": "palace",
+      "file": "wang_regime.png",
+      "prompt": "南京一座灰色官署大樓，冷清的走廊與緊閉的窗，陰天的冷調光線。"
+    },
+    {
+      "id": "zaoyi",
+      "title": "棗宜會戰",
+      "scenario": "1940 相持階段",
+      "scene": "field",
+      "file": "zaoyi.png",
+      "prompt": "初夏湖北的丘陵與襄河，河岸邊的小村莊南瓜店，天空低垂的雲。"
+    },
+    {
+      "id": "dai_anlan",
+      "title": "戴安瀾殉國",
+      "scenario": "1940 相持階段",
+      "scene": "field",
+      "file": "dai_anlan.png",
+      "prompt": "緬北雨林中的小徑與山溪，濃霧中的竹林，氣氛靜默哀傷。"
+    },
+    {
+      "id": "ichigo",
+      "title": "一號作戰（豫湘桂）",
+      "scenario": "1944 反攻",
+      "scene": "fire",
+      "file": "ichigo.png",
+      "prompt": "湘桂鐵路沿線的田野與小鎮，濃煙從遠處城市升起，夏日的燥熱天空。"
+    },
+    {
+      "id": "hengyang",
+      "title": "衡陽保衛戰",
+      "scenario": "1944 反攻",
+      "scene": "fire",
+      "file": "hengyang.png",
+      "prompt": "衡陽城的城牆與湘江，城頭殘破、沙包層層，盛夏的灼熱陽光。"
+    },
+    {
+      "id": "myitkyina",
+      "title": "滇緬反攻",
+      "scenario": "1944 反攻",
+      "scene": "field",
+      "file": "myitkyina.png",
+      "prompt": "緬北密支那附近的叢林機場，運輸機在跑道上，遠處是蜿蜒的公路與群山。"
+    },
+    {
+      "id": "okinawa",
+      "title": "沖繩戰役",
+      "scenario": "1944 反攻",
+      "scene": "river",
+      "file": "okinawa.png",
+      "prompt": "雨中的沖繩海岸，岩石海崖與灰色的海，海上排列著艦隊。"
+    },
+    {
+      "id": "zhijiang",
+      "title": "芷江會戰",
+      "scenario": "1944 反攻",
+      "scene": "field",
+      "file": "zhijiang.png",
+      "prompt": "湘西芷江的機場與青山，跑道邊停著戰鬥機，春日雲層。"
+    },
+    {
+      "id": "locusts",
+      "title": "蝗災",
+      "scenario": "通用",
+      "scene": "field",
+      "file": "locusts.png",
+      "prompt": "夏日田野上鋪天蓋地的蝗蟲群，枯黃的莊稼與憂心的天空。"
+    },
+    {
+      "id": "bumper",
+      "title": "豐年",
+      "scenario": "通用",
+      "scene": "field",
+      "file": "bumper.png",
+      "prompt": "秋天金黃的稻田與曬穀場，遠處農家炊煙，豐收的暖色調。"
+    }
+  ]
+}
