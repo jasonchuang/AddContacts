@@ -618,7 +618,9 @@
     else if (mD > 1.06) ctx.lines.push(`兵種相剋：守軍的${UNITS[domD].name}佔上風`);
     ctx.ahero = atk.generals.slice().sort((a, b) => b.war - a.war)[0] || null;
     ctx.dhero = defGens.slice().sort((a, b) => b.war - a.war)[0] || null;
-    ctx.canDuel = !!(ctx.ahero && ctx.dhero);
+    // 和日方作戰不單挑（日方指揮官只用職稱，不塑造個人形象）
+    const axisSide = [atk.faction, defOwner].some((f) => f && s.factions[f] && s.factions[f].side === 'axis');
+    ctx.canDuel = !!(ctx.ahero && ctx.dhero) && !axisSide;
     // 電腦的戰鬥：雙方猛將夠強時約六成機率自動單挑；玩家指揮時改由玩家決定
     if (!ctx.interactive && ctx.canDuel && Math.max(ctx.ahero.war, ctx.dhero.war) >= 70 && Math.min(ctx.ahero.war, ctx.dhero.war) >= 50 && rand(s) < T.duel.autoChance) doDuel(s, ctx);
     return ctx;

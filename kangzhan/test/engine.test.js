@@ -77,6 +77,9 @@ test('日方：電腦專用、不能外交；印章為「日」；裝備優勢',
   require('../js/mapview.js');
   assert.strictEqual(TK.surname('關東軍司令官'), '日');
   assert(E.powerMult(s, 'japan') > E.powerMult(s, 'ccp'));
+  // 和日方作戰不單挑
+  const ctx = E.battleStart(s, { faction: 'song', from: '北京', generals: [s.generals['張自忠']], troops: 10000, train: 50, units: { inf: 10000 } }, '承德');
+  assert(!ctx.canDuel && !ctx.dueled, '和日軍作戰出現單挑');
 });
 
 test('進攻限制：英國屬地不能進攻；渡海要帶足海軍', () => {

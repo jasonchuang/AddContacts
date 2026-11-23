@@ -1588,8 +1588,9 @@
   }
 
   // 戰場背景依城市地形選擇
-  const BATTLE_RIVER = ['江陵', '江夏', '柴桑', '建業', '永安', '長沙', '會稽', '襄陽'];
-  const BATTLE_MOUNTAIN = ['漢中', '天水', '武威', '成都', '晉陽'];
+  // 戰場背景的地形（沿江、沿海與島嶼；山地）
+  const BATTLE_RIVER = ['上海', '南京', '武漢', '宜昌', '重慶', '杭州', '長沙', '福州', '廣州', '天津', '青島', '臺北', '臺南', '沖繩', '塞班', '南昌', '合肥'];
+  const BATTLE_MOUNTAIN = ['太原', '大同', '延安', '蘭州', '成都', '貴陽', '昆明', '芷江', '臘戌', '列多', '張家口', '承德', '桂林', '瑞金', '包頭'];
   function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
@@ -1631,7 +1632,8 @@
         const wrap = h('div', { class: 'units' + (right ? ' right' : '') }, ...(right ? units.slice().reverse() : units));
         // 飛機在天空另外排一列
         const planes = Array.from({ length: cnt.air }, (_, i) => {
-          const u = svgNode(TK.Icons.unit('air', col, { flip: right, cls: 'u u-air' }));
+          const u = (TK.Sprite && TK.Sprite.make('air', col, right))
+            || svgNode(TK.Icons.unit('air', col, { flip: right, cls: 'u u-air' }));
           u.style.animationDelay = `${i * 0.3}s`;
           return u;
         });
