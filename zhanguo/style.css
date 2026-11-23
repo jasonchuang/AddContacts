@@ -686,3 +686,21 @@ body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
 /* 抉擇視窗：說明文字放在選項下一行，避免長說明蓋到下一個選項 */
 .win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
 .win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
+
+/* 戰場、城牆、單挑插圖（scenes/field_*、wall*、duel_*） */
+.battlefield.art { background-size: cover; background-position: center 35%; }
+.battlefield.art .bsky { display: none; }
+.battlefield .bwall.art { top: auto; bottom: 0; height: 92%; width: auto; aspect-ratio: 355 / 600; background: none; border: 0; right: -8px; }
+.battlefield .bwall.art::before { display: none; }
+.battlefield .bwall.art img { width: 100%; height: 100%; display: block; filter: drop-shadow(-4px 4px 6px rgba(40, 30, 20, .35)); }
+.battlefield .bwall.art .bflag { left: calc(30% + 2px); top: 1%; width: 26px; height: 22px; font-size: 15px !important; }
+.battlefield .bwall.art .bflag::before { display: none; }
+.battlefield.walled .units.right { right: 150px; }
+.battle .duel.art { background: linear-gradient(180deg, rgba(255, 248, 230, .15), rgba(30, 20, 10, .25)), var(--duel-bg) center / cover no-repeat; }
+.battle .duel.art .dname { color: #fff; text-shadow: 0 2px 4px rgba(0, 0, 0, .6); }
+.battle .duel.art .dname small { color: #f3e3c0; }
+.battle .duel.art .dcap { text-shadow: 0 2px 6px rgba(0, 0, 0, .5), 0 0 2px #fff; }
+body.mobile .battlefield .bwall.art { height: 78%; right: -6px; }
+body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-size: 11px !important; }
+body.mobile .battlefield.walled .units.right { right: 92px; }
+.battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
