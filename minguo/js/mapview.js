@@ -3,11 +3,15 @@
 (function (TK) {
   'use strict';
 
-  const COAST = [[930, -10], [950, 70], [985, 150], [952, 228], [990, 296], [958, 352], [978, 420], [938, 472], [962, 525], [948, 566], [928, 610], [905, 652], [882, 694], [866, 730]];
+  // 海岸線（由北往南再往西）：遼東半島、渤海灣、山東半島、江浙閩沿海、廣東沿海（珠江口）；線的右下側是海
+  const COAST = [[1015, -10], [1008, 40], [985, 80], [960, 110], [935, 140], [912, 170], [892, 196], [884, 186], [896, 150], [888, 128],
+    [862, 130], [836, 134], [818, 150], [822, 172], [828, 200], [836, 222], [870, 232], [910, 236], [950, 240], [972, 252], [955, 272],
+    [920, 296], [900, 322], [905, 345], [912, 400], [925, 450], [945, 490], [962, 525], [948, 566], [928, 610], [905, 652], [882, 694], [852, 712], [800, 722], [745, 728], [712, 734],
+    [690, 724], [672, 716], [658, 724], [640, 736], [590, 744], [540, 752], [500, 764], [470, 790]];
   // 臺灣（1895～1945 日本統治）：只畫出島嶼與標示，不是可以爭奪的城
   const TAIWAN = [[946, 628], [956, 640], [962, 664], [960, 690], [950, 712], [938, 724], [928, 708], [926, 682], [932, 654]];
   const RIVERS = [
-    { name: '黃河', label: [455, 302], pts: [[-10, 252], [60, 238], [120, 232], [180, 244], [230, 262], [290, 276], [330, 284], [380, 298], [430, 310], [470, 312], [520, 295], [560, 270], [610, 252], [660, 242], [700, 238], [750, 250], [790, 258], [840, 252], [900, 242], [940, 230], [960, 222]] },
+    { name: '黃河', label: [455, 302], pts: [[-10, 252], [60, 238], [120, 232], [180, 244], [230, 262], [290, 276], [330, 284], [380, 298], [430, 310], [470, 312], [520, 295], [560, 270], [610, 252], [660, 242], [700, 238], [750, 250], [790, 258], [815, 242], [836, 222]] },
     { name: '長江', label: [262, 622], pts: [[40, 515], [100, 530], [150, 548], [210, 568], [270, 590], [330, 594], [380, 592], [430, 598], [480, 606], [520, 612], [570, 606], [610, 598], [660, 584], [720, 560], [760, 554], [800, 552], [860, 548], [920, 550], [975, 552]] },
     { name: '', pts: [[330, 450], [390, 480], [450, 520], [520, 545], [600, 568]] },
     { name: '', pts: [[535, 330], [575, 365], [640, 410]] },
@@ -54,8 +58,9 @@
     const W = Math.max(400, Math.round((r.width || 838) * dpr)), H = Math.max(300, Math.round((r.height || 592) * dpr));
     if (canvas.width !== W) canvas.width = W;
     if (canvas.height !== H) canvas.height = H;
-    const s = Math.min(W / 1000, H / 720);
-    view = { s, ox: (W - 1000 * s) / 2, oy: (H - 720 * s) / 2, W, H };
+    // 世界座標 1000×720，上下各留一點邊（下方多留，避免最下排城名被切掉）
+    const s = Math.min(W / 1000, H / 795);
+    view = { s, ox: (W - 1000 * s) / 2, oy: (H - 795 * s) / 2 + 12 * s, W, H };
     const ctx = canvas.getContext('2d');
     const color = opts.color;
     const cities = Object.values(state.cities);
@@ -70,24 +75,6 @@
     ctx.fillStyle = '#9fb6b4'; ctx.fill();
     smooth(ctx, COAST);
     ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2.5 * s + 1; ctx.stroke();
-    ctx.strokeStyle = 'rgba(61,89,96,.45)'; ctx.lineWidth = 1.2 * s;
-    for (let i = 0; i < 24; i++) {
-      const [x, y] = P([985 - ((i * 37) % 26), 30 + i * 28]);
-      ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
-    }
-
-    // 臺灣
-    smooth(ctx, TAIWAN); ctx.closePath();
-    ctx.fillStyle = '#e4dcc6'; ctx.fill();
-    ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2 * s + 1; ctx.stroke();
-    {
-      const [x, y] = P([944, 676]);
-      ctx.font = `${Math.round(13 * s + 5)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(59,51,42,.75)';
-      ctx.fillText('臺灣', x, y - 9 * s);
-      ctx.font = `${Math.round(9 * s + 4)}px ${FONT}`;
-      ctx.fillText('（日治）', x, y + 10 * s);
-    }
 
     // 勢力領土：同一勢力相鄰（有道路相連）的城，領土連成一整片。
     // 先在離屏畫布上用不透明色畫出聯集，再一次以半透明疊上去，重疊處才不會變深。
@@ -115,6 +102,31 @@
       ctx.globalAlpha = 0.2;
       ctx.drawImage(off, 0, 0);
       ctx.restore();
+    }
+
+    // 海面蓋在領土色塊上（領土只留在陸地）
+    smooth(ctx, COAST);
+    ctx.lineTo(W + 10, H + 10); ctx.lineTo(W + 10, -10); ctx.closePath();
+    ctx.fillStyle = '#9fb6b4'; ctx.fill();
+    smooth(ctx, COAST);
+    ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2.5 * s + 1; ctx.stroke();
+    ctx.strokeStyle = 'rgba(61,89,96,.45)'; ctx.lineWidth = 1.2 * s;
+    for (let i = 0; i < 24; i++) {
+      const [x, y] = P([985 - ((i * 37) % 26), 270 + i * 18]);
+      ctx.beginPath(); ctx.arc(x + 6 * s, y, 6 * s, Math.PI, 2 * Math.PI); ctx.stroke();
+    }
+
+    // 臺灣
+    smooth(ctx, TAIWAN); ctx.closePath();
+    ctx.fillStyle = '#e4dcc6'; ctx.fill();
+    ctx.strokeStyle = 'rgba(41,36,26,.55)'; ctx.lineWidth = 2 * s + 1; ctx.stroke();
+    {
+      const [x, y] = P([944, 676]);
+      ctx.font = `${Math.round(13 * s + 5)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(59,51,42,.75)';
+      ctx.fillText('臺灣', x, y - 9 * s);
+      ctx.font = `${Math.round(9 * s + 4)}px ${FONT}`;
+      ctx.fillText('（日治）', x, y + 10 * s);
     }
 
     // 河流

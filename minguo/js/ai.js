@@ -42,7 +42,7 @@
       const pool = city.troops * 0.8 + feeders.reduce((a, c) => a + c.troops * 0.5, 0);
       for (const n of Eng.neighbors(s, city.id)) {
         const t = s.cities[n];
-        if (t.owner === fid || (t.owner && TK.Diplomacy && !TK.Diplomacy.canAttack(s, fid, t.owner))) continue;
+        if (t.owner === fid || t.locked || (t.owner && TK.Diplomacy && !TK.Diplomacy.canAttack(s, fid, t.owner))) continue;
         const neutralRel = t.owner && TK.Diplomacy && TK.Diplomacy.stateOf(s, fid, t.owner) === 'neutral';
         const score = atkPow(s, city, pool) / defPow(s, t) * (t.owner ? 1 : 1.2) * (neutralRel ? 0.8 : 1)
           * (1 + (t.pop / 1e6)); // 大城優先
@@ -246,7 +246,7 @@
     const avail = idle(s, city.id, fid).sort((a, b) => (b.lead + b.war) - (a.lead + a.war));
     const all = Eng.officers(s, city.id);
     if (!avail.length || city.troops < 8000) return;
-    const targets = Eng.neighbors(s, city.id).map((id) => s.cities[id]).filter((c) => c.owner !== fid && (!TK.Diplomacy || TK.Diplomacy.canAttack(s, fid, c.owner)));
+    const targets = Eng.neighbors(s, city.id).map((id) => s.cities[id]).filter((c) => c.owner !== fid && !c.locked && (!TK.Diplomacy || TK.Diplomacy.canAttack(s, fid, c.owner)));
     if (!targets.length) return;
 
     const army = avail.slice(0, Math.min(3, all.length > 1 ? Math.min(avail.length, all.length - 1) : 1));

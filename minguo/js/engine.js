@@ -455,6 +455,7 @@
       case 'attack': {
         const target = s.cities[cmd.target];
         if (!target || target.owner === fid || !neighbors(s, city.id).includes(target.id)) return fail('無法進攻該城');
+        if (target.locked) return fail(`${target.name}是外國屬地，不在爭霸範圍內`);
         if (TK.Diplomacy && !TK.Diplomacy.canAttack(s, fid, target.owner)) {
           return fail(`與${factionName(s, target.owner)}處於${TK.Diplomacy.STATE_LABEL[TK.Diplomacy.stateOf(s, fid, target.owner)]}，不能進攻`);
         }
@@ -843,11 +844,11 @@
     if (s.player && s.factions[s.player] && !s.factions[s.player].alive) {
       s.over = { result: 'lose' };
       addLog(s, '我軍覆滅……', 'major', [s.player]);
-    } else if (s.player && Object.values(s.cities).every((c) => c.owner === s.player)) {
+    } else if (s.player && Object.values(s.cities).every((c) => c.locked || c.owner === s.player)) {
       s.over = { result: 'win' };
       addLog(s, `${s.factions[s.player].name}統一天下！`, 'major', [s.player]);
     } else if (!s.player || !s.factions[s.player]) {
-      if (alive.length === 1 && Object.values(s.cities).every((c) => c.owner === alive[0].id)) {
+      if (alive.length === 1 && Object.values(s.cities).every((c) => c.locked || c.owner === alive[0].id)) {
         s.over = { result: 'unified', faction: alive[0].id };
       }
     }
