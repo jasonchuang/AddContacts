@@ -1521,6 +1521,9 @@
     const ga = S.generals[f.duel[0]], gd = S.generals[f.duel[1]];
     // 上方名牌：頭像、名字、武力、體力條；下方戰場：兩位武將騎馬對衝（騎兵姿勢圖依勢力換色，沒有圖時用立繪）
     const mounted = TK.Sprite && TK.Sprite.hasPose && (TK.Sprite.hasPose('general') || TK.Sprite.hasPose('cav'));
+    // 近代：不騎馬，兩人持槍對射（用步兵姿勢圖：待命、跪射、倒地）
+    const gun = !mounted && TK.Sprite && TK.Sprite.hasPose && TK.Sprite.hasPose('inf');
+    const gunman = (col, right) => { const el = TK.Sprite.make('inf', col, right); el.classList.remove('march'); el.classList.add('gunman'); return el; };
     const fighter = (g, right) => {
       const col = color(g.faction);
       const hp = h('div', { class: 'dhp-fill', style: `background:${col}` });
@@ -1529,15 +1532,15 @@
         h('div', { class: 'dinfo' },
           h('div', { class: 'dname' }, g.name, h('small', {}, `武力 ${g.war}`)),
           h('div', { class: 'dhp' }, hp)));
-      const rider = mounted ? leaderSprite(g, col, right) : face(g, 'full', 0, 0, 'dface');
+      const rider = mounted ? leaderSprite(g, col, right) : gun ? gunman(col, right) : face(g, 'full', 0, 0, 'dface');
       if (mounted) rider.classList.remove('march');
-      const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : '') }, rider);
+      const body = h('div', { class: 'dbody' + (mounted ? ' mounted' : gun ? ' gun' : '') }, rider);
       const root = h('div', { class: 'fighter' + (right ? ' right' : '') }, body);
       return { root, body, hp, card, rider };
     };
     const A = fighter(ga, false), D = fighter(gd, true);
     const fx = h('div', { class: 'dfx' });
-    const caption = h('div', { class: 'dcap' }, '一騎討');
+    const caption = h('div', { class: 'dcap' }, gun ? '對決' : '一騎討');
     el.replaceChildren(h('div', { class: 'dtop' }, A.card, caption, D.card), h('div', { class: 'arena' + (mounted ? ' close' : '') }, A.root, fx, D.root));
     el.classList.remove('hidden');
     SND.march();
@@ -1547,7 +1550,13 @@
       later(t, () => {
         const atk = b.who === 'a' ? A : D, def = b.who === 'a' ? D : A;
         atk.body.classList.remove('lunge'); void atk.body.offsetWidth; atk.body.classList.add('lunge');
-        if (mounted) { TK.Sprite.setPose(atk.rider, 'attack'); later(450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
+        if (mounted || gun) { TK.Sprite.setPose(atk.rider, 'attack'); later(gun ? 520 : 450, () => { if (!atk.root.classList.contains('down')) TK.Sprite.setPose(atk.rider, 'idle'); }); }
+        if (gun) {
+          // 槍口火光與槍聲
+          const flash = h('div', { class: 'dmuzzle', style: b.who === 'a' ? 'left:31%' : 'right:31%' });
+          fx.append(flash); later(260, () => flash.remove());
+          later(60, SND.clash);
+        }
         later(230, () => {
           def.body.classList.remove('hit', 'dodge'); void def.body.offsetWidth;
           const pop = h('div', { class: 'dpop' + (b.dmg ? '' : ' miss') + (b.crit ? ' crit' : ''), style: mounted ? (b.who === 'a' ? 'left:56%' : 'right:56%') : (b.who === 'a' ? 'right:22%' : 'left:22%') },
@@ -1558,6 +1567,7 @@
             def.body.classList.add('hit'); SND.clash(); if (b.crit) later(90, SND.clash);
             // 兵器交擊的火花（兩人中間）
             if (mounted) { const sp = h('div', { class: 'dspark' + (b.crit ? ' crit' : '') }); fx.append(sp); later(450, () => sp.remove()); }
+            if (gun && b.crit) later(120, SND.clash);
           }
           else { def.body.classList.add('dodge'); SND.cursor(); }
           A.hp.style.width = b.hpA + '%';
@@ -1570,7 +1580,7 @@
       const win = f.winner === 'a' ? A : D, lose = f.winner === 'a' ? D : A;
       lose.root.classList.add('down');
       lose.card.classList.add('down');
-      if (mounted) TK.Sprite.setPose(lose.rider, 'fall');
+      if (mounted || gun) TK.Sprite.setPose(lose.rider, 'fall');
       win.root.classList.add('victor');
       caption.textContent = `${S.generals[f.duel[f.winner === 'a' ? 0 : 1]].name} 勝！`;
       SND.win();
