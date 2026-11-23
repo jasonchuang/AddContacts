@@ -98,7 +98,8 @@
     for (const c of Object.values(s.cities)) {
       const f = c.owner && s.factions[c.owner];
       if (!f || f.side !== 'axis') continue;
-      c.owner = pick(c);
+      c.owner = c.id === '香港' ? null : pick(c);
+      if (c.id === '香港') c.locked = true; // 戰後歸還英國
       c.troops = Math.round(c.troops * 0.3);
       c.mix = null;
       E().mixOf(c);

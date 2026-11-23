@@ -802,3 +802,11 @@ table.grid th .sarrow { font-size: .7em; margin-left: 2px; }
 /* 抉擇視窗：說明文字放在選項下一行，避免長說明蓋到下一個選項 */
 .win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
 .win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
+
+/* 隱藏下方訊息框：地圖往下延伸補滿 */
+body.nomsg #msg-win { display: none !important; }
+#msg-win .msg-hide { position: absolute; top: 4px; right: 8px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 20px; line-height: 26px; cursor: pointer; }
+#msg-win .msg-hide:hover { background: rgba(0, 0, 0, .08); color: var(--ink); }
+#map-win .msg-show { display: none; position: absolute; left: 12px; bottom: 44px; z-index: 3; padding: 6px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+body.nomsg #map-win .msg-show { display: block; }
+body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; }

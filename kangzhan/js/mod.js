@@ -64,7 +64,7 @@
       if (!c || !c.id) { err('每座城都要有 id'); continue; }
       if (cids.has(c.id)) err(`城市重複：${c.id}`);
       cids.add(c.id);
-      if (!num(c.x, 0, 1000) || !num(c.y, 0, 720)) err(`城市 ${c.id} 的座標要在 x 0～1000、y 0～720 之內`);
+      if (!num(c.x, 0, 1000) || !num(c.y, 0, 760)) err(`城市 ${c.id} 的座標要在 x 0～1000、y 0～760 之內`);
       if (c.owner && !fids.has(c.owner)) err(`城市 ${c.id} 的 owner「${c.owner}」不是任何勢力`);
       if (!num(c.troops, 0, 999999)) err(`城市 ${c.id} 的 troops 不正確`);
     }

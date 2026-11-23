@@ -164,11 +164,14 @@ test('美國參戰與日本投降：珍珠港後美軍行動；1945 年 8 月投
   EV.run(s);
   assert(!s.factions.usa.dormant && s.factions.usa.side === 'allies');
   assert.strictEqual(D.stateOf(s, 'usa', 'japan'), 'war');
+  assert.strictEqual(s.cities['香港'].owner, 'japan', '珍珠港後香港淪陷');
+  assert(!s.cities['香港'].locked);
   s.year = 1945; s.month = 8;
   EV.run(s);
   assert(!s.factions.japan.alive);
   assert.strictEqual(s.cities['臺北'].owner, 'kmt');
   assert.strictEqual(s.cities['沖繩'].owner, 'usa');
+  assert(s.cities['香港'].locked && s.cities['香港'].owner === null, '戰後香港歸還英國');
   assert(s.over && s.over.victory && s.over.rank, JSON.stringify(s.over));
 });
 

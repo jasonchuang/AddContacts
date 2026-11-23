@@ -41,7 +41,7 @@
 | 欄位 | 說明 |
 |---|---|
 | id | 城名 |
-| x, y | 地圖座標（x 0～1000、y 0～720） |
+| x, y | 地圖座標（x 0～1000、y 0～760） |
 | owner | 所屬勢力 id，無主寫 `null` |
 | troops / gold / food | 兵力、金、糧 |
 | pop / farm / commerce / defense / order / train | 人口、農業、商業、城防、民心、訓練 |
