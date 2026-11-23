@@ -76,6 +76,7 @@ test('護國戰爭：洪憲帝制、雲南起義、廣西響應，袁世凱病�
   assert.strictEqual(s.factions.zhi.name, '直系');
   assert.strictEqual(s.generals['曹錕'].faction, 'zhi');
   assert.strictEqual(s.generals['蔡鍔'].status, 'dead');
+  assert.strictEqual(s.generals['黃興'].status, 'dead');
   assert.strictEqual(D.stateOf(s, 'gui', 'dian'), 'alliance');
 });
 

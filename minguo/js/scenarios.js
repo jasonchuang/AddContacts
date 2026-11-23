@@ -86,6 +86,12 @@
             ['', '北洋失去共主，從此分裂：段祺瑞一派稱皖系，馮國璋、曹錕一派稱直系。']],
         },
         {
+          id: 'huangxing_dies', title: '黃興病逝', scene: 'palace',
+          cond: { from: [1916, 10], until: [1916, 12] },
+          effects: [{ do: 'die', general: '黃興' }],
+          lines: [['', '1916 年 10 月 31 日，革命元勳黃興在上海病逝，年僅四十二歲。'], ['', '孫中山痛失多年的戰友。「孫黃」並稱的時代結束了。']],
+        },
+        {
           id: 'cai_dies', title: '蔡鍔病逝', scene: 'river',
           cond: { from: [1916, 11], general_faction: { 蔡鍔: 'dian' } },
           effects: [{ do: 'die', general: '蔡鍔' }, { do: 'loyalty', faction: 'dian', amount: -5 }],
