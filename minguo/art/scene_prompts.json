@@ -1,0 +1,222 @@
+{
+  "source_commit": "e4cd2e37e54bed3672ff2959547b5ce671e67c9d",
+  "style": "民初手繪動畫背景，16:10 橫幅，匯入尺寸 1280×800。下三分之一留給對話，兩側留給角色，不加可讀文字、姓名或浮水印。",
+  "events": [
+    {
+      "id": "hongxian",
+      "title": "洪憲帝制",
+      "scenario": "1915 護國戰爭",
+      "scene": "palace",
+      "file": "hongxian.png",
+      "prompt": "北京政廳的紅柱、黃緞與典禮陳設，冬日斜光照在空座上。"
+    },
+    {
+      "id": "yunnan_rising",
+      "title": "雲南起義",
+      "scenario": "1915 護國戰爭",
+      "scene": "camp",
+      "file": "yunnan_rising.png",
+      "prompt": "昆明軍營清晨集合，灰衣護國軍在遠處列隊，山城屋脊外露出高原晨光。"
+    },
+    {
+      "id": "qian_joins",
+      "title": "貴州響應",
+      "scenario": "1915 護國戰爭",
+      "scene": "camp",
+      "file": "qian_joins.png",
+      "prompt": "貴陽街口的省署門前，薄霧中的傳令兵與電報局。"
+    },
+    {
+      "id": "gui_joins",
+      "title": "廣西響應",
+      "scenario": "1915 護國戰爭",
+      "scene": "camp",
+      "file": "gui_joins.png",
+      "prompt": "廣西河谷中的渡口，集結的行囊與木船，遠處是喀斯特峰林。"
+    },
+    {
+      "id": "abolish",
+      "title": "撤銷帝制",
+      "scenario": "1915 護國戰爭",
+      "scene": "palace",
+      "file": "abolish.png",
+      "prompt": "總統府書房裡移開的典禮陳設、未署字的文書與靜止的電報機。"
+    },
+    {
+      "id": "yuan_dies",
+      "title": "袁世凱病逝",
+      "scenario": "1915 護國戰爭",
+      "scene": "palace",
+      "file": "yuan_dies.png",
+      "prompt": "北京官邸內院，窗簾低垂，桌上一盞將熄的燈。"
+    },
+    {
+      "id": "cai_dies",
+      "title": "蔡鍔病逝",
+      "scenario": "1915 護國戰爭",
+      "scene": "river",
+      "file": "cai_dies.png",
+      "prompt": "福岡醫院的窗邊，晚秋的庭院與床頭一只行李箱。"
+    },
+    {
+      "id": "fubi",
+      "title": "張勳復辟",
+      "scenario": "1917 府院之爭",
+      "scene": "palace",
+      "file": "fubi.png",
+      "prompt": "紫禁城大門與雨後石板，遠景可見留辮衛隊，清末民初並置。"
+    },
+    {
+      "id": "wuli",
+      "title": "武力統一",
+      "scenario": "1917 府院之爭",
+      "scene": "camp",
+      "file": "wuli.png",
+      "prompt": "北洋幕僚室的地圖桌、鐵路運輸時刻板與皮箱，窗外軍列候發。"
+    },
+    {
+      "id": "zhiwan",
+      "title": "直皖戰爭",
+      "scenario": "1920 直皖戰爭",
+      "scene": "field",
+      "file": "zhiwan.png",
+      "prompt": "華北夏季田野間的鐵路車站，停靠的軍運列車與遠方煙霧。"
+    },
+    {
+      "id": "yuejun",
+      "title": "粵軍回粵",
+      "scenario": "1920 直皖戰爭",
+      "scene": "camp",
+      "file": "yuejun.png",
+      "prompt": "南方水鄉沿岸返粵的船隊，遠望騎樓與濕潤的山丘。"
+    },
+    {
+      "id": "shanhaiguan",
+      "title": "山海關之戰",
+      "scenario": "1924 直奉大戰",
+      "scene": "field",
+      "file": "shanhaiguan.png",
+      "prompt": "山海關城樓、長城山脊與秋色，山海之間的鐵路向遠方延伸。"
+    },
+    {
+      "id": "beijing_coup",
+      "title": "北京政變",
+      "scenario": "1924 直奉大戰",
+      "scene": "palace",
+      "file": "beijing_coup.png",
+      "prompt": "拂曉北京城門，國民軍隊列穿過空街，電線桿和人力車提示年代。"
+    },
+    {
+      "id": "sun_dies",
+      "title": "孫中山逝世",
+      "scenario": "1924 直奉大戰",
+      "scene": "palace",
+      "file": "sun_dies.png",
+      "prompt": "初春北京寓所，白色花束與靜寂的書桌，院外可見憑弔人群。"
+    },
+    {
+      "id": "beifa",
+      "title": "北伐誓師",
+      "scenario": "1926 國民革命軍北伐",
+      "scene": "camp",
+      "file": "beifa.png",
+      "prompt": "廣州校場夏日晨光，誓師臺、整列軍旗與遠方隊伍。"
+    },
+    {
+      "id": "tingsi",
+      "title": "汀泗橋之戰",
+      "scenario": "1926 國民革命軍北伐",
+      "scene": "field",
+      "file": "tingsi.png",
+      "prompt": "湖北汀泗橋的鐵路橋與水網，暑夜將盡，霧中顯出低丘。"
+    },
+    {
+      "id": "longtan",
+      "title": "龍潭之戰",
+      "scenario": "1926 國民革命軍北伐",
+      "scene": "river",
+      "file": "longtan.png",
+      "prompt": "龍潭的長江江面、渡船與江岸鐵路，潮濕蘆葦間薄霧漸散。"
+    },
+    {
+      "id": "huanggutun",
+      "title": "皇姑屯事件",
+      "scenario": "1928 東北易幟",
+      "scene": "night",
+      "file": "huanggutun.png",
+      "prompt": "皇姑屯清晨的鐵路交會處，受損的舊式列車與徐徐散去的煙塵。"
+    },
+    {
+      "id": "yizhi",
+      "title": "東北易幟",
+      "scenario": "1928 東北易幟",
+      "scene": "palace",
+      "file": "yizhi.png",
+      "prompt": "瀋陽冬季官署的旗桿與守候的人群，以儀式前一刻兼容玩家兩個選項。"
+    },
+    {
+      "id": "may4",
+      "title": "五四運動",
+      "scenario": "跨劇本地方事件",
+      "scene": "palace",
+      "file": "may4.png",
+      "prompt": "北京城門外聚集學生與布幅，以春日街景帶出遊行。"
+    },
+    {
+      "id": "lincheng",
+      "title": "臨城劫車案",
+      "scenario": "跨劇本地方事件",
+      "scene": "night",
+      "file": "lincheng.png",
+      "prompt": "臨城附近的夜間鐵路，一列停駛的客車，車窗燈光照入田野。"
+    },
+    {
+      "id": "may30",
+      "title": "五卅運動",
+      "scenario": "跨劇本地方事件",
+      "scene": "palace",
+      "file": "may30.png",
+      "prompt": "上海南京路騎樓、紗廠工人與學生在遠景集結，街面商舖閉門。"
+    },
+    {
+      "id": "jinan_incident",
+      "title": "濟南事件",
+      "scenario": "跨劇本地方事件",
+      "scene": "night",
+      "file": "jinan_incident.png",
+      "prompt": "濟南商埠街口，門窗緊閉與遠處煙霧，留下平民撤離後的寂靜。"
+    },
+    {
+      "id": "wushe",
+      "title": "霧社事件",
+      "scenario": "跨劇本地方事件",
+      "scene": "night",
+      "file": "wushe.png",
+      "prompt": "臺灣霧社山稜、霧氣與日治時期山間公學校運動場，依劇情時地呈現。"
+    },
+    {
+      "id": "locusts",
+      "title": "蝗災",
+      "scenario": "共通隨機事件",
+      "scene": "field",
+      "file": "locusts.png",
+      "prompt": "民國鄉村的田埂與受損作物，遠方有蝗群掠過。"
+    },
+    {
+      "id": "bumper",
+      "title": "豐年",
+      "scenario": "共通隨機事件",
+      "scene": "field",
+      "file": "bumper.png",
+      "prompt": "收成季節的農村，曬穀場、稻束與遠處搬運農作物的村民。"
+    },
+    {
+      "id": "cai_returns",
+      "title": "蔡鍔歸滇",
+      "scenario": "選用模組",
+      "scene": "camp",
+      "file": "cai_returns.png",
+      "prompt": "架空劇情，昆明城門外歡迎蔡鍔歸來，山麓的市街與軍民隊列。"
+    }
+  ]
+}

@@ -1,1 +1,72 @@
-{}
+{
+  "inf": {
+    "height": 48,
+    "facing": "right",
+    "poses": {
+      "idle": "inf_idle.png",
+      "attack": "inf_attack.png",
+      "fall": "inf_fall.png"
+    },
+    "masks": {
+      "idle": "inf_idle_mask.png",
+      "attack": "inf_attack_mask.png",
+      "fall": "inf_fall_mask.png"
+    }
+  },
+  "tank": {
+    "height": 44,
+    "facing": "right",
+    "poses": {
+      "idle": "tank_idle.png",
+      "attack": "tank_attack.png",
+      "fall": "tank_fall.png"
+    },
+    "masks": {
+      "idle": "tank_idle_mask.png",
+      "attack": "tank_attack_mask.png",
+      "fall": "tank_fall_mask.png"
+    }
+  },
+  "art": {
+    "height": 48,
+    "facing": "right",
+    "poses": {
+      "idle": "art_idle.png",
+      "attack": "art_attack.png",
+      "fall": "art_fall.png"
+    },
+    "masks": {
+      "idle": "art_idle_mask.png",
+      "attack": "art_attack_mask.png",
+      "fall": "art_fall_mask.png"
+    }
+  },
+  "air": {
+    "height": 34,
+    "facing": "right",
+    "poses": {
+      "idle": "air_idle.png",
+      "attack": "air_attack.png",
+      "fall": "air_fall.png"
+    },
+    "masks": {
+      "idle": "air_idle_mask.png",
+      "attack": "air_attack_mask.png",
+      "fall": "air_fall_mask.png"
+    }
+  },
+  "navy": {
+    "height": 40,
+    "facing": "right",
+    "poses": {
+      "idle": "navy_idle.png",
+      "attack": "navy_attack.png",
+      "fall": "navy_fall.png"
+    },
+    "masks": {
+      "idle": "navy_idle_mask.png",
+      "attack": "navy_attack_mask.png",
+      "fall": "navy_fall_mask.png"
+    }
+  }
+}
