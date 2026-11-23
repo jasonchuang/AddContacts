@@ -228,7 +228,7 @@
 
   function menuWin(title, items, onCancel, opts) {
     opts = opts || {};
-    const el = h('div', { class: 'win pop' }, title ? h('h3', {}, title) : null);
+    const el = h('div', { class: 'win pop' + (opts.cls ? ' ' + opts.cls : '') }, title ? h('h3', {}, title) : null);
     const win = { el };
     const m = makeMenu(items, (it) => it.act(), opts);
     el.append(m.ul);
@@ -1362,7 +1362,7 @@
           checkOver();
           resolve();
         },
-      })), null, { center: true, width: 680, shade: true });
+      })), null, { center: true, width: 680, shade: true, cls: 'choice' });
       stack[stack.length - 1].onKey = ((orig) => (e) => (e.key === 'Escape' ? true : orig(e)))(stack[stack.length - 1].onKey);
     });
   }
