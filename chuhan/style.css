@@ -683,3 +683,7 @@ body.mobile .cbar { grid-template-columns: 18px 36px 1fr 34px 34px; font-size: 1
 body.mobile .menu.tiles { grid-template-columns: repeat(5, 1fr); }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
 #status .seal, .fc-name .seal { min-width: 30px; width: auto; padding: 0 3px; letter-spacing: -1px; white-space: nowrap; }
+
+/* 抉擇視窗：說明文字放在選項下一行，避免長說明蓋到下一個選項 */
+.win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
+.win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
