@@ -401,6 +401,7 @@
     if ((e.key === 'Enter' || e.key === ' ') && advanceMsg()) { e.preventDefault(); return; }
     const top = stack[stack.length - 1];
     if (top && top.onKey) { if (top.onKey(e)) e.preventDefault(); return; }
+    if ((e.key === 'm' || e.key === 'M') && S && !stack.length && !e.ctrlKey && !e.metaKey) { toggleMsg(); e.preventDefault(); return; }
     if (rootKey && !busy && rootKey(e)) e.preventDefault();
   });
 
@@ -641,6 +642,20 @@
   }
 
   // 頂部列：日期、勢力、資源（圖示＋數字）、常用按鈕
+  // 下方訊息框可以隱藏，讓地圖往下延伸（設定記在瀏覽器）
+  const MSG_KEY = 'zhanguo.nomsg';
+  function msgHidden() { return document.body.classList.contains('nomsg'); }
+  function applyMsgPref() { try { document.body.classList.toggle('nomsg', localStorage.getItem(MSG_KEY) === '1'); } catch (e) { /* 無法讀取時維持顯示 */ } }
+  function toggleMsg() {
+    document.body.classList.toggle('nomsg');
+    try { localStorage.setItem(MSG_KEY, msgHidden() ? '1' : '0'); } catch (e) { /* 無法儲存就只在這次有效 */ }
+    if (S) render();
+  }
+  applyMsgPref();
+  // 訊息框右上角的「×」隱藏；隱藏後地圖左下角出現「訊息」按鈕可以叫回來
+  $('msg-win').append(h('button', { class: 'msg-hide', title: '隱藏訊息框（M）', onclick: (e) => { e.stopPropagation(); toggleMsg(); } }, '×'));
+  $('map-win').append(h('button', { class: 'msg-show', title: '顯示訊息框（M）', onclick: (e) => { e.stopPropagation(); toggleMsg(); } }, '訊息 ▴'));
+
   function renderStatus() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
@@ -1308,7 +1323,7 @@
         menuWin(`${f.name}派使者前來，提議兩家${label}`, [
           { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
           { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
-        ], null, { center: true, width: 520, shade: true });
+        ], () => { say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); }, { center: true, width: 520, shade: true }); // 按 Esc 視同拒絕，遊戲才不會卡住
       };
       next();
     });
