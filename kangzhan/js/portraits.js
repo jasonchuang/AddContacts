@@ -416,7 +416,17 @@
   function getStyle() { return STYLE; }
   // 遊戲固定使用 Q 版；水墨版保留給美術參考
   // 遊戲使用動畫風肖像（js/anime.js）；Q 版與水墨版保留作參考
-  function svg(g, color, mode) { return TK.Anime ? TK.Anime.svg(g, color, mode, traits(g)) : svgChibi(g, color, mode); }
+  // 日方指揮官只用職稱、不畫人像：顯示深灰底的「日」字印章
+  const AXIS_TITLE = /(司令官|師團長|司令長官)$/;
+  function axisSeal() {
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#4d4d4d"/>'
+      + '<rect x="14" y="14" width="72" height="72" fill="none" stroke="#d9d9d9" stroke-width="3"/>'
+      + '<text x="50" y="66" text-anchor="middle" font-size="46" fill="#ececec" font-family="serif">日</text></svg>';
+  }
+  function svg(g, color, mode) {
+    if (g && AXIS_TITLE.test(g.name)) return axisSeal();
+    return TK.Anime ? TK.Anime.svg(g, color, mode, traits(g)) : svgChibi(g, color, mode);
+  }
 
   // 若 portraits/ 中有該武將的插畫，回傳其網址。頭像優先用 <名>_head，否則用半身像
   // 沒有專屬插畫時，依身分改用通用頭像（portraits/_通用君主、_通用文官、_通用武將）
@@ -429,6 +439,7 @@
   function art(g, mode) {
     const files = TK.PORTRAIT_FILES || {};
     const pick = (name) => (mode === 'head' && files[name + '_head']) || files[name] || null;
+    if (AXIS_TITLE.test(g.name)) return null;
     return pick(g.name) || pick('_通用' + genericKind(g));
   }
 

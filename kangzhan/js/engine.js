@@ -63,6 +63,7 @@
     const d = diff(s);
     return side * (fid === s.player ? d.playerPower : d.aiPower);
   }
+  function preWar(s) { return s.year * 12 + s.month < T.war.fullWarYear * 12 + T.war.fullWarMonth; }
   // 日方補給線：佔領越多城、戰線越長，戰力越低
   function supplyMult(s, fid) {
     const n = citiesOf(s, fid).length;
@@ -847,7 +848,7 @@
   function warTick(s) {
     const W = T.war;
     const axis = Object.values(s.factions).filter((f) => f.alive && f.side === 'axis');
-    const late = s.year >= 1943 ? W.axisLate : 1;
+    const late = (s.year >= 1943 ? W.axisLate : s.year >= 1939 ? W.axisMid : 1) * (preWar(s) ? W.preWarReinforce : 1);
     for (const f of axis) {
       const mine = citiesOf(s, f.id);
       const front = mine.filter((c) => neighbors(s, c.id).some((n) => s.cities[n].owner && s.cities[n].owner !== f.id && !s.cities[n].locked));
@@ -1013,6 +1014,6 @@
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, powerMult, recruitChance, powerOf, rand, rint, pick, clamp,
-    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
+    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, preWar, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});

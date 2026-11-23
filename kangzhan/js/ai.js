@@ -42,6 +42,14 @@
     return set;
   }
 
+  // 全面抗戰開始後，電腦的中方勢力不主動攻打其他中方勢力（已經交戰的除外）
+  function civilBlock(s, fid, t) {
+    const Eng = E(), me = s.factions[fid], o = t.owner && s.factions[t.owner];
+    if (!o || !me || me.side !== 'allies' || o.side !== 'allies' || Eng.preWar(s)) return false;
+    if (!Object.values(s.factions).some((f) => f.alive && f.side === 'axis')) return false;
+    return !TK.Diplomacy || TK.Diplomacy.stateOf(s, fid, t.owner) !== 'war';
+  }
+
   // 作戰計畫：選出最有希望攻下的目標，指定一座相鄰的我方城作為集結地，其他鄰近我方城把兵送過去
   function plan(s, fid) {
     const Eng = E();
@@ -54,6 +62,8 @@
       for (const n of Eng.neighbors(s, city.id)) {
         const t = s.cities[n];
         if (t.owner === fid || (t.owner && TK.Diplomacy && !TK.Diplomacy.canAttack(s, fid, t.owner))) continue;
+        if (goals && Eng.preWar(s) && !goals.has(t.id)) continue; // 全面抗戰前只攻打攻勢目標
+        if (civilBlock(s, fid, t)) continue;
         const neutralRel = t.owner && TK.Diplomacy && TK.Diplomacy.stateOf(s, fid, t.owner) === 'neutral';
         const score = atkPow(s, city, pool) * Eng.powerMult(s, fid) / (defPow(s, t) * Eng.powerMult(s, t.owner)) * (t.owner ? 1 : 1.2) * (neutralRel ? 0.8 : 1)
           * (1 + (t.pop / 1e6)) // 大城優先
@@ -268,6 +278,8 @@
     const lead = army[0].lead, war = Math.max.apply(null, army.map((g) => g.war));
     const myPow = troops * (0.6 * lead + 0.4 * war) / 100 * (0.7 + city.train / 100 * 0.6) * Eng.powerMult(s, fid);
     const goals = axisTargets(s, fid);
+    if (goals && Eng.preWar(s)) targets.splice(0, targets.length, ...targets.filter((t) => goals.has(t.id)));
+    targets.splice(0, targets.length, ...targets.filter((t) => !civilBlock(s, fid, t)));
 
     let best = null, bestRatio = 0;
     for (const t of targets) {

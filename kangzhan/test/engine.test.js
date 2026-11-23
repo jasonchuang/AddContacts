@@ -20,7 +20,7 @@ test('劇本：每個劇本都能開局，每個勢力有首領與城，AI 跑�
     for (let i = 0; i < 60 && !s.over; i++) E.endTurn(s);
     for (const c of Object.values(s.cities)) assert(Number.isFinite(c.troops) && c.troops >= 0);
     // 英國屬地在滇緬戰役之前不會被佔領
-    if (!(s.events_done || {}).burma) assert.strictEqual(s.cities['臘戌'].owner, null, '臘戌在滇緬戰役前被佔領了');
+    if (sc.cities.find((c) => c.id === '臘戌').locked && !(s.events_done || {}).burma) assert.strictEqual(s.cities['臘戌'].owner, null, '臘戌在滇緬戰役前被佔領了');
   }
 });
 
@@ -122,6 +122,7 @@ test('國共合作度：每月下降、送禮提高；太低時同盟破裂、�
   s.coop = 20;
   E.monthEnd(s);
   assert.notStrictEqual(D.stateOf(s, 'kmt', 'ccp'), 'alliance', '合作度太低同盟卻沒破裂');
+  Object.assign(s.generals['項英'], { faction: 'ccp', status: 'active', city: '延安' });
   s.year = 1941; s.month = 1;
   assert(EV.run(s).some((e) => e.id === 'wannan'));
   assert.strictEqual(s.generals['項英'].status, 'dead');
@@ -166,6 +167,55 @@ test('美國參戰與日本投降：珍珠港後美軍行動；1945 年 8 月投
   assert.strictEqual(s.cities['臺北'].owner, 'kmt');
   assert.strictEqual(s.cities['沖繩'].owner, 'usa');
   assert(s.over && s.over.victory && s.over.rank, JSON.stringify(s.over));
+});
+
+test('七個劇本：1931 到 1944，每個劇本只帶開局之後的事件', () => {
+  assert.deepStrictEqual(TK.SCENARIOS.map((x) => x.id), ['1931', '1933', '1936', '1937', '1938', '1940', '1944']);
+  const ym = (y, m) => y * 12 + m;
+  for (const sc of TK.SCENARIOS) for (const e of sc.events) if (e.cond && e.cond.from) assert(ym(...e.cond.from) >= ym(sc.year, sc.month), `${sc.title} 帶了開局前的事件 ${e.id}`);
+  assert(TK.scenarioById('1944').factions.some((f) => f.id === 'usa' && !f.dormant), '1944 可以選美軍');
+});
+
+test('長征：中共從瑞金轉移到延安', () => {
+  TK.SCENARIO = TK.scenarioById('1931');
+  const s = E.newGame('kmt', 3);
+  s.year = 1934; s.month = 10;
+  EV.run(s);
+  assert.strictEqual(s.cities['延安'].owner, 'ccp');
+  assert.strictEqual(s.cities['瑞金'].owner, 'kmt');
+  assert.strictEqual(s.generals['毛澤東'].city, '延安');
+});
+
+test('西安事變：和平解決時國共合作成形、張學良遭軟禁；玩家扮演東北軍可以選擇', () => {
+  TK.SCENARIO = TK.scenarioById('1936');
+  const s = E.newGame('kmt', 3);
+  EV.run(s);
+  assert.strictEqual(s.coop, 60);
+  assert.strictEqual(D.stateOf(s, 'kmt', 'ccp'), 'alliance');
+  assert.strictEqual(s.generals['張學良'].status, 'retired');
+  assert(s.factions.dongbei.alive, '東北軍應由于學忠繼續');
+  const s2 = E.newGame('dongbei', 3);
+  EV.run(s2);
+  assert(s2.choices && s2.choices.includes('xian'));
+  EV.choose(s2, 'xian', 1);
+  assert.strictEqual(D.stateOf(s2, 'kmt', 'dongbei'), 'war');
+});
+
+test('花園口：電腦國府決堤，鄭州農業與民心大減', () => {
+  TK.SCENARIO = TK.scenarioById('1938');
+  const s = E.newGame('ccp', 3);
+  const f0 = s.cities['鄭州'].farm;
+  s.year = 1938; s.month = 6;
+  EV.run(s);
+  assert(s.cities['鄭州'].farm < f0);
+});
+
+test('全面抗戰前日軍只攻打年度攻勢目標', () => {
+  TK.SCENARIO = TK.scenarioById('1931');
+  const s = E.newGame(null, 5);
+  for (let i = 0; i < 36; i++) E.endTurn(s);
+  const allowed = new Set(['瀋陽', '長春', '哈爾濱', '錦州', '承德', '張家口', '臺北', '臺南', '沖繩', '塞班']);
+  for (const c of Object.values(s.cities)) if (c.owner === 'japan') assert(allowed.has(c.id), `日軍在 1934 年前佔了 ${c.id}`);
 });
 
 test('自訂劇本：匯出再匯入可以開局；格式錯誤會用中文說明；範例劇本可以玩', () => {

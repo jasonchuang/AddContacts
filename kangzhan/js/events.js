@@ -60,6 +60,7 @@
     // 某些事件發生之後才會觸發；某些武將已經死亡
     for (const id of cond.after || []) if (!(s.events_done || {})[id] && (s.events_done || {})[id] !== 0) return false;
     for (const n of cond.general_dead || []) if (!s.generals[n] || s.generals[n].status !== 'dead') return false;
+    if (cond.before_scenario && !(TK.scenarioById && TK.scenarioById(s.scenario).year < cond.before_scenario)) return false;
     if (cond.coop_below !== undefined && !(s.coop !== null && s.coop !== undefined && s.coop < cond.coop_below)) return false;
     if (cond.chance && E().rand(s) >= cond.chance) return false;
     return true;
@@ -123,6 +124,8 @@
   }
 
   function apply(s, e) {
+    // if_owner：只在該城屬於指定勢力時套用
+    if (e.if_owner && (!s.cities[e.city] || s.cities[e.city].owner !== e.if_owner)) return;
     switch (e.do) {
       case 'coalition_against':
         for (const f of Object.values(s.factions)) if (f.alive && f.id !== e.faction) D().setState(s, f.id, e.faction, 'war');
@@ -188,8 +191,20 @@
       // 勢力參戰：改變陣營、開始行動（例：珍珠港事件後的美國）
       case 'activate': if (s.factions[e.faction]) Object.assign(s.factions[e.faction], { dormant: false, side: e.side || s.factions[e.faction].side }); break;
       case 'unlock': for (const id of [].concat(e.cities || e.city)) if (s.cities[id]) s.cities[id].locked = false; break;
-      case 'coop': if (s.coop !== null && s.coop !== undefined) s.coop = Math.max(0, Math.min(100, e.set !== undefined ? e.set : s.coop + e.amount)); break;
+      case 'coop':
+        if (e.set !== undefined) s.coop = e.set;
+        else if (s.coop !== null && s.coop !== undefined) s.coop = Math.max(0, Math.min(100, s.coop + e.amount));
+        break;
+      // 軟禁、出國等：離開舞台（不是去世）
+      case 'retire': { const g = s.generals[e.general]; if (g && g.status !== 'dead') { if (g.ruler && g.status === 'active') E().rulerDies(s, g.faction); Object.assign(g, { status: 'retired', city: null, faction: null, ruler: false }); } break; }
+      case 'gather': for (const g of Object.values(s.generals)) if (g.faction === e.faction && g.status === 'active' && s.cities[e.city] && s.cities[e.city].owner === e.faction) g.city = e.city; break;
       case 'axis_surrender': surrender(s); break;
+      // 一致抗日：所有中方勢力（彼此沒有交戰的）結為同盟
+      case 'united_front': {
+        const ids = Object.values(s.factions).filter((f) => f.alive && f.side === 'allies' && f.id !== 'usa').map((f) => f.id);
+        for (const a of ids) for (const b of ids) if (a < b && D().stateOf(s, a, b) !== 'war') D().setState(s, a, b, 'alliance', 48);
+        break;
+      }
       case 'rename': if (alive(s, e.faction)) s.factions[e.faction].name = e.name; break;
       case 'absorb': if (alive(s, e.faction) && alive(s, e.into)) D().absorb(s, e.into, e.faction); break;
       case 'seize': {

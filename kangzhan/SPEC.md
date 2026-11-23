@@ -67,8 +67,10 @@
 | seaNavy | 0.2 | 渡海進攻（臺灣海峽、東海）時，出陣部隊中海軍至少要佔的比例 |
 | axisReinforce | 10000 | 日方每月從本土增援到前線的兵力 |
 | axisAggro | 0.8 | 日方出兵門檻倍率（越小越積極） |
-| axisLate | 0.5 | 1943 年起（太平洋戰線吃緊）日方增援再乘此值 |
-| supplyFree / supplyPer / supplyMin | 16 / 0.03 / 0.55 | 日方補給線：佔領城數超過前者後，每多一城戰力降低多少，最低降到多少 |
+| fullWarYear / fullWarMonth | 1937 / 7 | 全面抗戰開始的年月；之前日方只攻打年度攻勢目標 |
+| preWarReinforce | 0.5 | 全面抗戰前，日方增援再乘此值 |
+| axisMid / axisLate | 0.6 / 0.35 | 1939 年起（相持階段）、1943 年起（太平洋戰線吃緊）日方增援再乘此值 |
+| supplyFree / supplyPer / supplyMin | 18 / 0.05 / 0.5 | 日方補給線：佔領城數超過前者後，每多一城戰力降低多少，最低降到多少 |
 | guerrillaRate / guerrillaMax | 0.04 / 1500 | 游擊戰：中共城兵力 × 比例，每月削弱兩步以內的日佔城（每城上限） |
 | guerrillaRecruit | 300 | 敵後根據地：每座鄰近日佔城每月為中共帶來的新兵 |
 | coopDrift / coopCcp | 0.5 / 3 | 國共合作度每月自然下降；中共超過此城數後下降更快 |
