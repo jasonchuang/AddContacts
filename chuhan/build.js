@@ -34,7 +34,7 @@ console.log(`插畫：${Object.keys(files).filter((n) => !n.endsWith('_head')).l
 const sceneDir = path.join(root, 'scenes');
 fs.mkdirSync(sceneDir, { recursive: true });
 const sceneFiles = {};
-for (const f of fs.readdirSync(sceneDir).sort()) if (/\.jpg$/i.test(f)) sceneFiles[path.basename(f, path.extname(f))] = `scenes/${f}`;
+for (const f of fs.readdirSync(sceneDir).sort()) if (/\.(jpg|png)$/i.test(f)) sceneFiles[path.basename(f, path.extname(f))] = `scenes/${f}`;
 fs.writeFileSync(path.join(sceneDir, 'manifest.js'),
   '/* 由 build.js 自動產生：列出 scenes/ 中的事件背景插圖。請勿手動編輯。 */\n'
   + `(function (TK) { TK.SCENE_FILES = ${JSON.stringify(sceneFiles, null, 2)}; })(globalThis.TK = globalThis.TK || {});\n`);

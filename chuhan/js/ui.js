@@ -1475,6 +1475,10 @@
     return t + 1800;
   }
 
+  // 戰場背景依城市地形選擇
+  const BATTLE_RIVER = ['江陵', '吳', '會稽', '彭城', '六', '烏江', '垓下', '江州'];
+  const BATTLE_MOUNTAIN = ['南鄭', '隴西', '成都', '晉陽', '井陘', '函谷', '高奴'];
+
   function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
@@ -1492,7 +1496,8 @@
       };
       const A = side(r.atk, false), D = side(r.def, true);
       const resultEl = h('div', { class: 'stamp hidden' });
-      const duelEl = h('div', { class: 'duel hidden' });
+      const duelArt = (TK.SCENE_FILES || {})[(r.city || '').length % 2 ? 'duel_dusk' : 'duel_day'] || (TK.SCENE_FILES || {}).duel_day;
+      const duelEl = h('div', { class: 'duel hidden' + (duelArt ? ' art' : ''), style: duelArt ? `--duel-bg:url("${duelArt}")` : '' });
       const duelTimers = [];
       const evEl = h('div', { class: 'bevent' });
       // 戰場：雙方士兵（騎兵在前、槍兵居中、弩兵在後），守方背後是城牆
@@ -1515,8 +1520,15 @@
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       const fx = h('div', { class: 'bfx' });
-      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
-      const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
+      // 戰場插圖（scenes/field_*.jpg、wall*.png；沒有時用 CSS 畫的背景）
+      const art = TK.SCENE_FILES || {};
+      const cityObj = S.cities[r.city];
+      const terrain = [12, 1, 2].includes(S.month) ? 'snow' : BATTLE_RIVER.includes(r.city) ? 'river' : BATTLE_MOUNTAIN.includes(r.city) ? 'mountain' : 'plain';
+      const fieldArt = art['field_' + terrain] || art.field_plain;
+      const wallArt = cityObj && cityObj.defense < 300 ? (art.wall_damaged || art.wall) : art.wall;
+      const wall = h('div', { class: 'bwall' + (wallArt ? ' art' : '') }, wallArt ? h('img', { src: wallArt, alt: '' }) : null,
+        h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
+      const field = h('div', { class: 'battlefield' + (fieldArt ? ' art' : '') + (wallArt ? ' walled' : ''), style: fieldArt ? `background-image:url("${fieldArt}")` : '' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
       const shade = h('div', { class: 'shade' });
