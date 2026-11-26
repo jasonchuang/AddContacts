@@ -695,6 +695,36 @@ body.mobile .menu.tiles { grid-template-columns: repeat(5, 1fr); }
 body.mobile .menu.tiles li { height: 54px; font-size: 13px; }
 #status .seal, .fc-name .seal { min-width: 30px; width: auto; padding: 0 3px; letter-spacing: -1px; white-space: nowrap; }
 
+/* 抉擇視窗：說明文字放在選項下一行，避免長說明蓋到下一個選項 */
+.win.choice .menu li { height: auto; line-height: 1.5; padding-top: 8px; padding-bottom: 8px; }
+.win.choice .menu li .hint { float: none; display: block; margin: 2px 0 0 26px; line-height: 1.45; white-space: normal; }
+
+/* 戰場、城牆、單挑插圖（scenes/field_*、wall*、duel_*） */
+.battlefield.art { background-size: cover; background-position: center 35%; }
+.battlefield.art .bsky { display: none; }
+.battlefield .bwall.art { top: auto; bottom: 0; height: 92%; width: auto; aspect-ratio: 355 / 600; background: none; border: 0; right: -8px; }
+.battlefield .bwall.art::before { display: none; }
+.battlefield .bwall.art img { width: 100%; height: 100%; display: block; filter: drop-shadow(-4px 4px 6px rgba(40, 30, 20, .35)); }
+.battlefield .bwall.art .bflag { left: calc(30% + 2px); top: 1%; width: 26px; height: 22px; font-size: 15px !important; }
+.battlefield .bwall.art .bflag::before { display: none; }
+.battlefield.walled .units.right { right: 150px; }
+.battle .duel.art { background: linear-gradient(180deg, rgba(255, 248, 230, .15), rgba(30, 20, 10, .25)), var(--duel-bg) center / cover no-repeat; }
+.battle .duel.art .dname { color: #fff; text-shadow: 0 2px 4px rgba(0, 0, 0, .6); }
+.battle .duel.art .dname small { color: #f3e3c0; }
+.battle .duel.art .dcap { text-shadow: 0 2px 6px rgba(0, 0, 0, .5), 0 0 2px #fff; }
+body.mobile .battlefield .bwall.art { height: 78%; right: -6px; }
+body.mobile .battlefield .bwall.art .bflag { width: 18px; height: 16px; font-size: 11px !important; }
+body.mobile .battlefield.walled .units.right { right: 92px; }
+.battle .duel.art .dface { border-radius: 14px; -webkit-mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); mask-image: radial-gradient(ellipse 75% 80% at 50% 45%, #000 60%, transparent 100%); }
+
+/* 隱藏下方訊息框：地圖往下延伸補滿 */
+body.nomsg #msg-win { display: none !important; }
+#msg-win .msg-hide { position: absolute; top: 4px; right: 8px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--dim); font-size: 20px; line-height: 26px; cursor: pointer; }
+#msg-win .msg-hide:hover { background: rgba(0, 0, 0, .08); color: var(--ink); }
+#map-win .msg-show { display: none; position: absolute; left: 12px; bottom: 44px; z-index: 3; padding: 6px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); color: var(--ink); font-size: 15px; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+body.nomsg #map-win .msg-show { display: block; }
+body.nomsg:not(.mobile) #map-win, body.nomsg:not(.mobile) #map { height: 722px; }
+
 </style>
 </head>
 <body>
@@ -3831,7 +3861,7 @@ function svg(g, color, mode, t) {
 </script>
   <script>
 /* scenes/manifest.js */
-(function (TK) { TK.SCENE_FILES = {}; })(globalThis.TK = globalThis.TK || {});
+(function (TK) { TK.SCENE_FILES = {"duel_day":"scenes/duel_day.jpg?v=01826629","duel_dusk":"scenes/duel_dusk.jpg?v=423747a2","field_mountain":"scenes/field_mountain.jpg?v=175afc6f","field_plain":"scenes/field_plain.jpg?v=c04512d6","field_river":"scenes/field_river.jpg?v=73f9b875","field_snow":"scenes/field_snow.jpg?v=35b2f254","wall":"scenes/wall.png?v=ff102bbf","wall_damaged":"scenes/wall_damaged.png?v=4b076879"}; })(globalThis.TK = globalThis.TK || {});
 </script>
   <script>
 /* js/mapview.js */
@@ -4937,7 +4967,7 @@ function svg(g, color, mode, t) {
 
   function menuWin(title, items, onCancel, opts) {
     opts = opts || {};
-    const el = h('div', { class: 'win pop' }, title ? h('h3', {}, title) : null);
+    const el = h('div', { class: 'win pop' + (opts.cls ? ' ' + opts.cls : '') }, title ? h('h3', {}, title) : null);
     const win = { el };
     const m = makeMenu(items, (it) => it.act(), opts);
     el.append(m.ul);
@@ -5111,6 +5141,7 @@ function svg(g, color, mode, t) {
     if ((e.key === 'Enter' || e.key === ' ') && advanceMsg()) { e.preventDefault(); return; }
     const top = stack[stack.length - 1];
     if (top && top.onKey) { if (top.onKey(e)) e.preventDefault(); return; }
+    if ((e.key === 'm' || e.key === 'M') && S && !stack.length && !e.ctrlKey && !e.metaKey) { toggleMsg(); e.preventDefault(); return; }
     if (rootKey && !busy && rootKey(e)) e.preventDefault();
   });
 
@@ -5320,7 +5351,8 @@ function svg(g, color, mode, t) {
     banner().then(async () => {
       say(ruler, '天下大亂，正是英雄用武之時。諸位，隨我平定四方！', { wait: true });
       const adv = advisor();
-      if (adv && adv !== ruler) await say(adv, '大王，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
+      // 開場對話不擋住操作（不必先點掉訊息才能下指令）
+      if (adv && adv !== ruler) say(adv, '大王，請在地圖上點選城市，再按右下的指令按鈕；武將卡片可以點開看詳細資料。', { wait: true });
       await playEvents(opening);
       busy = false;
       render();
@@ -5350,6 +5382,20 @@ function svg(g, color, mode, t) {
   }
 
   // 頂部列：日期、勢力、資源（圖示＋數字）、常用按鈕
+  // 下方訊息框可以隱藏，讓地圖往下延伸（設定記在瀏覽器）
+  const MSG_KEY = 'chuhan.nomsg';
+  function msgHidden() { return document.body.classList.contains('nomsg'); }
+  function applyMsgPref() { try { document.body.classList.toggle('nomsg', localStorage.getItem(MSG_KEY) === '1'); } catch (e) { /* 無法讀取時維持顯示 */ } }
+  function toggleMsg() {
+    document.body.classList.toggle('nomsg');
+    try { localStorage.setItem(MSG_KEY, msgHidden() ? '1' : '0'); } catch (e) { /* 無法儲存就只在這次有效 */ }
+    if (S) render();
+  }
+  applyMsgPref();
+  // 訊息框右上角的「×」隱藏；隱藏後地圖左下角出現「訊息」按鈕可以叫回來
+  $('msg-win').append(h('button', { class: 'msg-hide', title: '隱藏訊息框（M）', onclick: (e) => { e.stopPropagation(); toggleMsg(); } }, '×'));
+  $('map-win').append(h('button', { class: 'msg-show', title: '顯示訊息框（M）', onclick: (e) => { e.stopPropagation(); toggleMsg(); } }, '訊息 ▴'));
+
   function renderStatus() {
     const f = S.factions[S.player];
     const p = E.powerOf(S, S.player);
@@ -5998,7 +6044,7 @@ function svg(g, color, mode, t) {
           checkOver();
           resolve();
         },
-      })), null, { center: true, width: 680, shade: true });
+      })), null, { center: true, width: 680, shade: true, cls: 'choice' });
       stack[stack.length - 1].onKey = ((orig) => (e) => (e.key === 'Escape' ? true : orig(e)))(stack[stack.length - 1].onKey);
     });
   }
@@ -6012,12 +6058,12 @@ function svg(g, color, mode, t) {
         if (!f || !f.alive) { next(); return; }
         const label = p.kind === 'alliance' ? '同盟' : '停戰（一年）';
         SND.event();
-        say(S.generals[f.ruler] || null, `${f.name}派使者前來，提議兩家${label}。`).then(() => {
-          menuWin(`${f.name}提議${label}`, [
-            { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
-            { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
-          ], null, { center: true, width: 520, shade: true });
-        });
+        // 選單直接跳出，不等下方訊息被點掉（否則沒點訊息就會卡住）
+        say(S.generals[f.ruler] || null, `${f.name}派使者前來，提議兩家${label}。`);
+        menuWin(`${f.name}派使者前來，提議兩家${label}`, [
+          { label: '接受', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, true)); render(); next(); } },
+          { label: '拒絕', act: () => { popWin(); say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); } },
+        ], () => { say(null, TK.Diplomacy.respond(S, p, false)); render(); next(); }, { center: true, width: 520, shade: true }); // 按 Esc 視同拒絕，遊戲才不會卡住
       };
       next();
     });
@@ -6129,9 +6175,8 @@ function svg(g, color, mode, t) {
     const win = S.over.result === 'win';
     if (win) SND.win(); else SND.lose();
     const ruler = S.generals[S.factions[S.player].ruler];
-    say(ruler, win ? '天下終於平定了。從今以後，百姓可以安居樂業了。' : '……大勢已去。只恨未能完成大業。', { wait: true }).then(() => {
-      menuWin(win ? '天下統一' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
-    });
+    say(ruler, win ? '天下終於平定了。從今以後，百姓可以安居樂業了。' : '……大勢已去。只恨未能完成大業。');
+    menuWin(win ? '天下統一' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
     return true;
   }
 
@@ -6185,6 +6230,10 @@ function svg(g, color, mode, t) {
     return t + 1800;
   }
 
+  // 戰場背景依城市地形選擇
+  const BATTLE_RIVER = ['江陵', '吳', '會稽', '彭城', '六', '烏江', '垓下', '江州'];
+  const BATTLE_MOUNTAIN = ['南鄭', '隴西', '成都', '晉陽', '井陘', '函谷', '高奴'];
+
   function playBattle(r, live) {
     return new Promise((resolve) => {
       closeAll();
@@ -6202,7 +6251,8 @@ function svg(g, color, mode, t) {
       };
       const A = side(r.atk, false), D = side(r.def, true);
       const resultEl = h('div', { class: 'stamp hidden' });
-      const duelEl = h('div', { class: 'duel hidden' });
+      const duelArt = (TK.SCENE_FILES || {})[(r.city || '').length % 2 ? 'duel_dusk' : 'duel_day'] || (TK.SCENE_FILES || {}).duel_day;
+      const duelEl = h('div', { class: 'duel hidden' + (duelArt ? ' art' : ''), style: duelArt ? `--duel-bg:url("${duelArt}")` : '' });
       const duelTimers = [];
       const evEl = h('div', { class: 'bevent' });
       // 戰場：雙方士兵（騎兵在前、槍兵居中、弩兵在後），守方背後是城牆
@@ -6225,8 +6275,15 @@ function svg(g, color, mode, t) {
       };
       const UA = army(r.atk, false, aCol), UD = army(r.def, true, dCol);
       const fx = h('div', { class: 'bfx' });
-      const wall = h('div', { class: 'bwall' }, h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
-      const field = h('div', { class: 'battlefield' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
+      // 戰場插圖（scenes/field_*.jpg、wall*.png；沒有時用 CSS 畫的背景）
+      const art = TK.SCENE_FILES || {};
+      const cityObj = S.cities[r.city];
+      const terrain = [12, 1, 2].includes(S.month) ? 'snow' : BATTLE_RIVER.includes(r.city) ? 'river' : BATTLE_MOUNTAIN.includes(r.city) ? 'mountain' : 'plain';
+      const fieldArt = art['field_' + terrain] || art.field_plain;
+      const wallArt = cityObj && cityObj.defense < 300 ? (art.wall_damaged || art.wall) : art.wall;
+      const wall = h('div', { class: 'bwall' + (wallArt ? ' art' : '') }, wallArt ? h('img', { src: wallArt, alt: '' }) : null,
+        h('span', { class: 'bflag', style: `background:${r.def.faction ? dCol : '#8a7a5c'}` }, r.def.faction ? TK.surname(S.factions[r.def.faction].ruler) : '守'));
+      const field = h('div', { class: 'battlefield' + (fieldArt ? ' art' : '') + (wallArt ? ' walled' : ''), style: fieldArt ? `background-image:url("${fieldArt}")` : '' }, h('div', { class: 'bsky' }), wall, UA.wrap, UD.wrap, fx);
       const box = h('div', { class: 'win battle' }, h('h3', { class: 'btitle' }, `${r.city || ''}攻防戰`), h('div', { class: 'top' }, A.el, h('div', { class: 'vs' }, '對'), D.el), field, evEl, resultEl, duelEl,
         h('div', { class: 'info', style: 'text-align:right' }, '點一下或 Enter：略過'));
       const shade = h('div', { class: 'shade' });
