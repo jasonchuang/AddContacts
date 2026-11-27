@@ -54,11 +54,49 @@
   const DIFFICULTY = {};
   for (const [k, d] of Object.entries(T.difficulty)) DIFFICULTY[k] = Object.assign({ desc: diffDesc(d) }, d);
   function diff(s) { return DIFFICULTY[(s && s.difficulty) || 'normal'] || DIFFICULTY.normal; }
-  function incomeMult(s, fid) { if (!fid) return 1; const d = diff(s); return fid === s.player ? d.playerIncome : d.aiIncome; }
+  function incomeMult(s, fid) {
+    if (!fid) return 1;
+    const d = diff(s);
+    return (fid === s.player ? d.playerIncome : d.aiIncome) * inflation(s, fid);
+  }
+  // 國共內戰：國軍士氣逐年下降，中共部隊機動靈活
+  function civilPower(s, fid) {
+    if (!s.civil) return 1;
+    if (fid === 'ccp') return T.war.ccpPower;
+    if (fid !== 'kmt') return 1;
+    const years = Math.max(0, (s.year * 12 + s.month - (1946 * 12 + 6)) / 12);
+    return Math.max(T.war.kmtMoraleMin, 1 - years * T.war.kmtMoralePerYear);
+  }
+  // 國共內戰：國府的法幣、金圓券接連貶值，收入逐年縮水
+  function inflation(s, fid) {
+    if (!s.civil || fid !== 'kmt') return 1;
+    const years = Math.max(0, (s.year * 12 + s.month - (1946 * 12 + 6)) / 12);
+    return Math.max(T.war.inflationMin, 1 - years * T.war.inflationPerYear);
+  }
+  // 國共內戰的每月結算：國府城民心下滑、中共土地改革吸收新兵、對相鄰國府城滲透
+  function civilTick(s) {
+    if (!s.civil) return;
+    const W = T.war;
+    const kmt = s.factions.kmt, ccp = s.factions.ccp;
+    if (kmt && kmt.alive && s.month % 2 === 0) for (const c of citiesOf(s, 'kmt')) if (c.order > 25) c.order -= 1;
+    if (!ccp || !ccp.alive) return;
+    const hit = {};
+    for (const c of citiesOf(s, 'ccp')) {
+      addUnits(c, { inf: W.landReform }, 45);
+      for (const n of neighbors(s, c.id)) {
+        const t = s.cities[n];
+        if (t.owner !== 'kmt') continue;
+        const loss = Math.min(1000 - (hit[n] || 0), Math.round(c.troops * W.infiltrate), Math.max(0, t.troops - 500));
+        if (loss <= 0) continue;
+        hit[n] = (hit[n] || 0) + loss;
+        takeUnits(t, scaleMix(mixOf(t), loss));
+      }
+    }
+  }
   function powerMult(s, fid) {
     if (!fid) return 1;
     const f = s.factions[fid];
-    const side = f && f.side === 'axis' ? T.war.axisPower * supplyMult(s, fid) : 1;
+    const side = (f && f.side === 'axis' ? T.war.axisPower * supplyMult(s, fid) : 1) * civilPower(s, fid);
     if (!s.player) return side;
     const d = diff(s);
     return side * (fid === s.player ? d.playerPower : d.aiPower);
@@ -97,6 +135,7 @@
       roads: sc.roads,
       sea: sc.sea || [],
       coop: sc.coop === undefined ? null : sc.coop,
+      civil: !!sc.civil,
       log: [],
       over: null,
       mode: mode || 'historical',
@@ -942,8 +981,30 @@
     return { com, pop, gold };
   }
 
+  // 抗戰勝利後繼續：進入國共內戰篇（沿用目前的局面，補上內戰篇的新人物，國共恢復交戰）
+  function continueCivil(s) {
+    const sc = TK.scenarioById && TK.scenarioById('1946');
+    if (!sc) return false;
+    s.over = null;
+    s.civil = true;
+    s.coop = null;
+    s.scenario = '1946';
+    if (s.factions.usa) Object.assign(s.factions.usa, { dormant: true });
+    for (const g0 of sc.generals) {
+      if (s.generals[g0.name]) continue;
+      const fac = s.factions[g0.faction] && s.factions[g0.faction].alive ? g0.faction : null;
+      const home = fac ? (citiesOf(s, fac).find((c) => c.id === g0.city) || citiesOf(s, fac)[0]) : null;
+      s.generals[g0.name] = Object.assign({ acted: false, formerFaction: null }, g0, home ? { faction: fac, city: home.id, status: 'active', hidden: false, ruler: false, loyalty: 85 }
+        : { faction: null, status: 'free', hidden: false, ruler: false, city: Object.keys(s.cities)[0] });
+    }
+    if (TK.Diplomacy && s.factions.kmt && s.factions.ccp && s.factions.kmt.alive && s.factions.ccp.alive) TK.Diplomacy.setState(s, 'kmt', 'ccp', 'truce', 6);
+    addLog(s, '抗戰勝利後，國共和談與調停相繼展開，但雙方的分歧難以彌合……', 'major', []);
+    return true;
+  }
+
   function monthEnd(s) {
     warTick(s);
+    civilTick(s);
     for (const c of Object.values(s.cities)) {
       if (!c.owner) {
         // 無主城緩慢恢復守軍
@@ -1020,6 +1081,6 @@
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, powerMult, recruitChance, powerOf, rand, rint, pick, clamp,
-    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, preWar, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
+    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, preWar, inflation, civilTick, continueCivil, civilPower, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});

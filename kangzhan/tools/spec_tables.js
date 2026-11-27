@@ -58,6 +58,11 @@ const DOCS = [
     [['coopAlliance', 'coopFriction'], '合作度達前者則國共同盟延續；低於後者則同盟破裂'],
     [['coopPerGift'], '國共之間每送 100 金，合作度上升多少'],
     [['evacCommerce', 'evacPop'], '大後方遷移：搬走的商業、人口比例'],
+    [['inflationPerYear', 'inflationMin'], '國共內戰：國府收入每年因通膨減少的比例、最低倍率'],
+    [['landReform'], '國共內戰：中共每城每月因土地改革吸收的新兵'],
+    [['kmtMoralePerYear', 'kmtMoraleMin'], '國共內戰：國軍士氣每年下降的戰力比例、最低倍率'],
+    [['ccpPower'], '國共內戰：中共部隊的戰力倍率'],
+    [['infiltrate'], '國共內戰：中共城兵力 × 此值，每月削弱相鄰的國府城（每城上限 1000）'],
     [['usAidGold', 'usAidAir'], '美國參戰後每月援助國府的金；1942 年起駝峰航線每月送來的空軍'],
   ] },
   { key: 'duel', title: '單挑', rows: [

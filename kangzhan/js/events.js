@@ -60,6 +60,7 @@
     // 某些事件發生之後才會觸發；某些武將已經死亡
     for (const id of cond.after || []) if (!(s.events_done || {})[id] && (s.events_done || {})[id] !== 0) return false;
     for (const n of cond.general_dead || []) if (!s.generals[n] || s.generals[n].status !== 'dead') return false;
+    if (cond.civil && !s.civil) return false;
     if (cond.before_scenario && !(TK.scenarioById && TK.scenarioById(s.scenario).year < cond.before_scenario)) return false;
     if (cond.coop_below !== undefined && !(s.coop !== null && s.coop !== undefined && s.coop < cond.coop_below)) return false;
     if (cond.chance && E().rand(s) >= cond.chance) return false;
@@ -122,6 +123,19 @@
     } else if (!s.player) {
       s.over = { result: 'unified', faction: alive(s, 'kmt') ? 'kmt' : null };
     }
+  }
+
+  // 內戰篇結局（1950 年 6 月）：依玩家握有的城數評分
+  function civilSettle(s) {
+    const p = s.player && s.factions[s.player];
+    if (!p) { s.over = { result: 'unified', faction: null }; return; }
+    if (!p.alive) { s.over = { result: 'lose' }; return; }
+    const mine = E().citiesOf(s, s.player).length;
+    const total = Object.values(s.cities).filter((c) => !c.locked).length;
+    const score = Math.round(mine / total * 100);
+    const rank = score >= 50 ? '甲等' : score >= 25 ? '乙等' : score >= 8 ? '丙等' : '丁等';
+    s.over = { result: 'win', civil: true, score, rank, cities: mine };
+    E().addLog(s, `海峽對峙。${p.name}握有 ${mine} 城（全國 ${total} 城），評等：${rank}。`, 'major', [s.player]);
   }
 
   function apply(s, e) {
@@ -200,6 +214,7 @@
       case 'retire': { const g = s.generals[e.general]; if (g && g.status !== 'dead') { if (g.ruler && g.status === 'active') E().rulerDies(s, g.faction); Object.assign(g, { status: 'retired', city: null, faction: null, ruler: false }); } break; }
       case 'gather': for (const g of Object.values(s.generals)) if (g.faction === e.faction && g.status === 'active' && s.cities[e.city] && s.cities[e.city].owner === e.faction) g.city = e.city; break;
       case 'axis_surrender': surrender(s); break;
+      case 'civil_settle': civilSettle(s); break;
       // 一致抗日：所有中方勢力（彼此沒有交戰的）結為同盟
       case 'united_front': {
         const ids = Object.values(s.factions).filter((f) => f.alive && f.side === 'allies' && f.id !== 'usa').map((f) => f.id);

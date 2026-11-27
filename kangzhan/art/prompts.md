@@ -346,6 +346,74 @@ khaki uniform with peaked cap and collar tabs. Background: a plain field headqua
 
 通用頭像的檔名請用 `_通用日軍`。
 
+## 國共內戰篇人物（第 14～16 組）
+
+1946 年劇本新增的人物。畫風、構圖與前面相同，中性呈現。中共將領穿 1940 年代後期的土黃或灰藍布軍服（八角帽或軟帽）；
+國軍將領穿卡其或橄欖綠呢軍服、大簷帽。背景不要放旗幟或任何文字。
+
+### 第 14 組
+左上 劉少奇、中上 鄧小平、右上 羅榮桓 ／ 左下 陳賡、中下 許世友、右下 葉飛
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a tall, lean Chinese political leader in his late forties: long face, swept-back greying hair, serious calm eyes,
+plain grey cotton tunic. Background: a cave dwelling office with oil lamp and papers.
+
+Top-middle — a short, energetic Chinese commissar in his early forties: round face, short black hair, sharp eyes,
+grey-blue cloth army uniform with soft cap. Background: rolling hills of the Dabie Mountains.
+
+Top-right — a gentle, scholarly Chinese commissar in his mid-forties: thin face, mild expression,
+faded khaki cloth uniform. Background: snowy northeast forest and a railway line.
+
+Bottom-left — a cheerful Chinese general in his mid-forties: broad smile, lively eyes, short hair,
+khaki cloth uniform with leather belt. Background: river valleys of western Henan.
+
+Bottom-middle — a stocky, fierce Chinese general in his early forties: square jaw, thick eyebrows, crew cut,
+grey cloth uniform, arms crossed. Background: an old stone city wall at dusk.
+
+Bottom-right — a youthful Chinese general in his mid-thirties: slim build, clean-shaven, alert expression,
+grey cloth uniform and soft cap. Background: green coastal hills of Fujian and the sea.
+```
+
+### 第 15 組
+左上 廖耀湘、中上 黃維、右上 邱清泉 ／ 左下 黃百韜、中下 范漢傑、右下 曾澤生
+
+```
+A 2x3 grid of six separate character portraits (2 rows, 3 columns), each panel 4:5.
+
+Top-left — a refined Chinese general in his early forties: neat side-parted hair, confident expression,
+olive wool uniform with peaked cap. Background: autumn sorghum fields of western Liaoning.
+
+Top-middle — a stern Chinese general in his mid-forties: round spectacles, tight lips, serious bearing,
+khaki wool uniform. Background: a winter village with trenches on the Huaibei plain.
+
+Top-right — a proud, sharp-featured Chinese general in his late forties: narrow face, intense eyes,
+khaki uniform with medal ribbons and peaked cap. Background: a snowy plain with tanks in the distance.
+
+Bottom-left — a sturdy Chinese general in his late forties: broad face, short moustache, steady gaze,
+khaki field uniform. Background: a fortified farm village in winter.
+
+Bottom-middle — a thoughtful Chinese general in his early fifties: high forehead, thin hair, calm eyes,
+olive wool greatcoat. Background: a northern railway town with grey smoke.
+
+Bottom-right — a reserved Chinese general from Yunnan in his mid-forties: lean face, short moustache, troubled expression,
+olive uniform with greatcoat. Background: a besieged northeast city in winter.
+```
+
+### 第 16 組（1×2）
+左 李良榮、右 高魁元
+
+```
+A 1x2 row of two separate character portraits, each panel 4:5.
+
+Left — a steady Chinese general in his early forties: square face, short hair, firm expression,
+khaki uniform with peaked cap. Background: a coastal bunker on a rocky island.
+
+Right — a lean Chinese general in his early forties: long face, calm eyes, short hair,
+khaki field uniform. Background: a sandy beach with anti-landing obstacles at dawn.
+```
+
 ## 交回方式
 
 和民國版一樣：整張 2×3 的圖加上對照表（第幾組、哪個位置是誰），或切好的單張圖（檔名用人名），打包成 zip 傳回來即可。

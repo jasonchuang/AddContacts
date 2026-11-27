@@ -336,6 +336,118 @@
       "scene": "field",
       "file": "bumper.png",
       "prompt": "秋天金黃的稻田與曬穀場，遠處農家炊煙，豐收的暖色調。"
+    },
+    {
+      "id": "neizhan",
+      "title": "全面內戰",
+      "scenario": "1946",
+      "scene": "field",
+      "file": "neizhan.png",
+      "prompt": "1946 年夏天的中原平原，軍隊在土路上行軍，遠方硝煙，停戰協定被撕裂的緊張氣氛。"
+    },
+    {
+      "id": "menglianggu",
+      "title": "孟良崮戰役",
+      "scenario": "1946",
+      "scene": "fire",
+      "file": "menglianggu.png",
+      "prompt": "山東沂蒙山區陡峭的岩石山頭，山頂被圍的陣地，四周山谷中密集的部隊與硝煙。"
+    },
+    {
+      "id": "dabieshan",
+      "title": "挺進大別山",
+      "scenario": "1946",
+      "scene": "field",
+      "file": "dabieshan.png",
+      "prompt": "夏季暴雨後泥濘的黃泛區與大別山遠景，長長的行軍隊伍涉水前進。"
+    },
+    {
+      "id": "jinan_zhanyi",
+      "title": "濟南戰役",
+      "scenario": "1946",
+      "scene": "fire",
+      "file": "jinan_zhanyi.png",
+      "prompt": "秋天夜裡古城牆被砲火照亮，城門前的煙塵與火光。"
+    },
+    {
+      "id": "liaoshen",
+      "title": "遼瀋戰役",
+      "scenario": "1946",
+      "scene": "fire",
+      "file": "liaoshen.png",
+      "prompt": "東北深秋的遼西原野，枯黃的高粱地與鐵路，遠處錦州城的濃煙。"
+    },
+    {
+      "id": "huaihai",
+      "title": "淮海戰役",
+      "scenario": "1946",
+      "scene": "fire",
+      "file": "huaihai.png",
+      "prompt": "冬天的淮北平原，雪地上的戰壕、村莊與推著獨輪車運糧的民工隊伍。"
+    },
+    {
+      "id": "pingjin",
+      "title": "平津戰役",
+      "scenario": "1946",
+      "scene": "palace",
+      "file": "pingjin.png",
+      "prompt": "嚴冬的北平城門與城牆，城外結冰的護城河，安靜而寒冷的清晨。"
+    },
+    {
+      "id": "dujiang",
+      "title": "渡江戰役",
+      "scenario": "1946",
+      "scene": "river",
+      "file": "dujiang.png",
+      "prompt": "春天寬闊的長江江面，夜裡無數木帆船同時橫渡，對岸探照燈與火光。"
+    },
+    {
+      "id": "hunan_qiyi",
+      "title": "湖南和平起義",
+      "scenario": "1946",
+      "scene": "palace",
+      "file": "hunan_qiyi.png",
+      "prompt": "湖南長沙的湘江邊，晨霧中的城市與橘子洲，平靜沒有戰火。"
+    },
+    {
+      "id": "fuzhou_zhanyi",
+      "title": "福州戰役",
+      "scenario": "1946",
+      "scene": "camp",
+      "file": "fuzhou_zhanyi.png",
+      "prompt": "福建沿海丘陵與閩江口，濕熱的夏天，部隊沿山路南下。"
+    },
+    {
+      "id": "guningtou",
+      "title": "古寧頭戰役",
+      "scenario": "1946",
+      "scene": "night",
+      "file": "guningtou.png",
+      "prompt": "深夜的金門古寧頭海灘，退潮後擱淺的木船、照明彈與海岸碉堡。"
+    },
+    {
+      "id": "qiantai",
+      "title": "國府遷臺",
+      "scenario": "1946",
+      "scene": "river",
+      "file": "qiantai.png",
+      "prompt": "1949 年冬天的基隆港，霧中停泊的運輸艦與碼頭上擁擠的人群和行李。"
+    },
+    {
+      "id": "yunnan_qiyi",
+      "title": "雲南起義",
+      "scenario": "1946",
+      "scene": "palace",
+      "file": "yunnan_qiyi.png",
+      "prompt": "雲南昆明翠湖與城樓，冬日陽光下平靜的高原城市。"
+    },
+    {
+      "id": "civil_end",
+      "title": "海峽對峙",
+      "scenario": "1946",
+      "scene": "river",
+      "file": "civil_end.png",
+      "prompt": "1950 年臺灣海峽的黃昏海面，兩岸遙遙相望的海平線。"
     }
   ]
 }

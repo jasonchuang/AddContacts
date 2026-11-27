@@ -1520,8 +1520,13 @@
     if (win) SND.win(); else SND.lose();
     const ruler = S.generals[S.factions[S.player].ruler];
     const v = S.over.victory;
-    say(ruler, v ? `十四年的苦戰，終於等到這一天。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。` : win ? '日軍終於被趕出了國土。' : '……大勢已去。只恨未能看到勝利的那一天。');
-    menuWin(v ? `抗戰勝利・評等${S.over.rank}` : win ? '抗戰勝利' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
+    const civil = S.over.civil;
+    say(ruler, civil ? `內戰告一段落，海峽兩岸分治。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。`
+      : v ? `十四年的苦戰，終於等到這一天。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。` : win ? '戰爭終於結束了。' : '……大勢已去。只恨未能看到勝利的那一天。');
+    // 抗戰勝利後可以接著玩國共內戰篇
+    const canGoOn = v && !S.civil && S.factions.kmt && S.factions.kmt.alive && S.factions.ccp && S.factions.ccp.alive && S.factions[S.player].side !== 'axis';
+    menuWin(civil ? `海峽對峙・評等${S.over.rank}` : v ? `抗戰勝利・評等${S.over.rank}` : win ? '勝利' : '勢力覆滅', [
+      ...(canGoOn ? [{ label: '繼續：國共內戰（1945～1950）', act: () => { E.continueCivil(S); closeAll(); render(); say(null, '抗戰勝利了，但國共之間的戰爭才正要開始。'); } }] : []), { label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
     return true;
   }
 

@@ -962,7 +962,14 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
       evacCommerce: 0.4,       // 大後方遷移：搬走的商業比例
       evacPop: 0.15,           // 大後方遷移：一起撤退的人口比例
       usAidGold: 300,          // 美國參戰後，每月援助國民政府的金
-      usAidAir: 600,           // 1942 年起（駝峰航線），每月送到昆明或重慶的空軍
+      usAidAir: 600,
+      inflationPerYear: 0.12,  // 國共內戰：國府收入每年因通貨膨脹減少的比例（從 1946 年中起算）
+      inflationMin: 0.4,       // 通膨最多讓國府收入降到此倍率
+      landReform: 3000,
+      kmtMoralePerYear: 0.15,  // 國共內戰：國軍士氣每年下降（戰力倍率），最低到 kmtMoraleMin
+      kmtMoraleMin: 0.6,
+      ccpPower: 1.25,          // 國共內戰：中共部隊的戰力倍率（機動、民心）        // 國共內戰：中共每座城每月因土地改革吸收的新兵
+      infiltrate: 0.02,        // 國共內戰：中共城兵力 × 此值，每月削弱相鄰的國府城（每城上限 1000）           // 1942 年起（駝峰航線），每月送到昆明或重慶的空軍
     },
     // ---------- 單挑 ----------
     duel: {
@@ -1167,6 +1174,10 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     宋美齡: [20, 10, 84, 82, 92], 戴笠: [50, 40, 90, 70, 50], 謝晉元: [70, 74, 60, 52, 76], 鄭洞國: [78, 70, 66, 58, 64],
     方先覺: [78, 74, 62, 54, 64], 孫元良: [70, 62, 58, 52, 54], 宋希濂: [74, 66, 64, 58, 60], 盧漢: [72, 64, 62, 60, 60], 孫蔚如: [72, 64, 62, 60, 62],
     張治中: [76, 60, 76, 74, 72], 王銘章: [72, 74, 52, 48, 64], 高志航: [70, 88, 60, 40, 70], 沈鴻烈: [70, 56, 66, 70, 62],
+    // 國共內戰（1945～1949）
+    劉少奇: [62, 40, 88, 90, 80], 鄧小平: [80, 50, 90, 88, 78], 羅榮桓: [76, 56, 80, 76, 80], 陳賡: [86, 74, 82, 62, 82], 許世友: [82, 90, 52, 40, 62],
+    葉飛: [78, 70, 66, 58, 64], 廖耀湘: [84, 72, 76, 58, 62], 黃維: [76, 64, 68, 58, 52], 邱清泉: [80, 80, 58, 46, 54], 黃百韜: [80, 74, 64, 54, 64],
+    范漢傑: [76, 62, 70, 58, 56], 曾澤生: [70, 64, 58, 54, 62], 李良榮: [72, 66, 58, 54, 58], 高魁元: [74, 68, 60, 54, 58],
     // 美軍
     史迪威: [84, 60, 80, 64, 60], 陳納德: [82, 70, 84, 60, 74], 魏德邁: [82, 60, 84, 70, 66], 麥克阿瑟: [92, 60, 86, 72, 88],
     尼米茲: [92, 56, 90, 72, 82], 羅斯福: [60, 30, 92, 94, 96],
@@ -1193,7 +1204,7 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     葉挺: { inf: 'S' }, 張發奎: { inf: 'S' }, 蔡鍔: { inf: 'S', art: 'A' }, 段祺瑞: { art: 'S', inf: 'A', navy: 'A' },
     徐樹錚: { tank: 'A', air: 'A' }, 馬福祥: { inf: 'A' }, 宋哲元: { inf: 'A', tank: 'A' }, 唐生智: { inf: 'A' },
     閻錫山: { art: 'A', inf: 'A' }, 韓麟春: { art: 'S', tank: 'A' }, 楊宇霆: { art: 'A', air: 'A' }, 陳炯明: { inf: 'A', navy: 'A' },
-    張學良: { air: 'S', tank: 'A' }, 陳納德: { air: 'S' }, 山本五十六: { navy: 'S', air: 'S' }, 山下奉文: { inf: 'S', tank: 'A' }, 岡村寧次: { inf: 'A', art: 'A' }, 板垣征四郎: { inf: 'A' }, 尼米茲: { navy: 'S', air: 'A' }, 麥克阿瑟: { navy: 'A', inf: 'S', air: 'A' }, 史迪威: { inf: 'A' }, 孫立人: { inf: 'S', tank: 'A' }, 高志航: { air: 'S' }, 孫中山: { navy: 'A' }, 李濟深: { navy: 'A' },
+    張學良: { air: 'S', tank: 'A' }, 陳納德: { air: 'S' }, 廖耀湘: { tank: 'A', inf: 'A' }, 邱清泉: { tank: 'S' }, 陳賡: { inf: 'S' }, 許世友: { inf: 'S' }, 林彪: { inf: 'S', art: 'A' }, 山本五十六: { navy: 'S', air: 'S' }, 山下奉文: { inf: 'S', tank: 'A' }, 岡村寧次: { inf: 'A', art: 'A' }, 板垣征四郎: { inf: 'A' }, 尼米茲: { navy: 'S', air: 'A' }, 麥克阿瑟: { navy: 'A', inf: 'S', air: 'A' }, 史迪威: { inf: 'A' }, 孫立人: { inf: 'S', tank: 'A' }, 高志航: { air: 'S' }, 孫中山: { navy: 'A' }, 李濟深: { navy: 'A' },
     薛岳: { inf: 'S', art: 'A' }, 張自忠: { inf: 'S' }, 吉鴻昌: { inf: 'S', tank: 'A' }, 杜聿明: { tank: 'S', inf: 'A' }, 蔡廷鍇: { inf: 'S' },
     鄧鏗: { inf: 'A', navy: 'A' }, 李烈鈞: { inf: 'A', art: 'A' }, 黃興: { inf: 'A' }, 于學忠: { inf: 'A', tank: 'A' }, 楊虎城: { inf: 'A' },
   };
@@ -1454,6 +1465,31 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
       strategists: { kmt: '何應欽', usa: '魏德邁', ccp: '周恩來', japan: '東條英機' },
       relations: vsJapan(['kmt', 'gui', 'ccp', 'jin', 'chuan', 'dian', 'ma']).concat([['usa', 'japan', 'war'], ['usa', 'kmt', 'alliance', 48], ['usa', 'ccp', 'alliance', 48],
         ['kmt', 'ccp', 'alliance', 24], ['kmt', 'gui', 'alliance', 48], ['kmt', 'jin', 'alliance', 48], ['kmt', 'chuan', 'alliance', 48], ['kmt', 'dian', 'alliance', 48], ['kmt', 'ma', 'alliance', 48]]),
+    },
+    {
+      id: '1946', title: '國共內戰', year: 1946, month: 6, tag: '遼瀋・淮海・平津・古寧頭', civil: true,
+      desc: '抗戰勝利不到一年，重慶談判與停戰協定相繼破裂。國民政府握有大城、交通線與美式裝備；中共在東北與華北農村擁有根據地與民心。1946 年 6 月，全面內戰爆發。',
+      factions: [['kmt', '國民政府', '蔣介石', '陳誠'], ['ccp', '中共', '毛澤東', '周恩來'], ['jin', '晉綏軍', '閻錫山', '徐永昌'],
+        ['ma', '西北馬家', '馬步芳', '馬鴻逵'], ['dian', '雲南', '盧漢']],
+      coop: null,
+      cities: { 南京: ['kmt', 80000], 上海: ['kmt', 60000], 杭州: ['kmt', 30000], 合肥: ['kmt', 30000], 徐州: ['kmt', 80000], 濟南: ['kmt', 60000], 青島: ['kmt', 30000],
+        鄭州: ['kmt', 50000], 洛陽: ['kmt', 30000], 西安: ['kmt', 70000], 武漢: ['kmt', 60000], 宜昌: ['kmt', 20000], 長沙: ['kmt', 40000], 衡陽: ['kmt', 20000],
+        芷江: ['kmt', 15000], 南昌: ['kmt', 30000], 福州: ['kmt', 25000], 瑞金: ['kmt', 10000], 廣州: ['kmt', 50000], 桂林: ['kmt', 30000], 南寧: ['kmt', 20000],
+        重慶: ['kmt', 50000], 成都: ['kmt', 40000], 貴陽: ['kmt', 20000], 北京: ['kmt', 60000], 天津: ['kmt', 50000], 保定: ['kmt', 30000],
+        瀋陽: ['kmt', 90000], 長春: ['kmt', 50000], 錦州: ['kmt', 50000], 包頭: ['kmt', 30000], 臺北: ['kmt', 30000], 臺南: ['kmt', 20000], 金門: ['kmt', 10000],
+        延安: ['ccp', 60000], 哈爾濱: ['ccp', 150000], 張家口: ['ccp', 60000], 承德: ['ccp', 50000], 大同: ['ccp', 30000],
+        太原: ['jin', 60000], 蘭州: ['ma', 40000], 昆明: ['dian', 40000],
+        沖繩: [null, 6000, { locked: true }], 塞班: [null, 6000, { locked: true }] },
+      people: {
+        kmt: { 南京: '蔣介石 宋美齡 陳誠 何應欽 顧祝同 宋子文 張治中', 徐州: '薛岳 黃百韜 邱清泉 劉峙', 濟南: '王耀武', 瀋陽: '杜聿明 廖耀湘 孫立人 衛立煌',
+          長春: '鄭洞國 曾澤生', 錦州: '范漢傑', 北京: '李宗仁 孫連仲', 包頭: '傅作義', 西安: '胡宗南', 武漢: '白崇禧 黃維 李品仙', 上海: '湯恩伯 張靈甫',
+          長沙: '程潛', 廣州: '余漢謀', 重慶: '王陵基 楊森', 成都: '劉文輝 鄧錫侯', 鄭州: '宋希濂', 南昌: '胡璉 方先覺', 福州: '李良榮 高魁元', 臺北: '黃旭初' },
+        ccp: { 延安: '毛澤東 周恩來 朱德 劉少奇 彭德懷 賀龍', 哈爾濱: '林彪 羅榮桓', 張家口: '聶榮臻 徐向前 葉劍英', 承德: '劉伯承 鄧小平 陳賡', 大同: '陳毅 粟裕 許世友 葉飛' },
+        jin: { 太原: '閻錫山 徐永昌 商震' }, ma: { 蘭州: '馬步芳 馬鴻逵' }, dian: { 昆明: '盧漢 龍雲' },
+      },
+      free: {},
+      strategists: { kmt: '白崇禧', ccp: '周恩來' },
+      relations: [['kmt', 'ccp', 'war'], ['kmt', 'jin', 'alliance', 48], ['kmt', 'ma', 'alliance', 48], ['kmt', 'dian', 'alliance', 48], ['ccp', 'jin', 'war']],
     },
   ];
 
@@ -1750,6 +1786,108 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
       effects: [{ do: 'loyalty', faction: 'kmt', amount: 5 }, { do: 'troops', city: '芷江', unit: 'air', amount: 3000, if_owner: 'kmt' }],
       lines: [['', '日軍進攻湘西，想奪取美軍的芷江機場。'], ['王耀武', '中美空軍聯手，地面部隊全線反擊！'], ['', '國軍在湘西擊退日軍，這是抗戰中最後一場大規模會戰。']],
     },
+
+    // ---------- 國共內戰（只在內戰篇：1946 劇本或抗戰勝利後選「繼續」） ----------
+    {
+      id: 'neizhan', title: '全面內戰', scene: 'field',
+      cond: { from: [1946, 6], until: [1946, 9], civil: true, alive: ['kmt', 'ccp'] },
+      effects: [{ do: 'relation', a: 'kmt', b: 'ccp', state: 'war' }],
+      lines: [['', '重慶談判的《雙十協定》與停戰令相繼失效。國軍大舉進攻中原解放區，全面內戰爆發。'],
+        ['蔣介石', '三個月到六個月之內，解決關內的共軍。'], ['毛澤東', '一切反動派都是紙老虎。']],
+    },
+    {
+      id: 'menglianggu', title: '孟良崮戰役', scene: 'fire',
+      cond: { from: [1947, 5], until: [1947, 7], civil: true, general_faction: { 張靈甫: 'kmt' } },
+      effects: [{ do: 'die', general: '張靈甫' }, { do: 'troops_scale', city: '濟南', mult: 0.85, if_owner: 'kmt' }, { do: 'loyalty', faction: 'ccp', amount: 5 }],
+      lines: [['粟裕', '整編七十四師孤軍突出，正是殲滅的好機會。'], ['', '號稱「五大主力」之一的整編第七十四師在山東孟良崮被圍殲，師長張靈甫陣亡。']],
+    },
+    {
+      id: 'dabieshan', title: '挺進大別山', scene: 'field',
+      cond: { from: [1947, 8], until: [1947, 10], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'troops_scale', city: '合肥', mult: 0.85, if_owner: 'kmt' }, { do: 'troops_scale', city: '武漢', mult: 0.9, if_owner: 'kmt' }],
+      lines: [['劉伯承', '千里躍進，直插國軍的腹地。'], ['鄧小平', '大別山是插向南京與武漢之間的一把尖刀。'], ['', '劉鄧大軍南渡黃河、躍進大別山，戰爭的重心開始南移。']],
+    },
+    {
+      id: 'jinan_zhanyi', title: '濟南戰役', scene: 'fire',
+      cond: { from: [1948, 9], until: [1948, 11], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '濟南', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '濟南', mult: 0.5 }, { do: 'retire', general: '王耀武' }],
+      lines: [['許世友', '八天之內拿下濟南！'], ['', '華東野戰軍攻克有重兵把守的濟南，守將王耀武被俘，這是內戰中第一次攻下有堅固城防的大城。']],
+    },
+    {
+      id: 'liaoshen', title: '遼瀋戰役', scene: 'fire',
+      cond: { from: [1948, 9], until: [1948, 12], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '錦州', faction: 'ccp', if_owner: 'kmt' }, { do: 'seize', city: '瀋陽', faction: 'ccp', if_owner: 'kmt' },
+        { do: 'seize', city: '長春', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '錦州', mult: 0.5 }, { do: 'troops_scale', city: '瀋陽', mult: 0.5 }, { do: 'join', general: '曾澤生', faction: 'ccp', force: true },
+        { do: 'troops', city: '哈爾濱', unit: 'inf', amount: 80000, if_owner: 'ccp' }, { do: 'retire', general: '廖耀湘' }],
+      lines: [['林彪', '先打錦州，關上東北的大門。'], ['', '東北野戰軍攻克錦州，長春守軍曾澤生部起義；被圍半年的長春城中，平民餓死者甚眾。'],
+        ['', '廖耀湘兵團在遼西被殲，廖耀湘被俘。五十二天的戰役後，國軍在東北的主力幾乎全部覆沒。']],
+    },
+    {
+      id: 'huaihai', title: '淮海戰役', scene: 'fire',
+      cond: { from: [1948, 11], until: [1949, 2], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '徐州', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '徐州', mult: 0.5 }, { do: 'troops_scale', city: '合肥', mult: 0.6, if_owner: 'kmt' },
+        { do: 'die', general: '黃百韜' }, { do: 'die', general: '邱清泉' }, { do: 'retire', general: '黃維' }, { do: 'retire', general: '杜聿明' }],
+      lines: [['粟裕', '先吃掉黃百韜兵團，再圍黃維、杜聿明。'], ['', '華東、中原兩大野戰軍在徐州以東的平原上會戰六十六天，動員的民工以百萬計。'],
+        ['', '黃百韜、邱清泉兵敗身亡，黃維、杜聿明被俘。長江以北的國軍主力損失殆盡，南京門戶大開。']],
+    },
+    {
+      id: 'pingjin', title: '平津戰役', scene: 'palace',
+      cond: { from: [1948, 12], until: [1949, 3], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '天津', faction: 'ccp', if_owner: 'kmt' }, { do: 'seize', city: '北京', faction: 'ccp', if_owner: 'kmt' },
+        { do: 'join', general: '傅作義', faction: 'ccp', force: true }],
+      lines: [['', '解放軍攻克天津。困守北平的傅作義，面對古城可能毀於戰火的局面。'], ['傅作義', '北平是幾百年的古都，不能讓它毀在我手裡。'],
+        ['', '1949 年 1 月，傅作義接受和平改編，北平未經戰火易手。']],
+    },
+    {
+      id: 'dujiang', title: '渡江戰役', scene: 'river',
+      cond: { from: [1949, 4], until: [1949, 6], civil: true, alive: ['ccp', 'kmt'], city_owner_not: { 徐州: 'kmt' } },
+      effects: [{ do: 'troops_scale', city: '南京', mult: 0.4, if_owner: 'kmt' }, { do: 'troops_scale', city: '上海', mult: 0.6, if_owner: 'kmt' },
+        { do: 'troops_scale', city: '杭州', mult: 0.6, if_owner: 'kmt' }, { do: 'seize', city: '南京', faction: 'ccp', if_owner: 'kmt' }, { do: 'seize', city: '杭州', faction: 'ccp', if_owner: 'kmt' },
+        { do: 'troops', city: '南京', unit: 'inf', amount: 40000, if_owner: 'ccp' }, { do: 'relocate', general: '劉伯承', city: '南京' }],
+      lines: [['', '和談破裂。4 月 21 日，百萬解放軍在千里江面上強渡長江。'], ['', '23 日，南京易手，國民政府南遷廣州。']],
+    },
+    {
+      id: 'hunan_qiyi', title: '湖南和平起義', scene: 'palace',
+      cond: { from: [1949, 8], until: [1949, 10], civil: true, general_faction: { 程潛: 'kmt' } },
+      effects: [{ do: 'seize', city: '長沙', faction: 'ccp', if_owner: 'kmt' }, { do: 'join', general: '程潛', faction: 'ccp', force: true }],
+      lines: [['程潛', '湖南父老已經受夠了戰火。'], ['', '程潛與陳明仁在長沙通電起義，湖南和平易手。']],
+    },
+    {
+      id: 'fuzhou_zhanyi', title: '福州戰役', scene: 'camp',
+      cond: { from: [1949, 8], until: [1949, 9], civil: true, alive: ['ccp', 'kmt'], city_owner_not: { 徐州: 'kmt' } },
+      effects: [{ do: 'seize', city: '福州', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '福州', mult: 0.5 },
+        { do: 'troops', city: '福州', unit: 'inf', amount: 40000, if_owner: 'ccp' }, { do: 'relocate', general: '葉飛', city: '福州' },
+        { do: 'seize', city: '上海', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '上海', mult: 0.5 },
+        { do: 'troops', city: '上海', unit: 'inf', amount: 30000, if_owner: 'ccp' }, { do: 'relocate', general: '陳毅', city: '上海' }],
+      lines: [['葉飛', '第十兵團入閩，福州已經拿下。下一步，渡海取金門、廈門！'], ['', '上海也在 5 月易手，國軍沿海據點只剩下舟山、金門與臺灣。']],
+    },
+    {
+      id: 'guningtou', title: '古寧頭戰役', scene: 'night',
+      cond: { from: [1949, 10], until: [1949, 12], civil: true, alive: ['kmt', 'ccp'], owns: { kmt: ['金門'] }, city_owner_not: { 徐州: 'kmt' } },
+      effects: [{ do: 'troops', city: '金門', unit: 'inf', amount: 25000, if_owner: 'kmt' }, { do: 'relocate', general: '胡璉', city: '金門' },
+        { do: 'troops_scale', city: '福州', mult: 0.85, if_owner: 'ccp' }],
+      lines: [['', '10 月 24 日深夜，解放軍第十兵團的先頭部隊約九千人分乘木船，在金門古寧頭一帶搶灘。'],
+        ['', '船隻不足、潮水退去，後續部隊無法增援。守軍與剛抵達的胡璉兵團合力反擊。'],
+        ['', '激戰三晝夜，登陸部隊全軍覆沒。金門守住了，此後成為臺海對峙的前線。']],
+    },
+    {
+      id: 'qiantai', title: '國府遷臺', scene: 'river',
+      cond: { from: [1949, 12], until: [1950, 3], civil: true, alive: ['kmt'], city_owner_not: { 徐州: 'kmt' }, owns: { kmt: ['臺北'] } },
+      effects: [{ do: 'gather', faction: 'kmt', city: '臺北' }, { do: 'troops', city: '臺北', unit: 'inf', amount: 100000, if_owner: 'kmt' }],
+      lines: [['', '1949 年 12 月，中華民國政府遷往臺北，大批軍民隨之渡海來臺。'], ['', '海峽兩岸從此分治。']],
+    },
+    {
+      id: 'yunnan_qiyi', title: '雲南起義', scene: 'palace',
+      cond: { from: [1949, 12], until: [1950, 2], civil: true, alive: ['dian', 'ccp'] },
+      effects: [{ do: 'absorb', faction: 'dian', into: 'ccp' }],
+      lines: [['盧漢', '雲南不再為內戰流血。'], ['', '盧漢在昆明宣布起義，雲南歸入中共。']],
+    },
+    {
+      id: 'civil_end', title: '海峽對峙', scene: 'river',
+      cond: { from: [1950, 6], civil: true },
+      effects: [{ do: 'civil_settle' }],
+      lines: [['', '1950 年 6 月，韓戰爆發，美國第七艦隊駛入臺灣海峽。'], ['', '國共雙方隔海對峙的局面就此固定下來。']],
+    },
   ];
   const MORE = {};
   // 事件依開始年月排序（同月份的保持原順序）
@@ -1812,7 +1950,7 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     });
     for (const f of factions) if (!cities.some((c) => c.owner === f.id)) throw new Error(`劇本 ${d.title}：${f.name} 沒有城`);
     return { id: d.id, tag: d.tag, title: d.title, year: d.year, month: d.month, desc: d.desc, aptitude: W.aptitude,
-      factions, cities, roads: W.roads, sea: W.sea || [], axisPlan: d.axisPlan || [], coop: d.coop, generals, relations: d.relations || [], events: (d.events || []).concat(LIB.filter((e) => fromOf(e) >= ym(d.year, d.month))).map((e) => Object.assign({ historical: true }, e)) };
+      factions, cities, roads: W.roads, sea: W.sea || [], axisPlan: d.axisPlan || [], coop: d.coop, civil: !!d.civil, generals, relations: d.relations || [], events: (d.events || []).concat(LIB.filter((e) => fromOf(e) >= ym(d.year, d.month))).map((e) => Object.assign({ historical: true }, e)) };
   }
 
   TK.SCENARIOS = DEFS.map(build);
@@ -1879,11 +2017,49 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
   const DIFFICULTY = {};
   for (const [k, d] of Object.entries(T.difficulty)) DIFFICULTY[k] = Object.assign({ desc: diffDesc(d) }, d);
   function diff(s) { return DIFFICULTY[(s && s.difficulty) || 'normal'] || DIFFICULTY.normal; }
-  function incomeMult(s, fid) { if (!fid) return 1; const d = diff(s); return fid === s.player ? d.playerIncome : d.aiIncome; }
+  function incomeMult(s, fid) {
+    if (!fid) return 1;
+    const d = diff(s);
+    return (fid === s.player ? d.playerIncome : d.aiIncome) * inflation(s, fid);
+  }
+  // 國共內戰：國軍士氣逐年下降，中共部隊機動靈活
+  function civilPower(s, fid) {
+    if (!s.civil) return 1;
+    if (fid === 'ccp') return T.war.ccpPower;
+    if (fid !== 'kmt') return 1;
+    const years = Math.max(0, (s.year * 12 + s.month - (1946 * 12 + 6)) / 12);
+    return Math.max(T.war.kmtMoraleMin, 1 - years * T.war.kmtMoralePerYear);
+  }
+  // 國共內戰：國府的法幣、金圓券接連貶值，收入逐年縮水
+  function inflation(s, fid) {
+    if (!s.civil || fid !== 'kmt') return 1;
+    const years = Math.max(0, (s.year * 12 + s.month - (1946 * 12 + 6)) / 12);
+    return Math.max(T.war.inflationMin, 1 - years * T.war.inflationPerYear);
+  }
+  // 國共內戰的每月結算：國府城民心下滑、中共土地改革吸收新兵、對相鄰國府城滲透
+  function civilTick(s) {
+    if (!s.civil) return;
+    const W = T.war;
+    const kmt = s.factions.kmt, ccp = s.factions.ccp;
+    if (kmt && kmt.alive && s.month % 2 === 0) for (const c of citiesOf(s, 'kmt')) if (c.order > 25) c.order -= 1;
+    if (!ccp || !ccp.alive) return;
+    const hit = {};
+    for (const c of citiesOf(s, 'ccp')) {
+      addUnits(c, { inf: W.landReform }, 45);
+      for (const n of neighbors(s, c.id)) {
+        const t = s.cities[n];
+        if (t.owner !== 'kmt') continue;
+        const loss = Math.min(1000 - (hit[n] || 0), Math.round(c.troops * W.infiltrate), Math.max(0, t.troops - 500));
+        if (loss <= 0) continue;
+        hit[n] = (hit[n] || 0) + loss;
+        takeUnits(t, scaleMix(mixOf(t), loss));
+      }
+    }
+  }
   function powerMult(s, fid) {
     if (!fid) return 1;
     const f = s.factions[fid];
-    const side = f && f.side === 'axis' ? T.war.axisPower * supplyMult(s, fid) : 1;
+    const side = (f && f.side === 'axis' ? T.war.axisPower * supplyMult(s, fid) : 1) * civilPower(s, fid);
     if (!s.player) return side;
     const d = diff(s);
     return side * (fid === s.player ? d.playerPower : d.aiPower);
@@ -1922,6 +2098,7 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
       roads: sc.roads,
       sea: sc.sea || [],
       coop: sc.coop === undefined ? null : sc.coop,
+      civil: !!sc.civil,
       log: [],
       over: null,
       mode: mode || 'historical',
@@ -2767,8 +2944,30 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     return { com, pop, gold };
   }
 
+  // 抗戰勝利後繼續：進入國共內戰篇（沿用目前的局面，補上內戰篇的新人物，國共恢復交戰）
+  function continueCivil(s) {
+    const sc = TK.scenarioById && TK.scenarioById('1946');
+    if (!sc) return false;
+    s.over = null;
+    s.civil = true;
+    s.coop = null;
+    s.scenario = '1946';
+    if (s.factions.usa) Object.assign(s.factions.usa, { dormant: true });
+    for (const g0 of sc.generals) {
+      if (s.generals[g0.name]) continue;
+      const fac = s.factions[g0.faction] && s.factions[g0.faction].alive ? g0.faction : null;
+      const home = fac ? (citiesOf(s, fac).find((c) => c.id === g0.city) || citiesOf(s, fac)[0]) : null;
+      s.generals[g0.name] = Object.assign({ acted: false, formerFaction: null }, g0, home ? { faction: fac, city: home.id, status: 'active', hidden: false, ruler: false, loyalty: 85 }
+        : { faction: null, status: 'free', hidden: false, ruler: false, city: Object.keys(s.cities)[0] });
+    }
+    if (TK.Diplomacy && s.factions.kmt && s.factions.ccp && s.factions.kmt.alive && s.factions.ccp.alive) TK.Diplomacy.setState(s, 'kmt', 'ccp', 'truce', 6);
+    addLog(s, '抗戰勝利後，國共和談與調停相繼展開，但雙方的分歧難以彌合……', 'major', []);
+    return true;
+  }
+
   function monthEnd(s) {
     warTick(s);
+    civilTick(s);
     for (const c of Object.values(s.cities)) {
       if (!c.owner) {
         // 無主城緩慢恢復守軍
@@ -2845,7 +3044,7 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     MAX, DEV, newGame, exec, endTurn, monthEnd, checkEnd, battle, rulerDies, ensure,
     neighbors, citiesOf, generalsIn, officers, factionName, dateStr, addLog,
     maxDraft, powerMult, recruitChance, powerOf, rand, rint, pick, clamp,
-    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, preWar, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
+    UNITS, UNIT_KEYS, LAND, BEATS, FACILITY, APT_MULT, matchup, canDraft, emptyUnits, unitWeight, isSea, attackBlock, supplyMult, evacDests, evacuate, preWar, inflation, civilTick, continueCivil, civilPower, aptitude, mixOf, scaleMix, unitsTotal, mixName, fractions,
   };
 })(globalThis.TK = globalThis.TK || {});
 
@@ -3445,6 +3644,7 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     // 某些事件發生之後才會觸發；某些武將已經死亡
     for (const id of cond.after || []) if (!(s.events_done || {})[id] && (s.events_done || {})[id] !== 0) return false;
     for (const n of cond.general_dead || []) if (!s.generals[n] || s.generals[n].status !== 'dead') return false;
+    if (cond.civil && !s.civil) return false;
     if (cond.before_scenario && !(TK.scenarioById && TK.scenarioById(s.scenario).year < cond.before_scenario)) return false;
     if (cond.coop_below !== undefined && !(s.coop !== null && s.coop !== undefined && s.coop < cond.coop_below)) return false;
     if (cond.chance && E().rand(s) >= cond.chance) return false;
@@ -3507,6 +3707,19 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
     } else if (!s.player) {
       s.over = { result: 'unified', faction: alive(s, 'kmt') ? 'kmt' : null };
     }
+  }
+
+  // 內戰篇結局（1950 年 6 月）：依玩家握有的城數評分
+  function civilSettle(s) {
+    const p = s.player && s.factions[s.player];
+    if (!p) { s.over = { result: 'unified', faction: null }; return; }
+    if (!p.alive) { s.over = { result: 'lose' }; return; }
+    const mine = E().citiesOf(s, s.player).length;
+    const total = Object.values(s.cities).filter((c) => !c.locked).length;
+    const score = Math.round(mine / total * 100);
+    const rank = score >= 50 ? '甲等' : score >= 25 ? '乙等' : score >= 8 ? '丙等' : '丁等';
+    s.over = { result: 'win', civil: true, score, rank, cities: mine };
+    E().addLog(s, `海峽對峙。${p.name}握有 ${mine} 城（全國 ${total} 城），評等：${rank}。`, 'major', [s.player]);
   }
 
   function apply(s, e) {
@@ -3585,6 +3798,7 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
       case 'retire': { const g = s.generals[e.general]; if (g && g.status !== 'dead') { if (g.ruler && g.status === 'active') E().rulerDies(s, g.faction); Object.assign(g, { status: 'retired', city: null, faction: null, ruler: false }); } break; }
       case 'gather': for (const g of Object.values(s.generals)) if (g.faction === e.faction && g.status === 'active' && s.cities[e.city] && s.cities[e.city].owner === e.faction) g.city = e.city; break;
       case 'axis_surrender': surrender(s); break;
+      case 'civil_settle': civilSettle(s); break;
       // 一致抗日：所有中方勢力（彼此沒有交戰的）結為同盟
       case 'united_front': {
         const ids = Object.values(s.factions).filter((f) => f.alive && f.side === 'allies' && f.id !== 'usa').map((f) => f.id);
@@ -4024,6 +4238,34 @@ body.mobile #map-win .zbtn { width: 30px; height: 30px; font-size: 18px; line-he
       bio: '工人運動出身的中共領導人，長征時留在南方堅持游擊。新四軍成立後任副軍長，1941 年皖南事變中遇害。' },
     陳毅: { zi: '仲弘', home: '四川樂至', life: '1901－1972',
       bio: '早年留學法國。長征時留在江西堅持游擊，抗戰時任新四軍第一支隊司令，皖南事變後代理軍長。文采出眾，以詩詞聞名。' },
+    劉少奇: { zi: '', home: '湖南寧鄉', life: '1898－1969',
+      bio: '中共重要領導人，長期從事白區工作與工人運動。1945 年中共七大報告修改黨章，內戰期間主持中央工作委員會與土地改革。' },
+    鄧小平: { zi: '', home: '四川廣安', life: '1904－1997',
+      bio: '早年留學法國。抗戰時任八路軍一二九師政委，與劉伯承搭檔多年。內戰中率劉鄧大軍千里躍進大別山，並任淮海戰役總前委書記。' },
+    羅榮桓: { zi: '', home: '湖南衡山', life: '1902－1963',
+      bio: '長期擔任政治工作，抗戰時主持山東根據地。內戰期間任東北野戰軍政委，與林彪共同指揮遼瀋、平津戰役。' },
+    陳賡: { zi: '', home: '湖南湘鄉', life: '1903－1961',
+      bio: '黃埔軍校第一期畢業，曾在東征時救過蔣中正。抗戰時任八路軍三八六旅旅長，內戰時率陳謝兵團挺進豫西，後進軍雲南。' },
+    許世友: { zi: '', home: '河南新縣', life: '1905－1985',
+      bio: '少林寺習武出身，作戰勇猛。抗戰時在山東作戰，內戰中任華東野戰軍山東兵團司令，1948 年指揮攻克濟南。' },
+    葉飛: { zi: '', home: '福建南安', life: '1914－1999',
+      bio: '生於菲律賓，回到福建參加革命，長期在閩東打游擊。內戰時任華東野戰軍第十兵團司令，1949 年進軍福建，所部發動古寧頭登陸。' },
+    廖耀湘: { zi: '建楚', home: '湖南邵陽', life: '1906－1968',
+      bio: '留學法國聖西爾軍校，抗戰時率新二十二師遠征緬甸。內戰中任第九兵團司令，1948 年遼瀋戰役於遼西被圍，兵團覆沒、本人被俘。' },
+    黃維: { zi: '悟我', home: '江西貴溪', life: '1904－1989',
+      bio: '黃埔一期畢業，抗戰時參加淞滬與武漢會戰。內戰中任第十二兵團司令，淮海戰役中在雙堆集被圍，突圍失敗被俘。' },
+    邱清泉: { zi: '雨庵', home: '浙江永嘉', life: '1902－1949',
+      bio: '黃埔二期畢業，曾留學德國。抗戰時參加崑崙關戰役，內戰中任第二兵團司令，淮海戰役末期於陳官莊突圍時陣亡。' },
+    黃百韜: { zi: '寒玉', home: '天津', life: '1900－1948',
+      bio: '雜牌軍出身而受到重用，抗戰時參加淞滬、徐州等會戰。內戰中任第七兵團司令，淮海戰役中於碾莊被圍，戰死。' },
+    范漢傑: { zi: '其邁', home: '廣東大埔', life: '1896－1976',
+      bio: '黃埔一期畢業，抗戰時任第二十七集團軍司令。內戰時任東北剿總副總司令兼錦州指揮所主任，1948 年錦州失守時被俘。' },
+    曾澤生: { zi: '', home: '雲南永善', life: '1902－1973',
+      bio: '滇軍出身，抗戰時參加台兒莊戰役。內戰中任第六十軍軍長駐守長春，1948 年長春被圍數月後率部起義，長春因而易手。' },
+    李良榮: { zi: '', home: '福建同安', life: '1906－1967',
+      bio: '黃埔一期畢業。1949 年任福建省主席兼第二十二兵團司令，指揮金門守軍，在古寧頭戰役中擊退解放軍登陸部隊。' },
+    高魁元: { zi: '', home: '山東嶧縣', life: '1907－2012',
+      bio: '黃埔四期畢業，抗戰時參加多場會戰。1949 年任第十八軍軍長，隨胡璉兵團抵達金門，參加古寧頭戰役，後官至國防部長。' },
     粟裕: { zi: '', home: '湖南會同', life: '1907－1984',
       bio: '新四軍將領，善於運動戰，在蘇中、蘇北一帶屢敗日偽軍與國軍，1940 年指揮黃橋戰役。' },
     左權: { zi: '叔仁', home: '湖南醴陵', life: '1905－1942',
@@ -7874,8 +8116,13 @@ function svg(g, color, mode, t) {
     if (win) SND.win(); else SND.lose();
     const ruler = S.generals[S.factions[S.player].ruler];
     const v = S.over.victory;
-    say(ruler, v ? `十四年的苦戰，終於等到這一天。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。` : win ? '日軍終於被趕出了國土。' : '……大勢已去。只恨未能看到勝利的那一天。');
-    menuWin(v ? `抗戰勝利・評等${S.over.rank}` : win ? '抗戰勝利' : '勢力覆滅', [{ label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
+    const civil = S.over.civil;
+    say(ruler, civil ? `內戰告一段落，海峽兩岸分治。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。`
+      : v ? `十四年的苦戰，終於等到這一天。${S.factions[S.player].name}握有 ${S.over.cities} 城，評等：${S.over.rank}。` : win ? '戰爭終於結束了。' : '……大勢已去。只恨未能看到勝利的那一天。');
+    // 抗戰勝利後可以接著玩國共內戰篇
+    const canGoOn = v && !S.civil && S.factions.kmt && S.factions.kmt.alive && S.factions.ccp && S.factions.ccp.alive && S.factions[S.player].side !== 'axis';
+    menuWin(civil ? `海峽對峙・評等${S.over.rank}` : v ? `抗戰勝利・評等${S.over.rank}` : win ? '勝利' : '勢力覆滅', [
+      ...(canGoOn ? [{ label: '繼續：國共內戰（1945～1950）', act: () => { E.continueCivil(S); closeAll(); render(); say(null, '抗戰勝利了，但國共之間的戰爭才正要開始。'); } }] : []), { label: '回到標題', act: showTitle }, { label: '查看地圖', act: () => popWin() }], null, { center: true, width: 440, shade: true });
     return true;
   }
 
@@ -8271,6 +8518,6 @@ function svg(g, color, mode, t) {
 })(globalThis.TK = globalThis.TK || {});
 
 </script>
-<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/26 09:17</div>
+<div style="position:fixed;left:6px;bottom:6px;z-index:9999;padding:2px 8px;border-radius:4px;background:#b23a2c;color:#fff;font-size:12px;opacity:.85;pointer-events:none">預覽版 2026/11/27 22:34</div>
 </body>
 </html>

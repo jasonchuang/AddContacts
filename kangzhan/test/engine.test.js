@@ -175,8 +175,8 @@ test('美國參戰與日本投降：珍珠港後美軍行動；1945 年 8 月投
   assert(s.over && s.over.victory && s.over.rank, JSON.stringify(s.over));
 });
 
-test('七個劇本：1931 到 1944，每個劇本只帶開局之後的事件', () => {
-  assert.deepStrictEqual(TK.SCENARIOS.map((x) => x.id), ['1931', '1933', '1936', '1937', '1938', '1940', '1944']);
+test('八個劇本：1931 到 1946，每個劇本只帶開局之後的事件', () => {
+  assert.deepStrictEqual(TK.SCENARIOS.map((x) => x.id), ['1931', '1933', '1936', '1937', '1938', '1940', '1944', '1946']);
   const ym = (y, m) => y * 12 + m;
   for (const sc of TK.SCENARIOS) for (const e of sc.events) if (e.cond && e.cond.from) assert(ym(...e.cond.from) >= ym(sc.year, sc.month), `${sc.title} 帶了開局前的事件 ${e.id}`);
   assert(TK.scenarioById('1944').factions.some((f) => f.id === 'usa' && !f.dormant), '1944 可以選美軍');
@@ -222,6 +222,49 @@ test('全面抗戰前日軍只攻打年度攻勢目標', () => {
   for (let i = 0; i < 36; i++) E.endTurn(s);
   const allowed = new Set(['瀋陽', '長春', '哈爾濱', '錦州', '承德', '張家口', '臺北', '臺南', '沖繩', '塞班']);
   for (const c of Object.values(s.cities)) if (c.owner === 'japan') assert(allowed.has(c.id), `日軍在 1934 年前佔了 ${c.id}`);
+});
+
+test('國共內戰：通膨拖累國府收入、土地改革、三大戰役、古寧頭與遷臺、1950 年結局', () => {
+  TK.SCENARIO = TK.scenarioById('1946');
+  const s = E.newGame('kmt', 3);
+  assert(s.civil);
+  assert.strictEqual(E.inflation(s, 'kmt'), 1);
+  s.year = 1948; s.month = 6;
+  assert(E.inflation(s, 'kmt') < 0.8 && E.inflation(s, 'ccp') === 1);
+  const y0 = s.cities['延安'].troops;
+  E.civilTick(s);
+  assert(s.cities['延安'].troops > y0, '土地改革沒有新兵');
+  s.year = 1948; s.month = 9; EV.run(s);
+  assert.strictEqual(s.cities['長春'].owner, 'ccp');
+  assert.strictEqual(s.generals['廖耀湘'].status, 'retired');
+  s.year = 1948; s.month = 12; EV.run(s);
+  assert.strictEqual(s.cities['北京'].owner, 'ccp');
+  assert.strictEqual(s.generals['傅作義'].faction, 'ccp');
+  s.cities['福州'].owner = 'ccp';
+  s.year = 1949; s.month = 10;
+  const k0 = s.cities['金門'].troops;
+  assert(EV.run(s).some((e) => e.id === 'guningtou'));
+  assert(s.cities['金門'].troops > k0);
+  s.cities['南京'].owner = 'ccp';
+  s.year = 1949; s.month = 12; EV.run(s);
+  assert.strictEqual(s.generals['蔣介石'].city, '臺北');
+  s.year = 1950; s.month = 6; EV.run(s);
+  assert(s.over && s.over.civil && s.over.rank, JSON.stringify(s.over));
+});
+
+test('抗戰勝利後可以繼續玩國共內戰', () => {
+  TK.SCENARIO = TK.scenarioById('1937');
+  const s = E.newGame('ccp', 3);
+  s.year = 1941; s.month = 12; EV.run(s);
+  s.year = 1945; s.month = 8; EV.run(s);
+  assert(s.over && s.over.victory);
+  assert(E.continueCivil(s));
+  assert(!s.over && s.civil && s.scenario === '1946');
+  assert(s.generals['劉少奇'] && s.generals['劉少奇'].faction === 'ccp');
+  s.year = 1946; s.month = 6;
+  assert(EV.run(s).some((e) => e.id === 'neizhan'));
+  assert.strictEqual(D.stateOf(s, 'kmt', 'ccp'), 'war');
+  for (let i = 0; i < 12 && !s.over; i++) E.endTurn(s);
 });
 
 test('自訂劇本：匯出再匯入可以開局；格式錯誤會用中文說明；範例劇本可以玩', () => {

@@ -232,6 +232,31 @@
       relations: vsJapan(['kmt', 'gui', 'ccp', 'jin', 'chuan', 'dian', 'ma']).concat([['usa', 'japan', 'war'], ['usa', 'kmt', 'alliance', 48], ['usa', 'ccp', 'alliance', 48],
         ['kmt', 'ccp', 'alliance', 24], ['kmt', 'gui', 'alliance', 48], ['kmt', 'jin', 'alliance', 48], ['kmt', 'chuan', 'alliance', 48], ['kmt', 'dian', 'alliance', 48], ['kmt', 'ma', 'alliance', 48]]),
     },
+    {
+      id: '1946', title: '國共內戰', year: 1946, month: 6, tag: '遼瀋・淮海・平津・古寧頭', civil: true,
+      desc: '抗戰勝利不到一年，重慶談判與停戰協定相繼破裂。國民政府握有大城、交通線與美式裝備；中共在東北與華北農村擁有根據地與民心。1946 年 6 月，全面內戰爆發。',
+      factions: [['kmt', '國民政府', '蔣介石', '陳誠'], ['ccp', '中共', '毛澤東', '周恩來'], ['jin', '晉綏軍', '閻錫山', '徐永昌'],
+        ['ma', '西北馬家', '馬步芳', '馬鴻逵'], ['dian', '雲南', '盧漢']],
+      coop: null,
+      cities: { 南京: ['kmt', 80000], 上海: ['kmt', 60000], 杭州: ['kmt', 30000], 合肥: ['kmt', 30000], 徐州: ['kmt', 80000], 濟南: ['kmt', 60000], 青島: ['kmt', 30000],
+        鄭州: ['kmt', 50000], 洛陽: ['kmt', 30000], 西安: ['kmt', 70000], 武漢: ['kmt', 60000], 宜昌: ['kmt', 20000], 長沙: ['kmt', 40000], 衡陽: ['kmt', 20000],
+        芷江: ['kmt', 15000], 南昌: ['kmt', 30000], 福州: ['kmt', 25000], 瑞金: ['kmt', 10000], 廣州: ['kmt', 50000], 桂林: ['kmt', 30000], 南寧: ['kmt', 20000],
+        重慶: ['kmt', 50000], 成都: ['kmt', 40000], 貴陽: ['kmt', 20000], 北京: ['kmt', 60000], 天津: ['kmt', 50000], 保定: ['kmt', 30000],
+        瀋陽: ['kmt', 90000], 長春: ['kmt', 50000], 錦州: ['kmt', 50000], 包頭: ['kmt', 30000], 臺北: ['kmt', 30000], 臺南: ['kmt', 20000], 金門: ['kmt', 10000],
+        延安: ['ccp', 60000], 哈爾濱: ['ccp', 150000], 張家口: ['ccp', 60000], 承德: ['ccp', 50000], 大同: ['ccp', 30000],
+        太原: ['jin', 60000], 蘭州: ['ma', 40000], 昆明: ['dian', 40000],
+        沖繩: [null, 6000, { locked: true }], 塞班: [null, 6000, { locked: true }] },
+      people: {
+        kmt: { 南京: '蔣介石 宋美齡 陳誠 何應欽 顧祝同 宋子文 張治中', 徐州: '薛岳 黃百韜 邱清泉 劉峙', 濟南: '王耀武', 瀋陽: '杜聿明 廖耀湘 孫立人 衛立煌',
+          長春: '鄭洞國 曾澤生', 錦州: '范漢傑', 北京: '李宗仁 孫連仲', 包頭: '傅作義', 西安: '胡宗南', 武漢: '白崇禧 黃維 李品仙', 上海: '湯恩伯 張靈甫',
+          長沙: '程潛', 廣州: '余漢謀', 重慶: '王陵基 楊森', 成都: '劉文輝 鄧錫侯', 鄭州: '宋希濂', 南昌: '胡璉 方先覺', 福州: '李良榮 高魁元', 臺北: '黃旭初' },
+        ccp: { 延安: '毛澤東 周恩來 朱德 劉少奇 彭德懷 賀龍', 哈爾濱: '林彪 羅榮桓', 張家口: '聶榮臻 徐向前 葉劍英', 承德: '劉伯承 鄧小平 陳賡', 大同: '陳毅 粟裕 許世友 葉飛' },
+        jin: { 太原: '閻錫山 徐永昌 商震' }, ma: { 蘭州: '馬步芳 馬鴻逵' }, dian: { 昆明: '盧漢 龍雲' },
+      },
+      free: {},
+      strategists: { kmt: '白崇禧', ccp: '周恩來' },
+      relations: [['kmt', 'ccp', 'war'], ['kmt', 'jin', 'alliance', 48], ['kmt', 'ma', 'alliance', 48], ['kmt', 'dian', 'alliance', 48], ['ccp', 'jin', 'war']],
+    },
   ];
 
   /* 歷史事件庫：每個劇本自動帶入「開局當月以後」的事件（歷史劇本模式才發生）。
@@ -527,6 +552,108 @@
       effects: [{ do: 'loyalty', faction: 'kmt', amount: 5 }, { do: 'troops', city: '芷江', unit: 'air', amount: 3000, if_owner: 'kmt' }],
       lines: [['', '日軍進攻湘西，想奪取美軍的芷江機場。'], ['王耀武', '中美空軍聯手，地面部隊全線反擊！'], ['', '國軍在湘西擊退日軍，這是抗戰中最後一場大規模會戰。']],
     },
+
+    // ---------- 國共內戰（只在內戰篇：1946 劇本或抗戰勝利後選「繼續」） ----------
+    {
+      id: 'neizhan', title: '全面內戰', scene: 'field',
+      cond: { from: [1946, 6], until: [1946, 9], civil: true, alive: ['kmt', 'ccp'] },
+      effects: [{ do: 'relation', a: 'kmt', b: 'ccp', state: 'war' }],
+      lines: [['', '重慶談判的《雙十協定》與停戰令相繼失效。國軍大舉進攻中原解放區，全面內戰爆發。'],
+        ['蔣介石', '三個月到六個月之內，解決關內的共軍。'], ['毛澤東', '一切反動派都是紙老虎。']],
+    },
+    {
+      id: 'menglianggu', title: '孟良崮戰役', scene: 'fire',
+      cond: { from: [1947, 5], until: [1947, 7], civil: true, general_faction: { 張靈甫: 'kmt' } },
+      effects: [{ do: 'die', general: '張靈甫' }, { do: 'troops_scale', city: '濟南', mult: 0.85, if_owner: 'kmt' }, { do: 'loyalty', faction: 'ccp', amount: 5 }],
+      lines: [['粟裕', '整編七十四師孤軍突出，正是殲滅的好機會。'], ['', '號稱「五大主力」之一的整編第七十四師在山東孟良崮被圍殲，師長張靈甫陣亡。']],
+    },
+    {
+      id: 'dabieshan', title: '挺進大別山', scene: 'field',
+      cond: { from: [1947, 8], until: [1947, 10], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'troops_scale', city: '合肥', mult: 0.85, if_owner: 'kmt' }, { do: 'troops_scale', city: '武漢', mult: 0.9, if_owner: 'kmt' }],
+      lines: [['劉伯承', '千里躍進，直插國軍的腹地。'], ['鄧小平', '大別山是插向南京與武漢之間的一把尖刀。'], ['', '劉鄧大軍南渡黃河、躍進大別山，戰爭的重心開始南移。']],
+    },
+    {
+      id: 'jinan_zhanyi', title: '濟南戰役', scene: 'fire',
+      cond: { from: [1948, 9], until: [1948, 11], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '濟南', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '濟南', mult: 0.5 }, { do: 'retire', general: '王耀武' }],
+      lines: [['許世友', '八天之內拿下濟南！'], ['', '華東野戰軍攻克有重兵把守的濟南，守將王耀武被俘，這是內戰中第一次攻下有堅固城防的大城。']],
+    },
+    {
+      id: 'liaoshen', title: '遼瀋戰役', scene: 'fire',
+      cond: { from: [1948, 9], until: [1948, 12], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '錦州', faction: 'ccp', if_owner: 'kmt' }, { do: 'seize', city: '瀋陽', faction: 'ccp', if_owner: 'kmt' },
+        { do: 'seize', city: '長春', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '錦州', mult: 0.5 }, { do: 'troops_scale', city: '瀋陽', mult: 0.5 }, { do: 'join', general: '曾澤生', faction: 'ccp', force: true },
+        { do: 'troops', city: '哈爾濱', unit: 'inf', amount: 80000, if_owner: 'ccp' }, { do: 'retire', general: '廖耀湘' }],
+      lines: [['林彪', '先打錦州，關上東北的大門。'], ['', '東北野戰軍攻克錦州，長春守軍曾澤生部起義；被圍半年的長春城中，平民餓死者甚眾。'],
+        ['', '廖耀湘兵團在遼西被殲，廖耀湘被俘。五十二天的戰役後，國軍在東北的主力幾乎全部覆沒。']],
+    },
+    {
+      id: 'huaihai', title: '淮海戰役', scene: 'fire',
+      cond: { from: [1948, 11], until: [1949, 2], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '徐州', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '徐州', mult: 0.5 }, { do: 'troops_scale', city: '合肥', mult: 0.6, if_owner: 'kmt' },
+        { do: 'die', general: '黃百韜' }, { do: 'die', general: '邱清泉' }, { do: 'retire', general: '黃維' }, { do: 'retire', general: '杜聿明' }],
+      lines: [['粟裕', '先吃掉黃百韜兵團，再圍黃維、杜聿明。'], ['', '華東、中原兩大野戰軍在徐州以東的平原上會戰六十六天，動員的民工以百萬計。'],
+        ['', '黃百韜、邱清泉兵敗身亡，黃維、杜聿明被俘。長江以北的國軍主力損失殆盡，南京門戶大開。']],
+    },
+    {
+      id: 'pingjin', title: '平津戰役', scene: 'palace',
+      cond: { from: [1948, 12], until: [1949, 3], civil: true, alive: ['ccp', 'kmt'] },
+      effects: [{ do: 'seize', city: '天津', faction: 'ccp', if_owner: 'kmt' }, { do: 'seize', city: '北京', faction: 'ccp', if_owner: 'kmt' },
+        { do: 'join', general: '傅作義', faction: 'ccp', force: true }],
+      lines: [['', '解放軍攻克天津。困守北平的傅作義，面對古城可能毀於戰火的局面。'], ['傅作義', '北平是幾百年的古都，不能讓它毀在我手裡。'],
+        ['', '1949 年 1 月，傅作義接受和平改編，北平未經戰火易手。']],
+    },
+    {
+      id: 'dujiang', title: '渡江戰役', scene: 'river',
+      cond: { from: [1949, 4], until: [1949, 6], civil: true, alive: ['ccp', 'kmt'], city_owner_not: { 徐州: 'kmt' } },
+      effects: [{ do: 'troops_scale', city: '南京', mult: 0.4, if_owner: 'kmt' }, { do: 'troops_scale', city: '上海', mult: 0.6, if_owner: 'kmt' },
+        { do: 'troops_scale', city: '杭州', mult: 0.6, if_owner: 'kmt' }, { do: 'seize', city: '南京', faction: 'ccp', if_owner: 'kmt' }, { do: 'seize', city: '杭州', faction: 'ccp', if_owner: 'kmt' },
+        { do: 'troops', city: '南京', unit: 'inf', amount: 40000, if_owner: 'ccp' }, { do: 'relocate', general: '劉伯承', city: '南京' }],
+      lines: [['', '和談破裂。4 月 21 日，百萬解放軍在千里江面上強渡長江。'], ['', '23 日，南京易手，國民政府南遷廣州。']],
+    },
+    {
+      id: 'hunan_qiyi', title: '湖南和平起義', scene: 'palace',
+      cond: { from: [1949, 8], until: [1949, 10], civil: true, general_faction: { 程潛: 'kmt' } },
+      effects: [{ do: 'seize', city: '長沙', faction: 'ccp', if_owner: 'kmt' }, { do: 'join', general: '程潛', faction: 'ccp', force: true }],
+      lines: [['程潛', '湖南父老已經受夠了戰火。'], ['', '程潛與陳明仁在長沙通電起義，湖南和平易手。']],
+    },
+    {
+      id: 'fuzhou_zhanyi', title: '福州戰役', scene: 'camp',
+      cond: { from: [1949, 8], until: [1949, 9], civil: true, alive: ['ccp', 'kmt'], city_owner_not: { 徐州: 'kmt' } },
+      effects: [{ do: 'seize', city: '福州', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '福州', mult: 0.5 },
+        { do: 'troops', city: '福州', unit: 'inf', amount: 40000, if_owner: 'ccp' }, { do: 'relocate', general: '葉飛', city: '福州' },
+        { do: 'seize', city: '上海', faction: 'ccp', if_owner: 'kmt' }, { do: 'troops_scale', city: '上海', mult: 0.5 },
+        { do: 'troops', city: '上海', unit: 'inf', amount: 30000, if_owner: 'ccp' }, { do: 'relocate', general: '陳毅', city: '上海' }],
+      lines: [['葉飛', '第十兵團入閩，福州已經拿下。下一步，渡海取金門、廈門！'], ['', '上海也在 5 月易手，國軍沿海據點只剩下舟山、金門與臺灣。']],
+    },
+    {
+      id: 'guningtou', title: '古寧頭戰役', scene: 'night',
+      cond: { from: [1949, 10], until: [1949, 12], civil: true, alive: ['kmt', 'ccp'], owns: { kmt: ['金門'] }, city_owner_not: { 徐州: 'kmt' } },
+      effects: [{ do: 'troops', city: '金門', unit: 'inf', amount: 25000, if_owner: 'kmt' }, { do: 'relocate', general: '胡璉', city: '金門' },
+        { do: 'troops_scale', city: '福州', mult: 0.85, if_owner: 'ccp' }],
+      lines: [['', '10 月 24 日深夜，解放軍第十兵團的先頭部隊約九千人分乘木船，在金門古寧頭一帶搶灘。'],
+        ['', '船隻不足、潮水退去，後續部隊無法增援。守軍與剛抵達的胡璉兵團合力反擊。'],
+        ['', '激戰三晝夜，登陸部隊全軍覆沒。金門守住了，此後成為臺海對峙的前線。']],
+    },
+    {
+      id: 'qiantai', title: '國府遷臺', scene: 'river',
+      cond: { from: [1949, 12], until: [1950, 3], civil: true, alive: ['kmt'], city_owner_not: { 徐州: 'kmt' }, owns: { kmt: ['臺北'] } },
+      effects: [{ do: 'gather', faction: 'kmt', city: '臺北' }, { do: 'troops', city: '臺北', unit: 'inf', amount: 100000, if_owner: 'kmt' }],
+      lines: [['', '1949 年 12 月，中華民國政府遷往臺北，大批軍民隨之渡海來臺。'], ['', '海峽兩岸從此分治。']],
+    },
+    {
+      id: 'yunnan_qiyi', title: '雲南起義', scene: 'palace',
+      cond: { from: [1949, 12], until: [1950, 2], civil: true, alive: ['dian', 'ccp'] },
+      effects: [{ do: 'absorb', faction: 'dian', into: 'ccp' }],
+      lines: [['盧漢', '雲南不再為內戰流血。'], ['', '盧漢在昆明宣布起義，雲南歸入中共。']],
+    },
+    {
+      id: 'civil_end', title: '海峽對峙', scene: 'river',
+      cond: { from: [1950, 6], civil: true },
+      effects: [{ do: 'civil_settle' }],
+      lines: [['', '1950 年 6 月，韓戰爆發，美國第七艦隊駛入臺灣海峽。'], ['', '國共雙方隔海對峙的局面就此固定下來。']],
+    },
   ];
   const MORE = {};
   // 事件依開始年月排序（同月份的保持原順序）
@@ -589,7 +716,7 @@
     });
     for (const f of factions) if (!cities.some((c) => c.owner === f.id)) throw new Error(`劇本 ${d.title}：${f.name} 沒有城`);
     return { id: d.id, tag: d.tag, title: d.title, year: d.year, month: d.month, desc: d.desc, aptitude: W.aptitude,
-      factions, cities, roads: W.roads, sea: W.sea || [], axisPlan: d.axisPlan || [], coop: d.coop, generals, relations: d.relations || [], events: (d.events || []).concat(LIB.filter((e) => fromOf(e) >= ym(d.year, d.month))).map((e) => Object.assign({ historical: true }, e)) };
+      factions, cities, roads: W.roads, sea: W.sea || [], axisPlan: d.axisPlan || [], coop: d.coop, civil: !!d.civil, generals, relations: d.relations || [], events: (d.events || []).concat(LIB.filter((e) => fromOf(e) >= ym(d.year, d.month))).map((e) => Object.assign({ historical: true }, e)) };
   }
 
   TK.SCENARIOS = DEFS.map(build);
